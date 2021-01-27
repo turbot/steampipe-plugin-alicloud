@@ -12,7 +12,9 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 		Name:             "steampipe-plugin-alicloud",
 		DefaultTransform: transform.FromCamel().NullIfZero(),
 		TableMap: map[string]*plugin.Table{
-			"alicloud_ram_user": tableAlicloudRamUser(ctx),
+			"alicloud_ram_group": tableAlicloudRamGroup(ctx),
+			"alicloud_ram_role":  tableAlicloudRamRole(ctx),
+			"alicloud_ram_user":  tableAlicloudRamUser(ctx),
 		},
 	}
 	return p
