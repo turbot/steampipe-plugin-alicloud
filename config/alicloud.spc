@@ -1,0 +1,3 @@
+connection "alicloud" {
+  plugin = "alicloud"
+}
