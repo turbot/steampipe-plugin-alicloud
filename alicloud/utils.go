@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
-	//"github.com/aliyun/credentials-go/credentials"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
+	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
@@ -36,7 +38,20 @@ func ensureStringArray(_ context.Context, d *transform.TransformData) (interface
 	}
 }
 
-func connectRam(_ context.Context) (*ram.Client, error) {
+func csvToStringArray(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	s := d.Value.(string)
+	if s == "" {
+		// Empty string should always be an empty array
+		return []string{}, nil
+	}
+	sep := ","
+	if d.Param != nil {
+		sep = d.Param.(string)
+	}
+	return strings.Split(s, sep), nil
+}
+
+func getEnv(ctx context.Context) (region string, ak string, secret string, err error) {
 
 	// The CLI order of preference is:
 	// 1. ALIBABACLOUD_ACCESS_KEY_ID / ALIBABACLOUD_ACCESS_KEY_SECRET / ALIBABACLOUD_REGION_ID
@@ -51,60 +66,65 @@ func connectRam(_ context.Context) (*ram.Client, error) {
 	// 2. ALICLOUD_ACCESS_KEY_ID / ALICLOUD_ACCESS_KEY_SECRET / ALICLOUD_REGION_ID
 	// 3. ALICLOUD_ACCESS_KEY / ALICLOUD_SECRET_KEY / ALICLOUD_REGION
 
-	ak, ok := os.LookupEnv("ALIBABACLOUD_ACCESS_KEY_ID")
-	if !ok || ak == "" {
-		ak, ok = os.LookupEnv("ALICLOUD_ACCESS_KEY_ID")
-		if !ok || ak == "" {
-			ak, ok = os.LookupEnv("ALICLOUD_ACCESS_KEY")
-			if !ok || ak == "" {
-				return nil, errors.New("ALIBABACLOUD_ACCESS_KEY_ID, ALICLOUD_ACCESS_KEY_ID or ALICLOUD_ACCESS_KEY environment variable must be set")
-			}
-		}
-	}
-
-	secret, ok := os.LookupEnv("ALIBABACLOUD_ACCESS_KEY_SECRET")
-	if !ok || secret == "" {
-		secret, ok = os.LookupEnv("ALICLOUD_ACCESS_KEY_SECRET")
-		if !ok || secret == "" {
-			secret, ok = os.LookupEnv("ALICLOUD_SECRET_KEY")
-			if !ok || secret == "" {
-				return nil, errors.New("ALIBABACLOUD_ACCESS_KEY_SECRET, ALICLOUD_ACCESS_KEY_SECRET or ALICLOUD_ACCESS_KEY environment variable must be set")
-			}
-		}
-	}
-
 	region, ok := os.LookupEnv("ALIBABACLOUD_REGION_ID")
 	if !ok || region == "" {
 		region, ok = os.LookupEnv("ALICLOUD_REGION_ID")
 		if !ok || region == "" {
 			region, ok = os.LookupEnv("ALICLOUD_REGION")
 			if !ok || region == "" {
-				return nil, errors.New("ALIBABACLOUD_REGION_ID, ALICLOUD_REGION_ID or ALICLOUD_REGION environment variable must be set")
+				err = errors.New("ALIBABACLOUD_REGION_ID, ALICLOUD_REGION_ID or ALICLOUD_REGION environment variable must be set")
+				return
 			}
 		}
 	}
 
-	client, err := ram.NewClientWithAccessKey(region, ak, secret)
+	ak, ok = os.LookupEnv("ALIBABACLOUD_ACCESS_KEY_ID")
+	if !ok || ak == "" {
+		ak, ok = os.LookupEnv("ALICLOUD_ACCESS_KEY_ID")
+		if !ok || ak == "" {
+			ak, ok = os.LookupEnv("ALICLOUD_ACCESS_KEY")
+			if !ok || ak == "" {
+				err = errors.New("ALIBABACLOUD_ACCESS_KEY_ID, ALICLOUD_ACCESS_KEY_ID or ALICLOUD_ACCESS_KEY environment variable must be set")
+				return
+			}
+		}
+	}
 
-	return client, err
-}
+	secret, ok = os.LookupEnv("ALIBABACLOUD_ACCESS_KEY_SECRET")
+	if !ok || secret == "" {
+		secret, ok = os.LookupEnv("ALICLOUD_ACCESS_KEY_SECRET")
+		if !ok || secret == "" {
+			secret, ok = os.LookupEnv("ALICLOUD_SECRET_KEY")
+			if !ok || secret == "" {
+				err = errors.New("ALIBABACLOUD_ACCESS_KEY_SECRET, ALICLOUD_ACCESS_KEY_SECRET or ALICLOUD_ACCESS_KEY environment variable must be set")
+				return
+			}
+		}
+	}
 
-/*
-func getCreds(_ context.Context) (credentials.Credential, error) {
-	return credentials.NewCredential(nil)
+	return region, ak, secret, nil
 }
 
 func connectRam(ctx context.Context) (*ram.Client, error) {
-	creds, err := getCreds(ctx)
+	region, ak, secret, err := getEnv(ctx)
 	if err != nil {
 		return nil, err
 	}
-	accessKeyId, err := creds.GetAccessKeyId()
-	accessSecret, err := creds.GetAccessKeySecret()
-	client, err := ram.NewClientWithAccessKey("us-east-1", *accessKeyId, *accessSecret)
-	//client, err := ram.NewClientWithAccessKey("us-east-1", os.Getenv("ALIBABACLOUD_ACCESS_KEY_ID"), os.Getenv("ALIBABACLOUD_ACCESS_KEY_SECRET"))
-	//client, err := ram.NewClient()
-	return client, err
+	return ram.NewClientWithAccessKey(region, ak, secret)
 }
 
-*/
+func connectVpc(ctx context.Context) (*vpc.Client, error) {
+	region, ak, secret, err := getEnv(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return vpc.NewClientWithAccessKey(region, ak, secret)
+}
+
+func connectOss(ctx context.Context) (*oss.Client, error) {
+	region, ak, secret, err := getEnv(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return oss.New("oss-"+region+".aliyuncs.com", ak, secret)
+}

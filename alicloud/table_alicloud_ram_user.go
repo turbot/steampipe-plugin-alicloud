@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
-	//"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
@@ -51,7 +50,6 @@ func listRamUser(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 	}
 	request := ram.CreateListUsersRequest()
 	request.Scheme = "https"
-
 	for {
 		response, err := client.ListUsers(request)
 		if err != nil {

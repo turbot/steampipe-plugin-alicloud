@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
-	//"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
