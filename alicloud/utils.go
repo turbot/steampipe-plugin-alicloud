@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/kms"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
@@ -111,6 +112,14 @@ func connectRam(ctx context.Context) (*ram.Client, error) {
 		return nil, err
 	}
 	return ram.NewClientWithAccessKey(region, ak, secret)
+}
+
+func connectKms(ctx context.Context) (*kms.Client, error) {
+	region, ak, secret, err := getEnv(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return kms.NewClientWithAccessKey(region, ak, secret)
 }
 
 func connectVpc(ctx context.Context) (*vpc.Client, error) {
