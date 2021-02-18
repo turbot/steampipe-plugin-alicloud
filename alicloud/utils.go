@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
@@ -127,4 +128,12 @@ func connectOss(ctx context.Context) (*oss.Client, error) {
 		return nil, err
 	}
 	return oss.New("oss-"+region+".aliyuncs.com", ak, secret)
+}
+
+func connectEcs(ctx context.Context) (*ecs.Client, error) {
+	region, ak, secret, err := getEnv(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return ecs.NewClientWithAccessKey(region, ak, secret)
 }
