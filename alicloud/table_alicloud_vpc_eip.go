@@ -11,13 +11,13 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
-func tableAlicloudEip(ctx context.Context) *plugin.Table {
+func tableAlicloudVpcEip(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_vpc",
 		Description: "A virtual private cloud service that provides an isolated cloud network to operate resources in a secure environment.",
 		List: &plugin.ListConfig{
 			//KeyColumns: plugin.AnyColumn([]string{"is_default", "id"}),
-			Hydrate: listVpc,
+			Hydrate: listVpcEip,
 		},
 		Columns: []*plugin.Column{
 			// Top columns
@@ -27,21 +27,32 @@ func tableAlicloudEip(ctx context.Context) *plugin.Table {
 			{Name: "isp", Type: proto.ColumnType_STRING, Description: "The ID of the region to which the VPC belongs."},
 			{Name: "region_id", Type: proto.ColumnType_STRING, Description: "The zone to which the VSwitch belongs."},
 			{Name: "status", Type: proto.ColumnType_STRING, Description: "The status of the VPC. Pending: The VPC is being configured. Available: The VPC is available."},
+			{Name: "filter_1_key", Type: proto.ColumnType_STRING, Description: "True if the VPC is the default VPC in the region."},
+			{Name: "filter_1_value", Type: proto.ColumnType_STRING, Description: "True if the VPC is the default VPC in the region."},
+			{Name: "filter_2_key", Type: proto.ColumnType_STRING, Description: "The status of the VPC. Pending: The VPC is being configured. Available: The VPC is available."},
+			{Name: "filter_2_value", Type: proto.ColumnType_STRING, Description: "The status of the VPC. Pending: The VPC is being configured. Available: The VPC is available."},
 			{Name: "IncludeReservationData", Type: proto.ColumnType_BOOL, Description: "True if the VPC is the default VPC in the region."},
+			{Name: "lock_reason", Type: proto.ColumnType_STRING, Description: "True if the VPC is the default VPC in the region."},
+			{Name: "associated_instance_id", Type: proto.ColumnType_STRING, Description: "True if the VPC is the default VPC in the region."},
+			{Name: "associated_instance_type", Type: proto.ColumnType_STRING, Description: "True if the VPC is the default VPC in the region."},
+			{Name: "segment_instance_id", Type: proto.ColumnType_STRING, Description: "True if the VPC is the default VPC in the region."},
+			{Name: "owner_account", Type: proto.ColumnType_STRING, Description: "True if the VPC is the default VPC in the region."},
+			{Name: "resource_owner_account", Type: proto.ColumnType_STRING, Description: "True if the VPC is the default VPC in the region."},
+			{Name: "resource_owner_id", Type: proto.ColumnType_INT, Description: "The ID of the resource group to which the VPC belongs."},
+			{Name: "dry_run", Type: proto.ColumnType_BOOL, Description: "True if the VPC is the default VPC in the region."},
 			{Name: "resource_group_id", Type: proto.ColumnType_STRING, Description: "The ID of the resource group to which the VPC belongs."},
-			{Name: "cen_status", Type: proto.ColumnType_STRING, Description: "Indicates whether the VPC is attached to any Cloud Enterprise Network (CEN) instance."},
-			{Name: "owner_id", Type: proto.ColumnType_STRING, Description: "The ID of the owner of the VPC."}},
+			{Name: "chargetype", Type: proto.ColumnType_STRING, Description: "The ID of the owner of the VPC."}},
 	}
 }
 
-func listEip(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func listVpcEip(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client, err := connectVpc(ctx)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_eip.listEip", "connection_error", err)
 		return nil, err
 	}
 	request := vpc.CreateDescribeEipAddressesRequest()
-	// request.Scheme = "https"
+	request.Scheme = "https"
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
 
