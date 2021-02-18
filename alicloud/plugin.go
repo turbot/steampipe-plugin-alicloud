@@ -12,6 +12,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 		Name:             "steampipe-plugin-alicloud",
 		DefaultTransform: transform.FromCamel().NullIfZero(),
 		TableMap: map[string]*plugin.Table{
+			"alicloud_ecs_image":               tableAlicloudEcsImage(ctx),
 			"alicloud_oss_bucket":              tableAlicloudOssBucket(ctx),
 			"alicloud_ram_access_key":          tableAlicloudRamAccessKey(ctx),
 			"alicloud_ram_group":               tableAlicloudRamGroup(ctx),
