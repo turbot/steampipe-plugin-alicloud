@@ -232,7 +232,8 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Name:        "akas",
 				Description: resourceInterfaceDescription("akas"),
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.From(ecsDiskToTurbotData),
+				Hydrate:     getEcsDiskAka,
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "title",
@@ -253,6 +254,13 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Description: "The name of the region where the resource resides.",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("RegionId"),
+			},
+			{
+				Name:        "account_id",
+				Description: "The alicloud Account ID in which the resource is located",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getCommonColumns,
+				Transform:   transform.FromField("AccountID"),
 			},
 		},
 	}
@@ -327,11 +335,26 @@ func getEcsDisk(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	return nil, nil
 }
 
+func getEcsDiskAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getEcsDiskAka")
+	disk := h.Item.(ecs.Disk)
+
+	commonData, err := getCommonColumns(ctx, d, h)
+	if err != nil {
+		return nil, err
+	}
+	commonColumnData := commonData.(*alicloudCommonColumnData)
+	accountID := commonColumnData.AccountID
+
+	akas := []string{"acs:ecs:" + disk.RegionId + ":" + accountID + ":disk/" + disk.DiskName}
+
+	return akas, nil
+}
+
 //// TRANSFORM FUNCTIONS
 
 func ecsDiskToTurbotData(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	disk := d.HydrateItem.(ecs.Disk)
-	// TODO :: ACCOUNT_ID need to fetched
 	akas := []string{"acs:ecs:" + disk.RegionId + ":ACCOUNT_ID:disk/" + disk.DiskName}
 	return akas, nil
 }
