@@ -14,7 +14,7 @@ import (
 func tableAlicloudVpcVpnSslClient(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_vpc_vpn_ssl_client",
-		Description: "A virtual private cloud service that provides an isolated cloud network to operate resources in a secure environment.",
+		Description: "SSL Client is responsible for managing client certificates. The client needs to first complete certificate verification in order to connect to the SSL Server.",
 		List: &plugin.ListConfig{
 			//KeyColumns: plugin.AnyColumn([]string{"is_default", "id"}),
 			Hydrate: listVpcVpnSslClient,
@@ -31,7 +31,7 @@ func tableAlicloudVpcVpnSslClient(ctx context.Context) *plugin.Table {
 			{Name: "Status", Type: proto.ColumnType_STRING, Description: "The status of the client certificate"},
 
 			// Resource interface
-			{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(SslClientToURN).Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
+			// {Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(SslClientToURN).Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
 			// TODO - It appears that Tags are not returned by the go SDK?
 			// {Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: resourceInterfaceDescription("tags")},
 			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name"), Description: resourceInterfaceDescription("title")},
@@ -78,7 +78,7 @@ func listVpcVpnSslClient(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 	return nil, nil
 }
 
-func SslClientToURN(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	i := d.Value.(vpc.SslVpnClientCertKey)
-	return "acs:vpc:" + i.RegionId + ":" + i.SslVpnClientCertId + ":vpc/" + i.Name, nil
-}
+// func SslClientToURN(_ context.Context, d *transform.TransformData) (interface{}, error) {
+// 	i := d.Value.(vpc.SslVpnClientCertKey)
+// 	return "acs:vpc:" + i.RegionId + ":" + i.SslVpnClientCertId + ":vpc/" + i.Name, nil
+// }
