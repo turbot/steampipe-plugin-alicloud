@@ -12,6 +12,8 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+//// TABLE DEFINITION
+
 func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ecs_disk",
@@ -257,7 +259,7 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "account_id",
-				Description: "The alicloud Account ID in which the resource is located",
+				Description: "The alicloud Account ID in which the resource is located.",
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getCommonColumns,
 				Transform:   transform.FromField("AccountID"),
@@ -266,7 +268,10 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 	}
 }
 
+//// LIST FUNCTION
+
 func listEcsDisk(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	// Create service connection
 	client, err := connectEcs(ctx)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_disk.listEcsDisk", "connection_error", err)
@@ -297,8 +302,12 @@ func listEcsDisk(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 	return nil, nil
 }
 
-func getEcsDisk(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+//// HYDRATE FUNCTIONS
 
+func getEcsDisk(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getEcsDisk")
+
+	// Create service connection
 	client, err := connectEcs(ctx)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_disk.getEcsDisk", "connection_error", err)
@@ -306,7 +315,6 @@ func getEcsDisk(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	}
 
 	var name string
-
 	if h.Item != nil {
 		disk := h.Item.(ecs.Disk)
 		name = disk.DiskName
@@ -320,11 +328,7 @@ func getEcsDisk(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 
 	response, err := client.DescribeDisks(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
-		if serverErr.ErrorCode() == "EntityNotExist.Role" {
-			plugin.Logger(ctx).Warn("alicloud_ram_role.getEcsDisk", "not_found_error", serverErr, "request", request)
-			return nil, nil
-		}
-		plugin.Logger(ctx).Error("alicloud_ram_role.getEcsDisk", "query_error", serverErr, "request", request)
+		plugin.Logger(ctx).Error("alicloud_ecs_disk.getEcsDisk", "query_error", serverErr, "request", request)
 		return nil, serverErr
 	}
 
@@ -352,12 +356,6 @@ func getEcsDiskAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 }
 
 //// TRANSFORM FUNCTIONS
-
-func ecsDiskToTurbotData(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	disk := d.HydrateItem.(ecs.Disk)
-	akas := []string{"acs:ecs:" + disk.RegionId + ":ACCOUNT_ID:disk/" + disk.DiskName}
-	return akas, nil
-}
 
 func ecsDiskTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	disk := d.HydrateItem.(ecs.Disk)

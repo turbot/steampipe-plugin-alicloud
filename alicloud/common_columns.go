@@ -34,7 +34,6 @@ func getCommonColumns(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 		}
 
 		commonColumnData = &alicloudCommonColumnData{
-			// extract partition from arn
 			AccountID: callerIdentity.AccountId,
 		}
 
