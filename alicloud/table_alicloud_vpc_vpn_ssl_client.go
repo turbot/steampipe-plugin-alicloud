@@ -27,7 +27,7 @@ func tableAlicloudVpcVpnSslClient(ctx context.Context) *plugin.Table {
 			{Name: "region_id", Type: proto.ColumnType_STRING, Description: "The region of the SSL client certificate to query"},
 			{Name: "ssl_vpn_client_cert_id", Type: proto.ColumnType_STRING, Description: "The ID of the SSL client certificate."},
 			{Name: "create_time", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CreateTime").Transform(transform.UnixMsToTimestamp), Description: "The time when the SSL client certificate was created."},
-			{Name: "end_time", Type: proto.ColumnType_INT, Description: "The time when the SSL client certificate expires."},
+			{Name: "end_time", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("EndTime").Transform(transform.UnixMsToTimestamp), Description: "The time when the SSL client certificate expires."},
 			{Name: "Status", Type: proto.ColumnType_STRING, Description: "The status of the client certificate"},
 
 			// Resource interface
