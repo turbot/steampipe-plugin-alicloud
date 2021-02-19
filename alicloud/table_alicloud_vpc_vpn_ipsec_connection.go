@@ -26,7 +26,7 @@ func tableAlicloudVpcVpnIpsecConnection(ctx context.Context) *plugin.Table {
 			// Other columns
 			{Name: "customer_gateway_id", Type: proto.ColumnType_STRING, Description: "The ID of the customer gateway."},
 			{Name: "vpn_gateway_id", Type: proto.ColumnType_STRING, Description: "The ID of the VPN gateway."},
-			{Name: "create_time", Type: proto.ColumnType_DOUBLE, Description: "The time when the IPsec-VPN connection was created."},
+			{Name: "create_time", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CreateTime").Transform(transform.UnixMsToTimestamp), Description: "The time when the IPsec-VPN connection was created."},
 			{Name: "local_subnet", Type: proto.ColumnType_STRING, Description: "The CIDR block of the VPC."},
 			{Name: "remote_subnet", Type: proto.ColumnType_STRING, Description: "The CIDR block of the on-premises data center."},
 			{Name: "EffectImmediately", Type: proto.ColumnType_BOOL, Description: "Indicates whether the connection immediately takes effect"},
