@@ -14,7 +14,7 @@ import (
 func tableAlicloudVpcVpnIpsecConnection(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_vpc_vpn_ipsec_conection",
-		Description: "A virtual private cloud service that provides an isolated cloud network to operate resources in a secure environment.",
+		Description: "IPsec Connection is an Internet-based tunnel between VPN Gateway and User Gateway.",
 		List: &plugin.ListConfig{
 			//KeyColumns: plugin.AnyColumn([]string{"is_default", "id"}),
 			Hydrate: listVpcVpnIpsecConnection,
