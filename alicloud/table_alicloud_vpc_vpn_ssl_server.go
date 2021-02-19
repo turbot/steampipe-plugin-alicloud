@@ -14,7 +14,7 @@ import (
 func tableAlicloudVpcVpnSslServer(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_vpc_vpn_ssl_server",
-		Description: "A virtual private cloud service that provides an isolated cloud network to operate resources in a secure environment.",
+		Description: "SSL Server refers to the SSL-VPN server within the VPC. It authenticates clients and manages configurations.",
 		List: &plugin.ListConfig{
 			//KeyColumns: plugin.AnyColumn([]string{"is_default", "id"}),
 			Hydrate: listVpcVpnSslServer,
@@ -40,7 +40,7 @@ func tableAlicloudVpcVpnSslServer(ctx context.Context) *plugin.Table {
 			{Name: "idaas_instance_id", Type: proto.ColumnType_STRING, Transform: transform.FromField("IDaaSInstanceId"), Description: ""},
 
 			// Resource interface
-			{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(SslServerToURN).Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
+			// {Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(SslServerToURN).Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
 			// TODO - It appears that Tags are not returned by the go SDK?
 			// {Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: resourceInterfaceDescription("tags")},
 			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name"), Description: resourceInterfaceDescription("title")},
@@ -87,7 +87,7 @@ func listVpcVpnSslServer(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 	return nil, nil
 }
 
-func SslServerToURN(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	i := d.Value.(vpc.SslVpnServer)
-	return "acs:vpc:" + i.RegionId + ":" + i.SslVpnServerId + ":vpc/" + i.Name, nil
-}
+// func SslServerToURN(_ context.Context, d *transform.TransformData) (interface{}, error) {
+// 	i := d.Value.(vpc.SslVpnServer)
+// 	return "acs:vpc:" + i.RegionId + ":" + i.SslVpnServerId + ":vpc/" + i.Name, nil
+// }
