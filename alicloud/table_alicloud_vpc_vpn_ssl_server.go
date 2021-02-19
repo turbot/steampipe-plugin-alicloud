@@ -26,7 +26,7 @@ func tableAlicloudVpcVpnSslServer(ctx context.Context) *plugin.Table {
 			// Other columns
 			{Name: "region_id", Type: proto.ColumnType_STRING, Description: "The ID of the region where the SSL-VPN server is created."},
 			{Name: "vpn_gateway_id", Type: proto.ColumnType_STRING, Description: "The ID of the VPN gateway."},
-			{Name: "create_time", Type: proto.ColumnType_INT, Description: "The creation time of the VPC."},
+			{Name: "create_time", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CreateTime").Transform(transform.UnixMsToTimestamp), Description: "The time when the SSL-VPN server was created."},
 			{Name: "local_subnet", Type: proto.ColumnType_STRING, Description: "The CIDR block of the client."},
 			{Name: "client_ip_pool", Type: proto.ColumnType_STRING, Description: "The client IP address pool."},
 			{Name: "cipher", Type: proto.ColumnType_STRING, Description: "The encryption algorithm."},
