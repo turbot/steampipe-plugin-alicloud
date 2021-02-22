@@ -13,8 +13,8 @@ import (
 
 func tableAlicloudVpcVpnCustomerGateway(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "alicloud_vpc_nat_gateway",
-		Description: "NAT gateways are enterprise-class Internet gateways that provide SNAT and DNAT functions for VPCs.",
+		Name:        "alicloud_vpc_vpc_customer_gateway",
+		Description: "NAT gateways are.",
 		List: &plugin.ListConfig{
 			Hydrate: listCustomerGateway,
 		},
