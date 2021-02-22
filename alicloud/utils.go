@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/resourcemanager"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 
@@ -111,6 +112,14 @@ func connectRam(ctx context.Context) (*ram.Client, error) {
 		return nil, err
 	}
 	return ram.NewClientWithAccessKey(region, ak, secret)
+}
+
+func connectResourceManager(ctx context.Context) (*resourcemanager.Client, error) {
+	region, ak, secret, err := getEnv(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return resourcemanager.NewClientWithAccessKey(region, ak, secret)
 }
 
 func connectVpc(ctx context.Context) (*vpc.Client, error) {
