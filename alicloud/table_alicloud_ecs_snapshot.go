@@ -1,0 +1,284 @@
+package alicloud
+
+import (
+	"context"
+
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
+
+	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
+)
+
+//// TABLE DEFINITION
+
+func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
+	return &plugin.Table{
+		Name:        "alicloud_ecs_Snapshot",
+		Description: "Elastic Compute Service Snapshot.",
+		List: &plugin.ListConfig{
+			Hydrate: listEcsSnapshot,
+		},
+		Get: &plugin.GetConfig{
+			KeyColumns: plugin.SingleColumn("name"),
+			Hydrate:    getEcsSnapshot,
+		},
+		Columns: []*plugin.Column{
+			// Top columns
+			{
+				Name:        "name",
+				Description: "A friendly name for the resource.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("SnapshotName"),
+			},
+			{
+				Name:        "id",
+				Description: "An unique identifier for the resource.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("SnapshotId"),
+			},
+			{
+				Name:        "type",
+				Description: "The type of the snapshot. Default value: all. Possible values are: auto, user, and all.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("SnapshotType"),
+			},
+			{
+				Name:        "serial_number",
+				Description: "The serial number of the snapshot.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("SnapshotSN"),
+			},
+			{
+				Name:        "status",
+				Description: "Specifies the current state of the resource.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "creation_time",
+				Description: "The time when the snapshot was created.",
+				Type:        proto.ColumnType_TIMESTAMP,
+			},
+			{
+				Name:        "description",
+				Description: "A user provided, human readable description for this resource.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "encrypted",
+				Description: "Indicates whether the snapshot was encrypted.",
+				Type:        proto.ColumnType_BOOL,
+			},
+			{
+				Name:        "instant_access",
+				Description: "Indicates whether the instant access feature is enabled.",
+				Type:        proto.ColumnType_BOOL,
+			},
+			{
+				Name:        "instant_access_retention_days",
+				Description: "Indicates the retention period of the instant access feature. After the retention per iod ends, the snapshot is automatically released.",
+				Type:        proto.ColumnType_INT,
+			},
+			{
+				Name:        "kms_key_id",
+				Description: "The ID of the KMS key used by the data disk.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("KMSKeyId"),
+			},
+			{
+				Name:        "last_modified_time",
+				Description: "The time when the snapshot was last changed.",
+				Type:        proto.ColumnType_TIMESTAMP,
+			},
+			{
+				Name:        "product_code",
+				Description: "The product code of the Alibaba Cloud Marketplace image.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "progress",
+				Description: "The progress of the snapshot creation task. Unit: percent (%).",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "remain_time",
+				Description: "The remaining time required to create the snapshot (in seconds).",
+				Type:        proto.ColumnType_INT,
+			},
+			{
+				Name:        "resource_group_id",
+				Description: "The ID of the resource group to which the snapshot belongs.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "retention_days",
+				Description: "The number of days that an automatic snapshot can be retained.",
+				Type:        proto.ColumnType_INT,
+			},
+			{
+				Name:        "source_disk_id",
+				Description: "The ID of the source disk. This parameter is retained even after the source disk of the snapshot is released.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "source_disk_size",
+				Description: "The capacity of the source disk (in GiB).",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "source_disk_type",
+				Description: "The category of the source disk.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "usage",
+				Description: "Indicates whether the snapshot has been used to create images or disks.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "tags_src",
+				Description: "A list of tags attached with the resource.",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("Tags.Tag"),
+			},
+
+			// steampipe standard columns
+			{
+				Name:        "tags",
+				Description: resourceInterfaceDescription("tags"),
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.From(ecsSnapshotTags),
+			},
+			{
+				Name:        "akas",
+				Description: resourceInterfaceDescription("akas"),
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getEcsSnapshotAka,
+				Transform:   transform.FromValue(),
+			},
+			{
+				Name:        "title",
+				Description: resourceInterfaceDescription("title"),
+				Type:        proto.ColumnType_STRING,
+				Default:     transform.FromField("SnapshotName"),
+				Transform:   transform.FromField("SnapshotId"),
+			},
+
+			// alibaba standard columns
+			{
+				Name:        "account_id",
+				Description: "The alicloud Account ID in which the resource is located.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getCommonColumns,
+				Transform:   transform.FromField("AccountID"),
+			},
+		},
+	}
+}
+
+//// LIST FUNCTION
+
+func listEcsSnapshot(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	// Create service connection
+	client, err := connectEcs(ctx)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_ecs_snapshot.listEcsSnapshot", "connection_error", err)
+		return nil, err
+	}
+	request := ecs.CreateDescribeSnapshotsRequest()
+	request.Scheme = "https"
+	request.PageSize = requests.NewInteger(50)
+	request.PageNumber = requests.NewInteger(1)
+
+	count := 0
+	for {
+		response, err := client.DescribeSnapshots(request)
+		if err != nil {
+			plugin.Logger(ctx).Error("alicloud_ecs_snapshot.listEcsSnapshot", "query_error", err, "request", request)
+			return nil, err
+		}
+		for _, snapshot := range response.Snapshots.Snapshot {
+			plugin.Logger(ctx).Warn("listEcsSnapshot", "item", snapshot)
+			d.StreamListItem(ctx, snapshot)
+			count++
+		}
+		if count >= response.TotalCount {
+			break
+		}
+		request.PageNumber = requests.NewInteger(response.PageNumber + 1)
+	}
+	return nil, nil
+}
+
+//// HYDRATE FUNCTIONS
+
+func getEcsSnapshot(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getEcsSnapshot")
+
+	// Create service connection
+	client, err := connectEcs(ctx)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_ecs_snapshot.getEcsSnapshot", "connection_error", err)
+		return nil, err
+	}
+
+	var name string
+	if h.Item != nil {
+		snapshot := h.Item.(ecs.Snapshot)
+		name = snapshot.SnapshotName
+	} else {
+		name = d.KeyColumnQuals["name"].GetStringValue()
+	}
+
+	request := ecs.CreateDescribeSnapshotsRequest()
+	request.Scheme = "https"
+	request.SnapshotName = name
+
+	response, err := client.DescribeSnapshots(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		plugin.Logger(ctx).Error("alicloud_ecs_snapshot.getEcsSnapshot", "query_error", serverErr, "request", request)
+		return nil, serverErr
+	}
+
+	if response.Snapshots.Snapshot != nil && len(response.Snapshots.Snapshot) > 0 {
+		return response.Snapshots.Snapshot[0], nil
+	}
+
+	return nil, nil
+}
+
+func getEcsSnapshotAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getEcsSnapshotAka")
+	snapshot := h.Item.(ecs.Snapshot)
+
+	commonData, err := getCommonColumns(ctx, d, h)
+	if err != nil {
+		return nil, err
+	}
+	commonColumnData := commonData.(*alicloudCommonColumnData)
+	accountID := commonColumnData.AccountID
+	akas := []string{"acs:ecs:" + ":" + ":" + accountID + ":snapshot/" + snapshot.SnapshotId}
+
+	return akas, nil
+}
+
+//// TRANSFORM FUNCTIONS
+
+func ecsSnapshotTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	snapshot := d.HydrateItem.(ecs.Snapshot)
+
+	var turbotTagsMap map[string]string
+
+	if snapshot.Tags.Tag == nil {
+		return nil, nil
+	}
+
+	turbotTagsMap = map[string]string{}
+	for _, i := range snapshot.Tags.Tag {
+		turbotTagsMap[i.TagKey] = i.TagValue
+	}
+
+	return turbotTagsMap, nil
+}
