@@ -13,7 +13,7 @@ import (
 
 func tableAlicloudVpcEip(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "alicloud_vpc",
+		Name:        "alicloud_vpc_eip",
 		Description: "A virtual private cloud service that provides an isolated cloud network to operate resources in a secure environment.",
 		List: &plugin.ListConfig{
 			//KeyColumns: plugin.AnyColumn([]string{"is_default", "id"}),
@@ -21,27 +21,38 @@ func tableAlicloudVpcEip(ctx context.Context) *plugin.Table {
 		},
 		Columns: []*plugin.Column{
 			// Top columns
-			{Name: "name", Type: proto.ColumnType_STRING, Transform: transform.FromField("EipAddress"), Description: "The name of the VPC."},
-			{Name: "allocation_id", Type: proto.ColumnType_STRING, Transform: transform.FromField("AllocationId"), Description: "The unique ID of the VPC."},
+			{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the EIP."},
+			{Name: "id", Type: proto.ColumnType_STRING, Transform: transform.FromField("AllocationId"), Description: "The unique ID of the EIP."},
 			// Other columns
-			{Name: "isp", Type: proto.ColumnType_STRING, Description: "The ID of the region to which the VPC belongs."},
-			{Name: "region_id", Type: proto.ColumnType_STRING, Description: "The zone to which the VSwitch belongs."},
-			{Name: "status", Type: proto.ColumnType_STRING, Description: "The status of the VPC. Pending: The VPC is being configured. Available: The VPC is available."},
-			{Name: "filter_1_key", Type: proto.ColumnType_STRING, Description: "True if the VPC is the default VPC in the region."},
-			{Name: "filter_1_value", Type: proto.ColumnType_STRING, Description: "True if the VPC is the default VPC in the region."},
-			{Name: "filter_2_key", Type: proto.ColumnType_STRING, Description: "The status of the VPC. Pending: The VPC is being configured. Available: The VPC is available."},
-			{Name: "filter_2_value", Type: proto.ColumnType_STRING, Description: "The status of the VPC. Pending: The VPC is being configured. Available: The VPC is available."},
-			{Name: "IncludeReservationData", Type: proto.ColumnType_BOOL, Description: "True if the VPC is the default VPC in the region."},
-			{Name: "lock_reason", Type: proto.ColumnType_STRING, Description: "True if the VPC is the default VPC in the region."},
-			{Name: "associated_instance_id", Type: proto.ColumnType_STRING, Description: "True if the VPC is the default VPC in the region."},
-			{Name: "associated_instance_type", Type: proto.ColumnType_STRING, Description: "True if the VPC is the default VPC in the region."},
-			{Name: "segment_instance_id", Type: proto.ColumnType_STRING, Description: "True if the VPC is the default VPC in the region."},
-			{Name: "owner_account", Type: proto.ColumnType_STRING, Description: "True if the VPC is the default VPC in the region."},
-			{Name: "resource_owner_account", Type: proto.ColumnType_STRING, Description: "True if the VPC is the default VPC in the region."},
-			{Name: "resource_owner_id", Type: proto.ColumnType_INT, Description: "The ID of the resource group to which the VPC belongs."},
-			{Name: "dry_run", Type: proto.ColumnType_BOOL, Description: "True if the VPC is the default VPC in the region."},
-			{Name: "resource_group_id", Type: proto.ColumnType_STRING, Description: "The ID of the resource group to which the VPC belongs."},
-			{Name: "chargetype", Type: proto.ColumnType_STRING, Description: "The ID of the owner of the VPC."}},
+			{Name: "descritpion", Type: proto.ColumnType_STRING, Description: "The description of the EIP."},
+			{Name: "ip_address", Type: proto.ColumnType_STRING, Description: "The IP address of the EIP."},
+			{Name: "expired_time", Type: proto.ColumnType_STRING, Description: "The expiry time of the EIP."},
+			{Name: "status", Type: proto.ColumnType_STRING, Description: "The status of the EIP."},
+			{Name: "instance_id", Type: proto.ColumnType_STRING, Description: "The ID of the instance associated to the EIP."},
+			{Name: "instance_region_id", Type: proto.ColumnType_STRING, Description: "The region ID of the instance that attached to the EIP."},
+			{Name: "instance_type", Type: proto.ColumnType_STRING, Description: "The type of the instance to which you want to bind the EIP."},
+			{Name: "internet_charge_type", Type: proto.ColumnType_STRING, Description: "The billing method of the EIP."},
+			{Name: "isp", Type: proto.ColumnType_STRING, Transform: transform.FromField("ISP"), Description: "The type of connection."},
+			{Name: "region_id", Type: proto.ColumnType_STRING, Description: "The ID of the region where the EIPs are created."},
+			{Name: "allocation_time", Type: proto.ColumnType_TIMESTAMP, Description: "The time when EIP was created"},
+			{Name: "available_regions", Type: proto.ColumnType_JSON, Description: "The regions where EIP is available."},
+			{Name: "bandwidth", Type: proto.ColumnType_STRING, Description: "The data transfer rate of EIP."},
+			{Name: "bandwidth_package_bandwidth", Type: proto.ColumnType_STRING, Description: "The maximum bandwidth of the EIP in Mbit/s."},
+			{Name: "bandwidth_package_type", Type: proto.ColumnType_STRING, Description: ""},
+			{Name: "business_status", Type: proto.ColumnType_STRING, Description: ""},
+			{Name: "charge_type", Type: proto.ColumnType_STRING, Description: "The billing method of the EIP"},
+			{Name: "hd_monitor_status", Type: proto.ColumnType_STRING, Transform: transform.FromField("HDMonitorStatus"), Description: ""},
+			{Name: "has_reservation_data", Type: proto.ColumnType_BOOL, Description: ""},
+			{Name: "mode", Type: proto.ColumnType_STRING, Description: ""},
+			{Name: "netmode", Type: proto.ColumnType_STRING, Description: ""},
+			{Name: "operation_locks", Type: proto.ColumnType_JSON, Description: ""},
+			{Name: "private_ip_address", Type: proto.ColumnType_BOOL, Description: ""},
+			{Name: "second_limited", Type: proto.ColumnType_BOOL, Description: ""},
+			{Name: "segment_instance_id", Type: proto.ColumnType_STRING, Description: "The ID of the instance with which the contiguous EIP is associated."},
+			{Name: "service_managed", Type: proto.ColumnType_INT, Transform: transform.FromField("ServiceManaged"), Description: ""},
+			{Name: "resource_group_id", Type: proto.ColumnType_STRING, Description: "The ID of the resource group to which the EIP belongs."},
+			// TODO - It appears that Tags are not returned by the go SDK?
+			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name"), Description: resourceInterfaceDescription("title")}},
 	}
 }
 
@@ -81,23 +92,23 @@ func listVpcEip(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 	return nil, nil
 }
 
-func getEip(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client, err := connectVpc(ctx)
-	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_eip.getEipAttributes", "connection_error", err)
-		return nil, err
-	}
-	request := vpc.CreateDescribeEipAddressesRequest()
-	request.Scheme = "https"
-	i := h.Item.(vpc.EipAddress)
-	request.AllocationId = i.AllocationId
-	response, err := client.DescribeEipAddresses(request)
-	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_eip.getEip", "query_error", err, "request", request)
-		return nil, err
-	}
-	return response, nil
-}
+// func getEip(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+// 	client, err := connectVpc(ctx)
+// 	if err != nil {
+// 		plugin.Logger(ctx).Error("alicloud_eip.getEipAttributes", "connection_error", err)
+// 		return nil, err
+// 	}
+// 	request := vpc.CreateDescribeEipAddressesRequest()
+// 	request.Scheme = "https"
+// 	i := h.Item.(vpc.EipAddress)
+// 	request.AllocationId = i.AllocationId
+// 	response, err := client.DescribeEipAddresses(request)
+// 	if err != nil {
+// 		plugin.Logger(ctx).Error("alicloud_eip.getEip", "query_error", err, "request", request)
+// 		return nil, err
+// 	}
+// 	return response, nil
+// }
 
 // func vpcToURN(_ context.Context, d *transform.TransformData) (interface{}, error) {
 // 	i := d.Value.(vpc.Vpc)
