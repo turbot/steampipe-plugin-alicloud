@@ -70,6 +70,61 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 			},
 			{
+				Name:        "auto_snapshot_policy_name",
+				Description: "The name of the automatic snapshot policy applied to the disk.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getEcsDiskAutoSnapshotPolicy,
+			},
+			{
+				Name:        "auto_snapshot_policy_creation_time",
+				Description: "The time when the auto snapshot policy was created.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getEcsDiskAutoSnapshotPolicy,
+				Transform:   transform.FromField("CreationTime"),
+			},
+			{
+				Name:        "auto_snapshot_policy_enable_cross_region_copy",
+				Description: "The ID of the automatic snapshot policy applied to the disk.",
+				Type:        proto.ColumnType_BOOL,
+				Hydrate:     getEcsDiskAutoSnapshotPolicy,
+				Transform:   transform.FromField("EnableCrossRegionCopy"),
+			},
+			{
+				Name:        "auto_snapshot_policy_repeat_week_days",
+				Description: "The days of a week on which automatic snapshots are created. Valid values: 1 to 7, which corresponds to the days of the week. 1 indicates Monday. One or more days can be specified.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getEcsDiskAutoSnapshotPolicy,
+				Transform:   transform.FromField("RepeatWeekdays"),
+			},
+			{
+				Name:        "auto_snapshot_policy_retention_days",
+				Description: "The retention period of the automatic snapshot.",
+				Type:        proto.ColumnType_INT,
+				Hydrate:     getEcsDiskAutoSnapshotPolicy,
+				Transform:   transform.FromField("RetentionDays"),
+			},
+			{
+				Name:        "auto_snapshot_policy_status",
+				Description: "The status of the automatic snapshot policy.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getEcsDiskAutoSnapshotPolicy,
+				Transform:   transform.FromField("Status"),
+			},
+			{
+				Name:        "auto_snapshot_policy_time_points",
+				Description: "The points in time at which automatic snapshots are created. The least interval at which snapshots can be created is one hour. Valid values: 0 to 23, which corresponds to the hours of the day from 00:00 to 23:00. 1 indicates 01:00. You can specify multiple points in time.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getEcsDiskAutoSnapshotPolicy,
+				Transform:   transform.FromField("TimePoints"),
+			},
+			{
+				Name:        "auto_snapshot_policy_tags",
+				Description: "The days of a week on which automatic snapshots are created. Valid values: 1 to 7, which corresponds to the days of the week. 1 indicates Monday. One or more days can be specified.",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getEcsDiskAutoSnapshotPolicy,
+				Transform:   transform.FromField("Tags.Tag"),
+			},
+			{
 				Name:        "category",
 				Description: "The category of the disk.",
 				Type:        proto.ColumnType_STRING,
@@ -333,6 +388,34 @@ func getEcsDisk(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 
 	if response.Disks.Disk != nil && len(response.Disks.Disk) > 0 {
 		return response.Disks.Disk[0], nil
+	}
+
+	return nil, nil
+}
+
+func getEcsDiskAutoSnapshotPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getEcsDiskAutomaticSnapshotPolicy")
+	disk := h.Item.(ecs.Disk)
+
+	// Create service connection
+	client, err := connectEcs(ctx)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_ecs_disk.getEcsDisk", "connection_error", err)
+		return nil, err
+	}
+
+	request := ecs.CreateDescribeAutoSnapshotPolicyExRequest()
+	request.Scheme = "https"
+	request.AutoSnapshotPolicyId = disk.AutoSnapshotPolicyId
+
+	response, err := client.DescribeAutoSnapshotPolicyEx(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		plugin.Logger(ctx).Error("alicloud_ecs_disk.getEcsDiskAutoSnapshotPolicy", "query_error", serverErr, "request", request)
+		return nil, serverErr
+	}
+
+	if response.AutoSnapshotPolicies.AutoSnapshotPolicy != nil && len(response.AutoSnapshotPolicies.AutoSnapshotPolicy) > 0 {
+		return response.AutoSnapshotPolicies.AutoSnapshotPolicy[0], nil
 	}
 
 	return nil, nil
