@@ -288,7 +288,7 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Name:        "tags",
 				Description: ColumnDescriptionTags,
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.From(ecsDiskTags),
+				Transform:   transform.FromField("Tags.Tag").Transform(ecsTagsToMap),
 			},
 			{
 				Name:        "akas",
@@ -436,11 +436,4 @@ func getEcsDiskAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	akas := []string{"arn:acs:ecs:" + disk.RegionId + ":" + accountID + ":disk/" + disk.DiskId}
 
 	return akas, nil
-}
-
-//// TRANSFORM FUNCTIONS
-
-func ecsDiskTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	disk := d.HydrateItem.(ecs.Disk)
-	return ecsTagsToMap(disk.Tags.Tag)
 }

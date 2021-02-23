@@ -169,7 +169,7 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 				Name:        "tags",
 				Description: ColumnDescriptionTags,
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.From(ecsSnapshotTags),
+				Transform:   transform.FromField("Snapshot.Tags.Tag").Transform(ecsTagsToMap),
 			},
 			{
 				Name:        "akas",
@@ -302,11 +302,4 @@ func getEcsSnapshotAka(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	akas := []string{"arn:acs:ecs:" + data.Region + ":" + accountID + ":snapshot/" + data.Snapshot.SnapshotId}
 
 	return akas, nil
-}
-
-//// TRANSFORM FUNCTIONS
-
-func ecsSnapshotTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	data := d.HydrateItem.(snapshotInfo)
-	return ecsTagsToMap(data.Snapshot.Tags.Tag)
 }

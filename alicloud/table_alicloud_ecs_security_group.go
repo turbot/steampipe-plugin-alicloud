@@ -107,13 +107,13 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 				Name:        "tags",
 				Description: ColumnDescriptionTags,
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromP(ecsSecurityGroupTurbotData, "Tags"),
+				Transform:   transform.FromField("SecurityGroup.Tags.Tag").Transform(ecsTagsToMap),
 			},
 			{
 				Name:        "title",
 				Description: ColumnDescriptionTitle,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromP(ecsSecurityGroupTurbotData, "Title"),
+				Transform:   transform.From(ecsSecurityGroupTitle),
 			},
 			{
 				Name:        "akas",
@@ -253,9 +253,8 @@ func getEcsSecurityGroupAka(ctx context.Context, d *plugin.QueryData, h *plugin.
 
 //// TRANSFORM FUNCTIONS
 
-func ecsSecurityGroupTurbotData(_ context.Context, d *transform.TransformData) (interface{}, error) {
+func ecsSecurityGroupTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	data := d.HydrateItem.(securityGroupInfo)
-	param := d.Param.(string)
 
 	// Build resource title
 	title := data.SecurityGroup.SecurityGroupId
@@ -264,9 +263,5 @@ func ecsSecurityGroupTurbotData(_ context.Context, d *transform.TransformData) (
 		title = data.SecurityGroup.SecurityGroupName
 	}
 
-	if param == "Title" {
-		return title, nil
-	}
-
-	return ecsTagsToMap(data.SecurityGroup.Tags.Tag)
+	return title, nil
 }

@@ -44,16 +44,15 @@ func csvToStringArray(_ context.Context, d *transform.TransformData) (interface{
 	return strings.Split(s, sep), nil
 }
 
-func ecsTagsToMap(tags []ecs.Tag) (map[string]string, error) {
+func ecsTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	tags := d.Value.([]ecs.Tag)
 	var turbotTagsMap map[string]string
 
-	if tags == nil {
-		return nil, nil
-	}
-
-	turbotTagsMap = map[string]string{}
-	for _, i := range tags {
-		turbotTagsMap[i.TagKey] = i.TagValue
+	if tags != nil {
+		turbotTagsMap = map[string]string{}
+		for _, i := range tags {
+			turbotTagsMap[i.TagKey] = i.TagValue
+		}
 	}
 
 	return turbotTagsMap, nil

@@ -24,12 +24,12 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 			{Name: "host_name", Type: proto.ColumnType_STRING, Description: "The hostname of the instance."},
 			{Name: "image_id", Type: proto.ColumnType_STRING, Description: "The ID of the image that the instance is running."},
 			{Name: "instance_type", Type: proto.ColumnType_STRING, Description: "The instance type."},
-			{Name: "auto_release_time", Type: proto.ColumnType_STRING, Description: "The automatic release time of the pay-as-you-go instance."},
-			{Name: "last_invoked_time", Type: proto.ColumnType_STRING, Description: ""},
+			{Name: "auto_release_time", Type: proto.ColumnType_TIMESTAMP, Description: "The automatic release time of the pay-as-you-go instance."},
+			{Name: "last_invoked_time", Type: proto.ColumnType_TIMESTAMP, Description: ""},
 			{Name: "os_type", Type: proto.ColumnType_STRING, Description: "The operating system type of the instance, consisting of Windows Server and Linux."},
 			{Name: "device_available", Type: proto.ColumnType_BOOL, Description: "Indicates whether data disks can be attached to the instance."},
 			{Name: "instance_network_type", Type: proto.ColumnType_STRING, Description: "The network type of the instance. Valid values:classic,vpc"},
-			{Name: "registration_time", Type: proto.ColumnType_STRING, Description: ""},
+			{Name: "registration_time", Type: proto.ColumnType_TIMESTAMP, Description: ""},
 			{Name: "local_storage_amount", Type: proto.ColumnType_INT, Description: "The number of local disks attached to the instance."},
 			{Name: "network_type", Type: proto.ColumnType_STRING, Description: "The network type of the instance. Valid values:classic,vpc"},
 			{Name: "intranet_ip", Type: proto.ColumnType_STRING, Description: "The EIP"},
@@ -45,7 +45,7 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 			{Name: "connected", Type: proto.ColumnType_BOOL, Description: ""},
 
 			{Name: "invocation_count", Type: proto.ColumnType_INT, Description: ""},
-			{Name: "start_time", Type: proto.ColumnType_STRING, Description: "The start time of the bidding mode for the preemptible instance."},
+			{Name: "start_time", Type: proto.ColumnType_TIMESTAMP, Description: "The start time of the bidding mode for the preemptible instance."},
 
 			{Name: "zone_id", Type: proto.ColumnType_STRING, Description: "The ID of the zone."},
 			{Name: "internet_charge_type", Type: proto.ColumnType_STRING, Description: "The billing method for network usage. Valid values:PayByBandwidth,PayByTraffic"},
@@ -71,12 +71,11 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 			{Name: "description", Type: proto.ColumnType_STRING, Description: "The description of the instance."},
 			{Name: "recyclable", Type: proto.ColumnType_BOOL, Description: "Indicates whether the instance can be recycled."},
 			{Name: "sale_cycle", Type: proto.ColumnType_STRING, Description: "The billing cycle of the instance."},
-			{Name: "Expired_Time", Type: proto.ColumnType_STRING, Description: "The expiration time of the instance. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format."},
+			{Name: "expired_time", Type: proto.ColumnType_TIMESTAMP, Description: "The expiration time of the instance. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format."},
 
-			{Name: "os_type", Type: proto.ColumnType_STRING, Description: "The operating system type of the instance, consisting of Windows Server and Linux. Valid values:windows,linux"},
 			{Name: "internet_ip", Type: proto.ColumnType_STRING, Description: ""},
 			{Name: "memory", Type: proto.ColumnType_INT, Description: "The memory size of the instance. Unit: MiB."},
-			{Name: "creation_time", Type: proto.ColumnType_STRING, Description: "The time when the instance was created."},
+			{Name: "creation_time", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the instance was created."},
 			{Name: "agent_version", Type: proto.ColumnType_STRING, Description: ""},
 			{Name: "key_pair_name", Type: proto.ColumnType_STRING, Description: "The name of the SSH key pair for the instance."},
 			{Name: "hpc_cluster_id", Type: proto.ColumnType_STRING, Description: "The ID of the HPC cluster to which the instance belongs."},
@@ -100,9 +99,16 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 			{Name: "vpc_attributes", Type: proto.ColumnType_JSON, Description: "The VPC attributes of the instance."},
 			{Name: "operation_locks", Type: proto.ColumnType_JSON, Description: "Details about the reasons why the instance was locked."},
 			{Name: "network_interfaces", Type: proto.ColumnType_JSON, Description: "Details about the ENIs bound to the instance."},
+			{Name: "tags_src", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: "A list of tags attached with the resource."},
 
-			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: resourceInterfaceDescription("tags")},
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("InstanceName"), Description: resourceInterfaceDescription("title")},
+			// steampipe standard columns
+			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag").Transform(ecsTagsToMap), Description: ColumnDescriptionTags},
+			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("InstanceName"), Description: ColumnDescriptionTitle},
+			{Name: "akas", Type: proto.ColumnType_JSON, Hydrate: getEcsInstanceAka, Transform: transform.FromValue(), Description: ColumnDescriptionAkas},
+
+			// alicloud standard columns
+			{Name: "region", Description: ColumnDescriptionRegion, Type: proto.ColumnType_STRING, Transform: transform.FromField("RegionId")},
+			{Name: "account_id", Description: ColumnDescriptionAccount, Type: proto.ColumnType_STRING, Hydrate: getCommonColumns, Transform: transform.FromField("AccountID")},
 		},
 	}
 }
@@ -144,4 +150,21 @@ func listEcsInstance(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 		request.PageNumber = requests.NewInteger(response.PageNumber + 1)
 	}
 	return nil, nil
+}
+
+func getEcsInstanceAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getEcsInstanceAka")
+	instance := h.Item.(ecs.Instance)
+
+	// Get project details
+	commonData, err := getCommonColumns(ctx, d, h)
+	if err != nil {
+		return nil, err
+	}
+	commonColumnData := commonData.(*alicloudCommonColumnData)
+	accountID := commonColumnData.AccountID
+
+	akas := []string{"arn:acs:ecs:" + instance.RegionId + ":" + accountID + ":instance/" + instance.InstanceId}
+
+	return akas, nil
 }
