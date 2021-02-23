@@ -20,7 +20,7 @@ func tableAlicloudVpcVpnCustomerGateway(ctx context.Context) *plugin.Table {
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("id"),
-			Hydrate:    getCustomerGatewayAttributes,
+			Hydrate:    getCustomerGateway,
 		},
 		Columns: []*plugin.Column{
 			// Top columns
@@ -32,9 +32,12 @@ func tableAlicloudVpcVpnCustomerGateway(ctx context.Context) *plugin.Table {
 			{Name: "create_time", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CreateTime").Transform(transform.UnixMsToTimestamp), Description: "The time when the customer gateway was created."},
 			{Name: "asn", Type: proto.ColumnType_STRING, Description: "The IPv4 CIDR block of the VPC."},
 			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name"), Description: resourceInterfaceDescription("title")},
+			{Name: "account_id", Type: proto.ColumnType_STRING, Hydrate: getCommonColumns, Transform: transform.FromField("Name"), Description: "The alicloud Account ID in which the resource is located."},
 		},
 	}
 }
+
+//// LIST FUNCTION
 
 func listCustomerGateway(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client, err := connectVpc(ctx)
@@ -46,11 +49,6 @@ func listCustomerGateway(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 	request.Scheme = "https"
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
-
-	quals := d.KeyColumnQuals
-	if quals["id"] != nil {
-		request.CustomerGatewayId = quals["id"].GetStringValue()
-	}
 
 	count := 0
 	for {
@@ -72,7 +70,9 @@ func listCustomerGateway(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 	return nil, nil
 }
 
-func getCustomerGatewayAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+//// GET FUNCTION
+
+func getCustomerGateway(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client, err := connectVpc(ctx)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_vpn_customer_gateway.getCustomerGatewayAttributes", "connection_error", err)
@@ -80,8 +80,16 @@ func getCustomerGatewayAttributes(ctx context.Context, d *plugin.QueryData, h *p
 	}
 	request := vpc.CreateDescribeCustomerGatewayRequest()
 	request.Scheme = "https"
-	i := h.Item.(vpc.CustomerGateway)
-	request.CustomerGatewayId = i.CustomerGatewayId
+
+	var id string
+	if h.Item != nil {
+		data := h.Item.(vpc.CustomerGateway)
+		id = data.CustomerGatewayId
+	} else {
+		id = d.KeyColumnQuals["id"].GetStringValue()
+	}
+	request.CustomerGatewayId = id
+
 	response, err := client.DescribeCustomerGateway(request)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_vpn_customer_gateway.getCustomerGatewayAttributes", "query_error", err, "request", request)
