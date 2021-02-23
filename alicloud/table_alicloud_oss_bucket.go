@@ -25,7 +25,7 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 			{Name: "location", Type: proto.ColumnType_STRING, Description: "Location of the Bucket."},
 			{Name: "creation_date", Type: proto.ColumnType_TIMESTAMP, Description: "Date when the bucket was created."},
 			{Name: "storage_class", Type: proto.ColumnType_STRING, Description: "The storage class of objects in the bucket."},
-			{Name: "versioning_status", Type: proto.ColumnType_STRING, Hydrate: getBucketVersioning, Transform: transform.FromField("Status"), Description: ""},
+			// {Name: "versioning_status", Type: proto.ColumnType_STRING, Hydrate: getBucketVersioning, Transform: transform.FromField("Status"), Description: ""},
 			/*
 				{Name: "bucket_id", Type: proto.ColumnType_STRING, Transform: transform.FromField("BucketId"), Description: "The unique ID of the Bucket."},
 				// Other columns
