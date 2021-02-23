@@ -34,7 +34,7 @@ func tableAlicloudRamGroup(ctx context.Context) *plugin.Table {
 			// Resource interface
 			{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(groupToURN).Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
 			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromConstant(map[string]bool{}), Description: resourceInterfaceDescription("tags")},
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("GroupName"), Description: resourceInterfaceDescription("title")},
+			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("GroupName"), Description: ColumnDescriptionTitle},
 		},
 	}
 }

@@ -111,13 +111,13 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "title",
-				Description: resourceInterfaceDescription("title"),
+				Description: ColumnDescriptionTitle,
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromP(ecsSecurityGroupTurbotData, "Title"),
 			},
 			{
 				Name:        "akas",
-				Description: resourceInterfaceDescription("akas"),
+				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getEcsSecurityGroupAka,
 				Transform:   transform.FromValue(),

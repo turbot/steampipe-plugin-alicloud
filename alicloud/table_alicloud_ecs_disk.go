@@ -259,6 +259,12 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_INT,
 			},
 			{
+				Name:        "zone",
+				Description: "The zone name in which the resource is created.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("ZoneId"),
+			},
+			{
 				Name:        "mount_instances",
 				Description: "The attaching information of the disk.",
 				Type:        proto.ColumnType_JSON,
@@ -280,40 +286,34 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 			// steampipe standard columns
 			{
 				Name:        "tags",
-				Description: resourceInterfaceDescription("tags"),
+				Description: ColumnDescriptionTags,
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.From(ecsDiskTags),
 			},
 			{
 				Name:        "akas",
-				Description: resourceInterfaceDescription("akas"),
+				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getEcsDiskAka,
 				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "title",
-				Description: resourceInterfaceDescription("title"),
+				Description: ColumnDescriptionTitle,
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("DiskName"),
 			},
 
 			// alicloud standard columns
 			{
-				Name:        "zone",
-				Description: "The zone name in which the resource is created.",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("ZoneId"),
-			},
-			{
 				Name:        "region",
-				Description: "The name of the region where the resource resides.",
+				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("RegionId"),
 			},
 			{
 				Name:        "account_id",
-				Description: "The alicloud Account ID in which the resource is located.",
+				Description: ColumnDescriptionAccount,
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getCommonColumns,
 				Transform:   transform.FromField("AccountID"),

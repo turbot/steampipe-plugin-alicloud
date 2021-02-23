@@ -37,7 +37,7 @@ func tableAlicloudRamRole(ctx context.Context) *plugin.Table {
 			// Resource interface
 			{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromField("Arn").Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
 			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromConstant(map[string]bool{}), Description: resourceInterfaceDescription("tags")},
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("RoleName"), Description: resourceInterfaceDescription("title")},
+			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("RoleName"), Description: ColumnDescriptionTitle},
 		},
 	}
 }

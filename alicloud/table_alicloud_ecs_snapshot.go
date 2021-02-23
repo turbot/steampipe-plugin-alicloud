@@ -173,14 +173,14 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "akas",
-				Description: resourceInterfaceDescription("akas"),
+				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getEcsSnapshotAka,
 				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "title",
-				Description: resourceInterfaceDescription("title"),
+				Description: ColumnDescriptionTitle,
 				Type:        proto.ColumnType_STRING,
 				Default:     transform.FromField("Snapshot.SnapshotName"),
 				Transform:   transform.FromField("Snapshot.SnapshotId"),
