@@ -17,7 +17,7 @@ import (
 func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ecs_disk",
-		Description: "ELastic Compute Service disks.",
+		Description: "Elastic Compute Service disks.",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsDisk,
 		},
@@ -26,7 +26,6 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 			Hydrate:    getEcsDisk,
 		},
 		Columns: []*plugin.Column{
-			// Top columns
 			{
 				Name:        "name",
 				Description: "A friendly name for the resource.",
@@ -244,7 +243,7 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("DiskName"),
 			},
 
-			// alibaba standard columns
+			// alicloud standard columns
 			{
 				Name:        "zone",
 				Description: "The zone name in which the resource is created.",
@@ -343,6 +342,7 @@ func getEcsDiskAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	plugin.Logger(ctx).Trace("getEcsDiskAka")
 	disk := h.Item.(ecs.Disk)
 
+	// Get project details
 	commonData, err := getCommonColumns(ctx, d, h)
 	if err != nil {
 		return nil, err
@@ -350,7 +350,7 @@ func getEcsDiskAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"acs:ecs:" + disk.RegionId + ":" + accountID + ":disk/" + disk.DiskName}
+	akas := []string{"arn:acs:ecs:" + disk.RegionId + ":" + accountID + ":disk/" + disk.DiskId}
 
 	return akas, nil
 }
@@ -359,17 +359,5 @@ func getEcsDiskAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 
 func ecsDiskTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	disk := d.HydrateItem.(ecs.Disk)
-
-	var turbotTagsMap map[string]string
-
-	if disk.Tags.Tag == nil {
-		return nil, nil
-	}
-
-	turbotTagsMap = map[string]string{}
-	for _, i := range disk.Tags.Tag {
-		turbotTagsMap[i.TagKey] = i.TagValue
-	}
-
-	return turbotTagsMap, nil
+	return ecsTagsToMap(disk.Tags.Tag)
 }

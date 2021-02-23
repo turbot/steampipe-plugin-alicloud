@@ -13,13 +13,12 @@ type alicloudCommonColumnData struct {
 }
 
 func getCommonColumns(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-
 	cacheKey := "commonColumnData"
 	var commonColumnData *alicloudCommonColumnData
 	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
 		commonColumnData = cachedData.(*alicloudCommonColumnData)
 	} else {
-
+		// Create service connection
 		client, err := connectSts(ctx)
 		if err != nil {
 			return nil, err
