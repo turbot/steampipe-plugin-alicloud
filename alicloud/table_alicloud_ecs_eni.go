@@ -150,12 +150,12 @@ func tableAlicloudEcsEni(ctx context.Context) *plugin.Table {
 			},
 
 			// steampipe standard columns
-			// {
-			// 	Name:        "tags",
-			// 	Description: resourceInterfaceDescription("tags"),
-			// 	Type:        proto.ColumnType_JSON,
-			// 	Transform:   transform.From(ecsEniTags),
-			// },
+			{
+				Name:        "tags",
+				Description: resourceInterfaceDescription("tags"),
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.From(ecsEniTags),
+			},
 			{
 				Name:        "title",
 				Description: resourceInterfaceDescription("title"),
@@ -164,13 +164,13 @@ func tableAlicloudEcsEni(ctx context.Context) *plugin.Table {
 			},
 
 			// alibaba standard columns
-			// {
-			// 	Name:        "account_id",
-			// 	Description: "The alicloud Account ID in which the resource is located.",
-			// 	Type:        proto.ColumnType_STRING,
-			// 	Hydrate:     getCommonColumns,
-			// 	Transform:   transform.FromField("AccountID"),
-			// },
+			{
+				Name:        "account_id",
+				Description: "The alicloud Account ID in which the resource is located.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getCommonColumns,
+				Transform:   transform.FromField("AccountID"),
+			},
 		},
 	}
 }
@@ -209,9 +209,54 @@ func listEcsEni(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 	return nil, nil
 }
 
-//// HYDRATE FUNCTIONS
+//// GET FUNCTION
 
 func getEcsEni(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	// Create service connection
+	client, err := connectEcs(ctx)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_ecs_eni.getEcsEni", "connection_error", err)
+		return nil, err
+	}
+
+	var id string
+	if h.Item != nil {
+		NetworkInterfaceSets := h.Item.(ecs.NetworkInterface)
+		id = NetworkInterfaceSets.NetworkInterfaceId
+	} else {
+		id = d.KeyColumnQuals["id"].GetStringValue()
+	}
+
+	request := ecs.CreateDescribeNetworkInterfacesRequest()
+	request.Scheme = "https"
+	request.NetworkInterfaceId = id
+
+	request.PageSize = requests.NewInteger(50)
+	request.PageNumber = requests.NewInteger(1)
+
+	count := 0
+	for {
+		response, err := client.DescribeNetworkInterfaces(request)
+		if err != nil {
+			plugin.Logger(ctx).Error("alicloud_ecs_eni.getEcsEni", "query_error", err, "request", request)
+			return nil, err
+		}
+		for _, eni := range response.NetworkInterfaceSets.NetworkInterfaceSet {
+			plugin.Logger(ctx).Warn("getEcsEni", "item", eni)
+			d.StreamListItem(ctx, eni)
+			count++
+		}
+		if count >= response.TotalCount {
+			break
+		}
+		request.PageNumber = requests.NewInteger(response.PageNumber + 1)
+	}
+	return nil, nil
+}
+
+//// HYDRATE FUNCTIONS
+
+func getEcsEniAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsEni")
 
 	// Create service connection
@@ -239,23 +284,22 @@ func getEcsEni(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) 
 		return nil, serverErr
 	}
 
-
 	return response, nil
 }
 
 //// TRANSFORM FUNCTIONS
 
 func ecsEniTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	Eni := d.HydrateItem.(ecs.NetworkInterfaceSet)
+	eni := d.HydrateItem.(ecs.NetworkInterfaceSet)
 
 	var turbotTagsMap map[string]string
 
-	if Eni.Tags.Tag == nil {
+	if eni.Tags.Tag == nil {
 		return nil, nil
 	}
 
 	turbotTagsMap = map[string]string{}
-	for _, i := range Eni.Tags.Tag {
+	for _, i := range eni.Tags.Tag {
 		turbotTagsMap[i.TagKey] = i.TagValue
 	}
 
