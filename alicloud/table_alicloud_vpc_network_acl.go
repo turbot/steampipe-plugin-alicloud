@@ -90,23 +90,22 @@ func tableAlicloudVpcNetworkAcl(ctx context.Context) *plugin.Table {
 			},
 			// steampipe standard columns
 			{
-				Name: "tags",
-				Type: proto.ColumnType_JSON,
-				Transform: transform.FromField("Tags.Tag"),
+				Name:        "tags",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("Tags.Tag"),
 				Description: resourceInterfaceDescription("tags"),
 			},
 			{
-				Name: "akas",
+				Name:        "akas",
 				Description: resourceInterfaceDescription("akas"),
-				Type: proto.ColumnType_JSON,
+				Type:        proto.ColumnType_JSON,
 				Hydrate:     getNetworkAclAka,
 				Transform:   transform.FromValue(),
-
 			},
 			{
-				Name: "title",
-				Type: proto.ColumnType_STRING,
-				Transform: transform.FromField("NetworkAclName"),
+				Name:        "title",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("NetworkAclName"),
 				Description: resourceInterfaceDescription("title"),
 			},
 			// alicloud standard columns
@@ -174,10 +173,18 @@ func getNetworkAclAttribute(ctx context.Context, d *plugin.QueryData, h *plugin.
 		plugin.Logger(ctx).Error("alicloud_vpc_network_acl.getNetworkAclAttribute", "connection_error", err)
 		return nil, err
 	}
+
+	var id string
+	if h.Item != nil {
+		networkAcl := h.Item.(vpc.NetworkAcl)
+		id = networkAcl.NetworkAclId
+	} else {
+		id = d.KeyColumnQuals["id"].GetStringValue()
+	}
 	request := vpc.CreateDescribeNetworkAclAttributesRequest()
 	request.Scheme = "https"
-	i := h.Item.(vpc.NetworkAcl)
-	request.NetworkAclId = i.NetworkAclId
+	request.NetworkAclId = id
+
 	response, err := client.DescribeNetworkAclAttributes(request)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_network_acl.getNetworkAclAttribute", "query_error", err, "request", request)
