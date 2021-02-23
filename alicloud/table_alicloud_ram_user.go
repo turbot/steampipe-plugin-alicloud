@@ -40,19 +40,8 @@ func tableAlicloudRamUser(ctx context.Context) *plugin.Table {
 			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("UserName"), Description: ColumnDescriptionTitle},
 
 			// alicloud standard columns
-			{
-				Name:        "region",
-				Description: "The name of the region where the resource resides.",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromConstant("global"),
-			},
-			{
-				Name:        "account_id",
-				Description: ColumnDescriptionAccount,
-				Type:        proto.ColumnType_STRING,
-				Hydrate:     getCommonColumns,
-				Transform:   transform.FromField("AccountID"),
-			},
+			{Name: "region", Description: ColumnDescriptionRegion, Type: proto.ColumnType_STRING, Transform: transform.FromConstant("global")},
+			{Name: "account_id", Description: ColumnDescriptionAccount, Type: proto.ColumnType_STRING, Hydrate: getCommonColumns, Transform: transform.FromField("AccountID")},
 		},
 	}
 }
