@@ -65,6 +65,12 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("SecurityGroup.Description"),
 			},
 			{
+				Name:        "inner_access_policy",
+				Description: "The description of the security group.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getSecurityGroupAttribute,
+			},
+			{
 				Name:        "resource_group_id",
 				Description: "The ID of the resource group to which the security group belongs.",
 				Type:        proto.ColumnType_STRING,
