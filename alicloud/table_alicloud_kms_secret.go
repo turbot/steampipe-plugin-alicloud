@@ -14,7 +14,7 @@ import (
 func tableAlicloudKmsSecret(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_kms_secret",
-		Description: "A virtual private cloud service that provides an isolated cloud network to operate resources in a secure environment.",
+		Description: "Secret enables to manage secrets in a centralized manner throughout their lifecycle (creation, retrieval, updating, and deletion.)",
 		List: &plugin.ListConfig{
 			//KeyColumns: plugin.AnyColumn([]string{"is_default", "id"}),
 			Hydrate: listKmsSecret,
@@ -25,24 +25,21 @@ func tableAlicloudKmsSecret(ctx context.Context) *plugin.Table {
 		},
 		Columns: []*plugin.Column{
 			// Top columns
-			{Name: "secret_name", Type: proto.ColumnType_STRING, Description: "The name of the secret."},
+			{Name: "name", Type: proto.ColumnType_STRING, Transform: transform.FromField("SecretName"), Description: "The name of the secret."},
 			{Name: "description", Type: proto.ColumnType_STRING, Description: "The description of the secret."},
+			{Name: "arn", Type: proto.ColumnType_STRING, Description: "The Alibaba Cloud Resource Name (ARN)."},
 			{Name: "secret_type", Type: proto.ColumnType_STRING, Description: "The type of the secret."},
-			// Other columns
+			{Name: "encryption_key_id", Type: proto.ColumnType_STRING, Description: "The ID of the KMS customer master key (CMK) that is used to encrypt the secret value."},
 			{Name: "create_time", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the KMS Secret was created."},
 			{Name: "update_time", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the KMS Secret was modifies."},
 			{Name: "planned_delete_time", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the KMS Secret is planned to delete."},
-			{Name: "encryption_key_id", Type: proto.ColumnType_STRING, Description: "The key id with which the KMS secret is encrypted"},
 			{Name: "automatic_rotation", Type: proto.ColumnType_STRING, Description: "To be update"},
-			{Name: "last_rotation_date", Type: proto.ColumnType_STRING, Description: "To be update"},
+			{Name: "last_rotation_date", Type: proto.ColumnType_TIMESTAMP, Description: "To be update"},
 			{Name: "rotation_interval", Type: proto.ColumnType_STRING, Description: "To be update"},
-			{Name: "next_rotation_date", Type: proto.ColumnType_STRING, Description: "To be update"},
+			{Name: "next_rotation_date", Type: proto.ColumnType_TIMESTAMP, Description: "To be update"},
 			{Name: "extended_config", Type: proto.ColumnType_STRING, Description: "To be update"},
-			// Resource interface
-			// {Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(vpcToURN).Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
-			// TODO - It appears that Tags are not returned by the go SDK?
 			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: resourceInterfaceDescription("tags")},
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("VpcName"), Description: resourceInterfaceDescription("title")},
+			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("SecretName"), Description: resourceInterfaceDescription("title")},
 		},
 	}
 }
@@ -57,15 +54,6 @@ func listKmsSecret(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 	request.Scheme = "https"
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
-
-	// quals := d.KeyColumnQuals
-	// if quals["is_default"] != nil {
-	// 	request.IsDefault = requests.NewBoolean(quals["is_default"].GetBoolValue())
-	// }
-	// if quals["id"] != nil {
-	// 	request.VpcId = quals["id"].GetStringValue()
-	// }
-
 	count := 0
 	for {
 		response, err := client.ListSecrets(request)
@@ -97,13 +85,10 @@ func getKmsSecret(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 	i := h.Item.(kms.Secret)
 	request.SecretName = i.SecretName
 
-	// quals := d.KeyColumnQuals
-	// if quals["is_default"] != nil {
-	// 	request.IsDefault = requests.NewBoolean(quals["is_default"].GetBoolValue())
-	// }
-	// if quals["id"] != nil {
-	// 	request.VpcId = quals["id"].GetStringValue()
-	// }
+	quals := d.KeyColumnQuals
+	if quals["name"] != nil {
+		request.SecretName = quals["name"].GetStringValue()
+	}
 	response, err := client.DescribeSecret(request)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_kms_secret.getKmsSecret", "query_error", err, "request", request)
@@ -111,8 +96,3 @@ func getKmsSecret(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 	}
 	return response, nil
 }
-
-// func vpcToURN(_ context.Context, d *transform.TransformData) (interface{}, error) {
-// 	i := d.Value.(vpc.Vpc)
-// 	return "acs:vpc:" + i.RegionId + ":" + strconv.FormatInt(i.OwnerId, 10) + ":vpc/" + i.VpcName, nil
-// }
