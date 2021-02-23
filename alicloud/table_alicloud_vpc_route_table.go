@@ -14,15 +14,13 @@ import (
 func tableAlicloudVpcRouteTable(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_vpc_route_table",
-		Description: "A virtual private cloud service that provides an isolated cloud network to operate resources in a secure environment.",
+		Description: "A route table contains a set of rules, called routes, that are used to determine where network traffic from your subnet or gateway is directed.",
 		List: &plugin.ListConfig{
-			// KeyColumns: plugin.SingleColumn("id"),
 			Hydrate: listVpcRouteTable,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns:  plugin.SingleColumn("id"),
-			ItemFromKey: RouteTableIDFromRouteTable,
-			Hydrate:     getVpcRouteTable,
+			Hydrate:     getVpcRouteTableEntryList,
 		},
 		Columns: []*plugin.Column{
 			// Top columns
@@ -68,14 +66,6 @@ func listVpcRouteTable(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
 
-	// quals := d.KeyColumnQuals
-	// if quals["is_default"] != nil {
-	// 	request.IsDefault = requests.NewBoolean(quals["is_default"].GetBoolValue())
-	// }
-	// if quals["id"] != nil {
-	// 	request.VpcId = quals["id"].GetStringValue()
-	// }
-
 	count := 0
 	for {
 		response, err := client.DescribeRouteTableList(request)
@@ -94,22 +84,6 @@ func listVpcRouteTable(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 		request.PageNumber = requests.NewInteger(response.PageNumber + 1)
 	}
 	return nil, nil
-}
-
-func getVpcRouteTable(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client, err := connectVpc(ctx)
-	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc_route_table.getVpcRouteTable", "connection_error", err)
-		return nil, err
-	}
-	request := vpc.CreateDescribeRouteTablesRequest()
-	request.Scheme = "https"
-	response, err := client.DescribeRouteTables(request)
-	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc_route_table.getVpcRouteTable", "query_error", err, "request", request)
-		return nil, err
-	}
-	return response, nil
 }
 
 //// HYDRATE FUNCTIONS
