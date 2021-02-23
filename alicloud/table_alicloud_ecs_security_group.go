@@ -105,7 +105,7 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 			// Steampipe standard columns
 			{
 				Name:        "tags",
-				Description: resourceInterfaceDescription("tags"),
+				Description: ColumnDescriptionTags,
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.FromP(ecsSecurityGroupTurbotData, "Tags"),
 			},

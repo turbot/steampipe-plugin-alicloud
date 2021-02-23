@@ -35,8 +35,8 @@ func tableAlicloudRamUser(ctx context.Context) *plugin.Table {
 			{Name: "create_date", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the RAM user was created."},
 			{Name: "update_date", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the RAM user was modified."},
 			// Resource interface
-			{Name: "akas", Type: proto.ColumnType_JSON, Hydrate: getUserArn, Transform: transform.FromValue().Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
-			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromConstant(map[string]bool{}), Description: resourceInterfaceDescription("tags")},
+			{Name: "akas", Type: proto.ColumnType_JSON, Hydrate: getUserAkas, Transform: transform.FromValue(), Description: ColumnDescriptionAkas},
+			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromConstant(map[string]bool{}), Description: ColumnDescriptionTags},
 			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("UserName"), Description: ColumnDescriptionTitle},
 
 			// alicloud standard columns
@@ -107,7 +107,7 @@ func getRamUser(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	return response.User, nil
 }
 
-func getUserArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getUserAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	var name string
 	if h.Item != nil {
 		i := h.Item.(ram.UserInListUsers)
@@ -123,5 +123,5 @@ func getUserArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	}
 
 	accountCommonData := commonData.(*alicloudCommonColumnData)
-	return "acs:ram::" + accountCommonData.AccountID + ":user/" + name, nil
+	return []string{"acs:ram::" + accountCommonData.AccountID + ":user/" + name}, nil
 }

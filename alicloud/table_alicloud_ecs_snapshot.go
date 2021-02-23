@@ -167,7 +167,7 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 			// steampipe standard columns
 			{
 				Name:        "tags",
-				Description: resourceInterfaceDescription("tags"),
+				Description: ColumnDescriptionTags,
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.From(ecsSnapshotTags),
 			},

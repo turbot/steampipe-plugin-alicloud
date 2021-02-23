@@ -25,8 +25,8 @@ func tableAlicloudRamRole(ctx context.Context) *plugin.Table {
 		},
 		Columns: []*plugin.Column{
 			// Top columns
-			{Name: "arn", Type: proto.ColumnType_STRING, Transform: transform.FromField("Arn"), Description: "The Alibaba Cloud Resource Name (ARN) of the RAM role."},
 			{Name: "name", Type: proto.ColumnType_STRING, Transform: transform.FromField("RoleName"), Description: "The name of the RAM role."},
+			{Name: "arn", Type: proto.ColumnType_STRING, Transform: transform.FromField("Arn"), Description: "The Alibaba Cloud Resource Name (ARN) of the RAM role."},
 			{Name: "id", Type: proto.ColumnType_STRING, Transform: transform.FromField("RoleId"), Description: "The ID of the RAM role."},
 			// TODO: Not avialable - {Name: "display_name", Type: proto.ColumnType_STRING, Description: "The display name of the RAM role."},
 			// Other columns
@@ -35,9 +35,13 @@ func tableAlicloudRamRole(ctx context.Context) *plugin.Table {
 			{Name: "create_date", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the RAM role was created."},
 			{Name: "update_date", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the RAM role was modified."},
 			// Resource interface
-			{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromField("Arn").Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
-			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromConstant(map[string]bool{}), Description: resourceInterfaceDescription("tags")},
+			{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromField("Arn").Transform(ensureStringArray), Description: ColumnDescriptionAkas},
+			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromConstant(map[string]bool{}), Description: ColumnDescriptionTags},
 			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("RoleName"), Description: ColumnDescriptionTitle},
+
+			// alicloud standard columns
+			{Name: "region", Description: ColumnDescriptionRegion, Type: proto.ColumnType_STRING, Transform: transform.FromConstant("global")},
+			{Name: "account_id", Description: ColumnDescriptionAccount, Type: proto.ColumnType_STRING, Hydrate: getCommonColumns, Transform: transform.FromField("AccountID")},
 		},
 	}
 }
