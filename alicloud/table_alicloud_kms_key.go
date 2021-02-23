@@ -13,31 +13,35 @@ import (
 
 func tableAlicloudKmsKey(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "alicloud_ram_user",
-		Description: "Resource Access Management users who can login via the console or access keys.",
+		Name:        "alicloud_kms_key",
+		Description: "Key Management Service (KMS) provides secure and compliant key management and cryptography services to help you encrypt and protect sensitive data assets.",
 		List: &plugin.ListConfig{
 			Hydrate: listKmsKey,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("name"),
+			KeyColumns: plugin.SingleColumn("id"),
 			Hydrate:    getKmsKey,
 		},
 		Columns: []*plugin.Column{
 			// Top columns
-			{Name: "name", Type: proto.ColumnType_STRING, Transform: transform.FromField("UserName"), Description: "The username of the RAM user."},
-			{Name: "id", Type: proto.ColumnType_STRING, Transform: transform.FromField("UserId"), Description: "The unique ID of the RAM user."},
-			{Name: "display_name", Type: proto.ColumnType_STRING, Description: "The display name of the RAM user."},
+			{Name: "id", Type: proto.ColumnType_STRING, Transform: transform.FromField("KeyId"), Description: "The globally unique ID of the CMK."},
+			{Name: "key_state", Type: proto.ColumnType_STRING, Transform: transform.FromField("KeyState"), Description: "The status of the CMK."},
 			// Other columns
-			{Name: "email", Type: proto.ColumnType_STRING, Hydrate: getRamUser, Description: "The email address of the RAM user."},
-			{Name: "last_login_date", Type: proto.ColumnType_TIMESTAMP, Hydrate: getRamUser, Description: "The time when the RAM user last logged on to the console by using the password."},
-			{Name: "mobile_phone", Type: proto.ColumnType_STRING, Hydrate: getRamUser, Description: "The mobile phone number of the RAM user."},
-			{Name: "comments", Type: proto.ColumnType_STRING, Description: "The description of the RAM user."},
-			{Name: "create_date", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the RAM user was created."},
-			{Name: "update_date", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the RAM user was modified."},
-			// Resource interface
-			{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(userToURN).Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
-			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromConstant(map[string]bool{}), Description: resourceInterfaceDescription("tags")},
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("UserName"), Description: resourceInterfaceDescription("title")},
+			{Name: "arn", Type: proto.ColumnType_TIMESTAMP, Description: "The Alibaba Cloud Resource Name (ARN) of the CMK."},
+			{Name: "creation_date", Type: proto.ColumnType_TIMESTAMP, Description: "The date and time the CMK was created."},
+			{Name: "description", Type: proto.ColumnType_STRING, Description: "The description of the CMK."},
+			{Name: "creator", Type: proto.ColumnType_STRING, Description: "The creator of the CMK."},
+			{Name: "key_usage", Type: proto.ColumnType_STRING, Description: "The purpose of the CMK."},
+			{Name: "key_spec", Type: proto.ColumnType_STRING, Description: "The type of the CMK."},
+			{Name: "last_rotation_date", Type: proto.ColumnType_TIMESTAMP, Description: "The date and time the last rotation was performed."},
+			{Name: "next_rotation_date", Type: proto.ColumnType_TIMESTAMP, Description: "The time the next rotation is scheduled for execution."},
+			{Name: "automatic_rotation", Type: proto.ColumnType_STRING, Description: "Indicates whether automatic key rotation is enabled."},
+			{Name: "delete_date", Type: proto.ColumnType_TIMESTAMP, Description: "The date and time the CMK is scheduled for deletion."},
+			{Name: "origin", Type: proto.ColumnType_STRING, Description: "The source of the key material for the CMK."},
+			{Name: "protection_level", Type: proto.ColumnType_STRING, Description: "The protection level of the CMK."},
+			{Name: "primary_key_version", Type: proto.ColumnType_STRING, Description: "The ID of the current primary key version of the symmetric CMK. The primary key version of a CMK is an active encryption key. KMS uses the primary key version of a specified CMK to encrypt data. "},
+			{Name: "rotation_interval", Type: proto.ColumnType_STRING, Description: "The period of automatic key rotation. Unit: seconds."},
+			{Name: "material_expire_time", Type: proto.ColumnType_TIMESTAMP, Description: "The time and date the key material for the CMK expires."},
 		},
 	}
 }
@@ -81,11 +85,15 @@ func getKmsKey(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) 
 		return nil, err
 	}
 
-	var name string
-
 	request := kms.CreateDescribeKeyRequest()
 	request.Scheme = "https"
-	request.KeyId = name
+	i := h.Item.(kms.KeyMetadata)
+	request.KeyId = i.KeyId
+
+	quals := d.KeyColumnQuals
+	if quals["id"] != nil {
+		request.KeyId = quals["id"].GetStringValue()
+	}
 
 	response, err := client.DescribeKey(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
@@ -99,15 +107,3 @@ func getKmsKey(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) 
 
 	return response.KeyMetadata, nil
 }
-
-// func userToURN(_ context.Context, d *transform.TransformData) (interface{}, error) {
-// 	switch d.Value.(type) {
-// 	case ram.UserInListUsers:
-// 		i := d.Value.(ram.UserInListUsers)
-// 		return "acs:ram::" + "ACCOUNT_ID" + ":user/" + i.UserName, nil
-// 	case ram.UserInGetUser:
-// 		i := d.Value.(ram.UserInGetUser)
-// 		return "acs:ram::" + "ACCOUNT_ID" + ":user/" + i.UserName, nil
-// 	}
-// 	return nil, nil
-// }
