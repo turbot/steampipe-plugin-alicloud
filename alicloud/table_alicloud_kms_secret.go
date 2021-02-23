@@ -13,7 +13,7 @@ import (
 
 func tableAlicloudKmsSecret(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "alicloud_vpc",
+		Name:        "alicloud_kms_secret",
 		Description: "A virtual private cloud service that provides an isolated cloud network to operate resources in a secure environment.",
 		List: &plugin.ListConfig{
 			//KeyColumns: plugin.AnyColumn([]string{"is_default", "id"}),
@@ -50,7 +50,7 @@ func tableAlicloudKmsSecret(ctx context.Context) *plugin.Table {
 func listKmsSecret(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client, err := connectKms(ctx)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc.listVpc", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_kms_secret.listKmsSecret", "connection_error", err)
 		return nil, err
 	}
 	request := kms.CreateListSecretsRequest()
@@ -94,8 +94,16 @@ func getKmsSecret(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 	}
 	request := kms.CreateDescribeSecretRequest()
 	request.Scheme = "https"
-	// i := h.Item.(vpc.Vpc)
-	// request.VpcId = i.VpcId
+	i := h.Item.(kms.Secret)
+	request.SecretName = i.SecretName
+
+	// quals := d.KeyColumnQuals
+	// if quals["is_default"] != nil {
+	// 	request.IsDefault = requests.NewBoolean(quals["is_default"].GetBoolValue())
+	// }
+	// if quals["id"] != nil {
+	// 	request.VpcId = quals["id"].GetStringValue()
+	// }
 	response, err := client.DescribeSecret(request)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_kms_secret.getKmsSecret", "query_error", err, "request", request)
