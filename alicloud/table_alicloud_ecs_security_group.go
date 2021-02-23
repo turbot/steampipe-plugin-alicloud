@@ -111,9 +111,10 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "akas",
-				Description: resourceInterfaceDescription("Akas"),
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromP(ecsSecurityGroupTurbotData, "Akas"),
+				Description: resourceInterfaceDescription("akas"),
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getEcsSecurityGroupAka,
+				Transform:   transform.FromValue(),
 			},
 
 			// alicloud standard columns
@@ -122,6 +123,13 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 				Description: "The name of the region where the resource belongs.",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("Region"),
+			},
+			{
+				Name:        "account_id",
+				Description: "The alicloud Account ID in which the resource is located.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getCommonColumns,
+				Transform:   transform.FromField("AccountID"),
 			},
 		},
 	}
@@ -220,6 +228,23 @@ func getSecurityGroupAttribute(ctx context.Context, d *plugin.QueryData, h *plug
 	return response, nil
 }
 
+func getEcsSecurityGroupAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getEcsSecurityGroupAka")
+	data := h.Item.(securityGroupInfo)
+
+	// Get project details
+	commonData, err := getCommonColumns(ctx, d, h)
+	if err != nil {
+		return nil, err
+	}
+	commonColumnData := commonData.(*alicloudCommonColumnData)
+	accountID := commonColumnData.AccountID
+
+	akas := []string{"arn:acs:ecs:" + data.Region + ":" + accountID + ":securitygroup/" + data.SecurityGroup.SecurityGroupId}
+
+	return akas, nil
+}
+
 //// TRANSFORM FUNCTIONS
 
 func ecsSecurityGroupTurbotData(_ context.Context, d *transform.TransformData) (interface{}, error) {
@@ -233,23 +258,9 @@ func ecsSecurityGroupTurbotData(_ context.Context, d *transform.TransformData) (
 		title = data.SecurityGroup.SecurityGroupName
 	}
 
-	// Mapping tags data
-	var turbotTagsMap map[string]string
-
-	if data.SecurityGroup.Tags.Tag == nil {
-		return nil, nil
+	if param == "Title" {
+		return title, nil
 	}
 
-	turbotTagsMap = map[string]string{}
-	for _, i := range data.SecurityGroup.Tags.Tag {
-		turbotTagsMap[i.TagKey] = i.TagValue
-	}
-
-	turbotData := map[string]interface{}{
-		"Title": title,
-		"Tags":  turbotTagsMap,
-		"Akas":  []string{"arn:acs:ecs:" + data.Region + ":ACCOUNT_ID" + ":securitygroup/" + data.SecurityGroup.SecurityGroupId},
-	}
-
-	return turbotData[param], nil
+	return ecsTagsToMap(data.SecurityGroup.Tags.Tag)
 }
