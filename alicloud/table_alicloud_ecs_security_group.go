@@ -11,46 +11,128 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+type securityGroupInfo = struct {
+	SecurityGroup ecs.SecurityGroup
+	Region        string
+}
+
 func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ecs_security_group",
-		Description: "VSwitches to divide the VPC network into one or more subnets.",
+		Description: "AliCloud ECS Security Group",
 		List: &plugin.ListConfig{
-			//KeyColumns: plugin.AnyColumn([]string{"is_default", "id"}),
-			Hydrate: listSecurityGroups,
+			Hydrate: listEcsSecurityGroups,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("id"),
-			Hydrate:    getSecurityGroupAttribute,
+			Hydrate:    getEcsSecurityGroup,
 		},
 		Columns: []*plugin.Column{
-			// Top columns
-			{Name: "name", Type: proto.ColumnType_STRING, Transform: transform.FromField("SecurityGroupName"), Description: "The name of the security group."},
-			{Name: "id", Type: proto.ColumnType_STRING, Transform: transform.FromField("SecurityGroupId"), Description: "The unique ID of the destination security group.."},
-			// Other columns
-			{Name: "description", Type: proto.ColumnType_STRING, Description: "The description of the security group."},
-			{Name: "creation_time", Type: proto.ColumnType_TIMESTAMP, Description: "The creation time of the security group."},
-			{Name: "vpc_id", Type: proto.ColumnType_STRING, Description: "The ID of the VPC. If a VPC ID is returned, the network type of the security group is VPC. Otherwise, the network type of the security group is classic network."},
-			{Name: "security_group_type", Type: proto.ColumnType_STRING, Description: "The type of the security group. Valid values: normal and enterprise"},
-			{Name: "resource_group_id", Type: proto.ColumnType_STRING, Description: "The ID of the resource group to which the security group belongs."},
-			{Name: "service_id", Type: proto.ColumnType_INT, Description: "The ID of the distributor to which the security group belongs."},
-			{Name: "ServiceManaged", Type: proto.ColumnType_BOOL, Description: "Indicates whether the user is an Alibaba Cloud service or a distributor."},
-			{Name: "region_id", Type: proto.ColumnType_STRING, Description: "The region ID of the security group.", Hydrate: getSecurityGroupAttribute},
-			{Name: "permissions", Type: proto.ColumnType_JSON, Transform: transform.FromField("Permissions.Permission"), Description: "Details about the security group rules.", Hydrate: getSecurityGroupAttribute},
-			{Name: "tags", Type: proto.ColumnType_JSON, Description: "The tags of the security groups."},
-			// Resource interface
-			// {Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(vswitchToURN).Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
-			// TODO - It appears that Tags are not returned by the go SDK?
-			// {Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: resourceInterfaceDescription("tags")},
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("NaSecurityGroupNameme"), Description: resourceInterfaceDescription("title")},
+			{
+				Name:        "name",
+				Description: "The name of the security group.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("SecurityGroup.SecurityGroupName"),
+			},
+			{
+				Name:        "id",
+				Description: "The ID of the security group.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("SecurityGroup.SecurityGroupId"),
+			},
+			{
+				Name:        "type",
+				Description: "The type of the security group. Possible values are: normal, and enterprise.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("SecurityGroup.SecurityGroupType"),
+			},
+			{
+				Name:        "vpc_id",
+				Description: "he ID of the VPC to which the security group belongs.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("SecurityGroup.VpcId"),
+			},
+			{
+				Name:        "creation_time",
+				Description: "The time when the security group was created.",
+				Type:        proto.ColumnType_TIMESTAMP,
+				Transform:   transform.FromField("SecurityGroup.CreationTime"),
+			},
+			{
+				Name:        "description",
+				Description: "The description of the security group.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("SecurityGroup.Description"),
+			},
+			{
+				Name:        "resource_group_id",
+				Description: "The ID of the resource group to which the security group belongs.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("SecurityGroup.ResourceGroupId"),
+			},
+			{
+				Name:        "service_id",
+				Description: "The ID of the distributor to which the security group belongs.",
+				Type:        proto.ColumnType_INT,
+				Transform:   transform.FromField("SecurityGroup.ServiceID"),
+			},
+			{
+				Name:        "service_managed",
+				Description: "Indicates whether the user is an Alibaba Cloud service or a distributor.",
+				Type:        proto.ColumnType_BOOL,
+				Transform:   transform.FromField("SecurityGroup.ServiceManaged"),
+			},
+			{
+				Name:        "permissions",
+				Description: "Details about the security group rules.",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getSecurityGroupAttribute,
+				Transform:   transform.FromField("Permissions.Permission"),
+			},
+			{
+				Name:        "tags_src",
+				Description: "A list of tags attached with the security group.",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("SecurityGroup.Tags.Tag"),
+			},
+
+			// Steampipe standard columns
+			{
+				Name:        "tags",
+				Description: resourceInterfaceDescription("tags"),
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromP(ecsSecurityGroupTurbotData, "Tags"),
+			},
+			{
+				Name:        "title",
+				Description: resourceInterfaceDescription("title"),
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromP(ecsSecurityGroupTurbotData, "Title"),
+			},
+			{
+				Name:        "akas",
+				Description: resourceInterfaceDescription("Akas"),
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromP(ecsSecurityGroupTurbotData, "Akas"),
+			},
+
+			// alicloud standard columns
+			{
+				Name:        "region_id",
+				Description: "The name of the region where the resource belongs.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("Region"),
+			},
 		},
 	}
 }
 
-func listSecurityGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+//// LIST FUNCTION
+
+func listEcsSecurityGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client, err := connectEcs(ctx)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ecs_security_group.listSecurityGroups", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_ecs_security_group.listEcsSecurityGroups", "connection_error", err)
 		return nil, err
 	}
 	request := ecs.CreateDescribeSecurityGroupsRequest()
@@ -62,12 +144,12 @@ func listSecurityGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 	for {
 		response, err := client.DescribeSecurityGroups(request)
 		if err != nil {
-			plugin.Logger(ctx).Error("alicloud_ecs_security_group.listSecurityGroups", "query_error", err, "request", request)
+			plugin.Logger(ctx).Error("alicloud_ecs_security_group.listEcsSecurityGroups", "query_error", err, "request", request)
 			return nil, err
 		}
-		for _, i := range response.SecurityGroups.SecurityGroup {
-			plugin.Logger(ctx).Warn("alicloud_ecs_security_group.listSecurityGroups", "query_error", err, "item", i)
-			d.StreamListItem(ctx, i)
+		for _, securityGroup := range response.SecurityGroups.SecurityGroup {
+			plugin.Logger(ctx).Warn("alicloud_ecs_security_group.listEcsSecurityGroups", "query_error", err, "item", securityGroup)
+			d.StreamListItem(ctx, securityGroupInfo{securityGroup, response.RegionId})
 			count++
 		}
 		if count >= response.TotalCount {
@@ -78,7 +160,48 @@ func listSecurityGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 	return nil, nil
 }
 
+//// HYDRATE FUNCTIONS
+
+func getEcsSecurityGroup(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getEcsSecurityGroup")
+
+	// Create service connection
+	client, err := connectEcs(ctx)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_ecs_security_group.getEcsSecurityGroup", "connection_error", err)
+		return nil, err
+	}
+
+	var id string
+	if h.Item != nil {
+		data := h.Item.(ecs.SecurityGroup)
+		id = data.SecurityGroupId
+	} else {
+		id = d.KeyColumnQuals["id"].GetStringValue()
+	}
+
+	request := ecs.CreateDescribeSecurityGroupsRequest()
+	request.Scheme = "https"
+	request.SecurityGroupId = id
+
+	response, err := client.DescribeSecurityGroups(request)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_ecs_security_group.getEcsSecurityGroup", "query_error", err, "request", request)
+		return nil, err
+	}
+
+	if response.SecurityGroups.SecurityGroup != nil && len(response.SecurityGroups.SecurityGroup) > 0 {
+		return securityGroupInfo{response.SecurityGroups.SecurityGroup[0], response.RegionId}, nil
+	}
+
+	return nil, nil
+}
+
 func getSecurityGroupAttribute(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getSecurityGroupAttribute")
+	data := h.Item.(securityGroupInfo)
+
+	// Create service connection
 	client, err := connectEcs(ctx)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_security_group.getVSecurityGroupAttribute", "connection_error", err)
@@ -87,17 +210,8 @@ func getSecurityGroupAttribute(ctx context.Context, d *plugin.QueryData, h *plug
 
 	request := ecs.CreateDescribeSecurityGroupAttributeRequest()
 	request.Scheme = "https"
-	// i := h.Item.(ecs.SecurityGroup)
-	// request.SecurityGroupId = i.SecurityGroupId
+	request.SecurityGroupId = data.SecurityGroup.SecurityGroupId
 
-	quals := d.KeyColumnQuals
-	if quals["id"] != nil {
-		request.SecurityGroupId = quals["id"].GetStringValue()
-	}
-
-	if len(request.SecurityGroupId) < 1 {
-		return nil, nil
-	}
 	response, err := client.DescribeSecurityGroupAttribute(request)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_security_group.getVSecurityGroupAttribute", "query_error", err, "request", request)
@@ -106,7 +220,36 @@ func getSecurityGroupAttribute(ctx context.Context, d *plugin.QueryData, h *plug
 	return response, nil
 }
 
-// func vswitchToURN(_ context.Context, d *transform.TransformData) (interface{}, error) {
-// 	i := d.Value.(vpc.VSwitch)
-// 	return "acs:vswitch:" + i.ZoneId + ":" + strconv.FormatInt(i.OwnerId, 10) + ":vswitch/" + i.VSwitchId, nil
-// }
+//// TRANSFORM FUNCTIONS
+
+func ecsSecurityGroupTurbotData(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	data := d.HydrateItem.(securityGroupInfo)
+	param := d.Param.(string)
+
+	// Build resource title
+	title := data.SecurityGroup.SecurityGroupId
+
+	if len(data.SecurityGroup.SecurityGroupName) > 0 {
+		title = data.SecurityGroup.SecurityGroupName
+	}
+
+	// Mapping tags data
+	var turbotTagsMap map[string]string
+
+	if data.SecurityGroup.Tags.Tag == nil {
+		return nil, nil
+	}
+
+	turbotTagsMap = map[string]string{}
+	for _, i := range data.SecurityGroup.Tags.Tag {
+		turbotTagsMap[i.TagKey] = i.TagValue
+	}
+
+	turbotData := map[string]interface{}{
+		"Title": title,
+		"Tags":  turbotTagsMap,
+		"Akas":  []string{"arn:acs:ecs:" + data.Region + ":ACCOUNT_ID" + ":securitygroup/" + data.SecurityGroup.SecurityGroupId},
+	}
+
+	return turbotData[param], nil
+}
