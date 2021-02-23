@@ -27,6 +27,10 @@ func tableAlicloudRamSecurityPreference(_ context.Context) *plugin.Table {
 			{Name: "enable_save_mfa_ticket", Type: proto.ColumnType_BOOL, Transform: transform.FromField("LoginProfilePreference.EnableSaveMFATicket"), Description: "Indicates whether RAM users can save security codes for multi-factor authentication (MFA) during logon. Each security code is valid for seven days."},
 			{Name: "login_network_masks", Type: proto.ColumnType_JSON, Transform: transform.FromField("LoginProfilePreference.LoginNetworkMasks").TransformP(csvToStringArray, ";"), Description: "The subnet mask that indicates the IP addresses from which logon to the Alibaba Cloud Management Console is allowed. This parameter applies to password-based logon and single sign-on (SSO). However, this parameter does not apply to API calls that are authenticated based on AccessKey pairs. May be more than one CIDR range. If empty then login is allowed from any source."},
 			{Name: "login_session_duration", Type: proto.ColumnType_INT, Transform: transform.FromField("LoginProfilePreference.LoginSessionDuration"), Description: "The validity period of a logon session of a RAM user. Unit: hours."},
+
+			// alicloud standard columns
+			{Name: "region", Description: ColumnDescriptionRegion, Type: proto.ColumnType_STRING, Transform: transform.FromConstant("global")},
+			{Name: "account_id", Description: ColumnDescriptionAccount, Type: proto.ColumnType_STRING, Hydrate: getCommonColumns, Transform: transform.FromField("AccountID")},
 		},
 	}
 }

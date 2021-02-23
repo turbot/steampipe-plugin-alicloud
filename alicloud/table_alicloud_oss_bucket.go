@@ -44,11 +44,11 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 				{Name: "route_table", Type: proto.ColumnType_JSON, Description: "Details of the route table."},
 				{Name: "cloud_resources", Type: proto.ColumnType_JSON, Hydrate: getBucketAttributes, Transform: transform.FromField("CloudResourceSetType"), Description: "The list of resources in the Bucket."},
 				// Resource interface
-				{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(bucketToURN).Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
+				{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(bucketToURN).Transform(ensureStringArray), Description: ColumnDescriptionAkas},
 				// TODO - It appears that Tags are not returned by the go SDK?
-				{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: resourceInterfaceDescription("tags")},
+				{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: ColumnDescriptionTags},
 			*/
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name"), Description: resourceInterfaceDescription("title")},
+			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name"), Description: ColumnDescriptionTitle},
 		},
 	}
 }

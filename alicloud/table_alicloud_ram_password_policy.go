@@ -30,6 +30,10 @@ func tableAlicloudRamPasswordPolicy(_ context.Context) *plugin.Table {
 			{Name: "require_numbers", Type: proto.ColumnType_BOOL, Description: "Indicates whether a password must contain one or more digits."},
 			{Name: "require_symbols", Type: proto.ColumnType_BOOL, Description: "Indicates whether a password must contain one or more special characters."},
 			{Name: "require_uppercase_characters", Type: proto.ColumnType_BOOL, Description: "Indicates whether a password must contain one or more uppercase letters."},
+
+			// alicloud standard columns
+			{Name: "region", Description: ColumnDescriptionRegion, Type: proto.ColumnType_STRING, Transform: transform.FromConstant("global")},
+			{Name: "account_id", Description: ColumnDescriptionAccount, Type: proto.ColumnType_STRING, Hydrate: getCommonColumns, Transform: transform.FromField("AccountID")},
 		},
 	}
 }
