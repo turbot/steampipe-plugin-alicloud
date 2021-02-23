@@ -19,7 +19,7 @@ type securityGroupInfo = struct {
 func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ecs_security_group",
-		Description: "AliCloud ECS Security Group",
+		Description: "ECS Security Group",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsSecurityGroups,
 		},

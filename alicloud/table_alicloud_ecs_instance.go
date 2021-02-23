@@ -13,7 +13,7 @@ import (
 func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ecs_instance",
-		Description: "",
+		Description: "Elastic Compute Instance",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsInstance,
 		},

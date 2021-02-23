@@ -22,7 +22,7 @@ type snapshotInfo = struct {
 func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ecs_snapshot",
-		Description: "Elastic Compute Service Snapshot.",
+		Description: "ECS Disk Snapshot.",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsSnapshot,
 		},

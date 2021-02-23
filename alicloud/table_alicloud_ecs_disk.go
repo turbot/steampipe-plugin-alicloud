@@ -17,7 +17,7 @@ import (
 func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ecs_disk",
-		Description: "Elastic Compute Service disks.",
+		Description: "Elastic Compute Disk",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsDisk,
 		},

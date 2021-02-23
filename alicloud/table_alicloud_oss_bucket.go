@@ -13,7 +13,7 @@ import (
 func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_bucket",
-		Description: "",
+		Description: "Object Storage Bucket",
 		List: &plugin.ListConfig{
 			//KeyColumns: plugin.AnyColumn([]string{"is_default", "id"}),
 			Hydrate: listBucket,
