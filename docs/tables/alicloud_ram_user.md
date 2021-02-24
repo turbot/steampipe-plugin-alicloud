@@ -20,11 +20,11 @@ from
 ```sql
 select
   name,
-  last_login_at
+  last_login_date
 from
   alicloud_ram_user
 where
-  last_login_at < current_date - interval '30 days';
+  last_login_date < current_date - interval '30 days';
 ```
 
 ### Groups details to which the RAM user belongs
