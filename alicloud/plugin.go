@@ -13,6 +13,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 		DefaultTransform: transform.FromCamel().NullIfZero(),
 		TableMap: map[string]*plugin.Table{
 			"alicloud_ecs_disk":                tableAlicloudEcsDisk(ctx),
+			"alicloud_ecs_instance":            tableAlicloudEcsInstance(ctx),
 			"alicloud_ecs_security_group":      tableAlicloudEcsSecurityGroup(ctx),
 			"alicloud_ecs_snapshot":            tableAlicloudEcsSnapshot(ctx),
 			"alicloud_oss_bucket":              tableAlicloudOssBucket(ctx),
