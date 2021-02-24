@@ -108,7 +108,7 @@ func tableAlicloudRAMGroup(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listRAMGroup(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	client, err := connectRam(ctx)
+	client, err := RAMService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ram_group.listRAMGroup", "connection_error", err)
 		return nil, err
@@ -140,7 +140,7 @@ func getRAMGroup(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 	plugin.Logger(ctx).Trace("getRAMGroup")
 
 	// Create service connection
-	client, err := connectRam(ctx)
+	client, err := RAMService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMGroup", "connection_error", err)
 		return nil, err
@@ -179,7 +179,7 @@ func getRAMGroupUsers(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	data := h.Item.(groupInfo)
 
 	// Create service connection
-	client, err := connectRam(ctx)
+	client, err := RAMService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMGroupUsers", "connection_error", err)
 		return nil, err
@@ -203,7 +203,7 @@ func getRAMGroupPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	data := h.Item.(groupInfo)
 
 	// Create service connection
-	client, err := connectRam(ctx)
+	client, err := RAMService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMGroupPolicies", "connection_error", err)
 		return nil, err

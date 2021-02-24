@@ -87,7 +87,7 @@ func tableAlicloudRAMAccessKey(_ context.Context) *plugin.Table {
 
 func listRAMUserAccessKeys(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	// Create service connection
-	client, err := connectRam(ctx)
+	client, err := RAMService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ram_access_key.listRAMUserAccessKeys", "connection_error", err)
 		return nil, err

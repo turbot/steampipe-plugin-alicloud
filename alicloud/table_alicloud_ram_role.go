@@ -47,7 +47,7 @@ func tableAlicloudRamRole(ctx context.Context) *plugin.Table {
 }
 
 func listRamRole(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	client, err := connectRam(ctx)
+	client, err := RAMService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ram_role.listRamRole", "connection_error", err)
 		return nil, err
@@ -75,7 +75,7 @@ func listRamRole(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 
 func getRamRole(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 
-	client, err := connectRam(ctx)
+	client, err := RAMService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ram_role.getRamRole", "connection_error", err)
 		return nil, err
