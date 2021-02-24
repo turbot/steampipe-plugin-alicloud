@@ -186,7 +186,7 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 				Name:        "tags_src",
 				Description: "A list of tags attached with the image.",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("Image.Tags.Tag"),
+				Transform:   transform.FromField("Image.Tags.Tag").Transform(modifyEcsSourceTags),
 			},
 
 			// steampipe standard columns

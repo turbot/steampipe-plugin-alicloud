@@ -99,7 +99,7 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 			{Name: "vpc_attributes", Type: proto.ColumnType_JSON, Description: "The VPC attributes of the instance."},
 			{Name: "operation_locks", Type: proto.ColumnType_JSON, Description: "Details about the reasons why the instance was locked."},
 			{Name: "network_interfaces", Type: proto.ColumnType_JSON, Description: "Details about the ENIs bound to the instance."},
-			{Name: "tags_src", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: "A list of tags attached with the resource."},
+			{Name: "tags_src", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag").Transform(modifyEcsSourceTags), Description: "A list of tags attached with the resource."},
 
 			// steampipe standard columns
 			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag").Transform(ecsTagsToMap), Description: ColumnDescriptionTags},
