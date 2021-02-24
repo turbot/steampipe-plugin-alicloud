@@ -282,7 +282,7 @@ func bucketAka(ctx context.Context, d *transform.TransformData) (interface{}, er
 }
 
 func bucketRegion(ctx context.Context, d *transform.TransformData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getBucketAka")
+	plugin.Logger(ctx).Trace("bucketRegion")
 	bucket := d.HydrateItem.(oss.BucketProperties)
 	return strings.TrimLeft(bucket.Location, "oss-"), nil
 }
