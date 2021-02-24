@@ -20,6 +20,7 @@ func tableAlicloudVpcVSwitch(ctx context.Context) *plugin.Table {
 			//KeyColumns: plugin.AnyColumn([]string{"is_default", "id"}),
 			Hydrate: listVSwitch,
 		},
+		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			// Top columns
 			{Name: "name", Type: proto.ColumnType_STRING, Transform: transform.FromField("VSwitchName"), Description: "The name of the VPC."},
@@ -40,16 +41,19 @@ func tableAlicloudVpcVSwitch(ctx context.Context) *plugin.Table {
 			{Name: "route_table", Type: proto.ColumnType_JSON, Description: "Details of the route table."},
 			{Name: "cloud_resources", Type: proto.ColumnType_JSON, Hydrate: getVSwitchAttributes, Transform: transform.FromField("CloudResourceSetType"), Description: "The list of resources in the VSwitch."},
 			// Resource interface
-			{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(vswitchToURN).Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
+			{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(vswitchToURN).Transform(ensureStringArray), Description: ColumnDescriptionAkas},
 			// TODO - It appears that Tags are not returned by the go SDK?
-			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: resourceInterfaceDescription("tags")},
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("VSwitchName"), Description: resourceInterfaceDescription("title")},
+			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: ColumnDescriptionTags},
+			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("VSwitchName"), Description: ColumnDescriptionTitle},
 		},
 	}
 }
 
 func listVSwitch(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	client, err := connectVpc(ctx)
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := VpcService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vswitch.listVSwitch", "connection_error", err)
 		return nil, err
@@ -88,7 +92,10 @@ func listVSwitch(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 }
 
 func getVSwitchAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client, err := connectVpc(ctx)
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := VpcService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vswitch.getVSwitchAttributes", "connection_error", err)
 		return nil, err

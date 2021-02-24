@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"context"
+	"strings"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 
@@ -13,62 +14,139 @@ import (
 func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_bucket",
-		Description: "",
+		Description: "Object Storage Bucket",
 		List: &plugin.ListConfig{
-			//KeyColumns: plugin.AnyColumn([]string{"is_default", "id"}),
 			Hydrate: listBucket,
 		},
 		Columns: []*plugin.Column{
-			// Top columns
-			{Name: "name", Type: proto.ColumnType_STRING, Description: "Name of the Bucket."},
-			{Name: "xml_name", Type: proto.ColumnType_JSON, Transform: transform.FromField("XMLName"), Description: "XML name of the Bucket."},
-			{Name: "location", Type: proto.ColumnType_STRING, Description: "Location of the Bucket."},
-			{Name: "creation_date", Type: proto.ColumnType_TIMESTAMP, Description: "Date when the bucket was created."},
-			{Name: "storage_class", Type: proto.ColumnType_STRING, Description: "The storage class of objects in the bucket."},
-			{Name: "versioning_status", Type: proto.ColumnType_STRING, Hydrate: getBucketVersioning, Transform: transform.FromField("Status"), Description: ""},
-			/*
-				{Name: "bucket_id", Type: proto.ColumnType_STRING, Transform: transform.FromField("BucketId"), Description: "The unique ID of the Bucket."},
-				// Other columns
-				{Name: "status", Type: proto.ColumnType_STRING, Description: "The status of the Bucket. Pending: The Bucket is being configured. Available: The Bucket is available."},
-				{Name: "cidr_block", Type: proto.ColumnType_CIDR, Description: "The IPv4 CIDR block of the Bucket."},
-				{Name: "ipv6_cidr_block", Type: proto.ColumnType_CIDR, Transform: transform.FromField("Ipv6CidrBlock"), Description: "The IPv6 CIDR block of the Bucket."},
-				{Name: "zone_id", Type: proto.ColumnType_STRING, Description: "The zone to which the Bucket belongs."},
-				{Name: "available_ip_address_count", Type: proto.ColumnType_INT, Description: "The number of available IP addresses in the Bucket."},
-				{Name: "description", Type: proto.ColumnType_STRING, Description: "The description of the Bucket."},
-				{Name: "creation_time", Type: proto.ColumnType_TIMESTAMP, Description: "The creation time of the Bucket."},
-				{Name: "is_default", Type: proto.ColumnType_BOOL, Description: "True if the Bucket is the default Bucket in the region."},
-				{Name: "resource_group_id", Type: proto.ColumnType_STRING, Description: "The ID of the resource group to which the Bucket belongs."},
-				{Name: "network_acl_id", Type: proto.ColumnType_STRING, Description: "A list of IDs of NAT Gateways."},
-				{Name: "owner_id", Type: proto.ColumnType_STRING, Description: "The ID of the owner of the Bucket."},
-				{Name: "share_type", Type: proto.ColumnType_STRING, Description: ""},
-				{Name: "route_table", Type: proto.ColumnType_JSON, Description: "Details of the route table."},
-				{Name: "cloud_resources", Type: proto.ColumnType_JSON, Hydrate: getBucketAttributes, Transform: transform.FromField("CloudResourceSetType"), Description: "The list of resources in the Bucket."},
-				// Resource interface
-				{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(bucketToURN).Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
-				// TODO - It appears that Tags are not returned by the go SDK?
-				{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: resourceInterfaceDescription("tags")},
-			*/
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name"), Description: resourceInterfaceDescription("title")},
+			{
+				Name:        "name",
+				Type:        proto.ColumnType_STRING,
+				Description: "Name of the Bucket.",
+			},
+			{
+				Name:        "location",
+				Type:        proto.ColumnType_STRING,
+				Description: "Location of the Bucket.",
+			},
+			{
+				Name:        "creation_date",
+				Type:        proto.ColumnType_TIMESTAMP,
+				Description: "Date when the bucket was created.",
+			},
+			{
+				Name:        "storage_class",
+				Type:        proto.ColumnType_STRING,
+				Description: "The storage class of objects in the bucket.",
+			},
+			{
+				Name:        "redundancy_type",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getBucketInfo,
+				Transform:   transform.FromField("BucketInfo.RedundancyType"),
+				Description: "The type of disaster recovery for a bucket. Valid values: LRS and ZRS",
+			},
+			{
+				Name:        "versioning",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getBucketInfo,
+				Transform:   transform.FromField("BucketInfo.Versioning"),
+				Description: "The status of versioning for the bucket. Valid values: Enabled and Suspended.",
+			},
+			{
+				Name:        "acl",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getBucketInfo,
+				Transform:   transform.FromField("BucketInfo.ACL"),
+				Description: "The access control list setting for bucket. Valid values: public-read-write, public-read, and private. public-read-write: Any users, including anonymous users can read and write objects in the bucket. Exercise caution when you set the ACL of a bucket to public-read-write. public-read: Only the owner or authorized users of this bucket can write objects in the bucket. Other users, including anonymous users can only read objects in the bucket. Exercise caution when you set the ACL of a bucket to public-read. private: Only the owner or authorized users of this bucket can read and write objects in the bucket. Other users, including anonymous users cannot access the objects in the bucket without authorization.",
+			},
+			{
+				Name:        "server_side_encryption",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getBucketInfo,
+				Transform:   transform.FromField("BucketInfo.SseRule").Transform(bucketSSEConfiguration),
+				Description: "The server-side encryption configuration for bucket",
+			},
+			{
+				Name:        "logging",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getBucketLogging,
+				Transform:   transform.FromField("LoggingXML.LoggingEnabled"),
+				Description: "Indicates the container used to store access logging configuration of a bucket.",
+			},
+			{
+				Name:        "policy",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getBucketPolicy,
+				Transform:   transform.FromValue().Transform(transform.UnmarshalYAML),
+				Description: "Allows you to grant permissions on OSS resources to RAM users from your Alibaba Cloud and other Alibaba Cloud accounts. You can also control access based on the request source.",
+			},
+			{
+				Name:        "tags_src",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getBucketTagging,
+				Transform:   transform.FromField("Tags").Transform(ossBucketTagsSrc),
+				Description: "A list of tags assigned to bucket",
+			},
+
+			// steampipe standard columns
+			{
+				Name:        "tags",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getBucketTagging,
+				Transform:   transform.FromField("Tags").Transform(ossBucketTags),
+				Description: ColumnDescriptionTags,
+			},
+			{
+				Name:        "title",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("Name"),
+				Description: ColumnDescriptionTitle,
+			},
+			{
+				Name:        "akas",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.From(bucketAka),
+				Description: ColumnDescriptionAkas,
+			},
+
+			// alicloud standard columns
+			{
+				Name:        "region",
+				Description: ColumnDescriptionRegion,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.From(bucketRegion),
+			},
+			{
+				Name:        "account_id",
+				Description: ColumnDescriptionAccount,
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getCommonColumns,
+				Transform:   transform.FromField("AccountID"),
+			},
 		},
 	}
 }
 
+//// LIST FUNCTIONS
+
 func listBucket(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	client, err := connectOss(ctx)
+	region := GetDefaultRegion(d.Connection)
+	client, err := OssService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_bucket.listBucket", "connection_error", err)
+		plugin.Logger(ctx).Error("listBucket", "connection_error", err)
 		return nil, err
 	}
+
 	pre := oss.Prefix("")
 	marker := oss.Marker("")
 	for {
 		response, err := client.ListBuckets(oss.MaxKeys(50), pre, marker)
 		if err != nil {
-			plugin.Logger(ctx).Error("alicloud_oss_bucket.listBucket", "query_error", err, "marker", marker)
+			plugin.Logger(ctx).Error("listBucket", "query_error", err, "marker", marker)
 			return nil, err
 		}
 		for _, i := range response.Buckets {
-			plugin.Logger(ctx).Warn("listBucket", "item", i)
 			d.StreamListItem(ctx, i)
 		}
 		if !response.IsTruncated {
@@ -80,43 +158,135 @@ func listBucket(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 	return nil, nil
 }
 
-func getBucketVersioning(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client, err := connectOss(ctx)
-	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_bucket.getBucketVersioning", "connection_error", err)
-		return nil, err
-	}
+//// HYDRATE FUNCTIONS
+
+func getBucketTagging(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	logger := plugin.Logger(ctx)
 	bucket := h.Item.(oss.BucketProperties)
+	client, err := OssService(ctx, d, removeSuffixFromLocation(bucket.Location))
+	if err != nil {
+		logger.Error("GetBucketTagging", "connection_error", err)
+		return nil, err
+	}
 	// Get bucket encryption
-	response, err := client.GetBucketVersioning(bucket.Name)
+	response, err := client.GetBucketTagging(bucket.Name)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_bucket.getBucketVersioning", "query_error", err, "bucket", bucket)
+		logger.Error("GetBucketTagging", "query_error", err, "bucket", bucket.Name)
 		return nil, err
 	}
 	return response, nil
 }
 
-/*
-func getBucketAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client, err := connectOss(ctx)
+func getBucketPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	logger := plugin.Logger(ctx)
+	bucket := h.Item.(oss.BucketProperties)
+	client, err := OssService(ctx, d, removeSuffixFromLocation(bucket.Location))
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_bucket.getBucketAttributes", "connection_error", err)
+		logger.Error("GetBucketPolicy", "connection_error", err)
 		return nil, err
 	}
-	request := oss.CreateDescribeBucketAttributesRequest()
-	request.Scheme = "https"
-	i := h.Item.(oss.Bucket)
-	request.BucketId = i.BucketId
-	response, err := client.DescribeBucketAttributes(request)
+	// Get bucket encryption
+	response, err := client.GetBucketPolicy(bucket.Name)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_bucket.getBucketAttributes", "query_error", err, "request", request)
+		if a, ok := err.(oss.ServiceError); ok {
+			if a.Code == "NoSuchBucketPolicy" {
+				logger.Debug("GetBucketPolicy", "query_error", a, "bucket", bucket.Name)
+				return nil, nil
+			}
+			return nil, err
+		}
+	}
+	return response, nil
+}
+
+func getBucketLogging(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	logger := plugin.Logger(ctx)
+	bucket := h.Item.(oss.BucketProperties)
+	client, err := OssService(ctx, d, removeSuffixFromLocation(bucket.Location))
+	if err != nil {
+		logger.Error("getBucketLogging", "connection_error", err)
+		return nil, err
+	}
+
+	// Get bucket encryption
+	response, err := client.GetBucketLogging(bucket.Name)
+	if err != nil {
 		return nil, err
 	}
 	return response, nil
 }
 
-func bucketToURN(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	i := d.Value.(oss.Bucket)
-	return "acs:bucket:" + i.ZoneId + ":" + strconv.FormatInt(i.OwnerId, 10) + ":bucket/" + i.BucketId, nil
+// Gives out the Bucket ACL and Encryption info
+func getBucketInfo(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	logger := plugin.Logger(ctx)
+	bucket := h.Item.(oss.BucketProperties)
+
+	client, err := OssService(ctx, d, removeSuffixFromLocation(bucket.Location))
+	if err != nil {
+		logger.Error("getBucketLogging", "connection_error", err)
+		return nil, err
+	}
+	// Get bucket encryption
+	response, err := client.GetBucketInfo(bucket.Name)
+	if err != nil {
+		logger.Error("getBucketInfo", "query_error", err, "bucket", bucket.Name)
+		return nil, err
+	}
+	return response, nil
 }
-*/
+
+//// TRANSFORM FUNCTIONS
+
+func ossBucketTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	tags := d.Value.([]oss.Tag)
+	var turbotTagsMap map[string]string
+
+	if tags != nil {
+		turbotTagsMap = map[string]string{}
+		for _, i := range tags {
+			turbotTagsMap[i.Key] = i.Value
+		}
+	}
+
+	return turbotTagsMap, nil
+}
+
+func ossBucketTagsSrc(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	tags := d.Value.([]oss.Tag)
+	var turbotTagsMap []map[string]string
+
+	if tags != nil {
+		for _, i := range tags {
+			turbotTagsMap = append(turbotTagsMap, map[string]string{"Key": i.Key, "Value": i.Value})
+		}
+	}
+
+	return turbotTagsMap, nil
+}
+
+func bucketSSEConfiguration(ctx context.Context, d *transform.TransformData) (interface{}, error) {
+	sse := d.Value.(oss.SSERule)
+
+	return map[string]string{
+		"KMSDataEncryption": sse.KMSDataEncryption,
+		"KMSMasterKeyID":    sse.KMSMasterKeyID,
+		"SSEAlgorithm":      sse.SSEAlgorithm,
+	}, nil
+}
+
+func bucketAka(ctx context.Context, d *transform.TransformData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getBucketAka")
+	bucket := d.HydrateItem.(oss.BucketProperties)
+
+	return []string{"acs:oss:::" + bucket.Name}, nil
+}
+
+func bucketRegion(ctx context.Context, d *transform.TransformData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getBucketAka")
+	bucket := d.HydrateItem.(oss.BucketProperties)
+	return strings.TrimLeft(bucket.Location, "oss-"), nil
+}
+
+func removeSuffixFromLocation(location string) string {
+	return strings.TrimLeft(location, "oss-")
+}
