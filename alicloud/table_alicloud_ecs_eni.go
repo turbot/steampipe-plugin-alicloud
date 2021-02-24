@@ -152,13 +152,13 @@ func tableAlicloudEcsEni(ctx context.Context) *plugin.Table {
 			// steampipe standard columns
 			{
 				Name:        "tags",
-				Description: resourceInterfaceDescription("tags"),
+				Description: ColumnDescriptionTags,
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.From(ecsEniTags),
 			},
 			{
 				Name:        "title",
-				Description: resourceInterfaceDescription("title"),
+				Description: ColumnDescriptionTitle,
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("NetworkInterfaceName"),
 			},
@@ -178,8 +178,9 @@ func tableAlicloudEcsEni(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listEcsEni(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 	// Create service connection
-	client, err := connectEcs(ctx)
+	client, err := ECSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_eni.listEcsEni", "connection_error", err)
 		return nil, err
@@ -212,8 +213,9 @@ func listEcsEni(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 //// GET FUNCTION
 
 func getEcsEni(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 	// Create service connection
-	client, err := connectEcs(ctx)
+	client, err := ECSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_eni.getEcsEni", "connection_error", err)
 		return nil, err
@@ -229,27 +231,15 @@ func getEcsEni(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) 
 
 	request := ecs.CreateDescribeNetworkInterfacesRequest()
 	request.Scheme = "https"
-	request.NetworkInterfaceId = id
+	request.NetworkInterfaceId = &[]string{id}
 
-	request.PageSize = requests.NewInteger(50)
-	request.PageNumber = requests.NewInteger(1)
-
-	count := 0
-	for {
-		response, err := client.DescribeNetworkInterfaces(request)
-		if err != nil {
-			plugin.Logger(ctx).Error("alicloud_ecs_eni.getEcsEni", "query_error", err, "request", request)
-			return nil, err
-		}
-		for _, eni := range response.NetworkInterfaceSets.NetworkInterfaceSet {
-			plugin.Logger(ctx).Warn("getEcsEni", "item", eni)
-			d.StreamListItem(ctx, eni)
-			count++
-		}
-		if count >= response.TotalCount {
-			break
-		}
-		request.PageNumber = requests.NewInteger(response.PageNumber + 1)
+	response, err := client.DescribeNetworkInterfaces(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		plugin.Logger(ctx).Error("alicloud_ecs_eni.getEcsEni", "query_error", serverErr, "request", request)
+		return nil, serverErr
+	}
+	if response.NetworkInterfaceSets.NetworkInterfaceSet != nil && len(response.NetworkInterfaceSets.NetworkInterfaceSet) > 0 {
+		return response.NetworkInterfaceSets.NetworkInterfaceSet[0], nil
 	}
 	return nil, nil
 }
@@ -257,10 +247,11 @@ func getEcsEni(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) 
 //// HYDRATE FUNCTIONS
 
 func getEcsEniAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 	plugin.Logger(ctx).Trace("getEcsEni")
 
 	// Create service connection
-	client, err := connectEcs(ctx)
+	client, err := ECSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_eni.getEcsEni", "connection_error", err)
 		return nil, err
