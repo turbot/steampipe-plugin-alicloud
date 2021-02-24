@@ -192,20 +192,20 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 			// steampipe standard columns
 			{
 				Name:        "tags",
-				Description: resourceInterfaceDescription("tags"),
+				Description: ColumnDescriptionTags,
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.From(ecsImageTurbotTags),
+				Transform:   transform.FromField("Image.Tags.Tag").Transform(ecsTagsToMap),
 			},
 			{
 				Name:        "akas",
-				Description: resourceInterfaceDescription("Akas"),
+				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getEcsImageAka,
 				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "title",
-				Description: resourceInterfaceDescription("title"),
+				Description: ColumnDescriptionTitle,
 				Type:        proto.ColumnType_STRING,
 				Default:     transform.FromField("Image.ImageId"),
 				Transform:   transform.FromField("Image.ImageName"),
@@ -214,13 +214,12 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 			// alicloud standard columns
 			{
 				Name:        "region",
-				Description: "The name of the region where the resource resides.",
+				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Region"),
 			},
 			{
 				Name:        "account_id",
-				Description: "The alicloud Account ID in which the resource is located.",
+				Description: ColumnDescriptionAccount,
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getCommonColumns,
 				Transform:   transform.FromField("AccountID"),
@@ -370,11 +369,4 @@ func getEcsImageAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 	akas := []string{"arn:acs:ecs:" + data.Region + ":" + accountID + ":image/" + data.Image.ImageId}
 
 	return akas, nil
-}
-
-//// TRANSFORM FUNCTIONS
-
-func ecsImageTurbotTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	data := d.HydrateItem.(imageInfo)
-	return ecsTagsToMap(data.Image.Tags.Tag)
 }
