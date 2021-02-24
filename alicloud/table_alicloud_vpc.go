@@ -54,6 +54,7 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 			// TODO - It appears that Tags are not returned by the go SDK?
 			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: ColumnDescriptionTags},
 			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("VpcName"), Description: ColumnDescriptionTitle},
+			{Name: "account_id", Description: ColumnDescriptionAccount, Type: proto.ColumnType_STRING, Hydrate: getCommonColumns, Transform: transform.FromField("AccountID")},
 		},
 	}
 }
