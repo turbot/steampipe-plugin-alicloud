@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
-	//"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
@@ -12,58 +11,134 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
-func tableAlicloudRamRole(ctx context.Context) *plugin.Table {
+type roleInfo = struct {
+	RoleId                   string
+	RoleName                 string
+	Arn                      string
+	Description              string
+	AssumeRolePolicyDocument string
+	CreateDate               string
+	UpdateDate               string
+	MaxSessionDuration       int64
+}
+
+//// TABLE DEFINITION
+
+func tableAlicloudRAMRole(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ram_role",
 		Description: "Resource Access Management roles who can login via the console or access keys.",
 		List: &plugin.ListConfig{
-			Hydrate: listRamRole,
+			Hydrate: listRAMRoles,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("name"),
-			Hydrate:    getRamRole,
+			Hydrate:    getRAMRole,
 		},
 		Columns: []*plugin.Column{
-			// Top columns
-			{Name: "name", Type: proto.ColumnType_STRING, Transform: transform.FromField("RoleName"), Description: "The name of the RAM role."},
-			{Name: "arn", Type: proto.ColumnType_STRING, Transform: transform.FromField("Arn"), Description: "The Alibaba Cloud Resource Name (ARN) of the RAM role."},
-			{Name: "id", Type: proto.ColumnType_STRING, Transform: transform.FromField("RoleId"), Description: "The ID of the RAM role."},
-			// TODO: Not avialable - {Name: "display_name", Type: proto.ColumnType_STRING, Description: "The display name of the RAM role."},
-			// Other columns
-			{Name: "description", Type: proto.ColumnType_STRING, Description: "The description of the RAM role."},
-			{Name: "max_session_duration", Type: proto.ColumnType_INT, Description: "The maximum session duration of the RAM role."},
-			{Name: "create_date", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the RAM role was created."},
-			{Name: "update_date", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the RAM role was modified."},
-			// Resource interface
-			{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromField("Arn").Transform(ensureStringArray), Description: ColumnDescriptionAkas},
-			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromConstant(map[string]bool{}), Description: ColumnDescriptionTags},
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("RoleName"), Description: ColumnDescriptionTitle},
+			{
+				Name:        "name",
+				Description: "The name of the RAM role.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("RoleName"),
+			},
+			{
+				Name:        "arn",
+				Description: "The Alibaba Cloud Resource Name (ARN) of the RAM role.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "id",
+				Description: "The ID of the RAM role.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("RoleId"),
+			},
+			{
+				Name:        "description",
+				Description: "The description of the RAM role.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "max_session_duration",
+				Description: "The maximum session duration of the RAM role.",
+				Type:        proto.ColumnType_INT,
+			},
+			{
+				Name:        "create_date",
+				Description: "The time when the RAM role was created.",
+				Type:        proto.ColumnType_TIMESTAMP,
+			},
+			{
+				Name:        "update_date",
+				Description: "The time when the RAM role was modified.",
+				Type:        proto.ColumnType_TIMESTAMP,
+			},
+			{
+				Name:        "assume_role_policy_document",
+				Description: "The content of the policy that specifies one or more entities entrusted to assume the RAM role.",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getRAMRole,
+				Transform:   transform.FromField("AssumeRolePolicyDocument").Transform(transform.UnmarshalYAML),
+			},
+			{
+				Name:        "attached_policy",
+				Description: "A list of policies attached to a RAM role.",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getRAMRolePolicies,
+				Transform:   transform.FromValue(),
+			},
+
+			// steampipe standard columns
+			{
+				Name:        "akas",
+				Description: ColumnDescriptionAkas,
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("Arn").Transform(ensureStringArray),
+			},
+			{
+				Name:        "title",
+				Description: ColumnDescriptionTitle,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("RoleName"),
+			},
 
 			// alicloud standard columns
-			{Name: "region", Description: ColumnDescriptionRegion, Type: proto.ColumnType_STRING, Transform: transform.FromConstant("global")},
-			{Name: "account_id", Description: ColumnDescriptionAccount, Type: proto.ColumnType_STRING, Hydrate: getCommonColumns, Transform: transform.FromField("AccountID")},
+			{
+				Name:        "region",
+				Description: ColumnDescriptionRegion,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromConstant("global"),
+			},
+			{
+				Name:        "account_id",
+				Description: ColumnDescriptionAccount,
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getCommonColumns,
+				Transform:   transform.FromField("AccountID")},
 		},
 	}
 }
 
-func listRamRole(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	client, err := connectRam(ctx)
+func listRAMRoles(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	// Create service connection
+	client, err := RAMService(ctx, d)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ram_role.listRamRole", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_ram_role.listRAMRoles", "connection_error", err)
 		return nil, err
 	}
+
 	request := ram.CreateListRolesRequest()
 	request.Scheme = "https"
 
 	for {
 		response, err := client.ListRoles(request)
 		if err != nil {
-			plugin.Logger(ctx).Error("alicloud_ram_role.listRamRole", "query_error", err, "request", request)
+			plugin.Logger(ctx).Error("alicloud_ram_role.listRAMRoles", "query_error", err, "request", request)
 			return nil, err
 		}
 		for _, i := range response.Roles.Role {
-			plugin.Logger(ctx).Warn("listRamRole", "item", i)
-			d.StreamListItem(ctx, i)
+			plugin.Logger(ctx).Warn("listRAMRoles", "item", i)
+			d.StreamListItem(ctx, roleInfo{i.RoleId, i.RoleName, i.Arn, i.Description, "", i.CreateDate, i.UpdateDate, i.MaxSessionDuration})
 		}
 		if !response.IsTruncated {
 			break
@@ -73,22 +148,22 @@ func listRamRole(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 	return nil, nil
 }
 
-func getRamRole(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getRAMRole(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getRAMRole")
 
-	client, err := connectRam(ctx)
+	// Create service connection
+	client, err := RAMService(ctx, d)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ram_role.getRamRole", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_ram_role.getRAMRole", "connection_error", err)
 		return nil, err
 	}
 
 	var name string
-
 	if h.Item != nil {
-		i := h.Item.(ram.RoleInListRoles)
+		i := h.Item.(roleInfo)
 		name = i.RoleName
 	} else {
-		quals := d.KeyColumnQuals
-		name = quals["name"].GetStringValue()
+		name = d.KeyColumnQuals["name"].GetStringValue()
 	}
 
 	request := ram.CreateGetRoleRequest()
@@ -98,24 +173,37 @@ func getRamRole(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	response, err := client.GetRole(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
 		if serverErr.ErrorCode() == "EntityNotExist.Role" {
-			plugin.Logger(ctx).Warn("alicloud_ram_role.getRamRole", "not_found_error", serverErr, "request", request)
+			plugin.Logger(ctx).Warn("alicloud_ram_role.getRAMRole", "not_found_error", serverErr, "request", request)
 			return nil, nil
 		}
-		plugin.Logger(ctx).Error("alicloud_ram_role.getRamRole", "query_error", serverErr, "request", request)
+		plugin.Logger(ctx).Error("alicloud_ram_role.getRAMRole", "query_error", serverErr, "request", request)
 		return nil, serverErr
 	}
 
-	return response.Role, nil
+	data := response.Role
+	return roleInfo{data.RoleId, data.RoleName, data.Arn, data.Description, data.AssumeRolePolicyDocument, data.CreateDate, data.UpdateDate, data.MaxSessionDuration}, nil
 }
 
-func roleToURN(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	switch d.Value.(type) {
-	case ram.RoleInListRoles:
-		i := d.Value.(ram.RoleInListRoles)
-		return "acs:ram::" + "ACCOUNT_ID" + ":role/" + i.RoleName, nil
-	case ram.RoleInGetRole:
-		i := d.Value.(ram.RoleInGetRole)
-		return "acs:ram::" + "ACCOUNT_ID" + ":role/" + i.RoleName, nil
+func getRAMRolePolicies(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getRAMRolePolicies")
+	data := h.Item.(roleInfo)
+
+	// Create service connection
+	client, err := RAMService(ctx, d)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMRolePolicies", "connection_error", err)
+		return nil, err
 	}
-	return nil, nil
+
+	request := ram.CreateListPoliciesForRoleRequest()
+	request.Scheme = "https"
+	request.RoleName = data.RoleName
+
+	response, err := client.ListPoliciesForRole(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMRolePolicies", "query_error", serverErr, "request", request)
+		return nil, serverErr
+	}
+
+	return response.Policies.Policy, nil
 }
