@@ -6,20 +6,9 @@ import (
 	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
+
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
-
-func resourceInterfaceDescription(key string) string {
-	switch key {
-	case "akas":
-		return "Array of globally unique identifier strings (also known as) for the resource."
-	case "tags":
-		return "A map of tags for the resource."
-	case "title":
-		return "Title of the resource."
-	}
-	return ""
-}
 
 // Constants for Standard Column Descriptions
 const (
@@ -55,16 +44,15 @@ func csvToStringArray(_ context.Context, d *transform.TransformData) (interface{
 	return strings.Split(s, sep), nil
 }
 
-func ecsTagsToMap(tags []ecs.Tag) (map[string]string, error) {
+func ecsTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	tags := d.Value.([]ecs.Tag)
 	var turbotTagsMap map[string]string
 
-	if tags == nil {
-		return nil, nil
-	}
-
-	turbotTagsMap = map[string]string{}
-	for _, i := range tags {
-		turbotTagsMap[i.TagKey] = i.TagValue
+	if tags != nil {
+		turbotTagsMap = map[string]string{}
+		for _, i := range tags {
+			turbotTagsMap[i.TagKey] = i.TagValue
+		}
 	}
 
 	return turbotTagsMap, nil
