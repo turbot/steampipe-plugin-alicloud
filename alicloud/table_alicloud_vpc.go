@@ -17,8 +17,11 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 		Name:        "alicloud_vpc",
 		Description: "A virtual private cloud service that provides an isolated cloud network to operate resources in a secure environment.",
 		List: &plugin.ListConfig{
-			//KeyColumns: plugin.AnyColumn([]string{"is_default", "id"}),
-			Hydrate: listVpc,
+			Hydrate: listVpcs,
+		},
+		Get: &plugin.GetConfig{
+			KeyColumns: plugin.SingleColumn("vpc_id"),
+			Hydrate:    getVpc,
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -112,12 +115,12 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 			{
 				Name:        "dhcp_options_set_id",
 				Type:        proto.ColumnType_STRING,
-				Description: "",
+				Description: "The ID of the DHCP options set associated to vpc.",
 			},
 			{
 				Name:        "dhcp_options_set_status",
 				Type:        proto.ColumnType_STRING,
-				Description: "",
+				Description: "The status of the VPC network that is associated with the DHCP options set. Valid values: InUse and Pending",
 			},
 			{
 				Name:        "associated_cens",
@@ -200,7 +203,7 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 	}
 }
 
-func listVpc(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func listVpcs(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
@@ -239,6 +242,42 @@ func listVpc(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (i
 		}
 		request.PageNumber = requests.NewInteger(response.PageNumber + 1)
 	}
+	return nil, nil
+}
+
+//// Hydrate Functions
+
+func getVpc(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := VpcService(ctx, d, region)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_vpc.getVpcAttributes", "connection_error", err)
+		return nil, err
+	}
+
+	var id string
+	if h.Item != nil {
+		vpc := h.Item.(vpc.Vpc)
+		id = vpc.VpcId
+	} else {
+		id = d.KeyColumnQuals["vpc_id"].GetStringValue()
+	}
+
+	request := vpc.CreateDescribeVpcsRequest()
+	request.Scheme = "https"
+	request.VpcId = id
+	response, err := client.DescribeVpcs(request)
+	if err != nil {
+		plugin.Logger(ctx).Error("getVpc", "query_error", err, "request", request)
+		return nil, err
+	}
+
+	if response.Vpcs.Vpc != nil && len(response.Vpcs.Vpc) > 0 {
+		return response.Vpcs.Vpc[0], nil
+	}
+
 	return nil, nil
 }
 
