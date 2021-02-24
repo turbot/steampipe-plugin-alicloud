@@ -30,6 +30,7 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 			KeyColumns: plugin.SingleColumn("id"),
 			Hydrate:    getEcsImage,
 		},
+		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			{
 				Name:        "name",
@@ -229,8 +230,10 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 }
 
 func listEcsImages(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
 	// Create service connection
-	client, err := connectEcs(ctx)
+	client, err := ECSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_image.listEcsImages", "connection_error", err)
 		return nil, err
@@ -264,9 +267,10 @@ func listEcsImages(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 
 func getEcsImage(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsImage")
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
-	client, err := connectEcs(ctx)
+	client, err := ECSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_image.getEcsImage", "connection_error", err)
 		return nil, err
@@ -299,6 +303,7 @@ func getEcsImage(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 
 func getEcsImageSharePermission(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsImageSharePermission")
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	data := h.Item.(imageInfo)
 
@@ -310,7 +315,7 @@ func getEcsImageSharePermission(ctx context.Context, d *plugin.QueryData, h *plu
 	id := data.Image.ImageId
 
 	// Create service connection
-	client, err := connectEcs(ctx)
+	client, err := ECSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_image.getEcsImage", "connection_error", err)
 		return nil, err
