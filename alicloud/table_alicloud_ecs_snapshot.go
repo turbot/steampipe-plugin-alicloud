@@ -189,10 +189,9 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 
 			// alibaba standard columns
 			{
-				Name:        "region_id",
+				Name:        "region",
 				Description: "The region ID where the resource is located.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Region"),
 			},
 			{
 				Name:        "account_id",
