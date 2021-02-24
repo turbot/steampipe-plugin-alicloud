@@ -17,8 +17,11 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 		Name:        "alicloud_vpc",
 		Description: "A virtual private cloud service that provides an isolated cloud network to operate resources in a secure environment.",
 		List: &plugin.ListConfig{
-			//KeyColumns: plugin.AnyColumn([]string{"is_default", "id"}),
-			Hydrate: listVpc,
+			Hydrate: listVpcs,
+		},
+		Get: &plugin.GetConfig{
+			KeyColumns: plugin.SingleColumn("vpc_id"),
+			Hydrate:    getVpc,
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -37,11 +40,6 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 			},
 
 			// Other columns
-			{
-				Name:        "region_id",
-				Type:        proto.ColumnType_STRING,
-				Description: "The ID of the region to which the VPC belongs.",
-			},
 			{
 				Name:        "status",
 				Type:        proto.ColumnType_STRING,
@@ -112,12 +110,12 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 			{
 				Name:        "dhcp_options_set_id",
 				Type:        proto.ColumnType_STRING,
-				Description: "",
+				Description: "The ID of the DHCP options set associated to vpc.",
 			},
 			{
 				Name:        "dhcp_options_set_status",
 				Type:        proto.ColumnType_STRING,
-				Description: "",
+				Description: "The status of the VPC network that is associated with the DHCP options set. Valid values: InUse and Pending",
 			},
 			{
 				Name:        "associated_cens",
@@ -169,20 +167,18 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("SecondaryCidrBlocks.SecondaryCidrBlock"),
 				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
 			},
+			{
+				Name:        "tags_src",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("Tags.Tag"),
+				Description: ColumnDescriptionTags,
+			},
 
 			// Resource interface
 			{
-				Name:        "akas",
-				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromValue().Transform(vpcToURN).Transform(ensureStringArray),
-				Description: ColumnDescriptionAkas,
-			},
-
-			// TODO - It appears that Tags are not returned by the go SDK?
-			{
 				Name:        "tags",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("Tags.Tag"),
+				Transform:   transform.FromField("Tags.Tag").Transform(vpcTurbotTags),
 				Description: ColumnDescriptionTags,
 			},
 			{
@@ -191,11 +187,31 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("VpcName"),
 				Description: ColumnDescriptionTitle,
 			},
+			{
+				Name:        "akas",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.From(vpcAkas),
+				Description: ColumnDescriptionAkas,
+			},
+
+			// alicloud common columns
+			{
+				Name:        "region",
+				Description: ColumnDescriptionRegion,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("RegionId"),
+			},
+			{
+				Name:        "account_id",
+				Description: ColumnDescriptionAccount,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("OwnerId"),
+			},
 		},
 	}
 }
 
-func listVpc(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func listVpcs(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
@@ -237,13 +253,49 @@ func listVpc(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (i
 	return nil, nil
 }
 
+//// Hydrate Functions
+
+func getVpc(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := VpcService(ctx, d, region)
+	if err != nil {
+		plugin.Logger(ctx).Error("getVpcAttributes", "connection_error", err)
+		return nil, err
+	}
+
+	var id string
+	if h.Item != nil {
+		vpc := h.Item.(vpc.Vpc)
+		id = vpc.VpcId
+	} else {
+		id = d.KeyColumnQuals["vpc_id"].GetStringValue()
+	}
+
+	request := vpc.CreateDescribeVpcsRequest()
+	request.Scheme = "https"
+	request.VpcId = id
+	response, err := client.DescribeVpcs(request)
+	if err != nil {
+		plugin.Logger(ctx).Error("getVpc", "query_error", err, "request", request)
+		return nil, err
+	}
+
+	if response.Vpcs.Vpc != nil && len(response.Vpcs.Vpc) > 0 {
+		return response.Vpcs.Vpc[0], nil
+	}
+
+	return nil, nil
+}
+
 func getVpcAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
 	client, err := VpcService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc.getVpcAttributes", "connection_error", err)
+		plugin.Logger(ctx).Error("getVpcAttributes", "connection_error", err)
 		return nil, err
 	}
 	request := vpc.CreateDescribeVpcAttributeRequest()
@@ -252,13 +304,13 @@ func getVpcAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	request.VpcId = i.VpcId
 	response, err := client.DescribeVpcAttribute(request)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc.getVpcAttributes", "query_error", err, "request", request)
+		plugin.Logger(ctx).Error("getVpcAttributes", "query_error", err, "request", request)
 		return nil, err
 	}
 	return response, nil
 }
 
-func vpcToURN(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	i := d.Value.(vpc.Vpc)
-	return "acs:vpc:" + i.RegionId + ":" + strconv.FormatInt(i.OwnerId, 10) + ":vpc/" + i.VpcName, nil
+func vpcAkas(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	i := d.HydrateItem.(vpc.Vpc)
+	return []string{"acs:vpc:" + i.RegionId + ":" + strconv.FormatInt(i.OwnerId, 10) + ":vpc/" + i.VpcId}, nil
 }
