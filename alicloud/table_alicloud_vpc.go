@@ -50,10 +50,10 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 			{Name: "route_table_ids", Type: proto.ColumnType_JSON, Transform: transform.FromField("RouterTableIds.RouterTableIds"), Description: "A list of IDs of route tables."},
 			{Name: "secondary_cidr_blocks", Type: proto.ColumnType_JSON, Transform: transform.FromField("SecondaryCidrBlocks.SecondaryCidrBlock"), Description: "A list of secondary IPv4 CIDR blocks of the VPC."},
 			// Resource interface
-			{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(vpcToURN).Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
+			{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(vpcToURN).Transform(ensureStringArray), Description: ColumnDescriptionAkas},
 			// TODO - It appears that Tags are not returned by the go SDK?
-			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: resourceInterfaceDescription("tags")},
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("VpcName"), Description: resourceInterfaceDescription("title")},
+			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: ColumnDescriptionTags},
+			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("VpcName"), Description: ColumnDescriptionTitle},
 		},
 	}
 }

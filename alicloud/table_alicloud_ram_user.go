@@ -35,9 +35,13 @@ func tableAlicloudRamUser(ctx context.Context) *plugin.Table {
 			{Name: "create_date", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the RAM user was created."},
 			{Name: "update_date", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the RAM user was modified."},
 			// Resource interface
-			{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(userToURN).Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
-			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromConstant(map[string]bool{}), Description: resourceInterfaceDescription("tags")},
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("UserName"), Description: resourceInterfaceDescription("title")},
+			{Name: "akas", Type: proto.ColumnType_JSON, Hydrate: getUserAkas, Transform: transform.FromValue(), Description: ColumnDescriptionAkas},
+			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromConstant(map[string]bool{}), Description: ColumnDescriptionTags},
+			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("UserName"), Description: ColumnDescriptionTitle},
+
+			// alicloud standard columns
+			{Name: "region", Description: ColumnDescriptionRegion, Type: proto.ColumnType_STRING, Transform: transform.FromConstant("global")},
+			{Name: "account_id", Description: ColumnDescriptionAccount, Type: proto.ColumnType_STRING, Hydrate: getCommonColumns, Transform: transform.FromField("AccountID")},
 		},
 	}
 }
@@ -103,14 +107,21 @@ func getRamUser(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	return response.User, nil
 }
 
-func userToURN(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	switch d.Value.(type) {
-	case ram.UserInListUsers:
-		i := d.Value.(ram.UserInListUsers)
-		return "acs:ram::" + "ACCOUNT_ID" + ":user/" + i.UserName, nil
-	case ram.UserInGetUser:
-		i := d.Value.(ram.UserInGetUser)
-		return "acs:ram::" + "ACCOUNT_ID" + ":user/" + i.UserName, nil
+func getUserAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	var name string
+	if h.Item != nil {
+		i := h.Item.(ram.UserInListUsers)
+		name = i.UserName
+	} else {
+		quals := d.KeyColumnQuals
+		name = quals["name"].GetStringValue()
 	}
-	return nil, nil
+
+	commonData, err := getCommonColumns(ctx, d, h)
+	if err != nil {
+		return nil, err
+	}
+
+	accountCommonData := commonData.(*alicloudCommonColumnData)
+	return []string{"acs:ram::" + accountCommonData.AccountID + ":user/" + name}, nil
 }

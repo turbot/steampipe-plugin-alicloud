@@ -40,10 +40,10 @@ func tableAlicloudVpcVSwitch(ctx context.Context) *plugin.Table {
 			{Name: "route_table", Type: proto.ColumnType_JSON, Description: "Details of the route table."},
 			{Name: "cloud_resources", Type: proto.ColumnType_JSON, Hydrate: getVSwitchAttributes, Transform: transform.FromField("CloudResourceSetType"), Description: "The list of resources in the VSwitch."},
 			// Resource interface
-			{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(vswitchToURN).Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
+			{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(vswitchToURN).Transform(ensureStringArray), Description: ColumnDescriptionAkas},
 			// TODO - It appears that Tags are not returned by the go SDK?
-			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: resourceInterfaceDescription("tags")},
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("VSwitchName"), Description: resourceInterfaceDescription("title")},
+			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: ColumnDescriptionTags},
+			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("VSwitchName"), Description: ColumnDescriptionTitle},
 		},
 	}
 }

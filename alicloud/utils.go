@@ -21,6 +21,15 @@ func resourceInterfaceDescription(key string) string {
 	return ""
 }
 
+// Constants for Standard Column Descriptions
+const (
+	ColumnDescriptionAkas    = "Array of globally unique identifier strings (also known as) for the resource."
+	ColumnDescriptionTags    = "A map of tags for the resource."
+	ColumnDescriptionTitle   = "Title of the resource."
+	ColumnDescriptionAccount = "The Alicloud Account ID in which the resource is located."
+	ColumnDescriptionRegion  = "The Alicloud region in which the resource is located."
+)
+
 func ensureStringArray(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	switch v := d.Value.(type) {
 	case []string:
