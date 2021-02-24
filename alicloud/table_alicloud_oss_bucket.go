@@ -128,13 +128,13 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 	}
 }
 
+//// LIST FUNCTIONS
+
 func listBucket(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	region := GetDefaultRegion(d.Connection)
-	plugin.Logger(ctx).Warn("listBucket", "REGION:  ", region)
-
 	client, err := OssService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_bucket.listBucket", "connection_error", err)
+		plugin.Logger(ctx).Error("listBucket", "connection_error", err)
 		return nil, err
 	}
 
@@ -143,11 +143,10 @@ func listBucket(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 	for {
 		response, err := client.ListBuckets(oss.MaxKeys(50), pre, marker)
 		if err != nil {
-			plugin.Logger(ctx).Error("alicloud_oss_bucket.listBucket", "query_error", err, "marker", marker)
+			plugin.Logger(ctx).Error("listBucket", "query_error", err, "marker", marker)
 			return nil, err
 		}
 		for _, i := range response.Buckets {
-			plugin.Logger(ctx).Warn("listBucket", "item", i)
 			d.StreamListItem(ctx, i)
 		}
 		if !response.IsTruncated {
@@ -158,6 +157,8 @@ func listBucket(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 	}
 	return nil, nil
 }
+
+//// HYDRATE FUNCTIONS
 
 func getBucketTagging(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
@@ -203,7 +204,7 @@ func getBucketLogging(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	bucket := h.Item.(oss.BucketProperties)
 	client, err := OssService(ctx, d, removeSuffixFromLocation(bucket.Location))
 	if err != nil {
-		logger.Error("GetBucketPolicy", "connection_error", err)
+		logger.Error("getBucketLogging", "connection_error", err)
 		return nil, err
 	}
 
@@ -219,8 +220,10 @@ func getBucketLogging(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 func getBucketInfo(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
 	bucket := h.Item.(oss.BucketProperties)
+
 	client, err := OssService(ctx, d, removeSuffixFromLocation(bucket.Location))
 	if err != nil {
+		logger.Error("getBucketLogging", "connection_error", err)
 		return nil, err
 	}
 	// Get bucket encryption
@@ -232,9 +235,7 @@ func getBucketInfo(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	return response, nil
 }
 
-func removeSuffixFromLocation(location string) string {
-	return strings.TrimLeft(location, "oss-")
-}
+//// TRANSFORM FUNCTIONS
 
 func ossBucketTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	tags := d.Value.([]oss.Tag)
@@ -284,4 +285,8 @@ func bucketRegion(ctx context.Context, d *transform.TransformData) (interface{},
 	plugin.Logger(ctx).Trace("getBucketAka")
 	bucket := d.HydrateItem.(oss.BucketProperties)
 	return strings.TrimLeft(bucket.Location, "oss-"), nil
+}
+
+func removeSuffixFromLocation(location string) string {
+	return strings.TrimLeft(location, "oss-")
 }
