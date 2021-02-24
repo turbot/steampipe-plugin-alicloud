@@ -25,7 +25,7 @@ select
   policies ->> 'PolicyName' as policy_name,
   policies ->> 'PolicyType' as policy_type,
   policies ->> 'DefaultVersion' as policy_default_version,
-  policies ->> 'PolicyName' as policy_attachment_date
+  policies ->> 'AttachDate' as policy_attachment_date
 from
   alicloud_ram_group
   cross join jsonb_array_elements(attached_policy) as policies;

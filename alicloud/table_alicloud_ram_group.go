@@ -223,7 +223,7 @@ func getRAMGroupPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 }
 
 func getGroupAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getRAMGroupUsers")
+	plugin.Logger(ctx).Trace("getGroupAkas")
 	data := h.Item.(groupInfo)
 
 	// Get project details
