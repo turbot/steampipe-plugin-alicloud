@@ -167,12 +167,18 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("SecondaryCidrBlocks.SecondaryCidrBlock"),
 				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
 			},
+			{
+				Name:        "tags_src",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("Tags.Tag"),
+				Description: ColumnDescriptionTags,
+			},
 
 			// Resource interface
 			{
 				Name:        "tags",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("Tags.Tag"),
+				Transform:   transform.FromField("Tags.Tag").Transform(vpcTurbotTags),
 				Description: ColumnDescriptionTags,
 			},
 			{
@@ -184,7 +190,7 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 			{
 				Name:        "akas",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromValue().Transform(vpcToURN).Transform(ensureStringArray),
+				Transform:   transform.From(vpcAkas),
 				Description: ColumnDescriptionAkas,
 			},
 
@@ -304,7 +310,20 @@ func getVpcAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	return response, nil
 }
 
-func vpcToURN(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	i := d.Value.(vpc.Vpc)
-	return "acs:vpc:" + i.RegionId + ":" + strconv.FormatInt(i.OwnerId, 10) + ":vpc/" + i.VpcId, nil
+func vpcAkas(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	i := d.HydrateItem.(vpc.Vpc)
+	return []string{"acs:vpc:" + i.RegionId + ":" + strconv.FormatInt(i.OwnerId, 10) + ":vpc/" + i.VpcId}, nil
+}
+
+func vpcTurbotTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	tags := d.Value.([]vpc.Tag)
+
+	var turbotTags map[string]string
+	if tags != nil {
+		turbotTags = map[string]string{}
+		for _, i := range tags {
+			turbotTags[i.Key] = i.Value
+		}
+	}
+	return turbotTags, nil
 }
