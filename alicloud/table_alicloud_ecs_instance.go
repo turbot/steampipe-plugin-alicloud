@@ -411,7 +411,7 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 				Name:        "tags_src",
 				Description: "A list of tags attached with the resource.",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("Tags.Tag"),
+				Transform:   transform.FromField("Tags.Tag").Transform(modifyEcsSourceTags),
 			},
 
 			// steampipe standard columns
