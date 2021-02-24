@@ -32,15 +32,19 @@ func tableAlicloudRamGroup(ctx context.Context) *plugin.Table {
 			{Name: "create_date", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the RAM user group was created."},
 			{Name: "update_date", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the RAM user group was modified."},
 			// Resource interface
-			{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(groupToURN).Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
-			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromConstant(map[string]bool{}), Description: resourceInterfaceDescription("tags")},
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("GroupName"), Description: resourceInterfaceDescription("title")},
+			{Name: "akas", Type: proto.ColumnType_JSON, Hydrate: getGroupAkas, Transform: transform.FromValue(), Description: ColumnDescriptionAkas},
+			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromConstant(map[string]bool{}), Description: ColumnDescriptionTags},
+			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("GroupName"), Description: ColumnDescriptionTitle},
+
+			// alicloud standard columns
+			{Name: "region", Description: ColumnDescriptionRegion, Type: proto.ColumnType_STRING, Transform: transform.FromConstant("global")},
+			{Name: "account_id", Description: ColumnDescriptionAccount, Type: proto.ColumnType_STRING, Hydrate: getCommonColumns, Transform: transform.FromField("AccountID")},
 		},
 	}
 }
 
 func listRamGroup(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	client, err := connectRam(ctx)
+	client, err := RAMService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ram_group.listRamGroup", "connection_error", err)
 		return nil, err
@@ -68,7 +72,7 @@ func listRamGroup(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDat
 
 func getRamGroup(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 
-	client, err := connectRam(ctx)
+	client, err := RAMService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ram_group.getRamGroup", "connection_error", err)
 		return nil, err
@@ -101,14 +105,21 @@ func getRamGroup(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 	return response.Group, nil
 }
 
-func groupToURN(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	switch d.Value.(type) {
-	case ram.GroupInListGroups:
-		i := d.Value.(ram.GroupInListGroups)
-		return "acs:ram::" + "ACCOUNT_ID" + ":group/" + i.GroupName, nil
-	case ram.GroupInGetGroup:
-		i := d.Value.(ram.GroupInGetGroup)
-		return "acs:ram::" + "ACCOUNT_ID" + ":group/" + i.GroupName, nil
+func getGroupAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	var name string
+	if h.Item != nil {
+		i := h.Item.(ram.GroupInListGroups)
+		name = i.GroupName
+	} else {
+		quals := d.KeyColumnQuals
+		name = quals["name"].GetStringValue()
 	}
-	return nil, nil
+
+	commonData, err := getCommonColumns(ctx, d, h)
+	if err != nil {
+		return nil, err
+	}
+
+	accountCommonData := commonData.(*alicloudCommonColumnData)
+	return []string{"acs:ram::" + accountCommonData.AccountID + ":group/" + name}, nil
 }

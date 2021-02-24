@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"context"
+	"strings"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 
@@ -13,7 +14,7 @@ import (
 func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_bucket",
-		Description: "",
+		Description: "Object Storage Bucket",
 		List: &plugin.ListConfig{
 			//KeyColumns: plugin.AnyColumn([]string{"is_default", "id"}),
 			Hydrate: listBucket,
@@ -21,6 +22,7 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 		Columns: []*plugin.Column{
 			// Top columns
 			{Name: "name", Type: proto.ColumnType_STRING, Description: "Name of the Bucket."},
+			{Name: "data", Type: proto.ColumnType_JSON, Description: "Name of the Bucket.", Transform: transform.FromValue()},
 			{Name: "xml_name", Type: proto.ColumnType_JSON, Transform: transform.FromField("XMLName"), Description: "XML name of the Bucket."},
 			{Name: "location", Type: proto.ColumnType_STRING, Description: "Location of the Bucket."},
 			{Name: "creation_date", Type: proto.ColumnType_TIMESTAMP, Description: "Date when the bucket was created."},
@@ -44,21 +46,25 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 				{Name: "route_table", Type: proto.ColumnType_JSON, Description: "Details of the route table."},
 				{Name: "cloud_resources", Type: proto.ColumnType_JSON, Hydrate: getBucketAttributes, Transform: transform.FromField("CloudResourceSetType"), Description: "The list of resources in the Bucket."},
 				// Resource interface
-				{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(bucketToURN).Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
+				{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(bucketToURN).Transform(ensureStringArray), Description: ColumnDescriptionAkas},
 				// TODO - It appears that Tags are not returned by the go SDK?
-				{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: resourceInterfaceDescription("tags")},
+				{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: ColumnDescriptionTags},
 			*/
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name"), Description: resourceInterfaceDescription("title")},
+			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name"), Description: ColumnDescriptionTitle},
 		},
 	}
 }
 
 func listBucket(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	client, err := connectOss(ctx)
+	region := GetDefaultRegion(d.Connection)
+	plugin.Logger(ctx).Warn("listBucket", "REGION:  ", region)
+
+	client, err := OssService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_bucket.listBucket", "connection_error", err)
 		return nil, err
 	}
+
 	pre := oss.Prefix("")
 	marker := oss.Marker("")
 	for {
@@ -81,12 +87,12 @@ func listBucket(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 }
 
 func getBucketVersioning(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client, err := connectOss(ctx)
+	bucket := h.Item.(oss.BucketProperties)
+	client, err := OssService(ctx, d, removeSuffixFromLocation(bucket.Location))
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_bucket.getBucketVersioning", "connection_error", err)
 		return nil, err
 	}
-	bucket := h.Item.(oss.BucketProperties)
 	// Get bucket encryption
 	response, err := client.GetBucketVersioning(bucket.Name)
 	if err != nil {
@@ -96,27 +102,22 @@ func getBucketVersioning(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	return response, nil
 }
 
-/*
-func getBucketAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client, err := connectOss(ctx)
-	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_bucket.getBucketAttributes", "connection_error", err)
-		return nil, err
-	}
-	request := oss.CreateDescribeBucketAttributesRequest()
-	request.Scheme = "https"
-	i := h.Item.(oss.Bucket)
-	request.BucketId = i.BucketId
-	response, err := client.DescribeBucketAttributes(request)
-	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_bucket.getBucketAttributes", "query_error", err, "request", request)
-		return nil, err
-	}
-	return response, nil
-}
+// func getBucketVersioning(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+// 	bucket := h.Item.(oss.BucketProperties)
+// 	client, err := OssService(ctx, d, removeSuffixFromLocation(bucket.Location))
+// 	if err != nil {
+// 		plugin.Logger(ctx).Error("alicloud_bucket.getBucketVersioning", "connection_error", err)
+// 		return nil, err
+// 	}
+// 	// Get bucket encryption
+// 	response, err := client.GetBucketVersioning(bucket.Name)
+// 	if err != nil {
+// 		plugin.Logger(ctx).Error("alicloud_bucket.getBucketVersioning", "query_error", err, "bucket", bucket)
+// 		return nil, err
+// 	}
+// 	return response, nil
+// }
 
-func bucketToURN(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	i := d.Value.(oss.Bucket)
-	return "acs:bucket:" + i.ZoneId + ":" + strconv.FormatInt(i.OwnerId, 10) + ":bucket/" + i.BucketId, nil
+func removeSuffixFromLocation(location string) string {
+	return strings.TrimLeft(location, "oss-")
 }
-*/
