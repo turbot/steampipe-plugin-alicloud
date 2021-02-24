@@ -27,7 +27,6 @@ from
   alicloud_ram_security_preference;
 ```
 
-
 ### Check if user have access to manage public access key
 
 ```sql
@@ -36,7 +35,6 @@ select
 from
   alicloud_ram_security_preference;
 ```
-
 
 ### Get the log on session duration of User
 
