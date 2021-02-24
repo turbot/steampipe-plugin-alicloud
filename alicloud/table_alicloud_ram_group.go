@@ -11,42 +11,106 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
-func tableAlicloudRamGroup(ctx context.Context) *plugin.Table {
+type groupInfo = struct {
+	GroupName  string
+	Comments   string
+	CreateDate string
+	UpdateDate string
+}
+
+//// TABLE DEFINITION
+
+func tableAlicloudRAMGroup(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ram_group",
 		Description: "Resource Access Management groups who can login via the console or access keys.",
 		List: &plugin.ListConfig{
-			Hydrate: listRamGroup,
+			Hydrate: listRAMGroup,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("name"),
-			Hydrate:    getRamGroup,
+			Hydrate:    getRAMGroup,
 		},
 		Columns: []*plugin.Column{
 			// Top columns
-			{Name: "name", Type: proto.ColumnType_STRING, Transform: transform.FromField("GroupName"), Description: "The name of the RAM user group."},
+			{
+				Name:        "name",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("GroupName"),
+				Description: "The name of the RAM user group.",
+			},
 			// TODO: Not available - {Name: "id", Type: proto.ColumnType_STRING, Transform: transform.FromField("GroupId"), Description: "The ID of the RAM user group."},
 			// TODO: Not avialable - {Name: "display_name", Type: proto.ColumnType_STRING, Description: "The display name of the RAM group."},
 			// Other columns
-			{Name: "comments", Type: proto.ColumnType_STRING, Description: "The description of the RAM user group."},
-			{Name: "create_date", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the RAM user group was created."},
-			{Name: "update_date", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the RAM user group was modified."},
-			// Resource interface
-			{Name: "akas", Type: proto.ColumnType_JSON, Hydrate: getGroupAkas, Transform: transform.FromValue(), Description: ColumnDescriptionAkas},
-			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromConstant(map[string]bool{}), Description: ColumnDescriptionTags},
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("GroupName"), Description: ColumnDescriptionTitle},
+			{
+				Name:        "comments",
+				Description: "The description of the RAM user group.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "create_date",
+				Description: "The time when the RAM user group was created.",
+				Type:        proto.ColumnType_TIMESTAMP,
+			},
+			{
+				Name:        "update_date",
+				Description: "The time when the RAM user group was modified.",
+				Type:        proto.ColumnType_TIMESTAMP,
+			},
+			{
+				Name:        "attached_policy",
+				Description: "A list of policies attached to a RAM user group.",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getRAMGroupPolicies,
+				Transform:   transform.FromValue(),
+			},
+			{
+				Name:        "users",
+				Description: "A list of users in the group.",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getRAMGroupUsers,
+				Transform:   transform.FromValue(),
+			},
+
+			// steampipe standard columns
+			{
+				Name:        "akas",
+				Description: ColumnDescriptionAkas,
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getGroupAkas,
+				Transform:   transform.FromValue(),
+			},
+			{
+				Name:        "title",
+				Description: ColumnDescriptionTitle,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("GroupName"),
+			},
 
 			// alicloud standard columns
-			{Name: "region", Description: ColumnDescriptionRegion, Type: proto.ColumnType_STRING, Transform: transform.FromConstant("global")},
-			{Name: "account_id", Description: ColumnDescriptionAccount, Type: proto.ColumnType_STRING, Hydrate: getCommonColumns, Transform: transform.FromField("AccountID")},
+			{
+				Name:        "region",
+				Description: ColumnDescriptionRegion,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromConstant("global"),
+			},
+			{
+				Name:        "account_id",
+				Description: ColumnDescriptionAccount,
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getCommonColumns,
+				Transform:   transform.FromField("AccountID"),
+			},
 		},
 	}
 }
 
-func listRamGroup(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+//// LIST FUNCTION
+
+func listRAMGroup(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client, err := connectRam(ctx)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ram_group.listRamGroup", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_ram_group.listRAMGroup", "connection_error", err)
 		return nil, err
 	}
 	request := ram.CreateListGroupsRequest()
@@ -55,12 +119,12 @@ func listRamGroup(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDat
 	for {
 		response, err := client.ListGroups(request)
 		if err != nil {
-			plugin.Logger(ctx).Error("alicloud_ram_group.listRamGroup", "query_error", err, "request", request)
+			plugin.Logger(ctx).Error("alicloud_ram_group.listRAMGroup", "query_error", err, "request", request)
 			return nil, err
 		}
 		for _, i := range response.Groups.Group {
-			plugin.Logger(ctx).Warn("listRamGroup", "item", i)
-			d.StreamListItem(ctx, i)
+			plugin.Logger(ctx).Warn("listRAMGroup", "item", i)
+			d.StreamListItem(ctx, groupInfo{i.GroupName, i.Comments, i.CreateDate, i.UpdateDate})
 		}
 		if !response.IsTruncated {
 			break
@@ -70,11 +134,15 @@ func listRamGroup(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDat
 	return nil, nil
 }
 
-func getRamGroup(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+//// HYDRATE FUNCTIONS
 
+func getRAMGroup(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getRAMGroup")
+
+	// Create service connection
 	client, err := connectRam(ctx)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ram_group.getRamGroup", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMGroup", "connection_error", err)
 		return nil, err
 	}
 
@@ -95,31 +163,76 @@ func getRamGroup(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 	response, err := client.GetGroup(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
 		if serverErr.ErrorCode() == "EntityNotExist.Group" {
-			plugin.Logger(ctx).Warn("alicloud_ram_group.getRamGroup", "not_found_error", serverErr, "request", request)
+			plugin.Logger(ctx).Warn("alicloud_ram_group.getRAMGroup", "not_found_error", serverErr, "request", request)
 			return nil, nil
 		}
-		plugin.Logger(ctx).Error("alicloud_ram_group.getRamGroup", "query_error", serverErr, "request", request)
+		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMGroup", "query_error", serverErr, "request", request)
 		return nil, serverErr
 	}
 
-	return response.Group, nil
+	data := response.Group
+	return groupInfo{data.GroupName, data.Comments, data.CreateDate, data.UpdateDate}, nil
+}
+
+func getRAMGroupUsers(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getRAMGroupUsers")
+	data := h.Item.(groupInfo)
+
+	// Create service connection
+	client, err := connectRam(ctx)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMGroupUsers", "connection_error", err)
+		return nil, err
+	}
+
+	request := ram.CreateListUsersForGroupRequest()
+	request.Scheme = "https"
+	request.GroupName = data.GroupName
+
+	response, err := client.ListUsersForGroup(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMGroupUsers", "query_error", serverErr, "request", request)
+		return nil, serverErr
+	}
+
+	return response.Users.User, nil
+}
+
+func getRAMGroupPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getRAMGroupPolicies")
+	data := h.Item.(groupInfo)
+
+	// Create service connection
+	client, err := connectRam(ctx)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMGroupPolicies", "connection_error", err)
+		return nil, err
+	}
+
+	request := ram.CreateListPoliciesForGroupRequest()
+	request.Scheme = "https"
+	request.GroupName = data.GroupName
+
+	response, err := client.ListPoliciesForGroup(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMGroupPolicies", "query_error", serverErr, "request", request)
+		return nil, serverErr
+	}
+
+	return response.Policies.Policy, nil
 }
 
 func getGroupAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	var name string
-	if h.Item != nil {
-		i := h.Item.(ram.GroupInListGroups)
-		name = i.GroupName
-	} else {
-		quals := d.KeyColumnQuals
-		name = quals["name"].GetStringValue()
-	}
+	plugin.Logger(ctx).Trace("getRAMGroupUsers")
+	data := h.Item.(groupInfo)
 
+	// Get project details
 	commonData, err := getCommonColumns(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}
+	commonColumnData := commonData.(*alicloudCommonColumnData)
+	accountID := commonColumnData.AccountID
 
-	accountCommonData := commonData.(*alicloudCommonColumnData)
-	return []string{"acs:ram::" + accountCommonData.AccountID + ":group/" + name}, nil
+	return []string{"acs:ram::" + accountID + ":group/" + data.GroupName}, nil
 }
