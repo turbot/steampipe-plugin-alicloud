@@ -314,16 +314,3 @@ func vpcAkas(_ context.Context, d *transform.TransformData) (interface{}, error)
 	i := d.HydrateItem.(vpc.Vpc)
 	return []string{"acs:vpc:" + i.RegionId + ":" + strconv.FormatInt(i.OwnerId, 10) + ":vpc/" + i.VpcId}, nil
 }
-
-func vpcTurbotTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	tags := d.Value.([]vpc.Tag)
-
-	var turbotTags map[string]string
-	if tags != nil {
-		turbotTags = map[string]string{}
-		for _, i := range tags {
-			turbotTags[i.Key] = i.Value
-		}
-	}
-	return turbotTags, nil
-}
