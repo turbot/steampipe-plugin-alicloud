@@ -182,6 +182,7 @@ func GetDefaultRegion(connection *plugin.Connection) string {
 				}
 			}
 		}
+		return region
 	}
 
 	return region
