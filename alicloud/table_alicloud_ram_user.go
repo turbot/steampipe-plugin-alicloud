@@ -276,7 +276,6 @@ func getRAMUserMfaDevices(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 
 	request := ram.CreateListVirtualMFADevicesRequest()
 	request.Scheme = "https"
-	// request.UserName = data.UserName
 
 	response, err := client.ListVirtualMFADevices(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
