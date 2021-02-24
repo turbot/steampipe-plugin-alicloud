@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
@@ -22,9 +23,10 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 			Hydrate: listEcsDisk,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("name"),
+			KeyColumns: plugin.SingleColumn("id"),
 			Hydrate:    getEcsDisk,
 		},
+		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			{
 				Name:        "name",
@@ -280,7 +282,7 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Name:        "tags_src",
 				Description: "A list of tags attached with the resource.",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("Tags.Tag"),
+				Transform:   transform.FromField("Tags.Tag").Transform(modifyEcsSourceTags),
 			},
 
 			// steampipe standard columns
@@ -301,7 +303,7 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Name:        "title",
 				Description: ColumnDescriptionTitle,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("DiskName"),
+				Transform:   transform.From(ecsDiskTitle),
 			},
 
 			// alicloud standard columns
@@ -325,8 +327,10 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listEcsDisk(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
 	// Create service connection
-	client, err := connectEcs(ctx)
+	client, err := ECSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_disk.listEcsDisk", "connection_error", err)
 		return nil, err
@@ -359,26 +363,34 @@ func listEcsDisk(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 //// HYDRATE FUNCTIONS
 
 func getEcsDisk(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 	plugin.Logger(ctx).Trace("getEcsDisk")
 
 	// Create service connection
-	client, err := connectEcs(ctx)
+	client, err := ECSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_disk.getEcsDisk", "connection_error", err)
 		return nil, err
 	}
 
-	var name string
+	var id string
 	if h.Item != nil {
 		disk := h.Item.(ecs.Disk)
-		name = disk.DiskName
+		id = disk.DiskId
 	} else {
-		name = d.KeyColumnQuals["name"].GetStringValue()
+		id = d.KeyColumnQuals["id"].GetStringValue()
+	}
+
+	// In SDK, the Datatype of DiskIds is string, though the value should be passed as
+	// ["d-bp67acfmxazb4p****", "d-bp67acfmxazb4g****", ... "d-bp67acfmxazb4d****"]
+	input, err := json.Marshal([]string{id})
+	if err != nil {
+		return nil, err
 	}
 
 	request := ecs.CreateDescribeDisksRequest()
 	request.Scheme = "https"
-	request.DiskName = name
+	request.DiskIds = string(input)
 
 	response, err := client.DescribeDisks(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
@@ -394,11 +406,12 @@ func getEcsDisk(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 }
 
 func getEcsDiskAutoSnapshotPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 	plugin.Logger(ctx).Trace("getEcsDiskAutomaticSnapshotPolicy")
 	disk := h.Item.(ecs.Disk)
 
 	// Create service connection
-	client, err := connectEcs(ctx)
+	client, err := ECSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_disk.getEcsDisk", "connection_error", err)
 		return nil, err
@@ -436,4 +449,17 @@ func getEcsDiskAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	akas := []string{"arn:acs:ecs:" + disk.RegionId + ":" + accountID + ":disk/" + disk.DiskId}
 
 	return akas, nil
+}
+
+func ecsDiskTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	disk := d.HydrateItem.(ecs.Disk)
+
+	// Build resource title
+	title := disk.DiskId
+
+	if len(disk.DiskName) > 0 {
+		title = disk.DiskName
+	}
+
+	return title, nil
 }

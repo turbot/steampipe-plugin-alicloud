@@ -27,6 +27,7 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 			KeyColumns: plugin.SingleColumn("id"),
 			Hydrate:    getEcsSecurityGroup,
 		},
+		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			{
 				Name:        "name",
@@ -99,7 +100,7 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 				Name:        "tags_src",
 				Description: "A list of tags attached with the security group.",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("SecurityGroup.Tags.Tag"),
+				Transform:   transform.FromField("SecurityGroup.Tags.Tag").Transform(modifyEcsSourceTags),
 			},
 
 			// Steampipe standard columns
@@ -144,7 +145,10 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listEcsSecurityGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	client, err := connectEcs(ctx)
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := ECSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_security_group.listEcsSecurityGroups", "connection_error", err)
 		return nil, err
@@ -179,8 +183,10 @@ func listEcsSecurityGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 func getEcsSecurityGroup(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsSecurityGroup")
 
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
 	// Create service connection
-	client, err := connectEcs(ctx)
+	client, err := ECSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_security_group.getEcsSecurityGroup", "connection_error", err)
 		return nil, err
@@ -215,8 +221,10 @@ func getSecurityGroupAttribute(ctx context.Context, d *plugin.QueryData, h *plug
 	plugin.Logger(ctx).Trace("getSecurityGroupAttribute")
 	data := h.Item.(securityGroupInfo)
 
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
 	// Create service connection
-	client, err := connectEcs(ctx)
+	client, err := ECSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_security_group.getVSecurityGroupAttribute", "connection_error", err)
 		return nil, err
