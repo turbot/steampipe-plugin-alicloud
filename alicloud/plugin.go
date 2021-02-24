@@ -7,6 +7,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+// Plugin creates this (alicloud) plugin
 func Plugin(ctx context.Context) *plugin.Plugin {
 	p := &plugin.Plugin{
 		Name:             "steampipe-plugin-alicloud",
