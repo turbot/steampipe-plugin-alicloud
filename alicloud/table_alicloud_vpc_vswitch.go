@@ -39,6 +39,7 @@ func tableAlicloudVpcVSwitch(ctx context.Context) *plugin.Table {
 			{Name: "owner_id", Type: proto.ColumnType_STRING, Description: "The ID of the owner of the VPC."},
 			{Name: "share_type", Type: proto.ColumnType_STRING, Description: ""},
 			{Name: "route_table", Type: proto.ColumnType_JSON, Description: "Details of the route table."},
+			{Name: "vpc_id", Type: proto.ColumnType_STRING, Description: "The VPC ID to which the VSwitch belongs."},
 			{Name: "cloud_resources", Type: proto.ColumnType_JSON, Hydrate: getVSwitchAttributes, Transform: transform.FromField("CloudResourceSetType"), Description: "The list of resources in the VSwitch."},
 			// Resource interface
 			{Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(vswitchToURN).Transform(ensureStringArray), Description: ColumnDescriptionAkas},
