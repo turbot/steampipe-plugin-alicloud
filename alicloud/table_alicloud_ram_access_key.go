@@ -41,7 +41,7 @@ type accessKeyRow struct {
 }
 
 func listRamUserAccessKey(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client, err := connectRam(ctx)
+	client, err := RAMService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ram_access_key.listRamAccessKey", "connection_error", err)
 		return nil, err

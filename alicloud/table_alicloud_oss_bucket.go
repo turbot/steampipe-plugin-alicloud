@@ -25,7 +25,7 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 			{Name: "location", Type: proto.ColumnType_STRING, Description: "Location of the Bucket."},
 			{Name: "creation_date", Type: proto.ColumnType_TIMESTAMP, Description: "Date when the bucket was created."},
 			{Name: "storage_class", Type: proto.ColumnType_STRING, Description: "The storage class of objects in the bucket."},
-			// {Name: "versioning_status", Type: proto.ColumnType_STRING, Hydrate: getBucketVersioning, Transform: transform.FromField("Status"), Description: ""},
+			{Name: "versioning_status", Type: proto.ColumnType_STRING, Hydrate: getBucketVersioning, Transform: transform.FromField("Status"), Description: ""},
 			/*
 				{Name: "bucket_id", Type: proto.ColumnType_STRING, Transform: transform.FromField("BucketId"), Description: "The unique ID of the Bucket."},
 				// Other columns
@@ -54,7 +54,8 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 }
 
 func listBucket(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	client, err := connectOss(ctx)
+	region := GetDefaultRegion(d.Connection)
+	client, err := OssService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_bucket.listBucket", "connection_error", err)
 		return nil, err
@@ -81,12 +82,12 @@ func listBucket(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 }
 
 func getBucketVersioning(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client, err := connectOss(ctx)
+	bucket := h.Item.(oss.BucketProperties)
+	client, err := OssService(ctx, d, bucket.Location)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_bucket.getBucketVersioning", "connection_error", err)
 		return nil, err
 	}
-	bucket := h.Item.(oss.BucketProperties)
 	// Get bucket encryption
 	response, err := client.GetBucketVersioning(bucket.Name)
 	if err != nil {

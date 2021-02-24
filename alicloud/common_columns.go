@@ -19,7 +19,7 @@ func getCommonColumns(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 		commonColumnData = cachedData.(*alicloudCommonColumnData)
 	} else {
 		// Create service connection
-		client, err := connectSts(ctx)
+		client, err := StsService(ctx, d)
 		if err != nil {
 			return nil, err
 		}

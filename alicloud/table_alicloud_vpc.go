@@ -20,6 +20,7 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 			//KeyColumns: plugin.AnyColumn([]string{"is_default", "id"}),
 			Hydrate: listVpc,
 		},
+		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			// Top columns
 			{
@@ -195,7 +196,10 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 }
 
 func listVpc(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	client, err := connectVpc(ctx)
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := VpcService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc.listVpc", "connection_error", err)
 		return nil, err
@@ -234,7 +238,10 @@ func listVpc(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (i
 }
 
 func getVpcAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client, err := connectVpc(ctx)
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := VpcService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc.getVpcAttributes", "connection_error", err)
 		return nil, err

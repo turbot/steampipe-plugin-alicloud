@@ -44,7 +44,7 @@ func tableAlicloudRamGroup(ctx context.Context) *plugin.Table {
 }
 
 func listRamGroup(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	client, err := connectRam(ctx)
+	client, err := RAMService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ram_group.listRamGroup", "connection_error", err)
 		return nil, err
@@ -72,7 +72,7 @@ func listRamGroup(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDat
 
 func getRamGroup(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 
-	client, err := connectRam(ctx)
+	client, err := RAMService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ram_group.getRamGroup", "connection_error", err)
 		return nil, err
