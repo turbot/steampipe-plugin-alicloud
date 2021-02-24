@@ -2,7 +2,7 @@
 organization: Turbot
 category: ["public cloud"]
 icon_url: "/images/plugins/turbot/alicloud.svg"
-brand_color: "#008bcf"
+brand_color: "#FF6600"
 display_name: Alibaba Cloud
 name: alicloud
 description: Steampipe plugin for querying Alibaba Cloud servers, databases, networks, and other resources.
