@@ -41,11 +41,6 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 
 			// Other columns
 			{
-				Name:        "region_id",
-				Type:        proto.ColumnType_STRING,
-				Description: "The ID of the region to which the VPC belongs.",
-			},
-			{
 				Name:        "status",
 				Type:        proto.ColumnType_STRING,
 				Description: "The status of the VPC. Pending: The VPC is being configured. Available: The VPC is available.",
@@ -175,13 +170,6 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 
 			// Resource interface
 			{
-				Name:        "akas",
-				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromValue().Transform(vpcToURN).Transform(ensureStringArray),
-				Description: ColumnDescriptionAkas,
-			},
-
-			{
 				Name:        "tags",
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.FromField("Tags.Tag"),
@@ -193,12 +181,26 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("VpcName"),
 				Description: ColumnDescriptionTitle,
 			},
+			{
+				Name:        "akas",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromValue().Transform(vpcToURN).Transform(ensureStringArray),
+				Description: ColumnDescriptionAkas,
+			},
 
+			// alicloud common columns
+			{
+				Name:        "region",
+				Description: ColumnDescriptionRegion,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("RegionId"),
+			},
 			{
 				Name:        "account_id",
 				Description: ColumnDescriptionAccount,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("OwnerId")},
+				Transform:   transform.FromField("OwnerId"),
+			},
 		},
 	}
 }
@@ -253,7 +255,7 @@ func getVpc(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (in
 	// Create service connection
 	client, err := VpcService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc.getVpcAttributes", "connection_error", err)
+		plugin.Logger(ctx).Error("getVpcAttributes", "connection_error", err)
 		return nil, err
 	}
 
@@ -287,7 +289,7 @@ func getVpcAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	// Create service connection
 	client, err := VpcService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc.getVpcAttributes", "connection_error", err)
+		plugin.Logger(ctx).Error("getVpcAttributes", "connection_error", err)
 		return nil, err
 	}
 	request := vpc.CreateDescribeVpcAttributeRequest()
@@ -296,7 +298,7 @@ func getVpcAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	request.VpcId = i.VpcId
 	response, err := client.DescribeVpcAttribute(request)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc.getVpcAttributes", "query_error", err, "request", request)
+		plugin.Logger(ctx).Error("getVpcAttributes", "query_error", err, "request", request)
 		return nil, err
 	}
 	return response, nil
@@ -304,5 +306,5 @@ func getVpcAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 
 func vpcToURN(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	i := d.Value.(vpc.Vpc)
-	return "acs:vpc:" + i.RegionId + ":" + strconv.FormatInt(i.OwnerId, 10) + ":vpc/" + i.VpcName, nil
+	return "acs:vpc:" + i.RegionId + ":" + strconv.FormatInt(i.OwnerId, 10) + ":vpc/" + i.VpcId, nil
 }

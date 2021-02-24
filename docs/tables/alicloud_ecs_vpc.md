@@ -51,7 +51,6 @@ where
   and not cidr_block <<= '172.16.0.0/12';
 ```
 
-
 ### Get the VSwitches details
 
 ```sql
@@ -66,6 +65,3 @@ from
   alicloud_vpc as vpc
   join alicloud_vpc_vswitch as vswitch on vpc.vpc_id = vswitch.vpc_id;
 ```
-
-
-
