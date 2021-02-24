@@ -162,6 +162,7 @@ func GetDefaultRegion(connection *plugin.Connection) string {
 	}
 
 	if len(regions) > 0 {
+		// Set the first region in regions list to be default region
 		region = regions[0]
 		// check if it is a valid region
 		if len(getInvalidRegions([]string{region})) > 0 {
@@ -169,20 +170,19 @@ func GetDefaultRegion(connection *plugin.Connection) string {
 		}
 		return region
 	}
-	// Set the first region in regions list to be default region
 
 	if region == "" {
-		region, ok := os.LookupEnv("ALIBABACLOUD_REGION_ID")
-		if !ok || region == "" {
-			region, ok = os.LookupEnv("ALICLOUD_REGION_ID")
-			if !ok || region == "" {
-				region, ok = os.LookupEnv("ALICLOUD_REGION")
-				if !ok || region == "" {
-					panic("\n'region' must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe.")
-				}
+		region = os.Getenv("ALIBABACLOUD_REGION_ID")
+		if region == "" {
+			region = os.Getenv("ALICLOUD_REGION_ID")
+			if region == "" {
+				region = os.Getenv("ALICLOUD_REGION")
 			}
 		}
-		return region
+	}
+
+	if region == "" {
+		region = "cn-hangzhou"
 	}
 
 	return region
