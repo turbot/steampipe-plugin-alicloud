@@ -17,7 +17,7 @@ func tableAlicloudRamPasswordPolicy(_ context.Context) *plugin.Table {
 		// Avoid NullIfZero since may columns in this table are 0 or false (zero values)
 		DefaultTransform: transform.FromCamel(),
 		List: &plugin.ListConfig{
-			Hydrate: listRamPasswordPolicy,
+			Hydrate: listRAMPasswordPolicy,
 		},
 		Columns: []*plugin.Column{
 			{Name: "hard_expiry", Type: proto.ColumnType_BOOL, Description: "Indicates whether the password has expired."},
@@ -38,8 +38,8 @@ func tableAlicloudRamPasswordPolicy(_ context.Context) *plugin.Table {
 	}
 }
 
-func listRamPasswordPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client, err := connectRam(ctx)
+func listRAMPasswordPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	client, err := RAMService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ram_password_policy.listRamPasswordPolicy", "connection_error", err)
 		return nil, err

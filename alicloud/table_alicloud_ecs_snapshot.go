@@ -30,6 +30,7 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 			KeyColumns: plugin.SingleColumn("name"),
 			Hydrate:    getEcsSnapshot,
 		},
+		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			{
 				Name:        "name",
@@ -208,7 +209,11 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 
 func listEcsSnapshot(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service connection
-	client, err := connectEcs(ctx)
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := ECSService(ctx, d, region)
+
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_snapshot.listEcsSnapshot", "connection_error", err)
 		return nil, err
@@ -217,12 +222,6 @@ func listEcsSnapshot(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 	request.Scheme = "https"
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
-
-	// Get the region details
-	region, _, _, err := getEnv(ctx)
-	if err != nil {
-		return nil, err
-	}
 
 	count := 0
 	for {
@@ -249,16 +248,12 @@ func listEcsSnapshot(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 func getEcsSnapshot(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsSnapshot")
 
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
 	// Create service connection
-	client, err := connectEcs(ctx)
+	client, err := ECSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_snapshot.getEcsSnapshot", "connection_error", err)
-		return nil, err
-	}
-
-	// Get the region details
-	region, _, _, err := getEnv(ctx)
-	if err != nil {
 		return nil, err
 	}
 
