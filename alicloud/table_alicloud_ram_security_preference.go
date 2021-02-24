@@ -10,14 +10,14 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
-func tableAlicloudRamSecurityPreference(_ context.Context) *plugin.Table {
+func tableAlicloudRAMSecurityPreference(_ context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ram_security_preference",
 		Description: "Alibaba Cloud RAM Security Preference",
 		// Avoid NullIfZero since may columns in this table are 0 or false (zero values)
 		DefaultTransform: transform.FromCamel(),
 		List: &plugin.ListConfig{
-			Hydrate: listRamSecurityPreference,
+			Hydrate: listRAMSecurityPreference,
 		},
 		Columns: []*plugin.Column{
 			{
@@ -81,7 +81,7 @@ func tableAlicloudRamSecurityPreference(_ context.Context) *plugin.Table {
 	}
 }
 
-func listRamSecurityPreference(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func listRAMSecurityPreference(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client, err := RAMService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("listRamSecurityPreference", "connection_error", err)
