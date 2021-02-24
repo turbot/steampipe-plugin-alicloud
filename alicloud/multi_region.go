@@ -30,8 +30,6 @@ func BuildRegionList(_ context.Context, connection *plugin.Connection) []map[str
 		return matrix
 	}
 
-	return nil
-
 	return []map[string]interface{}{
 		{matrixKeyRegion: GetDefaultRegion(connection)},
 	}
