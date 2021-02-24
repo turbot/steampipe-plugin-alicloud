@@ -44,6 +44,24 @@ func csvToStringArray(_ context.Context, d *transform.TransformData) (interface{
 	return strings.Split(s, sep), nil
 }
 
+func modifyEcsSourceTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	tags := d.Value.([]ecs.Tag)
+
+	type resourceTags = struct {
+		TagKey   string
+		TagValue string
+	}
+	var sourceTags []resourceTags
+
+	if tags != nil {
+		for _, i := range tags {
+			sourceTags = append(sourceTags, resourceTags{i.TagKey, i.TagValue})
+		}
+	}
+
+	return sourceTags, nil
+}
+
 func ecsTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	tags := d.Value.([]ecs.Tag)
 	var turbotTagsMap map[string]string
