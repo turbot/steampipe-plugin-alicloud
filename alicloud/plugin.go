@@ -24,7 +24,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_ram_access_key":          tableAlicloudRAMAccessKey(ctx),
 			"alicloud_ram_group":               tableAlicloudRAMGroup(ctx),
 			"alicloud_ram_password_policy":     tableAlicloudRamPasswordPolicy(ctx),
-			"alicloud_ram_role":                tableAlicloudRamRole(ctx),
+			"alicloud_ram_role":                tableAlicloudRAMRole(ctx),
 			"alicloud_ram_security_preference": tableAlicloudRamSecurityPreference(ctx),
 			"alicloud_ram_user":                tableAlicloudRAMUser(ctx),
 			"alicloud_vpc":                     tableAlicloudVpc(ctx),
