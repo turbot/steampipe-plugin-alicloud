@@ -100,7 +100,7 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 				Name:        "tags_src",
 				Description: "A list of tags attached with the security group.",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("SecurityGroup.Tags.Tag"),
+				Transform:   transform.FromField("SecurityGroup.Tags.Tag").Transform(modifyEcsSourceTags),
 			},
 
 			// Steampipe standard columns

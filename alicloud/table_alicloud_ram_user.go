@@ -11,45 +11,150 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
-func tableAlicloudRamUser(ctx context.Context) *plugin.Table {
+type userInfo = struct {
+	UserName      string
+	UserId        string
+	DisplayName   string
+	Email         string
+	MobilePhone   string
+	Comments      string
+	CreateDate    string
+	UpdateDate    string
+	LastLoginDate string
+}
+
+//// TABLE DEFINITION
+
+func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ram_user",
 		Description: "Resource Access Management users who can login via the console or access keys.",
 		List: &plugin.ListConfig{
-			Hydrate: listRamUser,
+			Hydrate: listRAMUser,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("name"),
-			Hydrate:    getRamUser,
+			Hydrate:    getRAMUser,
 		},
 		Columns: []*plugin.Column{
 			// Top columns
-			{Name: "name", Type: proto.ColumnType_STRING, Transform: transform.FromField("UserName"), Description: "The username of the RAM user."},
-			{Name: "id", Type: proto.ColumnType_STRING, Transform: transform.FromField("UserId"), Description: "The unique ID of the RAM user."},
-			{Name: "display_name", Type: proto.ColumnType_STRING, Description: "The display name of the RAM user."},
-			// Other columns
-			{Name: "email", Type: proto.ColumnType_STRING, Hydrate: getRamUser, Description: "The email address of the RAM user."},
-			{Name: "last_login_date", Type: proto.ColumnType_TIMESTAMP, Hydrate: getRamUser, Description: "The time when the RAM user last logged on to the console by using the password."},
-			{Name: "mobile_phone", Type: proto.ColumnType_STRING, Hydrate: getRamUser, Description: "The mobile phone number of the RAM user."},
-			{Name: "comments", Type: proto.ColumnType_STRING, Description: "The description of the RAM user."},
-			{Name: "create_date", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the RAM user was created."},
-			{Name: "update_date", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the RAM user was modified."},
-			// Resource interface
-			{Name: "akas", Type: proto.ColumnType_JSON, Hydrate: getUserAkas, Transform: transform.FromValue(), Description: ColumnDescriptionAkas},
-			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromConstant(map[string]bool{}), Description: ColumnDescriptionTags},
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("UserName"), Description: ColumnDescriptionTitle},
+			{
+				Name:        "name",
+				Description: "The username of the RAM user.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("UserName"),
+			},
+			{
+				Name:        "id",
+				Description: "The unique ID of the RAM user.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("UserId"),
+			},
+			{
+				Name:        "display_name",
+				Description: "The display name of the RAM user.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "email",
+				Description: "The email address of the RAM user.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "last_login_date",
+				Description: "The time when the RAM user last logged on to the console by using the password.",
+				Type:        proto.ColumnType_TIMESTAMP,
+				Hydrate:     getRAMUser,
+			},
+			{
+				Name:        "mobile_phone",
+				Description: "The mobile phone number of the RAM user.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "comments",
+				Description: "The description of the RAM user.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "create_date",
+				Description: "The time when the RAM user was created.",
+				Type:        proto.ColumnType_TIMESTAMP,
+			},
+			{
+				Name:        "update_date",
+				Type:        proto.ColumnType_TIMESTAMP,
+				Description: "The time when the RAM user was modified.",
+			},
+			{
+				Name:        "mfa_enabled",
+				Description: "The MFA status of the user",
+				Type:        proto.ColumnType_BOOL,
+				Hydrate:     getRAMUserMfaDevices,
+				Transform:   transform.From(userMfaStatus),
+			},
+			{
+				Name:        "mfa_device_serial_number",
+				Description: "The serial number of the MFA device.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRAMUserMfaDevices,
+				Transform:   transform.FromValue(),
+			},
+			{
+				Name:        "attached_policy",
+				Description: "A list of policies attached to a RAM user.",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getRAMUserPolicies,
+				Transform:   transform.FromValue(),
+			},
+			{
+				Name:        "groups",
+				Description: "A list of groups attached to the user.",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getRAMUserGroups,
+				Transform:   transform.FromValue(),
+			},
+
+			// steampipe standard columns
+			{
+				Name:        "akas",
+				Description: ColumnDescriptionAkas,
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getUserAkas,
+				Transform:   transform.FromValue(),
+			},
+			{
+				Name:        "title",
+				Description: ColumnDescriptionTitle,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("UserName"),
+			},
 
 			// alicloud standard columns
-			{Name: "region", Description: ColumnDescriptionRegion, Type: proto.ColumnType_STRING, Transform: transform.FromConstant("global")},
-			{Name: "account_id", Description: ColumnDescriptionAccount, Type: proto.ColumnType_STRING, Hydrate: getCommonColumns, Transform: transform.FromField("AccountID")},
+			{
+				Name:        "region",
+				Description: ColumnDescriptionRegion,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromConstant("global"),
+			},
+			{
+				Name:        "account_id",
+				Description: ColumnDescriptionAccount,
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getCommonColumns,
+				Transform:   transform.FromField("AccountID"),
+			},
 		},
 	}
 }
 
-func listRamUser(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+//// LIST FUNCTION
+
+func listRAMUser(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	// Create service connection
 	client, err := RAMService(ctx, d)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ram_user.listRamUser", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_ram_user.listRAMUser", "connection_error", err)
 		return nil, err
 	}
 	request := ram.CreateListUsersRequest()
@@ -57,12 +162,12 @@ func listRamUser(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 	for {
 		response, err := client.ListUsers(request)
 		if err != nil {
-			plugin.Logger(ctx).Error("alicloud_ram_user.listRamUser", "query_error", err, "request", request)
+			plugin.Logger(ctx).Error("alicloud_ram_user.listRAMUser", "query_error", err, "request", request)
 			return nil, err
 		}
 		for _, i := range response.Users.User {
-			plugin.Logger(ctx).Warn("listRamUser", "item", i)
-			d.StreamListItem(ctx, i)
+			plugin.Logger(ctx).Warn("listRAMUser", "item", i)
+			d.StreamListItem(ctx, userInfo{i.UserName, i.UserId, i.DisplayName, i.Email, i.MobilePhone, i.Comments, i.CreateDate, i.UpdateDate, ""})
 		}
 		if !response.IsTruncated {
 			break
@@ -72,22 +177,24 @@ func listRamUser(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 	return nil, nil
 }
 
-func getRamUser(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+//// HYDRATE FUNCTIONS
 
+func getRAMUser(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getRAMUser")
+
+	// Create service connection
 	client, err := RAMService(ctx, d)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ram_user.getRamUser", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_ram_user.getRAMUser", "connection_error", err)
 		return nil, err
 	}
 
 	var name string
-
 	if h.Item != nil {
-		i := h.Item.(ram.UserInListUsers)
+		i := h.Item.(userInfo)
 		name = i.UserName
 	} else {
-		quals := d.KeyColumnQuals
-		name = quals["name"].GetStringValue()
+		name = d.KeyColumnQuals["name"].GetStringValue()
 	}
 
 	request := ram.CreateGetUserRequest()
@@ -97,31 +204,118 @@ func getRamUser(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	response, err := client.GetUser(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
 		if serverErr.ErrorCode() == "EntityNotExist.User" {
-			plugin.Logger(ctx).Warn("alicloud_ram_user.getRamUser", "not_found_error", serverErr, "request", request)
+			plugin.Logger(ctx).Warn("alicloud_ram_user.getRAMUser", "not_found_error", serverErr, "request", request)
 			return nil, nil
 		}
-		plugin.Logger(ctx).Error("alicloud_ram_user.getRamUser", "query_error", serverErr, "request", request)
+		plugin.Logger(ctx).Error("alicloud_ram_user.getRAMUser", "query_error", serverErr, "request", request)
 		return nil, serverErr
 	}
 
-	return response.User, nil
+	data := response.User
+	return userInfo{data.UserName, data.UserId, data.DisplayName, data.Email, data.MobilePhone, data.Comments, data.CreateDate, data.UpdateDate, data.LastLoginDate}, nil
+}
+
+func getRAMUserGroups(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getRAMUserGroups")
+	data := h.Item.(userInfo)
+
+	// Create service connection
+	client, err := RAMService(ctx, d)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMUserGroups", "connection_error", err)
+		return nil, err
+	}
+
+	request := ram.CreateListGroupsForUserRequest()
+	request.Scheme = "https"
+	request.UserName = data.UserName
+
+	response, err := client.ListGroupsForUser(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMUserGroups", "query_error", serverErr, "request", request)
+		return nil, serverErr
+	}
+
+	return response.Groups.Group, nil
+}
+
+func getRAMUserPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getRAMUserPolicies")
+	data := h.Item.(userInfo)
+
+	// Create service connection
+	client, err := RAMService(ctx, d)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMUserPolicies", "connection_error", err)
+		return nil, err
+	}
+
+	request := ram.CreateListPoliciesForUserRequest()
+	request.Scheme = "https"
+	request.UserName = data.UserName
+
+	response, err := client.ListPoliciesForUser(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMUserPolicies", "query_error", serverErr, "request", request)
+		return nil, serverErr
+	}
+
+	return response.Policies.Policy, nil
+}
+
+func getRAMUserMfaDevices(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getRAMUserMfaDevices")
+	data := h.Item.(userInfo)
+
+	// Create service connection
+	client, err := RAMService(ctx, d)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMUserMfaDevices", "connection_error", err)
+		return nil, err
+	}
+
+	request := ram.CreateListVirtualMFADevicesRequest()
+	request.Scheme = "https"
+
+	response, err := client.ListVirtualMFADevices(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMUserMfaDevices", "query_error", serverErr, "request", request)
+		return nil, serverErr
+	}
+
+	var items []ram.VirtualMFADeviceInListVirtualMFADevices
+	for _, i := range response.VirtualMFADevices.VirtualMFADevice {
+		if i.User.UserName == data.UserName {
+			items = append(items, i)
+		}
+	}
+
+	return items, nil
 }
 
 func getUserAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	var name string
-	if h.Item != nil {
-		i := h.Item.(ram.UserInListUsers)
-		name = i.UserName
-	} else {
-		quals := d.KeyColumnQuals
-		name = quals["name"].GetStringValue()
-	}
+	plugin.Logger(ctx).Trace("getUserAkas")
+	data := h.Item.(userInfo)
 
+	// Get project details
 	commonData, err := getCommonColumns(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}
+	commonColumnData := commonData.(*alicloudCommonColumnData)
+	accountID := commonColumnData.AccountID
 
-	accountCommonData := commonData.(*alicloudCommonColumnData)
-	return []string{"acs:ram::" + accountCommonData.AccountID + ":user/" + name}, nil
+	return []string{"acs:ram::" + accountID + ":user/" + data.UserName}, nil
+}
+
+//// TRANSFORM FUNCTION
+
+func userMfaStatus(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	data := d.HydrateItem.([]ram.VirtualMFADeviceInListVirtualMFADevices)
+
+	if data != nil && len(data) > 0 {
+		return true, nil
+	}
+
+	return false, nil
 }
