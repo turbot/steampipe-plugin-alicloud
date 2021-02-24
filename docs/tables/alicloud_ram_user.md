@@ -1,6 +1,6 @@
 # Table: alicloud_ram_user
 
-Alibaba Cloud RAM users can login to the console or use access keys programatically.
+Alibaba Cloud RAM users can login to the console or use access keys programmatically.
 
 ## Examples
 
