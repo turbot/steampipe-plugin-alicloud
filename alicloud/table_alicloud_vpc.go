@@ -12,6 +12,8 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+//// TABLE DEFINITION
+
 func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_vpc",
@@ -211,6 +213,8 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 	}
 }
 
+//// LIST FUNCTION
+
 func listVpcs(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
@@ -229,8 +233,8 @@ func listVpcs(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (
 	if quals["is_default"] != nil {
 		request.IsDefault = requests.NewBoolean(quals["is_default"].GetBoolValue())
 	}
-	if quals["id"] != nil {
-		request.VpcId = quals["id"].GetStringValue()
+	if quals["vpc_id"] != nil {
+		request.VpcId = quals["vpc_id"].GetStringValue()
 	}
 
 	count := 0
@@ -253,7 +257,7 @@ func listVpcs(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (
 	return nil, nil
 }
 
-//// Hydrate Functions
+//// HYDRATE FUNCTIONS
 
 func getVpc(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
@@ -309,6 +313,8 @@ func getVpcAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	}
 	return response, nil
 }
+
+//// TRANSFORM FUNCTIONS
 
 func vpcAkas(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	i := d.HydrateItem.(vpc.Vpc)
