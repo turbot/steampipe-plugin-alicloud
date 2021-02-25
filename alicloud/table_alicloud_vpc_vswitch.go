@@ -153,7 +153,6 @@ func tableAlicloudVpcVSwitch(ctx context.Context) *plugin.Table {
 				Name:        "account_id",
 				Description: ColumnDescriptionAccount,
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getCommonColumns,
 				Transform:   transform.FromField("OwnerId"),
 			},
 		},
@@ -180,8 +179,8 @@ func listVSwitch(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 	if quals["is_default"] != nil {
 		request.IsDefault = requests.NewBoolean(quals["is_default"].GetBoolValue())
 	}
-	if quals["id"] != nil {
-		request.VSwitchId = quals["id"].GetStringValue()
+	if quals["vswitch_id"] != nil {
+		request.VSwitchId = quals["vswitch_id"].GetStringValue()
 	}
 
 	count := 0
