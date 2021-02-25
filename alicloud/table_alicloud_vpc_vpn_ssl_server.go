@@ -12,12 +12,14 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 )
 
+//// TABLE DEFINITION
+
 func tableAlicloudVpcVpnSslServer(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_vpc_vpn_ssl_server",
 		Description: "SSL Server refers to the SSL-VPN server within the VPC. It authenticates clients and manages configurations.",
 		List: &plugin.ListConfig{
-			Hydrate: listVpcVpnSslServer,
+			Hydrate: listVpcVpnSslServers,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("ssl_vpn_server_id"),
@@ -133,13 +135,13 @@ func tableAlicloudVpcVpnSslServer(ctx context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func listVpcVpnSslServer(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func listVpcVpnSslServers(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
 	client, err := VpcService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_server.listVpcVpnSslServer", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_server.listVpcVpnSslServers", "connection_error", err)
 		return nil, err
 	}
 	request := vpc.CreateDescribeSslVpnServersRequest()
@@ -151,11 +153,11 @@ func listVpcVpnSslServer(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 	for {
 		response, err := client.DescribeSslVpnServers(request)
 		if err != nil {
-			plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_server.listVpcVpnSslServer", "query_error", err, "request", request)
+			plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_server.listVpcVpnSslServers", "query_error", err, "request", request)
 			return nil, err
 		}
 		for _, i := range response.SslVpnServers.SslVpnServer {
-			plugin.Logger(ctx).Warn("alicloud_vpc_vpn_ssl_server.listVpcVpnSslServer", "Name", i.Name, "item", i)
+			plugin.Logger(ctx).Warn("alicloud_vpc_vpn_ssl_server.listVpcVpnSslServers", "Name", i.Name, "item", i)
 			d.StreamListItem(ctx, i)
 			count++
 		}
