@@ -21,7 +21,7 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 			Hydrate: listEcsInstance,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("id"),
+			KeyColumns: plugin.SingleColumn("instance_id"),
 			Hydrate:    getEcsInstance,
 		},
 		GetMatrixItem: BuildRegionList,
@@ -516,7 +516,7 @@ func getEcsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 		instance := h.Item.(ecs.Instance)
 		id = instance.InstanceId
 	} else {
-		id = d.KeyColumnQuals["id"].GetStringValue()
+		id = d.KeyColumnQuals["instance_id"].GetStringValue()
 	}
 
 	// In SDK, the Datatype of InstanceIds is string, though the value should be passed as

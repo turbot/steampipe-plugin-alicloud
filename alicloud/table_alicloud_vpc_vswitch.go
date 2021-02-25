@@ -12,6 +12,8 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+//// TABLE DEFINITION
+
 func tableAlicloudVpcVSwitch(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_vswitch",
@@ -158,6 +160,8 @@ func tableAlicloudVpcVSwitch(ctx context.Context) *plugin.Table {
 	}
 }
 
+//// LIST FUNCTION
+
 func listVSwitch(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
@@ -200,6 +204,8 @@ func listVSwitch(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 	return nil, nil
 }
 
+//// HYDRATE FUNCTIONS
+
 func getVSwitchAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
@@ -220,6 +226,8 @@ func getVSwitchAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 	}
 	return response, nil
 }
+
+//// TRANSFORM FUNCTIONS
 
 func switchRegion(ctx context.Context, d *transform.TransformData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("switchRegion")

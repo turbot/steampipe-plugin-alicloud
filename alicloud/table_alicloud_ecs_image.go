@@ -27,7 +27,7 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 			Hydrate: listEcsImages,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("id"),
+			KeyColumns: plugin.SingleColumn("image_id"),
 			Hydrate:    getEcsImage,
 		},
 		GetMatrixItem: BuildRegionList,
@@ -229,6 +229,8 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 	}
 }
 
+//// LIST FUNCTION
+
 func listEcsImages(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
@@ -281,7 +283,7 @@ func getEcsImage(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 		data := h.Item.(imageInfo)
 		id = data.Image.ImageId
 	} else {
-		id = d.KeyColumnQuals["id"].GetStringValue()
+		id = d.KeyColumnQuals["image_id"].GetStringValue()
 	}
 
 	request := ecs.CreateDescribeImagesRequest()

@@ -11,6 +11,8 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+//// TABLE DEFINITION
+
 func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_oss_bucket",
@@ -128,7 +130,7 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 	}
 }
 
-//// LIST FUNCTIONS
+//// LIST FUNCTION
 
 func listBucket(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	region := GetDefaultRegion(d.Connection)

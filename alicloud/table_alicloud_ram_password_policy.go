@@ -10,6 +10,8 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+//// TABLE DEFINITION
+
 func tableAlicloudRamPasswordPolicy(_ context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ram_password_policy",
@@ -84,6 +86,8 @@ func tableAlicloudRamPasswordPolicy(_ context.Context) *plugin.Table {
 		},
 	}
 }
+
+//// LIST FUNCTION
 
 func listRAMPasswordPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client, err := RAMService(ctx, d)
