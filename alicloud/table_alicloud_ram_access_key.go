@@ -7,66 +7,125 @@ import (
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
-func tableAlicloudRamAccessKey(_ context.Context) *plugin.Table {
+type accessKeyRow = struct {
+	AccessKeyId string
+	Status      string
+	CreateDate  string
+	UserName    string
+}
+
+//// TABLE DEFINITION
+
+func tableAlicloudRAMAccessKey(_ context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ram_access_key",
-		Description: "Alibaba Cloud RAM User Access Key",
+		Description: "Alibaba Cloud RAM User Access Key.",
 		List: &plugin.ListConfig{
-			ParentHydrate: listRamUser,
-			Hydrate:       listRamUserAccessKey,
+			ParentHydrate: listRAMUser,
+			Hydrate:       listRAMUserAccessKeys,
 		},
 		Columns: []*plugin.Column{
-			{Name: "user_name", Type: proto.ColumnType_STRING, Description: "Name of the User that the access key belongs to."},
-			{Name: "status", Type: proto.ColumnType_STRING, Description: "The status of the AccessKey pair. Valid values: Active and Inactive."},
-			{Name: "id", Type: proto.ColumnType_STRING, Description: "The AccessKey ID."},
-			{Name: "create_date", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the AccessKey pair was created."},
+			{
+				Name:        "user_name",
+				Description: "Name of the User that the access key belongs to.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "access_key_id",
+				Description: "The AccessKey ID.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "status",
+				Type:        proto.ColumnType_STRING,
+				Description: "The status of the AccessKey pair. Valid values: Active and Inactive.",
+			},
+			{
+				Name:        "create_date",
+				Type:        proto.ColumnType_TIMESTAMP,
+				Description: "The time when the AccessKey pair was created.",
+			},
+
+			// steampipe common columns
+			{
+				Name:        "title",
+				Description: ColumnDescriptionTitle,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("AccessKeyId"),
+			},
+			{
+				Name:        "akas",
+				Description: ColumnDescriptionAkas,
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getAccessKeyArn,
+				Transform:   transform.FromValue(),
+			},
+
+			// alicloud standard columns
+			{
+				Name:        "region",
+				Description: ColumnDescriptionRegion,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromConstant("global"),
+			},
+			{
+				Name:        "account_id",
+				Description: ColumnDescriptionAccount,
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getCommonColumns,
+				Transform:   transform.FromField("AccountID"),
+			},
 		},
 	}
 }
 
-type accessKeyRow struct {
-	ram.AccessKeyInListAccessKeys
-	UserName string
-}
+//// LIST FUNCTION
 
-func listRamUserAccessKey(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client, err := connectRam(ctx)
+func listRAMUserAccessKeys(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	// Create service connection
+	client, err := RAMService(ctx, d)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ram_access_key.listRamAccessKey", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_ram_access_key.listRAMUserAccessKeys", "connection_error", err)
 		return nil, err
 	}
 
-	var name string
-
-	if h.Item != nil {
-		switch h.Item.(type) {
-		case ram.UserInListUsers:
-			i := h.Item.(ram.UserInListUsers)
-			name = i.UserName
-		case accessKeyRow:
-			i := h.Item.(accessKeyRow)
-			name = i.UserName
-		}
-	} else {
-		quals := d.KeyColumnQuals
-		name = quals["name"].GetStringValue()
-	}
+	user := h.Item.(userInfo)
 
 	request := ram.CreateListAccessKeysRequest()
 	request.Scheme = "https"
-	request.UserName = name
+	request.UserName = user.UserName
 
 	response, err := client.ListAccessKeys(request)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ram_access_key.listRamAccessKey", "query_error", err, "request", request)
+		plugin.Logger(ctx).Error("alicloud_ram_access_key.listRAMUserAccessKeys", "query_error", err, "request", request)
 		return nil, err
 	}
 	for _, i := range response.AccessKeys.AccessKey {
-		plugin.Logger(ctx).Warn("listRamAccessKey", "item", i)
-		ak := accessKeyRow{i, name}
-		d.StreamListItem(ctx, ak)
+		plugin.Logger(ctx).Warn("listRAMUserAccessKeys", "item", i)
+		d.StreamLeafListItem(ctx, accessKeyRow{i.AccessKeyId, i.Status, i.CreateDate, user.UserName})
 	}
 	return nil, nil
+}
+
+//// HYDRATE FUNCTIONS
+
+func getAccessKeyArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getAccessKeyArn")
+
+	i := h.Item.(accessKeyRow)
+
+	// Get project details
+	commonData, err := getCommonColumns(ctx, d, h)
+	if err != nil {
+		return nil, err
+	}
+	commonColumnData := commonData.(*alicloudCommonColumnData)
+	accountID := commonColumnData.AccountID
+
+	akas := []string{"acs:ram::" + accountID + ":user/" + i.UserName + "/accesskey/" + i.AccessKeyId}
+
+	return akas, nil
 }
