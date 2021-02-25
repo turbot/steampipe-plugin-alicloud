@@ -30,7 +30,7 @@ Each `alicloud` connection is scoped to a single Alibaba Cloud account, with a s
 
 ### Configuration Arguments
 
-The Alicloud plugin allows you set static credentials with the `access_key` and `secret_key` arguments. You may select one or more regions with the `regions` argument.  A connection may connect to multiple regions, however be aware that performance may be negatively affected by both the number of regions and the latency to them.
+The Alicloud plugin allows you set static credentials with the `access_key` and `secret_key` arguments. You may select one or more regions with the `regions` argument. A connection may connect to multiple regions, however be aware that performance may be negatively affected by both the number of regions and the latency to them.
 
 ```hcl
 # credentials via key pair
@@ -66,6 +66,7 @@ The Alicloud credential resolution order is:
 If `regions` is not specified, Steampipe will use a single default region using the resolution order as mentioned for `Region` in above table:
 
 Steampipe will require read access in order to query your Alicloud resources.[Create a RAM user with an access key pair](https://partners-intl.aliyun.com/help/doc-detail/116401.htm).
+
 **Note:** Read permissions are required for tables to work.
 
 _Steampipe does not yet automatically load `aliyun` configuration files._
