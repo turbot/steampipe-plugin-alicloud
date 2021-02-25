@@ -34,10 +34,9 @@ func tableAlicloudRAMAccessKey(_ context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 			},
 			{
-				Name:        "id",
+				Name:        "access_key_id",
 				Description: "The AccessKey ID.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("AccessKeyId"),
 			},
 			{
 				Name:        "status",

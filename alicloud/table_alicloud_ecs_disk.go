@@ -23,7 +23,7 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 			Hydrate: listEcsDisk,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("id"),
+			KeyColumns: plugin.SingleColumn("disk_id"),
 			Hydrate:    getEcsDisk,
 		},
 		GetMatrixItem: BuildRegionList,
@@ -35,10 +35,9 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("DiskName"),
 			},
 			{
-				Name:        "id",
+				Name:        "disk_id",
 				Description: "An unique identifier for the resource.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("DiskId"),
 			},
 			{
 				Name:        "status",
@@ -282,7 +281,7 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Name:        "tags_src",
 				Description: "A list of tags attached with the resource.",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("Tags.Tag"),
+				Transform:   transform.FromField("Tags.Tag").Transform(modifyEcsSourceTags),
 			},
 
 			// steampipe standard columns
@@ -378,7 +377,7 @@ func getEcsDisk(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 		disk := h.Item.(ecs.Disk)
 		id = disk.DiskId
 	} else {
-		id = d.KeyColumnQuals["id"].GetStringValue()
+		id = d.KeyColumnQuals["disk_id"].GetStringValue()
 	}
 
 	// In SDK, the Datatype of DiskIds is string, though the value should be passed as
@@ -450,6 +449,8 @@ func getEcsDiskAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 
 	return akas, nil
 }
+
+//// TRANSFORM FUNCTIONS
 
 func ecsDiskTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	disk := d.HydrateItem.(ecs.Disk)

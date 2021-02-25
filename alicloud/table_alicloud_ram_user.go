@@ -45,10 +45,9 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("UserName"),
 			},
 			{
-				Name:        "id",
+				Name:        "user_id",
 				Description: "The unique ID of the RAM user.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("UserId"),
 			},
 			{
 				Name:        "display_name",
@@ -276,7 +275,6 @@ func getRAMUserMfaDevices(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 
 	request := ram.CreateListVirtualMFADevicesRequest()
 	request.Scheme = "https"
-	// request.UserName = data.UserName
 
 	response, err := client.ListVirtualMFADevices(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {

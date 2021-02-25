@@ -8,26 +8,43 @@ A RAM role is a virtual RAM identity that you can create in your Alibaba Cloud a
 
 ```sql
 select
-  name as group_name,
+  name,
   policies ->> 'PolicyName' as policy_name,
   policies ->> 'PolicyType' as policy_type,
   policies ->> 'DefaultVersion' as policy_default_version,
   policies ->> 'AttachDate' as policy_attachment_date
 from
-  alicloud_ram_role
-  cross join jsonb_array_elements(attached_policy) as policies
-order by group_name;
+  alicloud_ram_role,
+  jsonb_array_elements(attached_policy) as policies
+order by name;
 ```
 
 ### Find all roles having Administrator access
 
 ```sql
 select
-  name as user_name,
+  name,
   policies ->> 'PolicyName' as policy_name
 from
-  alicloud_ram_role
-  cross join jsonb_array_elements(attached_policy) as policies
+  alicloud_ram_role,
+  jsonb_array_elements(attached_policy) as policies
 where 
   policies ->> 'PolicyName' = 'AdministratorAccess';
+```
+
+
+
+### Find all roles grant cross-account access in the Trust Policy
+
+```sql
+select
+  name,
+  principal,
+  split_part(principal, ':', 4) as foreign_account
+from
+  alicloud_ram_role,
+  jsonb_array_elements(assume_role_policy_document -> 'Statement') as stmt,
+  jsonb_array_elements_text(stmt -> 'Principal' -> 'RAM') as principal
+where 
+  split_part(principal, ':',4) <> account_id;
 ```

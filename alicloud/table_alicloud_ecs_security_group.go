@@ -24,7 +24,7 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 			Hydrate: listEcsSecurityGroups,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("id"),
+			KeyColumns: plugin.SingleColumn("security_group_id"),
 			Hydrate:    getEcsSecurityGroup,
 		},
 		GetMatrixItem: BuildRegionList,
@@ -36,7 +36,7 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("SecurityGroup.SecurityGroupName"),
 			},
 			{
-				Name:        "id",
+				Name:        "security_group_id",
 				Description: "The ID of the security group.",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("SecurityGroup.SecurityGroupId"),
@@ -100,7 +100,7 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 				Name:        "tags_src",
 				Description: "A list of tags attached with the security group.",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("SecurityGroup.Tags.Tag"),
+				Transform:   transform.FromField("SecurityGroup.Tags.Tag").Transform(modifyEcsSourceTags),
 			},
 
 			// Steampipe standard columns
@@ -197,7 +197,7 @@ func getEcsSecurityGroup(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 		data := h.Item.(ecs.SecurityGroup)
 		id = data.SecurityGroupId
 	} else {
-		id = d.KeyColumnQuals["id"].GetStringValue()
+		id = d.KeyColumnQuals["security_group_id"].GetStringValue()
 	}
 
 	request := ecs.CreateDescribeSecurityGroupsRequest()

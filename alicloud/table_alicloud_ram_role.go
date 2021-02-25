@@ -48,10 +48,9 @@ func tableAlicloudRAMRole(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 			},
 			{
-				Name:        "id",
+				Name:        "role_id",
 				Description: "The ID of the RAM role.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("RoleId"),
 			},
 			{
 				Name:        "description",
@@ -119,6 +118,8 @@ func tableAlicloudRAMRole(ctx context.Context) *plugin.Table {
 	}
 }
 
+//// LIST FUNCTION
+
 func listRAMRoles(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service connection
 	client, err := RAMService(ctx, d)
@@ -147,6 +148,8 @@ func listRAMRoles(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDat
 	}
 	return nil, nil
 }
+
+//// HYDRATE FUNCTIONS
 
 func getRAMRole(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getRAMRole")
