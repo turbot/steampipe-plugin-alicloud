@@ -3,6 +3,7 @@ package alicloud
 import (
 	"context"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 
@@ -11,38 +12,133 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+type vpnSslClientCertInfo = struct {
+	Name               string
+	SslVpnClientCertId string
+	SslVpnServerId     string
+	Status             string
+	CreateTime         int64
+	EndTime            int64
+	CaCert             string
+	ClientCert         string
+	ClientKey          string
+	ClientConfig       string
+	Region             string
+}
+
+//// TABLE DEFINITION
+
 func tableAlicloudVpcVpnSslClient(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_vpc_vpn_ssl_client",
 		Description: "SSL Client is responsible for managing client certificates. The client needs to first complete certificate verification in order to connect to the SSL Server.",
 		List: &plugin.ListConfig{
-			//KeyColumns: plugin.AnyColumn([]string{"is_default", "id"}),
-			Hydrate: listVpcVpnSslClient,
+			Hydrate: listVpcVpnSslClientCerts,
 		},
+		Get: &plugin.GetConfig{
+			KeyColumns: plugin.SingleColumn("ssl_vpn_client_cert_id"),
+			Hydrate:    getVpcVpnSslClient,
+		},
+		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
-			// Top columns
-			{Name: "name", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name"), Description: "The name of the SSL client certificate."},
-			{Name: "ssl_vpn_server_id", Type: proto.ColumnType_STRING, Transform: transform.FromField("SslVpnServerId"), Description: "The ID of the SSL-VPN server."},
-			// Other columns
-			{Name: "region_id", Type: proto.ColumnType_STRING, Description: "The region of the SSL client certificate to query"},
-			{Name: "ssl_vpn_client_cert_id", Type: proto.ColumnType_STRING, Description: "The ID of the SSL client certificate."},
-			{Name: "create_time", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("CreateTime").Transform(transform.UnixMsToTimestamp), Description: "The time when the SSL client certificate was created."},
-			{Name: "end_time", Type: proto.ColumnType_TIMESTAMP, Transform: transform.FromField("EndTime").Transform(transform.UnixMsToTimestamp), Description: "The time when the SSL client certificate expires."},
-			{Name: "Status", Type: proto.ColumnType_STRING, Description: "The status of the client certificate"},
+			{
+				Name:        "name",
+				Description: "The name of the SSL client certificate.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "ssl_vpn_client_cert_id",
+				Description: "The ID of the SSL client certificate.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "ssl_vpn_server_id",
+				Description: "The ID of the SSL-VPN server.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "status",
+				Description: "The status of the client certificate.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "create_time",
+				Description: "The time when the SSL client certificate was created.",
+				Type:        proto.ColumnType_TIMESTAMP,
+				Transform:   transform.FromField("CreateTime").Transform(transform.UnixMsToTimestamp),
+			},
+			{
+				Name:        "end_time",
+				Description: "The time when the SSL client certificate expires.",
+				Type:        proto.ColumnType_TIMESTAMP,
+				Transform:   transform.FromField("EndTime").Transform(transform.UnixMsToTimestamp),
+			},
+			{
+				Name:        "ca_cert",
+				Description: "The CA certificate.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getVpcVpnSslClient,
+			},
+			{
+				Name:        "client_cert",
+				Description: "The client certificate.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getVpcVpnSslClient,
+			},
+			{
+				Name:        "client_key",
+				Description: "The client key.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getVpcVpnSslClient,
+			},
+			{
+				Name:        "client_config",
+				Description: "The client configuration.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getVpcVpnSslClient,
+			},
 
-			// Resource interface
-			// {Name: "akas", Type: proto.ColumnType_JSON, Transform: transform.FromValue().Transform(SslClientToURN).Transform(ensureStringArray), Description: resourceInterfaceDescription("akas")},
-			// TODO - It appears that Tags are not returned by the go SDK?
-			// {Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: resourceInterfaceDescription("tags")},
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name"), Description: resourceInterfaceDescription("title")},
+			// steampipe standard columns
+			{
+				Name:        "akas",
+				Description: ColumnDescriptionAkas,
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getVpcVpnSslClientCertAka,
+				Transform:   transform.FromValue(),
+			},
+			{
+				Name:        "title",
+				Description: ColumnDescriptionTitle,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.From(sslVpnClientCertTitle),
+			},
+
+			// alicloud standard columns
+			{
+				Name:        "region",
+				Description: ColumnDescriptionRegion,
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "account_id",
+				Description: ColumnDescriptionAccount,
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getCommonColumns,
+				Transform:   transform.FromField("AccountID"),
+			},
 		},
 	}
 }
 
-func listVpcVpnSslClient(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	client, err := connectVpc(ctx)
+//// LIST FUNCTION
+
+func listVpcVpnSslClientCerts(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := VpcService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc.listVpcVpnSslClient", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_client.listVpcVpnSslClientCerts", "connection_error", err)
 		return nil, err
 	}
 	request := vpc.CreateDescribeSslVpnClientCertsRequest()
@@ -50,24 +146,15 @@ func listVpcVpnSslClient(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
 
-	quals := d.KeyColumnQuals
-	// if quals["is_default"] != nil {
-	// 	request.IsDefault = requests.NewBoolean(quals["is_default"].GetBoolValue())
-	// }
-	if quals["id"] != nil {
-		request.SslVpnClientCertId = quals["id"].GetStringValue()
-	}
-
 	count := 0
 	for {
 		response, err := client.DescribeSslVpnClientCerts(request)
 		if err != nil {
-			plugin.Logger(ctx).Error("alicloud_vpc.listVpcVpnSslClient", "query_error", err, "request", request)
+			plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_client.listVpcVpnSslClientCerts", "query_error", err, "request", request)
 			return nil, err
 		}
 		for _, i := range response.SslVpnClientCertKeys.SslVpnClientCertKey {
-			plugin.Logger(ctx).Warn("alicloud_vpc.listVpcVpnSslClient", "Name", i.Name, "item", i)
-			d.StreamListItem(ctx, i)
+			d.StreamListItem(ctx, vpnSslClientCertInfo{i.Name, i.SslVpnClientCertId, i.SslVpnServerId, i.Status, i.CreateTime, i.EndTime, "", "", "", "", i.RegionId})
 			count++
 		}
 		if count >= response.TotalCount {
@@ -78,7 +165,69 @@ func listVpcVpnSslClient(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 	return nil, nil
 }
 
-// func SslClientToURN(_ context.Context, d *transform.TransformData) (interface{}, error) {
-// 	i := d.Value.(vpc.SslVpnClientCertKey)
-// 	return "acs:vpc:" + i.RegionId + ":" + i.SslVpnClientCertId + ":vpc/" + i.Name, nil
-// }
+//// HYDRATE FUNCTIONS
+
+func getVpcVpnSslClient(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	plugin.Logger(ctx).Trace("getVpcVpnSslClient")
+
+	// Create service connection
+	client, err := VpcService(ctx, d, region)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_client.getVpcVpnSslClient", "connection_error", err)
+		return nil, err
+	}
+
+	var id string
+	if h.Item != nil {
+		data := h.Item.(vpnSslClientCertInfo)
+		id = data.SslVpnClientCertId
+	} else {
+		id = d.KeyColumnQuals["ssl_vpn_client_cert_id"].GetStringValue()
+	}
+
+	request := vpc.CreateDescribeSslVpnClientCertRequest()
+	request.Scheme = "https"
+	request.SslVpnClientCertId = id
+
+	data, err := client.DescribeSslVpnClientCert(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_client.getVpcVpnSslClient", "query_error", serverErr, "request", request)
+		return nil, serverErr
+	}
+
+	return vpnSslClientCertInfo{data.Name, data.SslVpnClientCertId, data.SslVpnServerId, data.Status, data.CreateTime, data.EndTime, data.CaCert, data.ClientCert, data.ClientKey, data.ClientConfig, data.RegionId}, nil
+}
+
+func getVpcVpnSslClientCertAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getVpcVpnSslClientCertAka")
+
+	data := h.Item.(vpnSslClientCertInfo)
+
+	// Get project details
+	commonData, err := getCommonColumns(ctx, d, h)
+	if err != nil {
+		return nil, err
+	}
+	commonColumnData := commonData.(*alicloudCommonColumnData)
+	accountID := commonColumnData.AccountID
+
+	akas := []string{"acs:vpc:" + data.Region + ":" + accountID + ":sslclientcert/" + data.SslVpnClientCertId}
+
+	return akas, nil
+}
+
+//// TRANSFORM FUNCTIONS
+
+func sslVpnClientCertTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	data := d.HydrateItem.(vpnSslClientCertInfo)
+
+	// Build resource title
+	title := data.SslVpnClientCertId
+
+	if len(data.Name) > 0 {
+		title = data.Name
+	}
+
+	return title, nil
+}
