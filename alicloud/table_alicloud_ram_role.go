@@ -48,10 +48,9 @@ func tableAlicloudRAMRole(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 			},
 			{
-				Name:        "id",
+				Name:        "role_id",
 				Description: "The ID of the RAM role.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("RoleId"),
 			},
 			{
 				Name:        "description",

@@ -36,7 +36,7 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("SecurityGroup.SecurityGroupName"),
 			},
 			{
-				Name:        "id",
+				Name:        "security_group_id",
 				Description: "The ID of the security group.",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("SecurityGroup.SecurityGroupId"),

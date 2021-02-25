@@ -31,7 +31,6 @@ from
   alicloud_vpc_vswitch;
 ```
 
-
 ### Route Table info associated with VSwitch
 
 ```sql

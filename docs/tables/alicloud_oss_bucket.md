@@ -1,4 +1,4 @@
-# Table: alicloud_bucket
+# Table: alicloud_oss_bucket
 
 An OSS bucket is the container used to store objects. All objects are contained in buckets. You can configure a variety of bucket properties such as the region, ACL, and storage class. You can create buckets of different storage classes to store data based on your requirements.
 
@@ -13,7 +13,7 @@ select
   account_id,
   versioning
 from
-  alicloud_bucket
+  alicloud_oss_bucket
 where
   versioning <> 'Enabled';
 ```
@@ -25,9 +25,9 @@ select
   name,
   server_side_encryption
 from
-  alicloud_bucket
+  alicloud_oss_bucket
 where
-  server_side_encryption is null;
+  server_side_encryption ->> 'SSEAlgorithm' = '';
 ```
 
 ### List of buckets where public access to bucket is not blocked
@@ -37,7 +37,7 @@ select
   name,
   acl
 from
-  alicloud_bucket
+  alicloud_oss_bucket
 where
   acl <> 'private';
 ```
@@ -49,7 +49,7 @@ select
   name,
   logging ->> 'TargetBucket' as target_bucket
 from
-  alicloud_bucket
+  alicloud_oss_bucket
 where
   logging ->> 'TargetBucket' = name;
 ```
@@ -61,9 +61,9 @@ select
   name,
   tags
 from
-  alicloud_bucket
+  alicloud_oss_bucket
 where
-  not tags :: JSONB ? 'owner';
+  tags ->> 'owner' is null;
 ```
 
 ### List of Bucket policy statements that grant external access
@@ -76,7 +76,7 @@ select
   s ->> 'Effect' as effect,
   s -> 'Condition' as conditions
 from
-  alicloud_bucket,
+  alicloud_oss_bucket,
   jsonb_array_elements(policy -> 'Statement') as s,
   jsonb_array_elements_text(s -> 'Principal') as p,
   jsonb_array_elements_text(s -> 'Action') as a

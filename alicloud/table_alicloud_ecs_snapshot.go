@@ -39,7 +39,7 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("Snapshot.SnapshotName"),
 			},
 			{
-				Name:        "id",
+				Name:        "snapshot_id",
 				Description: "An unique identifier for the resource.",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("Snapshot.SnapshotId"),

@@ -45,10 +45,9 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("UserName"),
 			},
 			{
-				Name:        "id",
+				Name:        "user_id",
 				Description: "The unique ID of the RAM user.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("UserId"),
 			},
 			{
 				Name:        "display_name",

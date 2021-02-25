@@ -130,7 +130,7 @@ func tableAlicloudVpcVSwitch(ctx context.Context) *plugin.Table {
 			{
 				Name:        "title",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("VSwitchName"),
+				Transform:   transform.From(vswitchTitle),
 				Description: ColumnDescriptionTitle,
 			},
 			{
@@ -230,4 +230,16 @@ func switchRegion(ctx context.Context, d *transform.TransformData) (interface{},
 func vswitchAkas(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	i := d.HydrateItem.(vpc.VSwitch)
 	return []string{"acs:vswitch:" + i.ZoneId + ":" + strconv.FormatInt(i.OwnerId, 10) + ":vswitch/" + i.VSwitchId}, nil
+}
+
+func vswitchTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	i := d.HydrateItem.(vpc.VSwitch)
+
+	// Build resource title
+	title := i.VSwitchId
+	if len(i.VSwitchName) > 0 {
+		title = i.VSwitchName
+	}
+
+	return title, nil
 }

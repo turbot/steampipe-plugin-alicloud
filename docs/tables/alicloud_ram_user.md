@@ -8,14 +8,14 @@ Alibaba Cloud RAM users can login to the console or use access keys programmatic
 
 ```sql
 select
-  id,
+  user_id,
   name,
   display_name
 from
   alicloud_ram_user;
 ```
 
-### Agents and admins (paid seats) who have not logged in for 30 days
+### Users who have not logged in for 30 days
 
 ```sql
 select
@@ -27,6 +27,18 @@ where
   last_login_date < current_date - interval '30 days';
 ```
 
+### Users who have never logged in
+
+```sql
+select
+  name,
+  last_login_date
+from
+  alicloud_ram_user
+where
+  last_login_date is null;
+```
+
 ### Groups details to which the RAM user belongs
 
 ```sql
@@ -35,8 +47,8 @@ select
   iam_group ->> 'GroupName' as group_name,
   iam_group ->> 'JoinDate' as join_date
 from
-  alicloud_ram_user
-  cross join jsonb_array_elements(groups) as iam_group;
+  alicloud_ram_user,
+  jsonb_array_elements(groups) as iam_group;
 ```
 
 ### List all the users having Administrator access
@@ -49,8 +61,8 @@ select
   policies ->> 'DefaultVersion' as policy_default_version,
   policies ->> 'AttachDate' as policy_attachment_date
 from
-  alicloud_ram_user
-  cross join jsonb_array_elements(attached_policy) as policies
+  alicloud_ram_user,
+  jsonb_array_elements(attached_policy) as policies
 where 
   policies ->> 'PolicyName' = 'AdministratorAccess';
 ```
@@ -60,7 +72,7 @@ where
 ```sql
 select
   name as user_name,
-  id as user_id,
+  user_id as user_id,
   mfa_enabled
 from
   alicloud_ram_user

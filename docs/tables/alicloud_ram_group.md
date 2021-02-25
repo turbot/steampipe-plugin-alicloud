@@ -27,8 +27,8 @@ select
   policies ->> 'DefaultVersion' as policy_default_version,
   policies ->> 'AttachDate' as policy_attachment_date
 from
-  alicloud_ram_group
-  cross join jsonb_array_elements(attached_policy) as policies;
+  alicloud_ram_group,
+  jsonb_array_elements(attached_policy) as policies;
 ```
 
 ### List of RAM groups with no users added to it

@@ -14,7 +14,7 @@ select
   cidr_block,
   status,
   account_id,
-  region_id
+  region
 from
   alicloud_vpc
 where
@@ -42,7 +42,7 @@ select
   vpc_id,
   cidr_block,
   status,
-  region_id
+  region
 from
   alicloud_vpc
 where
@@ -51,17 +51,19 @@ where
   and not cidr_block <<= '172.16.0.0/12';
 ```
 
-### Get the VSwitches details
+### Get the VSwitches details for VPCs
 
 ```sql
 select
-  vswitch.vswitch_id,
   vpc.vpc_id,
+  vswitch.vswitch_id,
   vswitch.cidr_block,
   vswitch.status,
   vswitch.available_ip_address_count,
   vswitch.zone_id
 from
   alicloud_vpc as vpc
-  join alicloud_vpc_vswitch as vswitch on vpc.vpc_id = vswitch.vpc_id;
+  join alicloud_vpc_vswitch as vswitch on vpc.vpc_id = vswitch.vpc_id
+order by 
+  vpc.vpc_id;
 ```
