@@ -18,16 +18,16 @@ type vpnConnectionInfo = struct {
 
 //// TABLE DEFINITION
 
-func tableAlicloudVpcVpnIpsecConnection(ctx context.Context) *plugin.Table {
+func tableAlicloudVpcVpnConnection(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "alicloud_vpc_vpn_ipsec_connection",
-		Description: "IPsec Connection is an Internet-based tunnel between VPN Gateway and User Gateway.",
+		Name:        "alicloud_vpc_vpn_connection",
+		Description: "VPN Connection is an Internet-based tunnel between VPN Gateway and User Gateway.",
 		List: &plugin.ListConfig{
-			Hydrate: listVpcVpnIpsecConnections,
+			Hydrate: listVpcVpnConnections,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("vpn_connection_id"),
-			Hydrate:    getVpcVpnIpsecConnection,
+			Hydrate:    getVpcVpnConnection,
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -127,7 +127,7 @@ func tableAlicloudVpcVpnIpsecConnection(ctx context.Context) *plugin.Table {
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getVpnIPSecConnectionAka,
+				Hydrate:     getVpnConnectionAka,
 				Transform:   transform.FromValue(),
 			},
 			{
@@ -156,13 +156,13 @@ func tableAlicloudVpcVpnIpsecConnection(ctx context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func listVpcVpnIpsecConnections(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func listVpcVpnConnections(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
 	client, err := VpcService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc_vpn_ipsec_connection.listVpcVpnIpsecConnections", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_vpc_vpn_connection.listVpcVpnConnections", "connection_error", err)
 		return nil, err
 	}
 	request := vpc.CreateDescribeVpnConnectionsRequest()
@@ -174,7 +174,7 @@ func listVpcVpnIpsecConnections(ctx context.Context, d *plugin.QueryData, _ *plu
 	for {
 		response, err := client.DescribeVpnConnections(request)
 		if err != nil {
-			plugin.Logger(ctx).Error("alicloud_vpc_vpn_ipsec_connection.listVpcVpnIpsecConnections", "query_error", err, "request", request)
+			plugin.Logger(ctx).Error("alicloud_vpc_vpn_connection.listVpcVpnConnections", "query_error", err, "request", request)
 			return nil, err
 		}
 		for _, vpnConnection := range response.VpnConnections.VpnConnection {
@@ -191,14 +191,14 @@ func listVpcVpnIpsecConnections(ctx context.Context, d *plugin.QueryData, _ *plu
 
 //// HYDRATE FUNCTIONS
 
-func getVpcVpnIpsecConnection(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getVpcVpnIpsecConnection")
+func getVpcVpnConnection(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getVpcVpnConnection")
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
 	client, err := VpcService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc_vpn_ipsec_connection.getVpcVpnIpsecConnection", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_vpc_vpn_connection.getVpcVpnConnection", "connection_error", err)
 		return nil, err
 	}
 
@@ -226,8 +226,8 @@ func getVpcVpnIpsecConnection(ctx context.Context, d *plugin.QueryData, h *plugi
 	return nil, nil
 }
 
-func getVpnIPSecConnectionAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getVpnIPSecConnectionAka")
+func getVpnConnectionAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getVpnConnectionAka")
 	data := h.Item.(vpnConnectionInfo)
 
 	// Get project details
