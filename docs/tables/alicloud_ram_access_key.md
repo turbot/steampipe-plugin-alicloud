@@ -8,7 +8,7 @@ Access keys are long-term credentials for a RAM user. You can use access keys to
 
 ```sql
 select
-  id as access_key_id,
+  access_key_id,
   user_name,
   create_date
 from
@@ -19,7 +19,7 @@ from
 
 ```sql
 select
-  id as access_key_id,
+  access_key_id,
   user_name,
   status
 from
@@ -33,9 +33,27 @@ where
 ```sql
 select
   user_name,
-  count (id) as access_key_count
+  count (access_key_id) as access_key_count
 from
   alicloud_ram_access_key
 group by
   user_name;
+```
+
+
+### Access keys older than 90 days
+
+```sql
+select
+  access_key_id,
+  user_name,
+  status
+  create_date,
+  age(create_date)
+from
+  alicloud_ram_access_key
+where
+  create_date <= (current_date - interval '90' day)
+order by
+  create_date;
 ```

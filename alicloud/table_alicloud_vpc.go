@@ -184,7 +184,7 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 			{
 				Name:        "title",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("VpcName"),
+				Transform:   transform.From(vpcTitle),
 				Description: ColumnDescriptionTitle,
 			},
 			{
@@ -313,4 +313,16 @@ func getVpcAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 func vpcAkas(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	i := d.HydrateItem.(vpc.Vpc)
 	return []string{"acs:vpc:" + i.RegionId + ":" + strconv.FormatInt(i.OwnerId, 10) + ":vpc/" + i.VpcId}, nil
+}
+
+func vpcTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	i := d.HydrateItem.(vpc.Vpc)
+
+	// Build resource title
+	title := i.VpcId
+	if len(i.VpcName) > 0 {
+		title = i.VpcName
+	}
+
+	return title, nil
 }

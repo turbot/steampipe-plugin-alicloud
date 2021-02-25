@@ -17,7 +17,6 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			Schema:      ConfigSchema,
 		},
 		TableMap: map[string]*plugin.Table{
-			"alicloud_bucket":                  tableAlicloudOssBucket(ctx),
 			"alicloud_ecs_disk":                tableAlicloudEcsDisk(ctx),
 			"alicloud_ecs_image":               tableAlicloudEcsImage(ctx),
 			"alicloud_ecs_instance":            tableAlicloudEcsInstance(ctx),

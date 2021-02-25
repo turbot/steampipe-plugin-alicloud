@@ -26,12 +26,11 @@ Connection configurations are defined using HCL in one or more Steampipe config 
 
 ### Scope
 
-Each Alibaba cloud connection is scoped to a single alicloud account, with a single set of credentials. You may configure multiple Alicloud connections if desired, with each connecting to a different account. Each Alicloud connection may be configured for multiple regions.
+Each `alicloud` connection is scoped to a single Alibaba Cloud account, with a single set of credentials. You may configure multiple `alicloud` connections if desired, with each connecting to a different account. Each `alicloud` connection may be configured for multiple regions.
 
 ### Configuration Arguments
 
-The Alicloud plugin allows you set static credentials with the `access_key` and `secret_key` arguments. You may select one or more regions with the `regions` argument.
-An Alicloud connection may connect to multiple regions, however be aware that performance may be negatively affected by both the number of regions and the latency to them.
+The Alicloud plugin allows you set static credentials with the `access_key` and `secret_key` arguments. You may select one or more regions with the `regions` argument.  A connection may connect to multiple regions, however be aware that performance may be negatively affected by both the number of regions and the latency to them.
 
 ```hcl
 # credentials via key pair
@@ -43,7 +42,7 @@ connection "alicloud_account_x" {
 }
 ```
 
-If no credentials are specified, the plugin will use the Alicloud credentials resolver to get the current credentials in the same manner as the CLI (as used in the AWS Default Connection):
+If no credentials are specified, the plugin will get the current credentials from environment variables:
 
 ```hcl
 # default
@@ -54,7 +53,7 @@ connection "alicloud" {
 
 The Alicloud credential resolution order is:
 
-1. Credentails specified in connection argument file.
+1. Credentials specified in connection argument file.
 2. Credentials specified in environment variables
    Environment variables are loaded in this order of precedence, aligning with the aliyun CLI (first) and Terraform (second):
 

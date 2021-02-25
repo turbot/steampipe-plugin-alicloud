@@ -65,13 +65,18 @@ func modifyEcsSourceTags(_ context.Context, d *transform.TransformData) (interfa
 
 func ecsTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	tags := d.Value.([]ecs.Tag)
-	var turbotTagsMap map[string]string
 
-	if tags != nil {
-		turbotTagsMap = map[string]string{}
-		for _, i := range tags {
-			turbotTagsMap[i.TagKey] = i.TagValue
-		}
+	if tags == nil {
+		return nil, nil
+	}
+
+	if len(tags) == 0 {
+		return nil, nil
+	}
+
+	turbotTagsMap := map[string]string{}
+	for _, i := range tags {
+		turbotTagsMap[i.TagKey] = i.TagValue
 	}
 
 	return turbotTagsMap, nil
@@ -80,12 +85,13 @@ func ecsTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, e
 func vpcTurbotTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	tags := d.Value.([]vpc.Tag)
 
-	var turbotTags map[string]string
-	if tags != nil {
-		turbotTags = map[string]string{}
-		for _, i := range tags {
-			turbotTags[i.Key] = i.Value
-		}
+	if tags == nil || len(tags) == 0 {
+		return nil, nil
+	}
+
+	turbotTags := map[string]string{}
+	for _, i := range tags {
+		turbotTags[i.Key] = i.Value
 	}
 	return turbotTags, nil
 }

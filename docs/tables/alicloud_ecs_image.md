@@ -9,7 +9,7 @@ An ECS image stores information that is required to create an ECS instance. An i
 ```sql
 select
   name,
-  id,
+  image_id,
   size,
   status,
   usage
@@ -22,7 +22,7 @@ from
 ```sql
 select
   name,
-  id,
+  image_id,
   image_owner_alias
 from
   alicloud_ecs_image
@@ -35,8 +35,13 @@ where
 ```sql
 select
   name,
-  id,
-  image_owner_alias
+  image_id,
+  image_owner_alias,
+  is_self_shared,
+  size,
+  status,
+  architecture,
+  os_name_en
 from
   alicloud_ecs_image
 where
@@ -48,7 +53,8 @@ where
 ```sql
 select
   name,
-  id
+  image_id, 
+  tags
 from
   alicloud_ecs_image
 where
@@ -61,7 +67,7 @@ where
 ```sql
 select
   name,
-  id,
+  image_id,
   creation_time,
   age(creation_time),
   status
@@ -79,25 +85,27 @@ order by
 ```sql
 select
   name,
-  id
+  image_id
 from
   alicloud_ecs_image
 where
   usage = 'none';
 ```
 
-### List of running instances created from the image
+### List of instances created from an image older than 90 days old
 
 ```sql
 select
   instance.name as instance_name,
   instance.instance_id as instance_id,
   image.name as image_name,
-  instance.status as instance_status
+  instance.status as instance_status,
+  age(image.creation_time) as image_age,
+  age(instance.creation_time) as instance_age
 from
   alicloud_ecs_image as image,
   alicloud_ecs_instance as instance
 where
-  instance.image_id = image.id
-  and instance.status = 'Running';
+  instance.image_id = image.image_id
+  and image.creation_time <= (current_date - interval '90' day)
 ```

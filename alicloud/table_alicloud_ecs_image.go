@@ -39,7 +39,7 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("Image.ImageName"),
 			},
 			{
-				Name:        "id",
+				Name:        "image_id",
 				Description: "The ID of the image that the instance is running.",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("Image.ImageId"),

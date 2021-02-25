@@ -33,16 +33,14 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("InstanceName"),
 			},
 			{
-				Name:        "id",
+				Name:        "instance_id",
 				Description: "The ID of the instance.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("InstanceId"),
 			},
 			{
-				Name:        "type",
+				Name:        "instance_type",
 				Description: "The type of the instance.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("InstanceType"),
 			},
 			{
 				Name:        "status",
@@ -115,8 +113,8 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 			{
 				Name:        "cpu_options_numa",
 				Description: "The number of threads allocated.",
-				Type:        proto.ColumnType_INT,
-				Transform:   transform.FromField("CpuOptions.Numa").NullIfZero().Transform(transform.ToInt),
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("CpuOptions.Numa").NullIfZero(),
 			},
 			{
 				Name:        "cpu_options_threads_per_core",
@@ -383,6 +381,12 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 				Description: "Details about the reasons why the instance was locked.",
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.FromField("OperationLocks.LockReason"),
+			},
+			{
+				Name:        "private_ip_address",
+				Description: "The private IP addresses of instances.",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("VpcAttributes.PrivateIpAddress.IpAddress"),
 			},
 			{
 				Name:        "public_ip_address",

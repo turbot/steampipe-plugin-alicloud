@@ -35,10 +35,9 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("DiskName"),
 			},
 			{
-				Name:        "id",
+				Name:        "disk_id",
 				Description: "An unique identifier for the resource.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("DiskId"),
 			},
 			{
 				Name:        "status",

@@ -9,6 +9,8 @@ connection "alicloud" {
 
   # If no credentials are specified, the plugin will use the environment variables
   # resolver to get the current credentials.
-  #  Alternatively, you may set static credentials with the `access_key` and `secret_key` arguments.
+  # Alternatively, you may set static credentials with the `access_key` and `secret_key` arguments.
+  #access_key  	= "LTAI4GBVFakeKey09Kxezv66"
+  #secret_key  	= "6iNPvThisIsNotARealSecretk1sZF"
 
 }
