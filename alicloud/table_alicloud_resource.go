@@ -55,13 +55,13 @@ func tableAlicloudResource(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("RegionId"),
 			},
-			// {
-			// 	Name:        "account_id",
-			// 	Description: "The alicloud Account ID in which the resource is located.",
-			// 	Type:        proto.ColumnType_STRING,
-			// 	Hydrate:     getCommonColumns,
-			// 	Transform:   transform.FromField("AccountID"),
-			// },
+			{
+				Name:        "account_id",
+				Description: "The alicloud Account ID in which the resource is located.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getCommonColumns,
+				Transform:   transform.FromField("AccountID"),
+			},
 		},
 	}
 }
@@ -70,7 +70,7 @@ func tableAlicloudResource(ctx context.Context) *plugin.Table {
 
 func listResources(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service connection
-	client, err := connectResourceManager(ctx)
+	client, err := ResourceManagerService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_resource.listResources", "connection_error", err)
 		return nil, err
