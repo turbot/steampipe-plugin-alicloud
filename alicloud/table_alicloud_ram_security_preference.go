@@ -10,6 +10,8 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+//// TABLE DEFINITION
+
 func tableAlicloudRAMSecurityPreference(_ context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ram_security_preference",
@@ -80,6 +82,8 @@ func tableAlicloudRAMSecurityPreference(_ context.Context) *plugin.Table {
 		},
 	}
 }
+
+//// LIST FUNCTION
 
 func listRAMSecurityPreference(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client, err := RAMService(ctx, d)
