@@ -54,7 +54,7 @@ connection "alicloud" {
 The Alicloud credential resolution order is:
 
 1. Credentials specified in connection argument file.
-2. Credentials specified in environment variables
+2. Credentials specified in environment variables.
    Environment variables are loaded in this order of precedence, aligning with the aliyun CLI (first) and Terraform (second):
 
 | Priority |         Access Key         |           Secret Key           |         Region         |
