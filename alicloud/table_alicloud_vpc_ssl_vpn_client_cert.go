@@ -28,16 +28,16 @@ type vpnSslClientCertInfo = struct {
 
 //// TABLE DEFINITION
 
-func tableAlicloudVpcVpnSslClient(ctx context.Context) *plugin.Table {
+func tableAlicloudVpcSslVpnClientCert(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "alicloud_vpc_vpn_ssl_client",
+		Name:        "alicloud_vpc_ssl_vpn_client_cert",
 		Description: "SSL Client is responsible for managing client certificates. The client needs to first complete certificate verification in order to connect to the SSL Server.",
 		List: &plugin.ListConfig{
-			Hydrate: listVpcVpnSslClientCerts,
+			Hydrate: listVpcSslVpnClientCerts,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("ssl_vpn_client_cert_id"),
-			Hydrate:    getVpcVpnSslClient,
+			Hydrate:    getVpcSslVpnClientCert,
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -77,25 +77,25 @@ func tableAlicloudVpcVpnSslClient(ctx context.Context) *plugin.Table {
 				Name:        "ca_cert",
 				Description: "The CA certificate.",
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getVpcVpnSslClient,
+				Hydrate:     getVpcSslVpnClientCert,
 			},
 			{
 				Name:        "client_cert",
 				Description: "The client certificate.",
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getVpcVpnSslClient,
+				Hydrate:     getVpcSslVpnClientCert,
 			},
 			{
 				Name:        "client_key",
 				Description: "The client key.",
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getVpcVpnSslClient,
+				Hydrate:     getVpcSslVpnClientCert,
 			},
 			{
 				Name:        "client_config",
 				Description: "The client configuration.",
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getVpcVpnSslClient,
+				Hydrate:     getVpcSslVpnClientCert,
 			},
 
 			// steampipe standard columns
@@ -103,7 +103,7 @@ func tableAlicloudVpcVpnSslClient(ctx context.Context) *plugin.Table {
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getVpcVpnSslClientCertAka,
+				Hydrate:     getVpcSslVpnClientCertCertAka,
 				Transform:   transform.FromValue(),
 			},
 			{
@@ -132,13 +132,13 @@ func tableAlicloudVpcVpnSslClient(ctx context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func listVpcVpnSslClientCerts(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func listVpcSslVpnClientCerts(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
 	client, err := VpcService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_client.listVpcVpnSslClientCerts", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_client.listVpcSslVpnClientCerts", "connection_error", err)
 		return nil, err
 	}
 	request := vpc.CreateDescribeSslVpnClientCertsRequest()
@@ -150,7 +150,7 @@ func listVpcVpnSslClientCerts(ctx context.Context, d *plugin.QueryData, _ *plugi
 	for {
 		response, err := client.DescribeSslVpnClientCerts(request)
 		if err != nil {
-			plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_client.listVpcVpnSslClientCerts", "query_error", err, "request", request)
+			plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_client.listVpcSslVpnClientCerts", "query_error", err, "request", request)
 			return nil, err
 		}
 		for _, i := range response.SslVpnClientCertKeys.SslVpnClientCertKey {
@@ -167,14 +167,14 @@ func listVpcVpnSslClientCerts(ctx context.Context, d *plugin.QueryData, _ *plugi
 
 //// HYDRATE FUNCTIONS
 
-func getVpcVpnSslClient(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getVpcSslVpnClientCert(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-	plugin.Logger(ctx).Trace("getVpcVpnSslClient")
+	plugin.Logger(ctx).Trace("getVpcSslVpnClientCert")
 
 	// Create service connection
 	client, err := VpcService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_client.getVpcVpnSslClient", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_client.getVpcSslVpnClientCert", "connection_error", err)
 		return nil, err
 	}
 
@@ -192,15 +192,15 @@ func getVpcVpnSslClient(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 
 	data, err := client.DescribeSslVpnClientCert(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
-		plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_client.getVpcVpnSslClient", "query_error", serverErr, "request", request)
+		plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_client.getVpcSslVpnClientCert", "query_error", serverErr, "request", request)
 		return nil, serverErr
 	}
 
 	return vpnSslClientCertInfo{data.Name, data.SslVpnClientCertId, data.SslVpnServerId, data.Status, data.CreateTime, data.EndTime, data.CaCert, data.ClientCert, data.ClientKey, data.ClientConfig, data.RegionId}, nil
 }
 
-func getVpcVpnSslClientCertAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getVpcVpnSslClientCertAka")
+func getVpcSslVpnClientCertCertAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getVpcSslVpnClientCertCertAka")
 
 	data := h.Item.(vpnSslClientCertInfo)
 
