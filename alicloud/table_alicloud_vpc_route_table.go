@@ -19,40 +19,112 @@ func tableAlicloudVpcRouteTable(ctx context.Context) *plugin.Table {
 			Hydrate: listVpcRouteTable,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("id"),
+			KeyColumns: plugin.SingleColumn("route_table_id"),
 			Hydrate:    getVpcRouteTable,
 		},
+		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			// Top columns
-			{Name: "name", Type: proto.ColumnType_STRING, Transform: transform.FromField("RouteTableName"), Description: "The name of the Route Table."},
-			{Name: "id", Type: proto.ColumnType_STRING, Transform: transform.FromField("RouteTableId"), Description: "The id of the Route Table."},
-			{Name: "description", Type: proto.ColumnType_STRING, Description: "The description of the Route Table."},
-			{Name: "creation_time", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the Route Table was created.."},
-			{Name: "route_table_type", Type: proto.ColumnType_STRING, Description: "The type of Route Table"},
-			{Name: "router_id", Type: proto.ColumnType_STRING, Description: "The ID of the region to which the VPC belongs."},
-			{Name: "router_type", Type: proto.ColumnType_STRING, Description: "The type of the VRouter to which the route table belongs. Valid Values are 'VRouter' and 'VBR'"},
-			{Name: "status", Type: proto.ColumnType_STRING, Description: "The status of the route table."},
-			{Name: "vswitch_ids", Type: proto.ColumnType_JSON, Transform: transform.FromField("VSwitchIds.VSwitchId"), Description: "The unique ID of the VPC."},
-			{Name: "vpc_id", Type: proto.ColumnType_STRING, Description: "The ID of the VPC to which the route table belongs."},
-			{Name: "resource_group_id", Type: proto.ColumnType_STRING, Description: "The ID of the resource group to which the VPC belongs."},
-			{Name: "route_entries", Type: proto.ColumnType_JSON, Hydrate: getVpcRouteTableEntryList, Transform: transform.FromField("RouteEntrys.RouteEntry"), Description: "Route entry represents a route item of one VPC route table."},
-			{Name: "owner_id", Type: proto.ColumnType_STRING, Description: "The ID of the owner of the VPC."},
+			{
+				Name:        "name",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("RouteTableName"),
+				Description: "The name of the Route Table.",
+			},
+			{
+				Name:        "route_table_id",
+				Type:        proto.ColumnType_STRING,
+				Description: "The id of the Route Table.",
+			},
+			{
+				Name:        "description",
+				Type:        proto.ColumnType_STRING,
+				Description: "The description of the Route Table.",
+			},
+			{
+				Name:        "creation_time",
+				Type:        proto.ColumnType_TIMESTAMP,
+				Description: "The time when the Route Table was created..",
+			},
+			{
+				Name:        "route_table_type",
+				Type:        proto.ColumnType_STRING,
+				Description: "The type of Route Table",
+			},
+			{
+				Name:        "router_id",
+				Type:        proto.ColumnType_STRING,
+				Description: "The ID of the region to which the VPC belongs.",
+			},
+			{
+				Name:        "router_type",
+				Type:        proto.ColumnType_STRING,
+				Description: "The type of the VRouter to which the route table belongs. Valid Values are 'VRouter' and 'VBR'",
+			},
+			{
+				Name:        "status",
+				Type:        proto.ColumnType_STRING,
+				Description: "The status of the route table.",
+			},
+			{
+				Name:        "vswitch_ids",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("VSwitchIds.VSwitchId"),
+				Description: "The unique ID of the VPC.",
+			},
+			{
+				Name:        "vpc_id",
+				Type:        proto.ColumnType_STRING,
+				Description: "The ID of the VPC to which the route table belongs.",
+			},
+			{
+				Name:        "resource_group_id",
+				Type:        proto.ColumnType_STRING,
+				Description: "The ID of the resource group to which the VPC belongs.",
+			},
+			{
+				Name:        "route_entries",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getVpcRouteTableEntryList,
+				Transform:   transform.FromField("RouteEntrys.RouteEntry"),
+				Description: "Route entry represents a route item of one VPC route table.",
+			},
+			{
+				Name:        "owner_id",
+				Type:        proto.ColumnType_STRING,
+				Description: "The ID of the owner of the VPC.",
+			},
 			// Other columns
-			{Name: "tags", Type: proto.ColumnType_JSON, Transform: transform.FromField("Tags.Tag"), Description: ColumnDescriptionTitle},
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("RouteTableName"), Description: ColumnDescriptionAkas},
+			{
+				Name:        "tags_src",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("Tags"),
+				Description: "A list of tags assigned to bucket",
+			},
+
+			// steampipe standard columns
+			{
+				Name:        "tags",
+				Type:        proto.ColumnType_JSON,
+				Description: ColumnDescriptionTags,
+			},
+			{
+				Name:        "title",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("RouteTableName"),
+				Description: ColumnDescriptionTitle,
+			},
+
+			// alicloud standard columns
+			{
+				Name:        "account_id",
+				Description: ColumnDescriptionAccount,
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getCommonColumns,
+				Transform:   transform.FromField("AccountID"),
+			},
 		},
 	}
-}
-
-//// BUILD HYDRATE INPUT
-
-func RouteTableIDFromRouteTable(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	quals := d.KeyColumnQuals
-	id := quals["id"].GetStringValue()
-	item := &vpc.RouteTable{
-		RouteTableId: id,
-	}
-	return item, nil
 }
 
 func listVpcRouteTable(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
@@ -100,7 +172,7 @@ func getVpcRouteTable(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 		vpc := h.Item.(vpc.RouteTable)
 		id = vpc.RouteTableId
 	} else {
-		id = d.KeyColumnQuals["id"].GetStringValue()
+		id = d.KeyColumnQuals["route_table_id"].GetStringValue()
 	}
 
 	request := vpc.CreateDescribeRouteTableListRequest()
@@ -140,8 +212,3 @@ func getVpcRouteTableEntryList(ctx context.Context, d *plugin.QueryData, h *plug
 	}
 	return response, nil
 }
-
-// func vpcToURN(_ context.Context, d *transform.TransformData) (interface{}, error) {
-// 	i := d.Value.(vpc.RouteTables)
-// 	return "acs:vpc:"  + ":"  + ":routetable/" + i.RouteTableName, nil
-// }
