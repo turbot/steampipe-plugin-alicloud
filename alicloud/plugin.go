@@ -22,6 +22,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_ecs_instance":            tableAlicloudEcsInstance(ctx),
 			"alicloud_ecs_security_group":      tableAlicloudEcsSecurityGroup(ctx),
 			"alicloud_ecs_snapshot":            tableAlicloudEcsSnapshot(ctx),
+			"alicloud_kms_key":                 tableAlicloudKmsKey(ctx),
 			"alicloud_oss_bucket":              tableAlicloudOssBucket(ctx),
 			"alicloud_ram_access_key":          tableAlicloudRAMAccessKey(ctx),
 			"alicloud_ram_group":               tableAlicloudRAMGroup(ctx),

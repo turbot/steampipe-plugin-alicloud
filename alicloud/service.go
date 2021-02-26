@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/kms"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
@@ -31,6 +32,34 @@ func ECSService(ctx context.Context, d *plugin.QueryData, region string) (*ecs.C
 
 	// so it was not in cache - create service
 	svc, err := ecs.NewClientWithAccessKey(region, ak, secret)
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the service connection
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+	return svc, nil
+}
+
+// KMSService returns the service connection for Alicloud KMS service
+func KMSService(ctx context.Context, d *plugin.QueryData, region string) (*kms.Client, error) {
+	if region == "" {
+		return nil, fmt.Errorf("region must be passed KMSService")
+	}
+	// have we already created and cached the service?
+	serviceCacheKey := fmt.Sprintf("kms-%s", region)
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(*kms.Client), nil
+	}
+
+	ak, secret, err := getEnv(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+
+	// so it was not in cache - create service
+	svc, err := kms.NewClientWithAccessKey(region, ak, secret)
 	if err != nil {
 		return nil, err
 	}
