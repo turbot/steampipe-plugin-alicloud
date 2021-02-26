@@ -57,11 +57,11 @@ The Alicloud credential resolution order is:
 2. Credentials specified in environment variables.
    Environment variables are loaded in this order of precedence, aligning with the aliyun CLI (first) and Terraform (second):
 
-| Priority |         Access Key         |           Secret Key           |         Region         |
-| :------: | :------------------------: | :----------------------------: | :--------------------: |
-|    1     | ALIBABACLOUD_ACCESS_KEY_ID | ALIBABACLOUD_ACCESS_KEY_SECRET | ALIBABACLOUD_REGION_ID |
-|    2     |   ALICLOUD_ACCESS_KEY_ID   |   ALICLOUD_ACCESS_KEY_SECRET   |   ALICLOUD_REGION_ID   |
-|    3     |    ALICLOUD_ACCESS_KEY     |      ALICLOUD_SECRET_KEY       |    ALICLOUD_REGION     |
+   | Priority | Access Key                 | Secret Key                     | Region                 |
+   | :------- | :------------------------- | :----------------------------- | :--------------------- |
+   | 1        | ALIBABACLOUD_ACCESS_KEY_ID | ALIBABACLOUD_ACCESS_KEY_SECRET | ALIBABACLOUD_REGION_ID |
+   | 2        | ALICLOUD_ACCESS_KEY_ID     | ALICLOUD_ACCESS_KEY_SECRET     | ALICLOUD_REGION_ID     |
+   | 3        | ALICLOUD_ACCESS_KEY        | ALICLOUD_SECRET_KEY            | ALICLOUD_REGION        |
 
 If `regions` is not specified, Steampipe will use a single default region using the resolution order as mentioned for `Region` in above table:
 
