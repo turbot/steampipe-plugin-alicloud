@@ -165,11 +165,6 @@ func tableAlicloudEcsAutoscalingGroup(ctx context.Context) *plugin.Table {
 				Description: "The number of ECS instances that are in the pending state to be removed from the scaling group.",
 				Type:        proto.ColumnType_INT,
 			},
-			// {
-			// 	Name:        "scale_out_amount_check",
-			// 	Description: "Indicates whether scaling group deletion protection is enabled.",
-			// 	Type:        proto.ColumnType_BOOL,
-			// },
 			{
 				Name:        "spot_instance_pools",
 				Description: "The number of available instance types. Auto Scaling will create preemptible instances of multiple instance types available at the lowest cost. Valid values: 0 to 10.",
@@ -233,9 +228,16 @@ func tableAlicloudEcsAutoscalingGroup(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "scaling_configurations",
-				Description: "",
+				Description: "A list of scaling configurations.",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getEcsAutoscalingGroupConfigurations,
+				Transform:   transform.FromValue(),
+			},
+			{
+				Name:        "scaling_instances",
+				Description: "A list of ECS instances in a scaling group.",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getEcsAutoscalingGroupScalingInstances,
 				Transform:   transform.FromValue(),
 			},
 			{
@@ -383,6 +385,35 @@ func getEcsAutoscalingGroupConfigurations(ctx context.Context, d *plugin.QueryDa
 
 	if response.ScalingConfigurations.ScalingConfiguration != nil {
 		return response.ScalingConfigurations.ScalingConfiguration, nil
+	}
+
+	return nil, nil
+}
+
+func getEcsAutoscalingGroupScalingInstances(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	plugin.Logger(ctx).Trace("getEcsAutoscalingGroupScalingInstances")
+	data := h.Item.(ess.ScalingGroup)
+
+	// Create service connection
+	client, err := AutoscalingService(ctx, d, region)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_ecs_autoscaling_group.getEcsAutoscalingGroupScalingInstances", "connection_error", err)
+		return nil, err
+	}
+
+	request := ess.CreateDescribeScalingInstancesRequest()
+	request.Scheme = "https"
+	request.ScalingGroupId = data.ScalingGroupId
+
+	response, err := client.DescribeScalingInstances(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		plugin.Logger(ctx).Error("alicloud_ecs_autoscaling_group.getEcsAutoscalingGroupScalingInstances", "query_error", serverErr, "request", request)
+		return nil, serverErr
+	}
+
+	if response.ScalingInstances.ScalingInstance != nil {
+		return response.ScalingInstances.ScalingInstance, nil
 	}
 
 	return nil, nil
