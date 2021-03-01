@@ -19,7 +19,7 @@ func BuildRegionList(_ context.Context, connection *plugin.Connection) []map[str
 		regions := GetConfig(connection).Regions
 
 		if len(getInvalidRegions(regions)) > 0 {
-			panic("\n\nConnection config have invalid regions: " + strings.Join(getInvalidRegions(regions), ","))
+			panic("\n\nConnection config have invalid regions: " + strings.Join(getInvalidRegions(regions), ",") + ". Edit your connection configuration file and then restart Steampipe.")
 		}
 
 		// validate regions list
@@ -29,8 +29,6 @@ func BuildRegionList(_ context.Context, connection *plugin.Connection) []map[str
 		}
 		return matrix
 	}
-
-	return nil
 
 	return []map[string]interface{}{
 		{matrixKeyRegion: GetDefaultRegion(connection)},

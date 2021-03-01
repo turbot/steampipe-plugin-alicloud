@@ -9,7 +9,7 @@ The Alibaba Cloud snapshot service allows you to create crash-consistent snapsho
 ```sql
 select
   name,
-  id,
+  snapshot_id,
   encrypted
 from
   alicloud_ecs_snapshot
@@ -22,7 +22,7 @@ where
 ```sql
 select
   name,
-  id,
+  snapshot_id,
   type
 from
   alicloud_ecs_snapshot
@@ -35,7 +35,7 @@ where
 ```sql
 select
   source_disk_id,
-  count(id) as snapshot
+  count(*) as snapshot
 from
   alicloud_ecs_snapshot
 group by
@@ -47,10 +47,28 @@ group by
 ```sql
 select
   name,
-  id,
+  snapshot_id,
   tags
 from
   alicloud_ecs_snapshot
 where
-  not tags :: JSONB ? 'owner';
+  tags ->> 'owner' is null;
+```
+
+### List of snapshots older than 90 days
+
+```sql
+select
+  name,
+  snapshot_id,
+  type,
+  creation_time,
+  age(creation_time),
+  retention_days
+from
+  alicloud_ecs_snapshot
+where
+  creation_time <= (current_date - interval '90' day)
+order by
+  creation_time;
 ```

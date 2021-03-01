@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
@@ -44,16 +45,53 @@ func csvToStringArray(_ context.Context, d *transform.TransformData) (interface{
 	return strings.Split(s, sep), nil
 }
 
-func ecsTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, error) {
+func modifyEcsSourceTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	tags := d.Value.([]ecs.Tag)
-	var turbotTagsMap map[string]string
+
+	type resourceTags = struct {
+		TagKey   string
+		TagValue string
+	}
+	var sourceTags []resourceTags
 
 	if tags != nil {
-		turbotTagsMap = map[string]string{}
 		for _, i := range tags {
-			turbotTagsMap[i.TagKey] = i.TagValue
+			sourceTags = append(sourceTags, resourceTags{i.TagKey, i.TagValue})
 		}
 	}
 
+	return sourceTags, nil
+}
+
+func ecsTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	tags := d.Value.([]ecs.Tag)
+
+	if tags == nil {
+		return nil, nil
+	}
+
+	if len(tags) == 0 {
+		return nil, nil
+	}
+
+	turbotTagsMap := map[string]string{}
+	for _, i := range tags {
+		turbotTagsMap[i.TagKey] = i.TagValue
+	}
+
 	return turbotTagsMap, nil
+}
+
+func vpcTurbotTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	tags := d.Value.([]vpc.Tag)
+
+	if tags == nil || len(tags) == 0 {
+		return nil, nil
+	}
+
+	turbotTags := map[string]string{}
+	for _, i := range tags {
+		turbotTags[i.Key] = i.Value
+	}
+	return turbotTags, nil
 }

@@ -9,7 +9,7 @@ Cloud disks are block-level Elastic Block Storage (EBS) products provided by Ali
 ```sql
 select
   name,
-  id,
+  disk_id,
   size,
   type,
   billing_method,
@@ -19,19 +19,43 @@ from
   alicloud_ecs_disk;
 ```
 
-### List of disks with Default Service CMK
-
+### Unencrypted Disks
 ```sql
 select
   name,
-  id,
+  disk_id,
+  encrypted,
   zone,
+  status,
+  size,
+  instance_id,
   kms_key_id
 from
-  alicloud_ecs_disk
-where
-  kms_key_id = '';
+  alicloud_ecs_disk 
+where 
+  not encrypted;
 ```
+ 
+### List of disks Encrypted with Default Service CMK
+ 
+ ```sql
+ select
+   name,
+   disk_id,
+  encrypted,
+   zone,
+  status,
+  size,
+  instance_id,
+   kms_key_id
+ from
+  alicloud_ecs_disk 
+where 
+  encrypted
+  and kms_key_id = '';
+ ```
+ 
+
 
 ### List Auto Snapshot Policy details applied to disk
 
@@ -56,25 +80,45 @@ from
 ```sql
 select
   name,
-  id,
+  disk_id,
   tags
 from
   alicloud_ecs_disk
 where
-  not tags :: JSONB ? 'owner';
+  tags ->> 'owner' is null;
 ```
 
-### List of disks not attached with any instances
+### List disks attached to a specific instance
+```sql
+select
+  name,
+  disk_id,
+  size,
+  type,
+  billing_method,
+  zone,
+  region,
+  encrypted
+from
+  alicloud_ecs_disk
+where
+  instance_id = 'i-0xickpvpsaih9w7s4zrq';
+```
+
+
+### List of disks not attached to any instances
 
 ```sql
 select
   name,
-  id,
-  attached_time
+  disk_id,
+  status,
+  attached_time,
+  detached_time
 from
   alicloud_ecs_disk
 where
-  attached_time is null;
+  status = 'Available';
 ```
 
 ### Disk count in each availability zone
@@ -89,4 +133,20 @@ group by
   zone
 order by
   count desc;
+```
+
+
+### Top 10 largest Disks
+```sql
+select 
+  name,
+  disk_id,
+  size,
+  status,
+  instance_id
+from
+  alicloud_ecs_disk
+order by
+  size desc
+limit 10;
 ```

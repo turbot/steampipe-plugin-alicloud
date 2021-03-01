@@ -39,7 +39,7 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("Snapshot.SnapshotName"),
 			},
 			{
-				Name:        "id",
+				Name:        "snapshot_id",
 				Description: "An unique identifier for the resource.",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("Snapshot.SnapshotId"),
@@ -162,7 +162,7 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 				Name:        "tags_src",
 				Description: "A list of tags attached with the resource.",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("Snapshot.Tags.Tag"),
+				Transform:   transform.FromField("Snapshot.Tags.Tag").Transform(modifyEcsSourceTags),
 			},
 
 			// steampipe standard columns
@@ -189,10 +189,9 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 
 			// alibaba standard columns
 			{
-				Name:        "region_id",
+				Name:        "region",
 				Description: "The region ID where the resource is located.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Region"),
 			},
 			{
 				Name:        "account_id",
