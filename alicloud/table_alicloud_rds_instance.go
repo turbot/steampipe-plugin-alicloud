@@ -3,6 +3,7 @@ package alicloud
 import (
 	"context"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 
@@ -16,7 +17,7 @@ import (
 func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_rds_instance",
-		Description: "A virtual private cloud service that provides an isolated cloud network to operate resources in a secure environment.",
+		Description: "Provides an RDS instance resource. A DB instance is an isolated database environment in the cloud. A DB instance can contain multiple user-created databases.",
 		List: &plugin.ListConfig{
 			Hydrate: listRdsInstances,
 		},
@@ -31,58 +32,58 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Name:        "db_instance_id",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("DBInstanceId"),
-				Description: "A list of user CIDRs.",
+				Description: "The ID of the single instance to query.",
 			},
 			{
 				Name:        "vpc_id",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("VpcId"),
-				Description: "The unique ID of the VPC.",
+				Description: "The ID of the VPC to which the instances belong.",
 			},
 
 			// Other columns
 			{
 				Name:        "Category",
 				Type:        proto.ColumnType_STRING,
-				Description: "The status of the VPC. Pending: The VPC is being configured. Available: The VPC is available.",
+				Description: "",
 			},
 			{
 				Name:        "create_time",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Description: "The creation time of the VPC.",
+				Description: "The creation time of the Instance.",
 			},
 			{
 				Name:        "lock_reason",
 				Type:        proto.ColumnType_STRING,
-				Description: "The IPv4 CIDR block of the VPC.",
+				Description: "",
 			},
 			{
 				Name:        "ins_id",
 				Type:        proto.ColumnType_INT,
 				Transform:   transform.FromField("InsId"),
-				Description: "The IPv6 CIDR block of the VPC.",
+				Description: "",
 			},
 			{
 				Name:        "guard_db_instance_id",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("GuardDBInstanceId"),
-				Description: "The ID of the VRouter.",
+				Description: "",
 			},
 			{
 				Name:        "db_instance_description",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("DBInstanceDescription"),
-				Description: "The description of the VPC.",
+				Description: "The description of the DB Instance.",
 			},
 			{
 				Name:        "engine",
 				Type:        proto.ColumnType_STRING,
-				Description: "True if the VPC is the default VPC in the region.",
+				Description: "The database engine that the instances run.",
 			},
 			{
 				Name:        "vpc_name",
 				Type:        proto.ColumnType_STRING,
-				Description: "",
+				Description: "The name of the VPC to which the instances belong.",
 			},
 			{
 				Name:        "db_instance_net_type",
@@ -94,12 +95,12 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Name:        "db_instance_class",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("DBInstanceClass"),
-				Description: "Indicates whether the VPC is attached to any Cloud Enterprise Network (CEN) instance.",
+				Description: "The instance type of the instances.",
 			},
 			{
 				Name:        "vpc_cloud_instance_id",
 				Type:        proto.ColumnType_STRING,
-				Description: "The ID of the owner of the VPC.",
+				Description: "",
 			},
 			{
 				Name:        "destroy_time",
@@ -109,7 +110,7 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 			{
 				Name:        "dedicated_host_id_for_master",
 				Type:        proto.ColumnType_STRING,
-				Description: "",
+				Description: "The ID of the host to which the instances belong if the instances are created in a dedicated cluster.",
 			},
 			{
 				Name:        "dedicated_host_name_for_log",
@@ -119,158 +120,158 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 			{
 				Name:        "region_id",
 				Type:        proto.ColumnType_STRING,
-				Description: "The status of the VPC network that is associated with the DHCP options set. Valid values: InUse and Pending",
+				Description: "The ID of the region to which the instances belong.",
 			},
 			{
 				Name:        "instance_network_type",
 				Type:        proto.ColumnType_STRING,
-				Description: "The list of Cloud Enterprise Network (CEN) instances to which the VPC is attached. No value is returned if the VPC is not attached to any CEN instance.",
+				Description: "The network type of the instances.",
 			},
 			{
 				Name:        "resource_group_id",
 				Type:        proto.ColumnType_STRING,
-				Description: "True if the ClassicLink function is enabled.",
+				Description: "The ID of the resource group to which the instances belong.",
 			},
 			{
 				Name:        "db_instance_type",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("DBInstanceType"),
-				Description: "The list of resources in the VPC.",
+				Description: "The role of the instances.",
 			},
 			{
 				Name:        "expire_time",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Description: "A list of VSwitches in the VPC.",
+				Description: "Instance expire time",
 			},
 
 			{
 				Name:        "db_instance_storage_type",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("DBInstanceStorageType"),
-				Description: "A list of IDs of NAT Gateways.",
+				Description: "",
 			},
 			{
 				Name:        "Mutri_or_signle",
 				Type:        proto.ColumnType_BOOL,
 				Transform:   transform.FromField("MutriORsignle"),
-				Description: "A list of IDs of route tables.",
+				Description: "",
 			},
 			{
 				Name:        "dedicated_host_zone_id_for_master",
 				Type:        proto.ColumnType_STRING,
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "The ID of the host to which the instances belong if the instances are created in a dedicated cluster",
 			},
 
 			{
 				Name:        "dedicated_host_group_id",
 				Type:        proto.ColumnType_STRING,
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "The ID of the dedicated cluster to which the instances belong if the instances are created in a dedicated cluster.",
 			},
 			{
 				Name:        "dedicated_host_id_for_log",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("DedicatedHostIdForLog"),
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "",
 			},
 			{
 				Name:        "dedicated_host_group_name",
 				Type:        proto.ColumnType_STRING,
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "The Name of the dedicated cluster to which the instances belong if the instances are created in a dedicated cluster.",
 			},
 			{
 				Name:        "engine_version",
 				Type:        proto.ColumnType_STRING,
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "The version of the database engine that the instances run.",
 			},
 			{
 				Name:        "pay_type",
 				Type:        proto.ColumnType_STRING,
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "The billing method of the instances.",
 			},
 			{
 				Name:        "vswitch_id",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("VSwitchId"),
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "The ID of the vSwitch associated with the specified VPC.",
 			},
 
 			{
 				Name:        "master_instance_id",
 				Type:        proto.ColumnType_STRING,
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "",
 			},
 			{
 				Name:        "dedicated_host_zone_id_for_slave",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("DedicatedHostZoneIdForSlave"),
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "",
 			},
 			{
 				Name:        "temp_db_instance_id",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("TempDBInstanceId"),
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "",
 			},
 			{
 				Name:        "db_instance_status",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("DBInstanceStatus"),
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "The status of the instances",
 			},
 			{
 				Name:        "zone_id",
 				Type:        proto.ColumnType_STRING,
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "The ID of the zone to which the instances belong.",
 			},
 			{
 				Name:        "replicate_id",
 				Type:        proto.ColumnType_STRING,
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "",
 			},
 			{
 				Name:        "dedicated_host_name_for_slave",
 				Type:        proto.ColumnType_STRING,
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "",
 			},
 			{
 				Name:        "dedicated_host_zone_id_for_log",
 				Type:        proto.ColumnType_STRING,
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "",
 			},
 			{
 				Name:        "connection_mode",
 				Type:        proto.ColumnType_STRING,
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "The connection mode of the instances.",
 			},
 			{
 				Name:        "dedicated_host_name_for_master",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("DedicatedHostNameForMaster"),
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "The name of the host to which the instances belong if the instances are created in a dedicated cluster.",
 			},
 			{
 				Name:        "auto_upgrade_minor_version",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("AutoUpgradeMinorVersion"),
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "",
 			},
 			{
 				Name:        "lock_mode",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("LockMode"),
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "",
 			},
 			{
 				Name:        "dedicated_host_id_for_slave",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("DedicatedHostIdForSlave"),
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "",
 			},
 			{
 				Name:        "readonly_db_instance_ids",
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.FromField("ReadOnlyDBInstanceIds"),
-				Description: "A list of secondary IPv4 CIDR blocks of the VPC.",
+				Description: "",
 			},
 
 			// {
@@ -377,9 +378,13 @@ func getRdsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 
 	request := rds.CreateDescribeDBInstancesRequest()
 	request.Scheme = "https"
-	request.VpcId = id
+	request.DBInstanceId = id
 	response, err := client.DescribeDBInstances(request)
-	if err != nil {
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" {
+			plugin.Logger(ctx).Warn("alicloud_rds_instance.getRdsInstance", "not_found_error", serverErr, "request", request)
+			return nil, nil
+		}
 		plugin.Logger(ctx).Error("getRdsInstance", "query_error", err, "request", request)
 		return nil, err
 	}
