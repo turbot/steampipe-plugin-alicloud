@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/privatelink"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
@@ -236,4 +237,32 @@ func getEnv(ctx context.Context, d *plugin.QueryData) (secretKey string, accessK
 	}
 
 	return accessKey, secretKey, nil
+}
+
+// VpcEndpointService returns the end point details for Alicloud PrivateLink service
+func VpcEndpointService(ctx context.Context, d *plugin.QueryData, region string) (*privatelink.Client, error) {
+	if region == "" {
+		return nil, fmt.Errorf("region must be passed VpcEndpointService")
+	}
+	// have we already created and cached the service?
+	serviceCacheKey := fmt.Sprintf("vpc-%s", region)
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(*privatelink.Client), nil
+	}
+
+	ak, secret, err := getEnv(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+
+	// so it was not in cache - create service
+	svc, err := privatelink.NewClientWithAccessKey(region, ak, secret)
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the service connection
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+	return svc, nil
 }
