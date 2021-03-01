@@ -15,7 +15,7 @@ import (
 func tableAlicloudVpcEndpoint(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_vpc_endpoint",
-		Description: "A virtual private cloud service that provides an isolated cloud network to operate resources in a secure environment.",
+		Description: "PrivateLink-Endpoint allows you to access resources in a VPC from another VPC over secure and private networks. PrivateLink simplifies network architecture and avoids security risks from the Internet.",
 		List: &plugin.ListConfig{
 			Hydrate: listVpcEndpoints,
 		},
@@ -46,39 +46,39 @@ func tableAlicloudVpcEndpoint(ctx context.Context) *plugin.Table {
 				Description: "The status of the endpoint. Valid values:Creating: The endpoint is being created.Active: The endpoint is available.Pending: The endpoint is being modified.Deleting: The endpoint is being deleted.",
 			},
 			{
-				Name:        "creation_time",
+				Name:        "create_time",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Description: "The creation time of the VPC.",
+				Description: "The creation time of the EndPoint.",
 			},
 			{
 				Name:        "endpoint_description",
 				Type:        proto.ColumnType_STRING,
-				Description: "The IPv4 CIDR block of the VPC.",
+				Description: "",
 			},
 			{
 				Name:        "endpoint_business_status",
 				Type:        proto.ColumnType_STRING,
-				Description: "The IPv6 CIDR block of the VPC.",
+				Description: "",
 			},
 			{
 				Name:        "endpoint_domain",
 				Type:        proto.ColumnType_STRING,
-				Description: "The ID of the VRouter.",
+				Description: "",
 			},
 			{
 				Name:        "bandwidth",
 				Type:        proto.ColumnType_DOUBLE,
-				Description: "The description of the VPC.",
+				Description: "",
 			},
 			{
 				Name:        "connection_status",
 				Type:        proto.ColumnType_STRING,
-				Description: "True if the VPC is the default VPC in the region.",
+				Description: "The Status of the Endpoint Connection",
 			},
 			{
 				Name:        "service_id",
 				Type:        proto.ColumnType_STRING,
-				Description: "",
+				Description: "The id of the endpoint service that is associated with the endpoint to be queried.",
 			},
 			{
 				Name:        "service_name",
@@ -93,7 +93,7 @@ func tableAlicloudVpcEndpoint(ctx context.Context) *plugin.Table {
 			{
 				Name:        "region_id",
 				Type:        proto.ColumnType_STRING,
-				Description: "The ID of the owner of the VPC.",
+				Description: "",
 			},
 			{
 				Name:        "resource_owner",
