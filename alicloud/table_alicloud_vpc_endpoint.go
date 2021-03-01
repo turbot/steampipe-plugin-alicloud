@@ -121,12 +121,13 @@ func tableAlicloudVpcEndpoint(ctx context.Context) *plugin.Table {
 				Transform:   transform.From(endpointTitle),
 				Description: ColumnDescriptionTitle,
 			},
-			// {
-			// 	Name:        "akas",
-			// 	Type:        proto.ColumnType_JSON,
-			// 	Transform:   transform.From(endpointAkas),
-			// 	Description: ColumnDescriptionAkas,
-			// },
+			{
+				Name:        "akas",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getEndpointAkas,
+				Transform:   transform.FromValue(),
+				Description: ColumnDescriptionAkas,
+			},
 
 			// alicloud common columns
 			{
@@ -210,10 +211,10 @@ func getVpcEndpoint(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 
 //// TRANSFORM FUNCTIONS
 
-func endpointAkas(ctx context.Context, k *plugin.QueryData, h *plugin.HydrateData, d *transform.TransformData) (interface{}, error) {
-	i := d.HydrateItem.(privatelink.Endpoint)
+func getEndpointAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	i := h.Item.(privatelink.Endpoint)
 	// Get project details
-	commonData, err := getCommonColumns(ctx, k, h)
+	commonData, err := getCommonColumns(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}
