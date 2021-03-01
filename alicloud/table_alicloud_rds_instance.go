@@ -402,5 +402,5 @@ func getRdsInstanceAkas(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	}
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
-	return []string{"acs:rds:" + i.RegionId + ":" + accountID + ":instance/" + i.VpcId}, nil
+	return []string{"acs:rds:" + i.RegionId + ":" + accountID + ":instance/" + i.DBInstanceId}, nil
 }
