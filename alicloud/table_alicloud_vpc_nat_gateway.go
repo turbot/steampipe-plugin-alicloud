@@ -18,43 +18,149 @@ func tableAlicloudVpcNatGateway(ctx context.Context) *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate: listNatGateway,
 		},
+		GetMatrixItem: BuildRegionList,
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("id"),
-			Hydrate:    getNatGatewayAttributes,
+			KeyColumns: plugin.SingleColumn("nat_gateway_id"),
+			Hydrate:    getNatGateway,
 		},
 		Columns: []*plugin.Column{
 			// Top columns
-			{Name: "name", Type: proto.ColumnType_STRING, Description: "The name of the VPN gateway."},
-			{Name: "id", Type: proto.ColumnType_STRING, Transform: transform.FromField("NatGatewayId"), Description: "The ID of the VPN gateway."},
+			{
+				Name:        "name",
+				Type:        proto.ColumnType_STRING,
+				Description: "The name of the NAT gateway.",
+			},
+			{
+				Name:        "nat_gateway_id",
+				Type:        proto.ColumnType_STRING,
+				Description: "The ID of the NAT gateway.",
+			},
 			// Other columns
-			{Name: "description", Type: proto.ColumnType_STRING, Description: "The description of the VPN gateway."},
-			{Name: "vpc_id", Type: proto.ColumnType_STRING, Description: "The ID of the VPC for which the VPN gateway is created."},
-			{Name: "vswitch_id", Type: proto.ColumnType_STRING, Transform: transform.FromField("VSwitchId"), Description: "The ID of the VSwitch to which the VPN gateway belongs."},
-			{Name: "spec", Type: proto.ColumnType_STRING, Description: "The IPv4 CIDR block of the VPC."},
-			{Name: "instance_charge_type", Type: proto.ColumnType_STRING, Description: ""},
-			{Name: "expired_time", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the VPN gateway expires."},
-			{Name: "auto_pay", Type: proto.ColumnType_BOOL, Description: ""},
-			{Name: "business_status", Type: proto.ColumnType_STRING, Description: "The payment state of the VPN gateway. Valid values: Normal and FinancialLocked."},
-			{Name: "creation_time", Type: proto.ColumnType_TIMESTAMP, Description: "The time when the VPN gateway was created."},
-			{Name: "status", Type: proto.ColumnType_STRING, Description: "The status of the VPN gateway."},
-			{Name: "nat_type", Type: proto.ColumnType_STRING, Description: "Indicates whether the VPC is attached to any Cloud Enterprise Network (CEN) instance."},
-			{Name: "internet_charge_type", Type: proto.ColumnType_STRING, Description: "The billing method of the VPN gateway."},
-			{Name: "resource_group_id", Type: proto.ColumnType_STRING, Description: ""},
-			{Name: "deletion_protection", Type: proto.ColumnType_BOOL, Description: ""},
-			{Name: "ecs_metric_enabled", Type: proto.ColumnType_BOOL, Description: ""},
-			{Name: "forward_table", Type: proto.ColumnType_JSON, Description: ""},
-			{Name: "snat_table", Type: proto.ColumnType_JSON, Description: ""},
-			{Name: "private_info", Type: proto.ColumnType_JSON, Description: ""},
-			{Name: "bandwidth_package_ids", Type: proto.ColumnType_JSON, Description: ""},
-			{Name: "nat_gateway_private_info", Type: proto.ColumnType_JSON, Description: ""},
-			{Name: "ip_list_item", Type: proto.ColumnType_JSON, Description: ""},
-			{Name: "title", Type: proto.ColumnType_STRING, Transform: transform.FromField("Name"), Description: resourceInterfaceDescription("title")},
+			{
+				Name:        "description",
+				Type:        proto.ColumnType_STRING,
+				Description: "The description of the NAT gateway.",
+			},
+			{
+				Name:        "status",
+				Type:        proto.ColumnType_STRING,
+				Description: "The payment state of the VPN gateway. Valid values: Normal and FinancialLocked.",
+			},
+			{
+				Name:        "creation_time",
+				Type:        proto.ColumnType_TIMESTAMP,
+				Description: "The time when the NAT gateway was created.",
+			},
+			{
+				Name:        "expired_ime",
+				Type:        proto.ColumnType_TIMESTAMP,
+				Description: "The time when the NAT gateway expires.",
+			},
+			{
+				Name:        "forward_table",
+				Type:        proto.ColumnType_JSON,
+				Description: "The ID of the DNAT table.",
+				Hydrate:     getNatGateway,
+				// Transform:   transform.FromField("ForwardTableIds.ForwardTableId"),
+			},
+			{
+				Name:        "vpc_id",
+				Type:        proto.ColumnType_STRING,
+				Description: "The ID of the virtual private cloud (VPC) to which the NAT gateway belongs.",
+			},
+			{
+				Name:        "nat_type",
+				Type:        proto.ColumnType_STRING,
+				Description: "The type of the NAT gateway. Valid values: 'Normal' and 'Enhanced'.",
+			},
+			{
+				Name:        "region_id",
+				Type:        proto.ColumnType_STRING,
+				Description: "The ID of the region where the NAT gateway is deployed.",
+			},
+			{
+				Name:        "resource_group_id",
+				Type:        proto.ColumnType_STRING,
+				Description: "The ID of the resource group.",
+			},
+			{
+				Name:        "snat_table",
+				Type:        proto.ColumnType_JSON,
+				Description: "The ID of the SNAT table that is associated with the NAT gateway.",
+				Hydrate:     getNatGateway,
+				// Transform:   transform.FromField("SnatTableIds.SnatTableId"),
+			},
+			{
+				Name:        "business_status",
+				Type:        proto.ColumnType_STRING,
+				Description: "The state of the NAT gateway. Valid values: 'Normal' and 'FinancialLocked'",
+			},
+			{
+				Name:        "deletion_protection",
+				Type:        proto.ColumnType_BOOL,
+				Description: "Indicates whether deletion protection is enabled. Valid values:",
+				// Hydrate:     getNatGateway,
+			},
+			{
+				Name:        "ecs_metric_enabled",
+				Type:        proto.ColumnType_BOOL,
+				Description: "Indicates whether the traffic monitoring feature is enabled",
+			},
+			{
+				Name:        "billing_config",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getNatGateway,
+				Description: "The billing type the NAT gateway.",
+			},
+			{
+				Name:        "ip_list",
+				Type:        proto.ColumnType_JSON,
+				Description: "The elastic IP address (EIP) that is associated with the NAT gateway.",
+				Hydrate:     getNatGateway,
+				// Transform:   transform.FromField("IpLists.IpList"),
+			},
+			{
+				Name:        "private_info",
+				Type:        proto.ColumnType_JSON,
+				Description: "Information about the private network to which the enhanced NAT gateway belongs.",
+				Hydrate:     getNatGateway,
+			},
+			// Resource interface
+			{
+				Name:        "title",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("Name"),
+				Hydrate:     getNatGateway,
+				Description: ColumnDescriptionTitle,
+			},
+			{
+				Name:        "akas",
+				Description: ColumnDescriptionAkas,
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getNatGatewayAka,
+				Transform:   transform.FromValue(),
+			},
+			// alicloud common columns
+			{
+				Name:        "region",
+				Description: ColumnDescriptionRegion,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("RegionId"),
+			},
+			{
+				Name:        "account_id",
+				Description: ColumnDescriptionAccount,
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getCommonColumns,
+				Transform:   transform.FromField("AccountID"),
+			},
 		},
 	}
 }
 
 func listNatGateway(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	client, err := connectVpc(ctx)
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	client, err := VpcService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc.listVpc", "connection_error", err)
 		return nil, err
@@ -89,21 +195,48 @@ func listNatGateway(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 	return nil, nil
 }
 
-func getNatGatewayAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client, err := connectVpc(ctx)
+func getNatGateway(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	client, err := VpcService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc_nat_gateway.getNatGatewayAttributes", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_vpc.getNatGateway", "connection_error", err)
 		return nil, err
 	}
+
+	var id string
+	if h.Item != nil {
+		data := h.Item.(vpc.NatGateway)
+		id = data.NatGatewayId
+	} else {
+		id = d.KeyColumnQuals["nat_gateway_id"].GetStringValue()
+	}
+
 	request := vpc.CreateGetNatGatewayAttributeRequest()
 	request.Scheme = "https"
-	i := h.Item.(vpc.NatGateway)
-	request.NatGatewayId = i.NatGatewayId
+	request.NatGatewayId = id
+
 	response, err := client.GetNatGatewayAttribute(request)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc_nat_gateway.getNatGatewayAttributes", "query_error", err, "request", request)
+		plugin.Logger(ctx).Error("getNatGateway", "query_error", err, "request", request)
 		return nil, err
 	}
+
 	return response, nil
 }
 
+func getNatGatewayAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getNatGatewayAka")
+	ngw := h.Item.(vpc.NatGateway)
+
+	// Get project details
+	commonData, err := getCommonColumns(ctx, d, h)
+	if err != nil {
+		return nil, err
+	}
+	commonColumnData := commonData.(*alicloudCommonColumnData)
+	accountID := commonColumnData.AccountID
+
+	akas := []string{"arn:acs:vpc:" + ngw.RegionId + ":" + accountID + ":natgateway/" + ngw.NatGatewayId}
+
+	return akas, nil
+}
