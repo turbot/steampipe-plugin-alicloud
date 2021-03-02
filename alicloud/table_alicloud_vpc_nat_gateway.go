@@ -170,11 +170,6 @@ func listNatGateway(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
 
-	quals := d.KeyColumnQuals
-	if quals["id"] != nil {
-		request.NatGatewayId = quals["id"].GetStringValue()
-	}
-
 	count := 0
 	for {
 		response, err := client.DescribeNatGateways(request)
