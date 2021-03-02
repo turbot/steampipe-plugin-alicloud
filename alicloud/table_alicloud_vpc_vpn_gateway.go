@@ -161,11 +161,6 @@ func listVpnGateways(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
 
-	quals := d.KeyColumnQuals
-	if quals["id"] != nil {
-		request.VpnGatewayId = quals["id"].GetStringValue()
-	}
-
 	count := 0
 	for {
 		response, err := client.DescribeVpnGateways(request)
