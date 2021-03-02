@@ -63,13 +63,6 @@ func tableAlicloudVpcVpnCustomerGateway(ctx context.Context) *plugin.Table {
 				Description: "The IPv4 CIDR block of the VPC.",
 			},
 			{
-				Name:        "akas",
-				Description: ColumnDescriptionAkas,
-				Type:        proto.ColumnType_JSON,
-				Hydrate:     getVpcSustomerGatewayAka,
-				Transform:   transform.FromValue(),
-			},
-			{
 				Name:        "title",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("Name"),
