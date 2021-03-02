@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
@@ -17,14 +18,15 @@ import (
 func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ecs_disk",
-		Description: "Elastic Compute Service disks.",
+		Description: "Elastic Compute Disk",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsDisk,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("name"),
+			KeyColumns: plugin.SingleColumn("disk_id"),
 			Hydrate:    getEcsDisk,
 		},
+		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			{
 				Name:        "name",
@@ -33,10 +35,9 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("DiskName"),
 			},
 			{
-				Name:        "id",
+				Name:        "disk_id",
 				Description: "An unique identifier for the resource.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("DiskId"),
 			},
 			{
 				Name:        "status",
@@ -259,6 +260,12 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_INT,
 			},
 			{
+				Name:        "zone",
+				Description: "The zone name in which the resource is created.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("ZoneId"),
+			},
+			{
 				Name:        "mount_instances",
 				Description: "The attaching information of the disk.",
 				Type:        proto.ColumnType_JSON,
@@ -274,46 +281,40 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Name:        "tags_src",
 				Description: "A list of tags attached with the resource.",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("Tags.Tag"),
+				Transform:   transform.FromField("Tags.Tag").Transform(modifyEcsSourceTags),
 			},
 
 			// steampipe standard columns
 			{
 				Name:        "tags",
-				Description: resourceInterfaceDescription("tags"),
+				Description: ColumnDescriptionTags,
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.From(ecsDiskTags),
+				Transform:   transform.FromField("Tags.Tag").Transform(ecsTagsToMap),
 			},
 			{
 				Name:        "akas",
-				Description: resourceInterfaceDescription("akas"),
+				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getEcsDiskAka,
 				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "title",
-				Description: resourceInterfaceDescription("title"),
+				Description: ColumnDescriptionTitle,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("DiskName"),
+				Transform:   transform.From(ecsDiskTitle),
 			},
 
 			// alicloud standard columns
 			{
-				Name:        "zone",
-				Description: "The zone name in which the resource is created.",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("ZoneId"),
-			},
-			{
 				Name:        "region",
-				Description: "The name of the region where the resource resides.",
+				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("RegionId"),
 			},
 			{
 				Name:        "account_id",
-				Description: "The alicloud Account ID in which the resource is located.",
+				Description: ColumnDescriptionAccount,
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getCommonColumns,
 				Transform:   transform.FromField("AccountID"),
@@ -325,8 +326,10 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listEcsDisk(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
 	// Create service connection
-	client, err := connectEcs(ctx)
+	client, err := ECSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_disk.listEcsDisk", "connection_error", err)
 		return nil, err
@@ -359,26 +362,34 @@ func listEcsDisk(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 //// HYDRATE FUNCTIONS
 
 func getEcsDisk(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 	plugin.Logger(ctx).Trace("getEcsDisk")
 
 	// Create service connection
-	client, err := connectEcs(ctx)
+	client, err := ECSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_disk.getEcsDisk", "connection_error", err)
 		return nil, err
 	}
 
-	var name string
+	var id string
 	if h.Item != nil {
 		disk := h.Item.(ecs.Disk)
-		name = disk.DiskName
+		id = disk.DiskId
 	} else {
-		name = d.KeyColumnQuals["name"].GetStringValue()
+		id = d.KeyColumnQuals["disk_id"].GetStringValue()
+	}
+
+	// In SDK, the Datatype of DiskIds is string, though the value should be passed as
+	// ["d-bp67acfmxazb4p****", "d-bp67acfmxazb4g****", ... "d-bp67acfmxazb4d****"]
+	input, err := json.Marshal([]string{id})
+	if err != nil {
+		return nil, err
 	}
 
 	request := ecs.CreateDescribeDisksRequest()
 	request.Scheme = "https"
-	request.DiskName = name
+	request.DiskIds = string(input)
 
 	response, err := client.DescribeDisks(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
@@ -394,11 +405,12 @@ func getEcsDisk(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 }
 
 func getEcsDiskAutoSnapshotPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 	plugin.Logger(ctx).Trace("getEcsDiskAutomaticSnapshotPolicy")
 	disk := h.Item.(ecs.Disk)
 
 	// Create service connection
-	client, err := connectEcs(ctx)
+	client, err := ECSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_disk.getEcsDisk", "connection_error", err)
 		return nil, err
@@ -440,7 +452,15 @@ func getEcsDiskAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 
 //// TRANSFORM FUNCTIONS
 
-func ecsDiskTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
+func ecsDiskTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	disk := d.HydrateItem.(ecs.Disk)
-	return ecsTagsToMap(disk.Tags.Tag)
+
+	// Build resource title
+	title := disk.DiskId
+
+	if len(disk.DiskName) > 0 {
+		title = disk.DiskName
+	}
+
+	return title, nil
 }
