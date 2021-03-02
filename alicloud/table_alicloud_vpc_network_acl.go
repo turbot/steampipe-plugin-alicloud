@@ -4,6 +4,7 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 
@@ -17,13 +18,13 @@ func tableAlicloudVpcNetworkAcl(ctx context.Context) *plugin.Table {
 		Name:        "alicloud_vpc_network_acl",
 		Description: "VPC network ACL.",
 		List: &plugin.ListConfig{
-			//KeyColumns: plugin.AnyColumn([]string{"is_default", "id"}),
 			Hydrate: listNetworkAcl,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("id"),
+			KeyColumns: plugin.SingleColumn("network_acl_id"),
 			Hydrate:    getNetworkAclAttribute,
 		},
+		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			// Top columns
 			{
@@ -33,7 +34,7 @@ func tableAlicloudVpcNetworkAcl(ctx context.Context) *plugin.Table {
 				Description: "The name of the network ACL.",
 			},
 			{
-				Name:        "id",
+				Name:        "network_acl_id",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("NetworkAclId"),
 				Description: "The ID of the network ACL.",
@@ -93,20 +94,20 @@ func tableAlicloudVpcNetworkAcl(ctx context.Context) *plugin.Table {
 				Name:        "tags",
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.FromField("Tags.Tag"),
-				Description: resourceInterfaceDescription("tags"),
-			},
-			{
-				Name:        "akas",
-				Description: resourceInterfaceDescription("akas"),
-				Type:        proto.ColumnType_JSON,
-				Hydrate:     getNetworkAclAka,
-				Transform:   transform.FromValue(),
+				Description: ColumnDescriptionTags,
 			},
 			{
 				Name:        "title",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("NetworkAclName"),
-				Description: resourceInterfaceDescription("title"),
+				Description: ColumnDescriptionTitle,
+			},
+			{
+				Name:        "akas",
+				Description: ColumnDescriptionAkas,
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getNetworkAclAka,
+				Transform:   transform.FromValue(),
 			},
 			// alicloud standard columns
 			{
@@ -127,7 +128,8 @@ func tableAlicloudVpcNetworkAcl(ctx context.Context) *plugin.Table {
 }
 
 func listNetworkAcl(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	client, err := connectVpc(ctx)
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	client, err := VpcService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_network_acl.listNetworkAcl", "connection_error", err)
 		return nil, err
@@ -136,15 +138,6 @@ func listNetworkAcl(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 	request.Scheme = "https"
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
-
-	// quals := d.KeyColumnQuals
-	// if quals["is_default"] != nil {
-	// 	request.IsDefault = requests.NewBoolean(quals["is_default"].GetBoolValue())
-	// }
-	// if quals["id"] != nil {
-	// 	request.VSwitchId = quals["id"].GetStringValue()
-	// }
-
 	count := 0
 	for {
 		response, err := client.DescribeNetworkAcls(request)
@@ -168,7 +161,8 @@ func listNetworkAcl(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 }
 
 func getNetworkAclAttribute(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	client, err := connectVpc(ctx)
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	client, err := VpcService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_network_acl.getNetworkAclAttribute", "connection_error", err)
 		return nil, err
@@ -179,16 +173,20 @@ func getNetworkAclAttribute(ctx context.Context, d *plugin.QueryData, h *plugin.
 		networkAcl := h.Item.(vpc.NetworkAcl)
 		id = networkAcl.NetworkAclId
 	} else {
-		id = d.KeyColumnQuals["id"].GetStringValue()
+		id = d.KeyColumnQuals["network_acl_id"].GetStringValue()
 	}
 	request := vpc.CreateDescribeNetworkAclAttributesRequest()
 	request.Scheme = "https"
 	request.NetworkAclId = id
 
 	response, err := client.DescribeNetworkAclAttributes(request)
-	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc_network_acl.getNetworkAclAttribute", "query_error", err, "request", request)
-		return nil, err
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		if serverErr.ErrorCode() == "InvalidNetworkAcl.NotFound" {
+			plugin.Logger(ctx).Warn("alicloud_vpc_network_acl.getNetworkAclAttribute", "not_found_error", serverErr, "request", request)
+			return nil, nil
+		}
+		plugin.Logger(ctx).Error("alicloud_vpc_network_acl.getNetworkAclAttribute", "query_error", serverErr, "request", request)
+		return nil, serverErr
 	}
 	return response.NetworkAclAttribute, nil
 }
