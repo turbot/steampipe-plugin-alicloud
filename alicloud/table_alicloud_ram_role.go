@@ -32,8 +32,9 @@ func tableAlicloudRAMRole(ctx context.Context) *plugin.Table {
 			Hydrate: listRAMRoles,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("name"),
-			Hydrate:    getRAMRole,
+			KeyColumns:        plugin.SingleColumn("name"),
+			ShouldIgnoreError: isNotFoundError([]string{"EntityNotExist.Role"}),
+			Hydrate:           getRAMRole,
 		},
 		Columns: []*plugin.Column{
 			{
@@ -174,13 +175,9 @@ func getRAMRole(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	request.RoleName = name
 
 	response, err := client.GetRole(request)
-	if serverErr, ok := err.(*errors.ServerError); ok {
-		if serverErr.ErrorCode() == "EntityNotExist.Role" {
-			plugin.Logger(ctx).Warn("alicloud_ram_role.getRAMRole", "not_found_error", serverErr, "request", request)
-			return nil, nil
-		}
-		plugin.Logger(ctx).Error("alicloud_ram_role.getRAMRole", "query_error", serverErr, "request", request)
-		return nil, serverErr
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_ram_role.getRAMRole", "query_error", err, "request", request)
+		return nil, err
 	}
 
 	data := response.Role
