@@ -1,0 +1,12 @@
+[
+	{
+		"account_id": "{{ output.account_id.value }}",
+		"comments": "This is a test user.",
+		"display_name": "{{ resourceName }}",
+		"email": "{{ resourceName }}.test@yoyo.com",
+		"mobile_phone": "86-18600008888",
+		"name": "{{ resourceName }}",
+		"region": "global",
+		"user_id": "{{ output.user_id.value }}"
+	}
+]

@@ -6,7 +6,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 )
 
-// function which returns an ErrorPredicate for AWS API calls
+// function which returns an ErrorPredicate for ALicloud API calls
 func isNotFoundError(notFoundErrors []string) plugin.ErrorPredicate {
 	return func(err error) bool {
 		if serverErr, ok := err.(*errors.ServerError); ok {
