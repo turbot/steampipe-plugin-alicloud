@@ -11,69 +11,85 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
-type CustomerGatewayInfo = struct {
-	CustomerGateway vpc.CustomerGateway
+type customerGatewayInfo = struct {
+	vpc.CustomerGateway
+	Region string
 }
+
+//// TABLE DEFINITION
 
 func tableAlicloudVpcVpnCustomerGateway(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "alicloud_vpc_vpc_customer_gateway",
-		Description: "NAT gateways are.",
+		Name:        "alicloud_vpc_vpn_customer_gateway",
+		Description: "Alicloud VPC VPN Customer Gateway.",
 		List: &plugin.ListConfig{
-			Hydrate: listCustomerGateway,
+			Hydrate: listVpcCustomerGateways,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("customer_gateway_id"),
-			Hydrate:    getCustomerGateway,
+			Hydrate:    getVpcCustomerGateway,
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
-			// Top columns
 			{
 				Name:        "name",
-				Type:        proto.ColumnType_STRING,
 				Description: "The name of the customer gateway.",
+				Type:        proto.ColumnType_STRING,
 			},
 			{
 				Name:        "customer_gateway_id",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("CustomerGatewayId"),
 				Description: "The ID of the customer gateway.",
-			},
-			// Other columns
-			{
-				Name:        "description",
 				Type:        proto.ColumnType_STRING,
-				Description: "The description of the customer gateway.",
-			},
-			{
-				Name:        "ip_address",
-				Type:        proto.ColumnType_STRING,
-				Description: "The IP address of the customer gateway.",
-			},
-			{
-				Name:        "create_time",
-				Type:        proto.ColumnType_TIMESTAMP,
-				Transform:   transform.FromField("CreateTime").Transform(transform.UnixMsToTimestamp),
-				Description: "The time when the customer gateway was created.",
 			},
 			{
 				Name:        "asn",
+				Description: "Specifies the ASN of the customer gateway.",
+				Type:        proto.ColumnType_INT,
+			},
+			{
+				Name:        "create_time",
+				Description: "The time when the customer gateway was created.",
+				Type:        proto.ColumnType_TIMESTAMP,
+				Transform:   transform.FromField("CreateTime").Transform(transform.UnixMsToTimestamp),
+			},
+			{
+				Name:        "description",
+				Description: "The description of the customer gateway.",
 				Type:        proto.ColumnType_STRING,
-				Description: "The IPv4 CIDR block of the VPC.",
+			},
+			{
+				Name:        "ip_address",
+				Description: "The IP address of the customer gateway.",
+				Type:        proto.ColumnType_IPADDR,
+			},
+
+			// steampipe standard columns
+			{
+				Name:        "akas",
+				Description: ColumnDescriptionAkas,
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getVpcCustomerGatewayAka,
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "title",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Name"),
 				Description: ColumnDescriptionTitle,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.From(vpcCustomerGatewayTitle),
+			},
+
+			// alicloud standard columns
+			{
+				Name:        "region",
+				Description: ColumnDescriptionRegion,
+				Type:        proto.ColumnType_STRING,
 			},
 			{
 				Name:        "account_id",
+				Description: ColumnDescriptionAccount,
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getCommonColumns,
 				Transform:   transform.FromField("AccountID"),
-				Description: "The alicloud Account ID in which the resource is located.",
 			},
 		},
 	}
@@ -81,13 +97,13 @@ func tableAlicloudVpcVpnCustomerGateway(ctx context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func listCustomerGateway(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func listVpcCustomerGateways(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
 	client, err := VpcService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc_vpn_customer_gateway.listCustomerGateway", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_vpc_vpn_customer_gateway.listVpcCustomerGateways", "connection_error", err)
 		return nil, err
 	}
 	request := vpc.CreateDescribeCustomerGatewaysRequest()
@@ -99,12 +115,11 @@ func listCustomerGateway(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 	for {
 		response, err := client.DescribeCustomerGateways(request)
 		if err != nil {
-			plugin.Logger(ctx).Error("alicloud_vpc_vpn_customer_gateway.listCustomerGateway", "query_error", err, "request", request)
+			plugin.Logger(ctx).Error("alicloud_vpc_vpn_customer_gateway.listVpcCustomerGateways", "query_error", err, "request", request)
 			return nil, err
 		}
 		for _, i := range response.CustomerGateways.CustomerGateway {
-			plugin.Logger(ctx).Warn("alicloud_vpc_vpn_customer_gateway.listCustomerGateway", "item", i)
-			d.StreamListItem(ctx, i)
+			d.StreamListItem(ctx, customerGatewayInfo{i, region})
 			count++
 		}
 		if count >= response.TotalCount {
@@ -115,33 +130,64 @@ func listCustomerGateway(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 	return nil, nil
 }
 
-//// GET FUNCTION
+//// HYDRATE FUNCTIONS
 
-func getCustomerGateway(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getVpcCustomerGateway(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
 	client, err := VpcService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc_vpn_customer_gateway.getCustomerGatewayAttributes", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_vpc_vpn_customer_gateway.getVpcCustomerGateway", "connection_error", err)
 		return nil, err
 	}
-	request := vpc.CreateDescribeCustomerGatewayRequest()
-	request.Scheme = "https"
+	id := d.KeyColumnQuals["customer_gateway_id"].GetStringValue()
 
-	var id string
-	if h.Item != nil {
-		data := h.Item.(vpc.CustomerGateway)
-		id = data.CustomerGatewayId
-	} else {
-		id = d.KeyColumnQuals["customer_gateway_id"].GetStringValue()
-	}
+	request := vpc.CreateDescribeCustomerGatewaysRequest()
+	request.Scheme = "https"
 	request.CustomerGatewayId = id
 
-	response, err := client.DescribeCustomerGateway(request)
+	response, err := client.DescribeCustomerGateways(request)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc_vpn_customer_gateway.getCustomerGatewayAttributes", "query_error", err, "request", request)
+		plugin.Logger(ctx).Error("alicloud_vpc_vpn_customer_gateway.getVpcCustomerGateway", "query_error", err, "request", request)
 		return nil, err
 	}
-	return response, nil
+
+	if response.CustomerGateways.CustomerGateway != nil && len(response.CustomerGateways.CustomerGateway) > 0 {
+		return customerGatewayInfo{response.CustomerGateways.CustomerGateway[0], region}, nil
+	}
+
+	return nil, nil
+}
+
+func getVpcCustomerGatewayAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getVpcCustomerGatewayAka")
+	data := h.Item.(customerGatewayInfo)
+
+	// Get project details
+	commonData, err := getCommonColumns(ctx, d, h)
+	if err != nil {
+		return nil, err
+	}
+	commonColumnData := commonData.(*alicloudCommonColumnData)
+	accountID := commonColumnData.AccountID
+
+	akas := []string{"acs:vpc:" + data.Region + ":" + accountID + ":customergateway/" + data.CustomerGatewayId}
+
+	return akas, nil
+}
+
+//// TRANSFORM FUNCTIONS
+
+func vpcCustomerGatewayTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	data := d.HydrateItem.(customerGatewayInfo)
+
+	// Build resource title
+	title := data.CustomerGatewayId
+
+	if len(data.Name) > 0 {
+		title = data.Name
+	}
+
+	return title, nil
 }
