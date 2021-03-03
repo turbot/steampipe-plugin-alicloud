@@ -217,7 +217,7 @@ func GetDefaultRegion(connection *plugin.Connection) string {
 	return region
 }
 
-func getEnv(ctx context.Context, d *plugin.QueryData) (secretKey string, accessKey string, err error) {
+func getEnv(_ context.Context, d *plugin.QueryData) (secretKey string, accessKey string, err error) {
 
 	// https://gitea.com/aliyun/aliyun-cli/src/branch/master/CHANGELOG.md#3-0-40
 	// The CLI order of preference is:
