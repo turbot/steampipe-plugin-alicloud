@@ -11,6 +11,11 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+type kmsKeyInfo = struct {
+	kms.KeyMetadata
+	Region string
+}
+
 func tableAlicloudKmsKey(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_kms_key",
@@ -28,7 +33,8 @@ func tableAlicloudKmsKey(ctx context.Context) *plugin.Table {
 			{
 				Name:        "key_id",
 				Type:        proto.ColumnType_STRING,
-				Description: "The globally unique ID of the CMK."},
+				Description: "The globally unique ID of the CMK.",
+			},
 			{
 				Name:        "key_state",
 				Type:        proto.ColumnType_STRING,
@@ -39,6 +45,7 @@ func tableAlicloudKmsKey(ctx context.Context) *plugin.Table {
 			{
 				Name:        "key_arn",
 				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("Arn"),
 				Description: "The Alibaba Cloud Resource Name (ARN) of the CMK.",
 			},
 			{
@@ -105,19 +112,14 @@ func tableAlicloudKmsKey(ctx context.Context) *plugin.Table {
 				Name:        "primary_key_version",
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getKmsKey,
-				Description: "The ID o",
+				Description: "The ID of the current primary key version of the symmetric CMK.",
 			},
 			{
-				Name:        "alias_name",
-				Type:        proto.ColumnType_STRING,
+				Name:        "key_aliases",
+				Description: "A list of aliases bound to a CMK.",
+				Type:        proto.ColumnType_JSON,
 				Hydrate:     getKeyAlias,
-				Description: "The unique identifier of the alias.",
-			},
-			{
-				Name:        "alias_arn",
-				Type:        proto.ColumnType_STRING,
-				Hydrate:     getKeyAlias,
-				Description: "The ARN of the alias.",
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "material_expire_time",
@@ -129,7 +131,7 @@ func tableAlicloudKmsKey(ctx context.Context) *plugin.Table {
 				Name:        "tags_src",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getKeyTags,
-				Transform:   transform.FromField("Tags"),
+				Transform:   transform.FromField("Tags.Tag").Transform(modifyKmsSourceTags),
 				Description: "A list of tags assigned to bucket",
 			},
 			// steampipe standard columns
@@ -137,7 +139,7 @@ func tableAlicloudKmsKey(ctx context.Context) *plugin.Table {
 				Name:        "tags",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getKeyTags,
-				Transform:   transform.FromField("Tags"),
+				Transform:   transform.FromField("Tags.Tag").Transform(kmsTagsToMap),
 				Description: ColumnDescriptionTags,
 			},
 			{
@@ -149,11 +151,15 @@ func tableAlicloudKmsKey(ctx context.Context) *plugin.Table {
 			{
 				Name:        "akas",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("KeyArn").Transform(ensureStringArray),
+				Transform:   transform.FromField("Arn").Transform(ensureStringArray),
 				Description: ColumnDescriptionAkas,
 			},
-
 			// alicloud standard columns
+			{
+				Name:        "region",
+				Type:        proto.ColumnType_STRING,
+				Description: ColumnDescriptionRegion,
+			},
 			{
 				Name:        "account_id",
 				Description: ColumnDescriptionAccount,
@@ -165,9 +171,12 @@ func tableAlicloudKmsKey(ctx context.Context) *plugin.Table {
 	}
 }
 
+//// LIST FUNCTION
+
 func listKmsKey(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
+	// Create service connection
 	client, err := KMSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_kms_key.listKmsKey", "connection_error", err)
@@ -188,7 +197,13 @@ func listKmsKey(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 		}
 		for _, i := range response.Keys.Key {
 			plugin.Logger(ctx).Warn("listKmsKey", "item", i)
-			d.StreamListItem(ctx, i)
+			d.StreamListItem(ctx, kmsKeyInfo{
+				kms.KeyMetadata{
+					Arn:   i.KeyArn,
+					KeyId: i.KeyId,
+				},
+				region,
+			})
 			count++
 		}
 		if count >= response.TotalCount {
@@ -199,9 +214,12 @@ func listKmsKey(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 	return nil, nil
 }
 
+//// HYDRATE FUNCTIONS
+
 func getKmsKey(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
+	// Create service connection
 	client, err := KMSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_kms_key.getKmsKey", "connection_error", err)
@@ -210,7 +228,7 @@ func getKmsKey(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) 
 
 	var id string
 	if h.Item != nil {
-		data := h.Item.(kms.Key)
+		data := h.Item.(kmsKeyInfo)
 		id = data.KeyId
 	} else {
 		id = d.KeyColumnQuals["key_id"].GetStringValue()
@@ -230,19 +248,20 @@ func getKmsKey(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) 
 		return nil, serverErr
 	}
 
-	return response.KeyMetadata, nil
+	return kmsKeyInfo{response.KeyMetadata, region}, nil
 }
 
 func getKeyAlias(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
+	// Create service connection
 	client, err := KMSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_kms_key.getKeyAlias", "connection_error", err)
 		return nil, err
 	}
 
-	data := h.Item.(kms.Key)
+	data := h.Item.(kmsKeyInfo)
 
 	request := kms.CreateListAliasesByKeyIdRequest()
 	request.Scheme = "https"
@@ -254,8 +273,8 @@ func getKeyAlias(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 		return nil, err
 	}
 
-	if response.Aliases.Alias != nil && len(response.Aliases.Alias) > 0 {
-		return response.Aliases.Alias[0], nil
+	if response.Aliases.Alias != nil {
+		return response.Aliases.Alias, nil
 	}
 
 	return nil, nil
@@ -264,13 +283,14 @@ func getKeyAlias(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 func getKeyTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
+	// Create service connection
 	client, err := KMSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_kms_key.getKeyTags", "connection_error", err)
 		return nil, err
 	}
 
-	data := h.Item.(kms.Key)
+	data := h.Item.(kmsKeyInfo)
 
 	request := kms.CreateListResourceTagsRequest()
 	request.Scheme = "https"
