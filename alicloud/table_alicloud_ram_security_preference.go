@@ -85,7 +85,7 @@ func tableAlicloudRAMSecurityPreference(_ context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func listRAMSecurityPreference(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func listRAMSecurityPreference(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client, err := RAMService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("listRamSecurityPreference", "connection_error", err)
