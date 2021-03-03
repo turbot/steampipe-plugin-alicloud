@@ -3,7 +3,6 @@ package alicloud
 import (
 	"context"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 
@@ -32,12 +31,13 @@ func tableAlicloudVpcSslVpnClientCert(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_vpc_ssl_vpn_client_cert",
 		Description: "SSL Client is responsible for managing client certificates. The client needs to first complete certificate verification in order to connect to the SSL Server.",
+		Get: &plugin.GetConfig{
+			KeyColumns:        plugin.SingleColumn("ssl_vpn_client_cert_id"),
+			ShouldIgnoreError: isNotFoundError([]string{"InvalidSslVpnClientCertId.NotFound"}),
+			Hydrate:           getVpcSslVpnClientCert,
+		},
 		List: &plugin.ListConfig{
 			Hydrate: listVpcSslVpnClientCerts,
-		},
-		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("ssl_vpn_client_cert_id"),
-			Hydrate:    getVpcSslVpnClientCert,
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -191,9 +191,9 @@ func getVpcSslVpnClientCert(ctx context.Context, d *plugin.QueryData, h *plugin.
 	request.SslVpnClientCertId = id
 
 	data, err := client.DescribeSslVpnClientCert(request)
-	if serverErr, ok := err.(*errors.ServerError); ok {
-		plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_client.getVpcSslVpnClientCert", "query_error", serverErr, "request", request)
-		return nil, serverErr
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_client.getVpcSslVpnClientCert", "query_error", err, "request", request)
+		return nil, err
 	}
 
 	return vpnSslClientCertInfo{data.Name, data.SslVpnClientCertId, data.SslVpnServerId, data.Status, data.CreateTime, data.EndTime, data.CaCert, data.ClientCert, data.ClientKey, data.ClientConfig, data.RegionId}, nil
