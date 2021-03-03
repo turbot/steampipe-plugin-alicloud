@@ -16,8 +16,8 @@ import (
 
 func tableAlicloudEcsEni(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "alicloud_ecs_eni",
-		Description: "Alicloud ECS Elastic Network Interface.",
+		Name:        "alicloud_ecs_network_interface",
+		Description: "Alicloud ECS Network Interface.",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsEni,
 		},
@@ -202,7 +202,7 @@ func listEcsEni(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 	// Create service connection
 	client, err := ECSService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ecs_eni.listEcsEni", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_ecs_network_interface.listEcsEni", "connection_error", err)
 		return nil, err
 	}
 	request := ecs.CreateDescribeNetworkInterfacesRequest()
@@ -214,7 +214,7 @@ func listEcsEni(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 	for {
 		response, err := client.DescribeNetworkInterfaces(request)
 		if err != nil {
-			plugin.Logger(ctx).Error("alicloud_ecs_eni.listEcsEni", "query_error", err, "request", request)
+			plugin.Logger(ctx).Error("alicloud_ecs_network_interface.listEcsEni", "query_error", err, "request", request)
 			return nil, err
 		}
 		for _, eni := range response.NetworkInterfaceSets.NetworkInterfaceSet {
@@ -238,7 +238,7 @@ func getEcsEni(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) 
 	// Create service connection
 	client, err := ECSService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ecs_eni.getEcsEni", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_ecs_network_interface.getEcsEni", "connection_error", err)
 		return nil, err
 	}
 	id := d.KeyColumnQuals["network_interface_id"].GetStringValue()
@@ -249,7 +249,7 @@ func getEcsEni(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) 
 
 	response, err := client.DescribeNetworkInterfaces(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
-		plugin.Logger(ctx).Error("alicloud_ecs_eni.getEcsEni", "query_error", serverErr, "request", request)
+		plugin.Logger(ctx).Error("alicloud_ecs_network_interface.getEcsEni", "query_error", serverErr, "request", request)
 		return nil, serverErr
 	}
 

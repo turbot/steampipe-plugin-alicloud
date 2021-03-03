@@ -8,7 +8,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 
-	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
@@ -98,7 +97,6 @@ func vpcTurbotTags(_ context.Context, d *transform.TransformData) (interface{}, 
 }
 
 func zoneToRegion(ctx context.Context, d *transform.TransformData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("natGatewayRegion")
 	region := d.Value.(string)
 	return region[:len(region)-1], nil
 }
