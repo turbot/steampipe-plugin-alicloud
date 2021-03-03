@@ -48,8 +48,9 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Description: "",
 			},
 			{
-				Name:        "create_time",
+				Name:        "creation_time",
 				Type:        proto.ColumnType_TIMESTAMP,
+				Hydrate:     getRdsInstance,
 				Description: "The creation time of the Instance.",
 			},
 			{
@@ -81,11 +82,6 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Description: "The database engine that the instances run.",
 			},
 			{
-				Name:        "vpc_name",
-				Type:        proto.ColumnType_STRING,
-				Description: "The name of the VPC to which the instances belong.",
-			},
-			{
 				Name:        "db_instance_net_type",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("DBInstanceNetType"),
@@ -101,21 +97,6 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Name:        "vpc_cloud_instance_id",
 				Type:        proto.ColumnType_STRING,
 				Description: "",
-			},
-			{
-				Name:        "destroy_time",
-				Type:        proto.ColumnType_TIMESTAMP,
-				Description: "",
-			},
-			{
-				Name:        "dedicated_host_id_for_master",
-				Type:        proto.ColumnType_STRING,
-				Description: "The ID of the host to which the instances belong if the instances are created in a dedicated cluster.",
-			},
-			{
-				Name:        "dedicated_host_name_for_log",
-				Type:        proto.ColumnType_STRING,
-				Description: "The ID of the DHCP options set associated to vpc.",
 			},
 			{
 				Name:        "region_id",
@@ -157,26 +138,9 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Description: "",
 			},
 			{
-				Name:        "dedicated_host_zone_id_for_master",
-				Type:        proto.ColumnType_STRING,
-				Description: "The ID of the host to which the instances belong if the instances are created in a dedicated cluster",
-			},
-
-			{
 				Name:        "dedicated_host_group_id",
 				Type:        proto.ColumnType_STRING,
 				Description: "The ID of the dedicated cluster to which the instances belong if the instances are created in a dedicated cluster.",
-			},
-			{
-				Name:        "dedicated_host_id_for_log",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("DedicatedHostIdForLog"),
-				Description: "",
-			},
-			{
-				Name:        "dedicated_host_group_name",
-				Type:        proto.ColumnType_STRING,
-				Description: "The Name of the dedicated cluster to which the instances belong if the instances are created in a dedicated cluster.",
 			},
 			{
 				Name:        "engine_version",
@@ -201,12 +165,6 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Description: "",
 			},
 			{
-				Name:        "dedicated_host_zone_id_for_slave",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("DedicatedHostZoneIdForSlave"),
-				Description: "",
-			},
-			{
 				Name:        "temp_db_instance_id",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("TempDBInstanceId"),
@@ -224,31 +182,11 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Description: "The ID of the zone to which the instances belong.",
 			},
 			{
-				Name:        "replicate_id",
-				Type:        proto.ColumnType_STRING,
-				Description: "",
-			},
-			{
-				Name:        "dedicated_host_name_for_slave",
-				Type:        proto.ColumnType_STRING,
-				Description: "",
-			},
-			{
-				Name:        "dedicated_host_zone_id_for_log",
-				Type:        proto.ColumnType_STRING,
-				Description: "",
-			},
-			{
 				Name:        "connection_mode",
 				Type:        proto.ColumnType_STRING,
 				Description: "The connection mode of the instances.",
 			},
-			{
-				Name:        "dedicated_host_name_for_master",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("DedicatedHostNameForMaster"),
-				Description: "The name of the host to which the instances belong if the instances are created in a dedicated cluster.",
-			},
+
 			{
 				Name:        "auto_upgrade_minor_version",
 				Type:        proto.ColumnType_STRING,
@@ -261,14 +199,6 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("LockMode"),
 				Description: "",
 			},
-
-			{
-				Name:        "dedicated_host_id_for_slave",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("DedicatedHostIdForSlave"),
-				Description: "",
-			},
-
 			{
 				Name:        "time_zone",
 				Type:        proto.ColumnType_STRING,
@@ -561,24 +491,26 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 			{
 				Name:        "readonly_db_instance_ids",
 				Type:        proto.ColumnType_JSON,
+				Hydrate:     getRdsInstance,
 				Transform:   transform.FromField("ReadOnlyDBInstanceIds"),
 				Description: "",
 			},
 
 			{
 				Name:        "tags_src",
-				Type:        proto.ColumnType_STRING,
-				Hydrate:     getRdsInstance,
-				Transform:   transform.FromField("Tags"),
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getRdsTags,
+				Transform:   transform.FromValue().Transform(rdsInstanceTagsSrc),
 				Description: ColumnDescriptionTags,
 			},
 
-			// {
-			// 	Name:        "tags",
-			// 	Type:        proto.ColumnType_JSON,
-			// 	Transform:   transform.FromField("Tags").Transform(vpcTurbotTags),
-			// 	Description: ColumnDescriptionTags,
-			// },
+			{
+				Name:        "tags",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getRdsTags,
+				Transform:   transform.FromValue().Transform(rdsInstanceTags),
+				Description: ColumnDescriptionTags,
+			},
 			{
 				Name:        "title",
 				Type:        proto.ColumnType_STRING,
@@ -636,7 +568,35 @@ func listRdsInstances(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 		}
 		for _, i := range response.Items.DBInstance {
 			plugin.Logger(ctx).Warn("alicloud_rds.DescribeDBInstances", "item", i)
-			d.StreamListItem(ctx, i)
+			d.StreamListItem(ctx, rds.DBInstanceAttribute{
+				DBInstanceId:            i.DBInstanceId,
+				Engine:                  i.Engine,
+				DBInstanceDescription:   i.DBInstanceDescription,
+				PayType:                 i.PayType,
+				DBInstanceType:          i.DBInstanceType,
+				InstanceNetworkType:     i.InstanceNetworkType,
+				ConnectionMode:          i.ConnectionMode,
+				RegionId:                i.RegionId,
+				ExpireTime:              i.ExpireTime,
+				DBInstanceStatus:        i.DBInstanceStatus,
+				DBInstanceNetType:       i.DBInstanceNetType,
+				LockMode:                i.LockMode,
+				LockReason:              i.LockReason,
+				MasterInstanceId:        i.MasterInstanceId,
+				GuardDBInstanceId:       i.GuardDBInstanceId,
+				TempDBInstanceId:        i.TempDBInstanceId,
+				AutoUpgradeMinorVersion: i.AutoUpgradeMinorVersion,
+				Category:                i.Category,
+				DBInstanceClass:         i.DBInstanceClass,
+				DBInstanceStorageType:   i.DBInstanceStorageType,
+				DedicatedHostGroupId:    i.DedicatedHostGroupId,
+				EngineVersion:           i.EngineVersion,
+				ResourceGroupId:         i.ResourceGroupId,
+				VSwitchId:               i.VSwitchId,
+				VpcCloudInstanceId:      i.VpcCloudInstanceId,
+				VpcId:                   i.VpcId,
+				ZoneId:                  i.ZoneId,
+			})
 			count++
 		}
 		if count >= response.TotalRecordCount {
@@ -661,7 +621,7 @@ func getRdsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 
 	var id string
 	if h.Item != nil {
-		rds := h.Item.(rds.DBInstance)
+		rds := h.Item.(rds.DBInstanceAttribute)
 		id = rds.DBInstanceId
 	} else {
 		id = d.KeyColumnQuals["db_instance_id"].GetStringValue()
@@ -699,7 +659,7 @@ func getRdsInstanceIPArrayList(ctx context.Context, d *plugin.QueryData, h *plug
 
 	var id string
 	if h.Item != nil {
-		rds := h.Item.(rds.DBInstance)
+		rds := h.Item.(rds.DBInstanceAttribute)
 		id = rds.DBInstanceId
 	} else {
 		id = d.KeyColumnQuals["db_instance_id"].GetStringValue()
@@ -725,10 +685,48 @@ func getRdsInstanceIPArrayList(ctx context.Context, d *plugin.QueryData, h *plug
 	return nil, nil
 }
 
+func getRdsTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := RDSService(ctx, d, region)
+	if err != nil {
+		plugin.Logger(ctx).Error("getRdsTags", "connection_error", err)
+		return nil, err
+	}
+
+	var id string
+	if h.Item != nil {
+		rds := h.Item.(rds.DBInstanceAttribute)
+		id = rds.DBInstanceId
+	} else {
+		id = d.KeyColumnQuals["db_instance_id"].GetStringValue()
+	}
+
+	request := rds.CreateDescribeTagsRequest()
+	request.Scheme = "https"
+	request.DBInstanceId = id
+	response, err := client.DescribeTags(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" {
+			plugin.Logger(ctx).Warn("alicloud_rds_instance.getRdsTags", "not_found_error", serverErr, "request", request)
+			return nil, nil
+		}
+		plugin.Logger(ctx).Error("getRdsTags", "query_error", err, "request", request)
+		return nil, err
+	}
+
+	if response.Items.TagInfos != nil && len(response.Items.TagInfos) > 0 {
+		return response.Items.TagInfos, nil
+	}
+
+	return nil, nil
+}
+
 //// TRANSFORM FUNCTIONS
 
 func getRdsInstanceAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	i := h.Item.(rds.DBInstance)
+	i := h.Item.(rds.DBInstanceAttribute)
 	// Get project details
 	commonData, err := getCommonColumns(ctx, d, h)
 	if err != nil {
@@ -737,4 +735,30 @@ func getRdsInstanceAkas(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 	return []string{"acs:rds:" + i.RegionId + ":" + accountID + ":instance/" + i.DBInstanceId}, nil
+}
+func rdsInstanceTagsSrc(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	tags := d.Value.([]rds.TagInfos)
+	var turbotTagsMap []map[string]string
+
+	if tags != nil {
+		for _, i := range tags {
+			turbotTagsMap = append(turbotTagsMap, map[string]string{"Key": i.TagKey, "Value": i.TagValue})
+		}
+	}
+
+	return turbotTagsMap, nil
+}
+
+func rdsInstanceTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	tags := d.Value.([]rds.TagInfos)
+	var turbotTagsMap map[string]string
+
+	if tags != nil {
+		turbotTagsMap = map[string]string{}
+		for _, i := range tags {
+			turbotTagsMap[i.TagKey] = i.TagValue
+		}
+	}
+
+	return turbotTagsMap, nil
 }
