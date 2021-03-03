@@ -104,7 +104,7 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 				Description: "A list of policies attached to a RAM user.",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getRAMUserPolicies,
-				Transform:   transform.FromValue(),
+				Transform:   transform.FromField("Policies.Policy"),
 			},
 			{
 				Name:        "groups",
@@ -245,7 +245,7 @@ func getRAMUserPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	// Create service connection
 	client, err := RAMService(ctx, d)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMUserPolicies", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_ram_user.getRAMUserPolicies", "connection_error", err)
 		return nil, err
 	}
 
@@ -255,11 +255,11 @@ func getRAMUserPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 
 	response, err := client.ListPoliciesForUser(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
-		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMUserPolicies", "query_error", serverErr, "request", request)
+		plugin.Logger(ctx).Error("alicloud_ram_user.getRAMUserPolicies", "query_error", serverErr, "request", request)
 		return nil, serverErr
 	}
 
-	return response.Policies.Policy, nil
+	return response, nil
 }
 
 func getRAMUserMfaDevices(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
