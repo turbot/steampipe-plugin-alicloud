@@ -16,7 +16,6 @@ func tableAlicloudVpcEip(ctx context.Context) *plugin.Table {
 		Name:        "alicloud_vpc_eip",
 		Description: "A virtual private cloud service that provides an isolated cloud network to operate resources in a secure environment.",
 		List: &plugin.ListConfig{
-			//KeyColumns: plugin.AnyColumn([]string{"is_default", "id"}),
 			Hydrate: listVpcEip,
 		},
 		Get: &plugin.GetConfig{
@@ -28,70 +27,65 @@ func tableAlicloudVpcEip(ctx context.Context) *plugin.Table {
 			// Top columns
 			{
 				Name:        "name",
-				Type:        proto.ColumnType_STRING,
 				Description: "The name of the EIP.",
+				Type:        proto.ColumnType_STRING,
 			},
 			{
 				Name:        "allocation_id",
-				Type:        proto.ColumnType_STRING,
 				Description: "The unique ID of the EIP.",
+				Type:        proto.ColumnType_STRING,
 			},
 			// Other columns
 			{
 				Name:        "descritpion",
-				Type:        proto.ColumnType_STRING,
 				Description: "The description of the EIP.",
+				Type:        proto.ColumnType_STRING,
 			},
 			{
 				Name:        "ip_address",
-				Type:        proto.ColumnType_STRING,
 				Description: "The IP address of the EIP.",
+				Type:        proto.ColumnType_IPADDR,
 			},
 			{
 				Name:        "expired_time",
-				Type:        proto.ColumnType_STRING,
 				Description: "The expiration time of the EIP.",
+				Type:        proto.ColumnType_TIMESTAMP,
 			},
 			{
 				Name:        "status",
-				Type:        proto.ColumnType_STRING,
 				Description: "The status of the EIP.",
+				Type:        proto.ColumnType_STRING,
 			},
 			{
 				Name:        "instance_id",
-				Type:        proto.ColumnType_STRING,
 				Description: "The ID of the instance to which the EIP is bound.",
+				Type:        proto.ColumnType_STRING,
 			},
 			{
 				Name:        "instance_region_id",
-				Type:        proto.ColumnType_STRING,
 				Description: "The region ID of the bound resource.",
+				Type:        proto.ColumnType_STRING,
 			},
 			{
 				Name:        "instance_type",
-				Type:        proto.ColumnType_STRING,
 				Description: "The type of the instance to which the EIP is bound.",
+				Type:        proto.ColumnType_STRING,
 			},
 			{
 				Name:        "internet_charge_type",
+				Description: "The metering method of the EIP can be one of PayByBandwidth or PayByTraffic.",
 				Type:        proto.ColumnType_STRING,
-				Description: "The metering method of the EIP.",
 			},
 			{
 				Name:        "isp",
+				Description: "The Internet service provider.",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("ISP"),
-				Description: "The Internet service provider.",
 			},
 			{
 				Name:        "allocation_time",
-				Type:        proto.ColumnType_TIMESTAMP,
 				Description: "The time when the EIP was created.",
-			},
-			{
-				Name:        "available_regions",
-				Type:        proto.ColumnType_JSON,
-				Description: "The ID of the region to which the EIP belongs.",
+				Type:        proto.ColumnType_TIMESTAMP,
 			},
 			{
 				Name:        "bandwidth",
@@ -100,92 +94,100 @@ func tableAlicloudVpcEip(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "bandwidth_package_bandwidth",
-				Type:        proto.ColumnType_STRING,
 				Description: "The maximum bandwidth of the EIP in Mbit/s.",
+				Type:        proto.ColumnType_STRING,
 			},
 			{
 				Name:        "bandwidth_package_type",
-				Type:        proto.ColumnType_STRING,
 				Description: "The bandwidth value of the EIP Bandwidth Plan to which the EIP is added.",
-			},
-			{
-				Name:        "business_status",
 				Type:        proto.ColumnType_STRING,
-				Description: "",
 			},
 			{
 				Name:        "charge_type",
-				Type:        proto.ColumnType_STRING,
 				Description: "The billing method of the EIP",
+				Type:        proto.ColumnType_STRING,
 			},
 			{
 				Name:        "hd_monitor_status",
+				Description: "Indicates whether fine-grained monitoring is enabled for the EIP.",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("HDMonitorStatus"),
-				Description: "Indicates whether fine-grained monitoring is enabled for the EIP.",
 			},
 			{
 				Name:        "has_reservation_data",
-				Type:        proto.ColumnType_BOOL,
 				Description: "Indicates whether renewal data is included.",
+				Type:        proto.ColumnType_BOOL,
 			},
 			{
 				Name:        "mode",
+				Description: "The type of the instance to which you want to bind the EIP.",
 				Type:        proto.ColumnType_STRING,
-				Description: "",
 			},
 			{
 				Name:        "netmode",
-				Type:        proto.ColumnType_STRING,
 				Description: "The network type of the EIP.",
+				Type:        proto.ColumnType_STRING,
 			},
 			{
-				Name:        "operation_locks",
-				Type:        proto.ColumnType_JSON,
-				Description: "The details about the lock.",
-			},
-			{
-				Name:        "private_ip_address",
-				Type:        proto.ColumnType_BOOL,
-				Description: "",
+				Name: "private_ip_address",
+				Type: proto.ColumnType_BOOL,
 			},
 			{
 				Name:        "second_limited",
-				Type:        proto.ColumnType_BOOL,
 				Description: "Indicates whether level-2 traffic throttling is configured.",
+				Type:        proto.ColumnType_BOOL,
 			},
 			{
 				Name:        "segment_instance_id",
-				Type:        proto.ColumnType_STRING,
 				Description: "The ID of the instance with which the contiguous EIP is associated.",
+				Type:        proto.ColumnType_STRING,
 			},
 			{
-				Name:        "service_managed",
-				Type:        proto.ColumnType_INT,
-				Transform:   transform.FromField("ServiceManaged"),
-				Description: "The ID of the instance to which the contiguous EIP is bound.",
+				Name: "service_managed",
+				Type: proto.ColumnType_INT,
 			},
 			{
 				Name:        "resource_group_id",
-				Type:        proto.ColumnType_STRING,
 				Description: "The ID of the resource group.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "available_regions",
+				Description: "The ID of the region to which the EIP belongs.",
+				Type:        proto.ColumnType_JSON,
+			},
+			{
+				Name: "operation_locks_reason",
+				Description: "The reason why the EIP is locked. Valid values:	financial, security.",
+				Type:      proto.ColumnType_JSON,
+				Transform: transform.FromField("OperationLocks.LockReason"),
+			},
+
+			// steampipe standard columns
+			{
+				Name:        "akas",
+				Description: ColumnDescriptionAkas,
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getVpcEipAka,
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "title",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Name"),
 				Description: ColumnDescriptionTitle,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.From(getVpcEipTitle),
 			},
+
+			// alibaba standard columns
 			{
-				Name:        "region_id",
-				Description: "The name of the region where the resource belongs.",
+				Name:        "region",
+				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("RegionId"),
 			},
-			// alicloud standard columns
 			{
 				Name:        "account_id",
-				Description: "The alicloud Account ID in which the resource is located.",
+				Description: ColumnDescriptionAccount,
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getCommonColumns,
 				Transform:   transform.FromField("AccountID"),
@@ -258,4 +260,34 @@ func getEip(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (in
 		return response.EipAddresses.EipAddress[0], nil
 	}
 	return nil, nil
+}
+
+func getVpcEipAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getVpcEipAka")
+	data := h.Item.(vpc.EipAddress)
+
+	// Get account details
+	commonData, err := getCommonColumns(ctx, d, h)
+	if err != nil {
+		return nil, err
+	}
+	commonColumnData := commonData.(*alicloudCommonColumnData)
+	accountID := commonColumnData.AccountID
+
+	akas := []string{"acs:vpc:" + data.RegionId + ":" + accountID + ":eip/" + data.AllocationId}
+
+	return akas, nil
+}
+
+//// TRANSFORM FUNCTION
+
+func getVpcEipTitle(ctx context.Context, d *transform.TransformData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getVpcEipTitle")
+	eip := d.HydrateItem.(vpc.EipAddress)
+
+	if eip.Name != "" {
+		return eip.Name, nil
+	}
+
+	return eip.AllocationId, nil
 }
