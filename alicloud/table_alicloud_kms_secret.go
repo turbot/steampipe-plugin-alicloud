@@ -15,7 +15,7 @@ import (
 func tableAlicloudKmsSecret(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_kms_secret",
-		Description: "Secret enables to manage secrets in a centralized manner throughout their lifecycle (creation, retrieval, updating, and deletion.)",
+		Description: "Secret enables to manage secrets in a centralized manner throughout their lifecycle (creation, retrieval, updating, and deletion).",
 		List: &plugin.ListConfig{
 			Hydrate: listKmsSecret,
 		},
@@ -74,31 +74,31 @@ func tableAlicloudKmsSecret(ctx context.Context) *plugin.Table {
 			{
 				Name:        "automatic_rotation",
 				Type:        proto.ColumnType_STRING,
-				Description: "Specifies whether automatic key rotation is enabled",
+				Description: "Specifies whether automatic key rotation is enabled.",
 				Hydrate:     getKmsSecret,
 			},
 			{
 				Name:        "last_rotation_date",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Description: "Date of last rotation of Secret",
+				Description: "Date of last rotation of Secret.",
 				Hydrate:     getKmsSecret,
 			},
 			{
 				Name:        "rotation_interval",
 				Type:        proto.ColumnType_STRING,
-				Description: "The rotation perion of Secret",
+				Description: "The rotation perion of Secret.",
 				Hydrate:     getKmsSecret,
 			},
 			{
 				Name:        "next_rotation_date",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Description: "The date of next rotation of Secret",
+				Description: "The date of next rotation of Secret.",
 				Hydrate:     getKmsSecret,
 			},
 			{
 				Name:        "extended_config",
 				Type:        proto.ColumnType_JSON,
-				Description: "To be update",
+				Description: "The extended configuration of Secret.",
 				Hydrate:     getKmsSecret,
 			},
 			{
