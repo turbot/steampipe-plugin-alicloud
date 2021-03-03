@@ -4,138 +4,166 @@ import (
 	"context"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
-
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
+
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 )
+
+type vpnGatewayInfo = struct {
+	vpc.VpnGateway
+	Region string
+}
+
+//// TABLE DEFINITION
 
 func tableAlicloudVpcVpnGateway(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "alicloud_vswitch",
-		Description: "VSwitches to divide the VPC network into one or more subnets.",
+		Name:        "alicloud_vpc_vpn_gateway",
+		Description: "Alicloud VPC VPN Gateway.",
 		List: &plugin.ListConfig{
-			Hydrate: listVpnGateways,
+			Hydrate: listVpcVpnGateways,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("vpn_gateway_id"),
-			Hydrate:    getVpnGateway,
+			Hydrate:    getVpcVpnGateway,
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
-			// Top columns
 			{
 				Name:        "name",
+				Description: "The name of the VPN gateway.",
 				Type:        proto.ColumnType_STRING,
-				Description: "The name of the VPC.",
 			},
 			{
 				Name:        "vpn_gateway_id",
+				Description: "The ID of the VPN gateway.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("VpnGatewayId"),
-				Description: "The unique ID of the VPC.",
-			},
-			{
-				Name:        "description",
-				Type:        proto.ColumnType_STRING,
-				Description: "The name of the VPC.",
-			},
-			{
-				Name:        "create_time",
-				Type:        proto.ColumnType_STRING,
-				Description: "The creation time of the VPC.",
-			},
-			{
-				Name:        "end_time",
-				Type:        proto.ColumnType_STRING,
-				Description: "The creation time of the VPC.",
 			},
 			{
 				Name:        "status",
+				Description: "The status of the VPN gateway.",
 				Type:        proto.ColumnType_STRING,
-				Description: "The name of the VPC.",
-			},
-			{
-				Name:        "business_status",
-				Type:        proto.ColumnType_STRING,
-				Description: "The name of the VPC.",
-			},
-			{
-				Name:        "enable_bgp",
-				Type:        proto.ColumnType_BOOL,
-				Description: "The creation time of the VPC.",
 			},
 			{
 				Name:        "auto_propagate",
+				Description: "Indicates whether auto propagate is enabled, or not.",
 				Type:        proto.ColumnType_BOOL,
-				Description: "The creation time of the VPC.",
 			},
-
+			{
+				Name:        "billing_method",
+				Description: "The billing method of the VPN gateway.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("ChargeType"),
+			},
+			{
+				Name:        "business_status",
+				Description: "The business state of the VPN gateway.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "create_time",
+				Description: "The time when the VPN gateway was created.",
+				Type:        proto.ColumnType_TIMESTAMP,
+				Transform:   transform.FromField("CreateTime").Transform(transform.UnixMsToTimestamp),
+			},
+			{
+				Name:        "description",
+				Description: "The description of the VPN gateway.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "enable_bgp",
+				Description: "Indicates whether bgp is enabled.",
+				Type:        proto.ColumnType_BOOL,
+			},
+			{
+				Name:        "end_time",
+				Description: "The creation time of the VPC.",
+				Type:        proto.ColumnType_TIMESTAMP,
+				Transform:   transform.FromField("EndTime").Transform(transform.UnixMsToTimestamp),
+			},
 			{
 				Name:        "internet_ip",
-				Type:        proto.ColumnType_STRING,
-				Description: "The status of the VPC. Pending: The VPC is being configured. Available: The VPC is available.",
-			},
-			{
-				Name:        "vswitch_d",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("VSwitchId"),
-				Description: "The IPv4 CIDR block of the VPC.",
-			},
-			{
-				Name:        "spec",
-				Type:        proto.ColumnType_STRING,
-				Description: "The IPv6 CIDR block of the VPC.",
-			},
-			{
-				Name:        "charge_type",
-				Type:        proto.ColumnType_STRING,
-				Description: "The zone to which the VSwitch belongs.",
+				Description: "The public IP address of the VPN gateway.",
+				Type:        proto.ColumnType_IPADDR,
 			},
 			{
 				Name:        "ipsec_vpn",
+				Description: "Indicates whether the IPsec-VPN feature is enabled.",
 				Type:        proto.ColumnType_STRING,
-				Description: "The zone to which the VSwitch belongs.",
 			},
 			{
-				Name:        "ssl_vpn",
+				Name:        "spec",
+				Description: "The maximum bandwidth of the VPN gateway.",
 				Type:        proto.ColumnType_STRING,
-				Description: "The number of available IP addresses in the VSwitch.",
 			},
 			{
 				Name:        "ssl_max_connections",
+				Description: "The maximum number of concurrent SSL-VPN connections.",
+				Type:        proto.ColumnType_INT,
+			},
+			{
+				Name:        "ssl_vpn",
+				Description: "Indicates whether the SSL-VPN feature is enabled.",
 				Type:        proto.ColumnType_STRING,
-				Description: "The number of available IP addresses in the VSwitch.",
-			},
-			{
-				Name:        "Auto_propagate",
-				Type:        proto.ColumnType_BOOL,
-				Description: "The number of available IP addresses in the VSwitch.",
-			},
-			{
-				Name:        "reservation_data",
-				Type:        proto.ColumnType_JSON,
-				Description: "The number of available IP addresses in the VSwitch.",
 			},
 			{
 				Name:        "tag",
+				Description: "The tag of the VPN gateway.",
 				Type:        proto.ColumnType_STRING,
-				Description: "The description of the VPC.",
 			},
 			{
-				Name:        "tags",
+				Name:        "vswitch_id",
+				Description: "The ID of the VSwitch to which the VPN gateway belongs.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("VSwitchId"),
+			},
+			{
+				Name:        "vpc_id",
+				Description: "The ID of the VPC for which the VPN gateway is created.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("VpcId"),
+			},
+			{
+				Name:        "reservation_data",
+				Description: "A set of reservation details.",
+				Type:        proto.ColumnType_JSON,
+			},
+			{
+				Name:        "tags_src",
+				Description: "A list of tags attached with the resource.",
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.FromField("Tags.Tag"),
+			},
+
+			// steampipe standard columns
+			{
+				Name:        "tags",
 				Description: ColumnDescriptionTags,
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("Tags.Tag").Transform(vpcTurbotTags),
+			},
+			{
+				Name:        "akas",
+				Description: ColumnDescriptionAkas,
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getVpcVpnGatewayAka,
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "title",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Name"),
 				Description: ColumnDescriptionTitle,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.From(vpcVpnGatewayTitle),
 			},
 			// alicloud common columns
+			{
+				Name:        "region",
+				Description: ColumnDescriptionRegion,
+				Type:        proto.ColumnType_STRING,
+			},
 			{
 				Name:        "account_id",
 				Description: ColumnDescriptionAccount,
@@ -147,13 +175,15 @@ func tableAlicloudVpcVpnGateway(ctx context.Context) *plugin.Table {
 	}
 }
 
-func listVpnGateways(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+//// LIST FUNCTION
+
+func listVpcVpnGateways(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
 	client, err := VpcService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vswitch.listVSwitch", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_vpc_vpn_gateway.listVpcVpnGateways", "connection_error", err)
 		return nil, err
 	}
 	request := vpc.CreateDescribeVpnGatewaysRequest()
@@ -165,12 +195,11 @@ func listVpnGateways(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 	for {
 		response, err := client.DescribeVpnGateways(request)
 		if err != nil {
-			plugin.Logger(ctx).Error("alicloud_vpc_vpn_gateway.listVpnGateways", "query_error", err, "request", request)
+			plugin.Logger(ctx).Error("alicloud_vpc_vpn_gateway.listVpcVpnGateways", "query_error", err, "request", request)
 			return nil, err
 		}
 		for _, i := range response.VpnGateways.VpnGateway {
-			plugin.Logger(ctx).Warn("alicloud_vpc_vpn_gateway.listVpnGateways", "tags", i.Tags, "item", i)
-			d.StreamListItem(ctx, i)
+			d.StreamListItem(ctx, vpnGatewayInfo{i, region})
 			count++
 		}
 		if count >= response.TotalCount {
@@ -181,29 +210,63 @@ func listVpnGateways(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 	return nil, nil
 }
 
-func getVpnGateway(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+//// HYDRATE FUNCTIONS
+
+func getVpcVpnGateway(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
 	client, err := VpcService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc_vpn_gateway.getVpnGateway", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_vpc_vpn_gateway.getVpcVpnGateway", "connection_error", err)
 		return nil, err
 	}
-	request := vpc.CreateDescribeVpnGatewayRequest()
+	id := d.KeyColumnQuals["vpn_gateway_id"].GetStringValue()
+
+	request := vpc.CreateDescribeVpnGatewaysRequest()
 	request.Scheme = "https"
-	var id string
-	if h.Item != nil {
-		data := h.Item.(vpc.VpnGateway)
-		id = data.VpnGatewayId
-	} else {
-		id = d.KeyColumnQuals["vpn_gateway_id"].GetStringValue()
-	}
 	request.VpnGatewayId = id
-	response, err := client.DescribeVpnGateway(request)
+
+	response, err := client.DescribeVpnGateways(request)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc_vpn_gateway.getVpnGateway", "query_error", err, "request", request)
+		plugin.Logger(ctx).Error("alicloud_vpc_vpn_gateway.getVpcVpnGateway", "query_error", err, "request", request)
 		return nil, err
 	}
-	return response, nil
+
+	if response.VpnGateways.VpnGateway != nil && len(response.VpnGateways.VpnGateway) > 0 {
+		return vpnGatewayInfo{response.VpnGateways.VpnGateway[0], region}, nil
+	}
+	return nil, nil
+}
+
+func getVpcVpnGatewayAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getVpcVpnGatewayAka")
+	data := h.Item.(vpnGatewayInfo)
+
+	// Get project details
+	commonData, err := getCommonColumns(ctx, d, h)
+	if err != nil {
+		return nil, err
+	}
+	commonColumnData := commonData.(*alicloudCommonColumnData)
+	accountID := commonColumnData.AccountID
+
+	akas := []string{"acs:vpc:" + data.Region + ":" + accountID + ":vpngateway/" + data.VpnGatewayId}
+
+	return akas, nil
+}
+
+//// TRANSFORM FUNCTIONS
+
+func vpcVpnGatewayTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	data := d.HydrateItem.(vpnGatewayInfo)
+
+	// Build resource title
+	title := data.VpnGatewayId
+
+	if len(data.Name) > 0 {
+		title = data.Name
+	}
+
+	return title, nil
 }
