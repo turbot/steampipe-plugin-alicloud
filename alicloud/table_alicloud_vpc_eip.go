@@ -157,10 +157,10 @@ func tableAlicloudVpcEip(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_JSON,
 			},
 			{
-				Name: "operation_locks_reason",
-				Description: "The reason why the EIP is locked. Valid values:	financial, security.",
-				Type:      proto.ColumnType_JSON,
-				Transform: transform.FromField("OperationLocks.LockReason"),
+				Name:        "operation_locks_reason",
+				Description: "The reason why the EIP is locked. Valid values: financial security.",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("OperationLocks.LockReason"),
 			},
 
 			// steampipe standard columns
