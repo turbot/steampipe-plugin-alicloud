@@ -261,12 +261,303 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("LockMode"),
 				Description: "",
 			},
+
 			{
 				Name:        "dedicated_host_id_for_slave",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("DedicatedHostIdForSlave"),
 				Description: "",
 			},
+
+			{
+				Name:        "time_zone",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("TimeZone"),
+				Description: "",
+			},
+			{
+				Name:        "temp_upgrade_time_start",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("TempUpgradeTimeStart"),
+				Description: "",
+			},
+			{
+				Name:        "temp_upgrade_recovery_time",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("TempUpgradeRecoveryTime"),
+				Description: "",
+			},
+			{
+				Name:        "temp_upgrade_recovery_max_iops",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("TempUpgradeRecoveryMaxIOPS"),
+				Description: "",
+			},
+			{
+				Name:        "db_instance_disk_used",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("DBInstanceDiskUsed"),
+				Description: "",
+			},
+			{
+				Name:        "advanced_features",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("AdvancedFeatures"),
+				Description: "",
+			},
+			{
+				Name:        "db_max_quantity",
+				Type:        proto.ColumnType_INT,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("DBMaxQuantity"),
+				Description: "",
+			},
+			{
+				Name:        "db_instance_cpu",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("DBInstanceCPU"),
+				Description: "",
+			},
+			{
+				Name:        "max_connections",
+				Type:        proto.ColumnType_INT,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("MaxConnections"),
+				Description: "",
+			},
+			{
+				Name:        "increment_source_db_instance_id",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("IncrementSourceDBInstanceId"),
+				Description: "",
+			},
+			{
+				Name:        "multiple_temp_upgrade",
+				Type:        proto.ColumnType_BOOL,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("MultipleTempUpgrade"),
+				Description: "",
+			},
+			{
+				Name:        "temp_upgrade_recovery_class",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("TempUpgradeRecoveryClass"),
+				Description: "",
+			},
+			{
+				Name:        "db_instance_memory",
+				Type:        proto.ColumnType_DOUBLE,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("DBInstanceMemory"),
+				Description: "",
+			},
+			{
+				Name:        "security_ip_list",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("SecurityIPList"),
+				Description: "",
+			},
+			{
+				Name:        "latest_kernel_version",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("LatestKernelVersion"),
+				Description: "",
+			},
+			{
+				Name:        "support_upgrade_account_type",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("SupportUpgradeAccountType"),
+				Description: "",
+			},
+			{
+				Name:        "max_iops",
+				Type:        proto.ColumnType_INT,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("MaxIOPS"),
+				Description: "",
+			},
+			{
+				Name:        "maintain_time",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("MaintainTime"),
+				Description: "",
+			},
+			{
+				Name:        "db_instance_storage",
+				Type:        proto.ColumnType_INT,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("DBInstanceStorage"),
+				Description: "",
+			},
+			{
+				Name:        "support_create_super_account",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("SupportCreateSuperAccount"),
+				Description: "",
+			},
+			{
+				Name:        "ip_type",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("IPType"),
+				Description: "",
+			},
+			{
+				Name:        "collation",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("Collation"),
+				Description: "",
+			},
+			{
+				Name:        "account_type",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("AccountType"),
+				Description: "",
+			},
+			{
+				Name:        "super_permission_mode",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("SuperPermissionMode"),
+				Description: "",
+			},
+			{
+				Name:        "console_version",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("ConsoleVersion"),
+				Description: "",
+			},
+			{
+				Name:        "temp_upgrade_time_end",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("TempUpgradeTimeEnd"),
+				Description: "",
+			},
+
+			{
+				Name:        "temp_upgrade_recovery_memory",
+				Type:        proto.ColumnType_INT,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("TempUpgradeRecoveryMemory"),
+				Description: "",
+			},
+			{
+				Name:        "dispense_mode",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("DispenseMode"),
+				Description: "",
+			},
+			{
+				Name:        "origin_configuration",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("OriginConfiguration"),
+				Description: "",
+			},
+			{
+				Name:        "proxy_type",
+				Type:        proto.ColumnType_INT,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("ProxyType"),
+				Description: "",
+			},
+			{
+				Name:        "account_max_quantity",
+				Type:        proto.ColumnType_INT,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("AccountMaxQuantity"),
+				Description: "",
+			},
+			{
+				Name:        "temp_upgrade_recovery_max_connections",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("TempUpgradeRecoveryMaxConnections"),
+				Description: "",
+			},
+			{
+				Name:        "port",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("Port"),
+				Description: "",
+			},
+			{
+				Name:        "security_ip_mode",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("SecurityIPMode"),
+				Description: "",
+			},
+			{
+				Name:        "temp_upgrade_recovery_cpu",
+				Type:        proto.ColumnType_INT,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("TempUpgradeRecoveryCpu"),
+				Description: "",
+			},
+			{
+				Name:        "connection_string",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("ConnectionString"),
+				Description: "",
+			},
+			{
+				Name:        "availability_value",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("AvailabilityValue"),
+				Description: "",
+			},
+			{
+				Name:        "db_instance_ip_array_name",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstanceIPArrayList,
+				Transform:   transform.FromField("DBInstanceIPArrayName"),
+				Description: "",
+			},
+			{
+				Name:        "db_instance_ip_array_attribute",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstanceIPArrayList,
+				Transform:   transform.FromField("DBInstanceIPArrayAttribute"),
+				Description: "",
+			},
+			{
+				Name:        "security_ip_type",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstanceIPArrayList,
+				Transform:   transform.FromField("SecurityIPType"),
+				Description: "",
+			},
+			{
+				Name:        "whitelist_network_type",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstanceIPArrayList,
+				Transform:   transform.FromField("WhitelistNetworkType"),
+				Description: "",
+			},
+
 			{
 				Name:        "readonly_db_instance_ids",
 				Type:        proto.ColumnType_JSON,
@@ -274,18 +565,18 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Description: "",
 			},
 
-			// {
-			// 	Name:        "tags_src",
-			// 	Type:        proto.ColumnType_JSON,
-			// 	Transform:   transform.FromField("Tags.Tag"),
-			// 	Description: ColumnDescriptionTags,
-			// },
+			{
+				Name:        "tags_src",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
+				Transform:   transform.FromField("Tags"),
+				Description: ColumnDescriptionTags,
+			},
 
-			// Resource interface
 			// {
 			// 	Name:        "tags",
 			// 	Type:        proto.ColumnType_JSON,
-			// 	Transform:   transform.FromField("Tags.Tag").Transform(vpcTurbotTags),
+			// 	Transform:   transform.FromField("Tags").Transform(vpcTurbotTags),
 			// 	Description: ColumnDescriptionTags,
 			// },
 			{
@@ -376,10 +667,10 @@ func getRdsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 		id = d.KeyColumnQuals["db_instance_id"].GetStringValue()
 	}
 
-	request := rds.CreateDescribeDBInstancesRequest()
+	request := rds.CreateDescribeDBInstanceAttributeRequest()
 	request.Scheme = "https"
 	request.DBInstanceId = id
-	response, err := client.DescribeDBInstances(request)
+	response, err := client.DescribeDBInstanceAttribute(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
 		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" {
 			plugin.Logger(ctx).Warn("alicloud_rds_instance.getRdsInstance", "not_found_error", serverErr, "request", request)
@@ -389,8 +680,46 @@ func getRdsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 		return nil, err
 	}
 
-	if response.Items.DBInstance != nil && len(response.Items.DBInstance) > 0 {
-		return response.Items.DBInstance[0], nil
+	if response.Items.DBInstanceAttribute != nil && len(response.Items.DBInstanceAttribute) > 0 {
+		return response.Items.DBInstanceAttribute[0], nil
+	}
+
+	return nil, nil
+}
+
+func getRdsInstanceIPArrayList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := RDSService(ctx, d, region)
+	if err != nil {
+		plugin.Logger(ctx).Error("getRdsInstanceIPArrayList", "connection_error", err)
+		return nil, err
+	}
+
+	var id string
+	if h.Item != nil {
+		rds := h.Item.(rds.DBInstance)
+		id = rds.DBInstanceId
+	} else {
+		id = d.KeyColumnQuals["db_instance_id"].GetStringValue()
+	}
+
+	request := rds.CreateDescribeDBInstanceIPArrayListRequest()
+	request.Scheme = "https"
+	request.DBInstanceId = id
+	response, err := client.DescribeDBInstanceIPArrayList(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" {
+			plugin.Logger(ctx).Warn("alicloud_rds_instance.getRdsInstanceIPArrayList", "not_found_error", serverErr, "request", request)
+			return nil, nil
+		}
+		plugin.Logger(ctx).Error("getRdsInstanceIPArrayList", "query_error", err, "request", request)
+		return nil, err
+	}
+
+	if response.Items.DBInstanceIPArray != nil && len(response.Items.DBInstanceIPArray) > 0 {
+		return response.Items.DBInstanceIPArray[0], nil
 	}
 
 	return nil, nil
