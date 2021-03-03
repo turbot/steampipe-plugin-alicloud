@@ -28,8 +28,9 @@ func tableAlicloudRAMGroup(ctx context.Context) *plugin.Table {
 			Hydrate: listRAMGroup,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("name"),
-			Hydrate:    getRAMGroup,
+			KeyColumns:        plugin.SingleColumn("name"),
+			ShouldIgnoreError: isNotFoundError([]string{"EntityNotExist.Group"}),
+			Hydrate:           getRAMGroup,
 		},
 		Columns: []*plugin.Column{
 			// Top columns
@@ -161,13 +162,9 @@ func getRAMGroup(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 	request.GroupName = name
 
 	response, err := client.GetGroup(request)
-	if serverErr, ok := err.(*errors.ServerError); ok {
-		if serverErr.ErrorCode() == "EntityNotExist.Group" {
-			plugin.Logger(ctx).Warn("alicloud_ram_group.getRAMGroup", "not_found_error", serverErr, "request", request)
-			return nil, nil
-		}
-		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMGroup", "query_error", serverErr, "request", request)
-		return nil, serverErr
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMGroup", "query_error", err, "request", request)
+		return nil, err
 	}
 
 	data := response.Group
