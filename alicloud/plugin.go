@@ -33,6 +33,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_ram_user":                 tableAlicloudRAMUser(ctx),
 			"alicloud_vpc":                      tableAlicloudVpc(ctx),
 			"alicloud_vpc_eip":                  tableAlicloudVpcEip(ctx),
+			"alicloud_vpc_vpn_connection":       tableAlicloudVpcVpnConnection(ctx),
 			"alicloud_vpc_vpn_customer_gateway": tableAlicloudVpcVpnCustomerGateway(ctx),
 			"alicloud_vpc_vpn_gateway":          tableAlicloudVpcVpnGateway(ctx),
 			"alicloud_vpc_vswitch":              tableAlicloudVpcVSwitch(ctx),
