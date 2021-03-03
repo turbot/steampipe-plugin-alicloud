@@ -260,23 +260,6 @@ func getEcsEni(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) 
 	return nil, nil
 }
 
-func getEcsEniAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getEcsEniAka")
-	eni := h.Item.(ecs.NetworkInterfaceSet)
-
-	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
-	if err != nil {
-		return nil, err
-	}
-	commonColumnData := commonData.(*alicloudCommonColumnData)
-	accountID := commonColumnData.AccountID
-
-	akas := []string{"acs:ecs:" + eni.ZoneId + ":" + accountID + ":eni/" + eni.NetworkInterfaceId}
-
-	return akas, nil
-}
-
 //// TRANSFORM FUNCTIONS
 
 func ecsEniAka(_ context.Context, d *transform.TransformData) (interface{}, error) {
