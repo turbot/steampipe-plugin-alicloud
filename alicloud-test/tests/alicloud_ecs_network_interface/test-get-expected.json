@@ -1,0 +1,23 @@
+[
+	{
+		"account_id": "{{ output.account_id.value }}",
+		"description": "Test network interface to validate the table outcome.",
+		"mac_address": "{{ output.mac_address.value }}",
+		"name": "{{ resourceName }}",
+		"network_interface_id": "{{ output.network_interface_id.value }}",
+		"owner_id": "{{ output.account_id.value }}",
+		"region": "us-east-1",
+		"security_group_ids": ["{{ output.security_group_id.value }}"],
+		"service_managed": false,
+		"tags_src": [
+			{
+				"TagKey": "name",
+				"TagValue": "{{ resourceName }}"
+			}
+		],
+		"type": "Secondary",
+		"vpc_id": "{{ output.vpc_id.value }}",
+		"vswitch_id": "{{ output.vswitch_id.value }}",
+		"zone_id": "us-east-1b"
+	}
+]
