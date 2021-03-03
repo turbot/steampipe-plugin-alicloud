@@ -11,11 +11,27 @@ select
   name,
   ssl_vpn_server_id,
   cipher,
+  max_connections,
   port,
   proto
 from
   alicloud_vpc_vpn_ssl_server;
 ```
+
+
+### Get the SSL VPN servers that do not compressed the transmitted data
+
+```sql
+select
+  name,
+  ssl_vpn_server_id,
+  is_compressed
+from
+  alicloud_vpc_vpn_ssl_server
+where
+  is_compressed;
+```
+
 
 ### List of all SSL VPN servers for which no encryption algorithm is used
 
@@ -29,6 +45,7 @@ from
 where
   cipher = 'none';
 ```
+
 
 ### List of all SSL VPN servers for which Two-factor Authentication is not enabled
 
