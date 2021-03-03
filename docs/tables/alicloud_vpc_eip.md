@@ -1,6 +1,6 @@
 # Table: alicloud_vpc_eip
 
-A virtual private cloud service that provides an isolated cloud network to operate resources in a secure environment.
+An independent public IP resource that decouples ECS and public IP resources, allowing you to flexibly manage public IP resources.
 
 ## Examples
 
@@ -18,8 +18,7 @@ from
   alicloud_vpc_eip;
 ```
 
-
-### Get the instance info that bound to eip
+### Get the info of instance bound to eip
 
 ```sql
 select
@@ -32,7 +31,7 @@ from
   alicloud_vpc_eip;
 ```
 
-### Get all the available eips
+### List all the available eips
 
 ```sql
 select
@@ -46,23 +45,7 @@ where
   status = 'Available';
 ```
 
-
-### Get all the available eips
-
-```sql
-select
-  name,
-  allocation_id,
-  instance_type,
-  status
-from
-  alicloud_vpc_eip
-where
-  status = 'Available';
-```
-
-
-### Get the Eips where Hd Monitoring is off
+### Get the eips where hd monitoring is off
 
 ```sql
 select

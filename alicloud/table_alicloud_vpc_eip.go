@@ -14,7 +14,7 @@ import (
 func tableAlicloudVpcEip(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_vpc_eip",
-		Description: "A virtual private cloud service that provides an isolated cloud network to operate resources in a secure environment.",
+		Description: "An independent public IP resource that decouples ECS and public IP resources, allowing you to flexibly manage public IP resources.",
 		List: &plugin.ListConfig{
 			Hydrate: listVpcEip,
 		},
