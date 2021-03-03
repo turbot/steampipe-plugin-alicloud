@@ -95,3 +95,8 @@ func vpcTurbotTags(_ context.Context, d *transform.TransformData) (interface{}, 
 	}
 	return turbotTags, nil
 }
+
+func zoneToRegion(ctx context.Context, d *transform.TransformData) (interface{}, error) {
+	region := d.Value.(string)
+	return region[:len(region)-1], nil
+}
