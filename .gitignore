@@ -17,3 +17,11 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+
+# Ignore node dependencies
+node_modules
+
+# Ignore file types
+.vscode/launch.json
+.
