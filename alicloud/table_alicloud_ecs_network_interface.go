@@ -231,7 +231,7 @@ func listEcsEni(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 
 //// HYDRATE FUNCTIONS
 
-func getEcsEni(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getEcsEni(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsEni")
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
