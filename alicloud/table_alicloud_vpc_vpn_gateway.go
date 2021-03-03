@@ -148,7 +148,7 @@ func tableAlicloudVpcVpnGateway(ctx context.Context) *plugin.Table {
 			{
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
-				Type:        proto.ColumnType_STRING,
+				Type:        proto.ColumnType_JSON,
 				Hydrate:     getVpcVpnGatewayAka,
 				Transform:   transform.FromValue(),
 			},
@@ -158,6 +158,7 @@ func tableAlicloudVpcVpnGateway(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.From(vpcVpnGatewayTitle),
 			},
+
 			// alicloud common columns
 			{
 				Name:        "region",

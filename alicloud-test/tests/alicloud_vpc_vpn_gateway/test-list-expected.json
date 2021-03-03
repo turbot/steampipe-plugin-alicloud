@@ -1,0 +1,7 @@
+[
+	{
+		"name": "{{ resourceName }}",
+		"status": "{{ output.status.value }}",
+		"vpn_gateway_id": "{{ output.vpn_gateway_id.value }}"
+	}
+]
