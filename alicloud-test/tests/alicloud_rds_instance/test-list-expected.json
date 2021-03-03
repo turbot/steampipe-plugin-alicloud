@@ -1,0 +1,7 @@
+[
+	{
+		"connection_string": "{{ output.connection_string.value }}",
+		"instance_storage": "30",
+		"port": "{{ output.port.value }}"
+	}
+]
