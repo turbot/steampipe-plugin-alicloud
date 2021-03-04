@@ -4,13 +4,15 @@ An elastic network interface (ENI) is a virtual network interface controller (NI
 
 ## Examples
 
-### Basic ENIs info
+### Basic ENI info
 
 ```sql
 select
   network_interface_id,
   type,
   description,
+  status,
+  instance_id,
   private_ip_address,
   associated_public_ip_address,
   mac_address
@@ -31,7 +33,7 @@ select
 from
   alicloud_ecs_network_interface
 where
-  private_ip_address :: cidr <= '10.66.0.0/16';
+  private_ip_address <<= '10.66.0.0/16';
 ```
 
 ### Count of ENIs by interface type
@@ -59,4 +61,21 @@ from
   cross join jsonb_array_elements(security_group_ids) as sg
 order by
   eni;
+```
+
+### Find ENIs for a specific instance
+```sql
+select
+  network_interface_id as eni,
+  instance_id, 
+  status,
+  type,
+  description,
+  private_ip_address,
+  associated_public_ip_address,
+  mac_address
+from
+  alicloud_ecs_network_interface
+where 
+  instance_id = 'i-0xi8u2s0ezl5auigem8t'
 ```

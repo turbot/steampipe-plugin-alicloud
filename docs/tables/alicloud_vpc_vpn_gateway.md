@@ -70,5 +70,20 @@ select
 from
   alicloud_vpc_vpn_gateway
 where
-  not tags :: JSONB ? 'application';
+  tags -> 'application' is null;
+```
+
+
+### List inactive VPN gateways
+
+```sql
+select
+  vpn_gateway_id,
+  status,
+  create_time,
+  jsonb_pretty(tags)
+from
+  alicloud_vpc_vpn_gateway
+where
+  status <> 'active';
 ```
