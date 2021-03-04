@@ -211,5 +211,5 @@ func getPolicyAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	return []string{"acs:ram::" + accountID + ":user/" + data.PolicyName}, nil
+	return []string{"acs:ram::" + accountID + ":policy/" + data.PolicyName}, nil
 }
