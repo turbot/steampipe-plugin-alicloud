@@ -39,25 +39,21 @@ resource "alicloud_vpc" "named_test_resource" {
 }
 
 resource "alicloud_vswitch" "named_test_resource" {
-  vpc_id     = alicloud_vpc.named_test_resource.id
-  cidr_block = "172.16.0.0/24"
-  name       = var.resource_name
+  vpc_id            = alicloud_vpc.named_test_resource.id
+  availability_zone = data.alicloud_zones.resource.zones[0].id
+  cidr_block        = "172.16.0.0/24"
+  name              = var.resource_name
 }
 
 resource "alicloud_db_instance" "named_test_resource" {
-  engine                         = "MySQL"
-  engine_version                 = "5.6"
-  instance_type                  = "rds.mysql.s2.large"
-  instance_storage               = "30"
-  instance_charge_type           = "Postpaid"
-  instance_name                  = var.resource_name
-  monitoring_period              = "60"
-  port                           = "3306"
-  connection_string              = "test"
-  ssl_status                     = "N"
-  db_instance_ip_array_name      = "testArray"
-  db_instance_ip_array_attribute = "testAttr"
-  security_ip_type               = "testIP"
+  engine                   = "MySQL"
+  engine_version           = "5.5"
+  instance_type            = "rds.mysql.t1.small"
+  instance_storage         = "5"
+  db_instance_storage_type = "local_ssd"
+  instance_charge_type     = "Postpaid"
+  instance_name            = var.resource_name
+  monitoring_period        = "60"
 }
 
 
@@ -65,16 +61,12 @@ output "db_instance_id" {
   value = alicloud_db_instance.named_test_resource.instance_name
 }
 
-output "port" {
-  value = alicloud_db_instance.named_test_resource.port
+output "monitoring_period" {
+  value = alicloud_db_instance.named_test_resource.monitoring_period
 }
 
-output "connection_string" {
-  value = alicloud_db_instance.named_test_resource.connection_string
-}
-
-output "ssl_status" {
-  value = alicloud_db_instance.named_test_resource.ssl_status
+output "instance_charge_type" {
+  value = alicloud_db_instance.named_test_resource.instance_charge_type
 }
 
 output "resource_name" {
