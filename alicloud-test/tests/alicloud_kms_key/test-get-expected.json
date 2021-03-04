@@ -1,0 +1,14 @@
+[
+	{
+    "account_id": "{{ output.account_id.value }}",
+    "akas": [
+      "{{ output.resource_aka.value }}"
+    ],
+    "automatic_rotation": "{{ output.automatic_rotation.value }}",
+    "description": "{{ output.description.value }}",
+    "key_id": "{{ output.resource_id.value }}",
+    "key_state": "{{ output.key_state.value }}",
+    "protection_level": "{{ output.protection_level.value }}",
+    "region": "us-east-1"
+  }
+]

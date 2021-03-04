@@ -1,0 +1,11 @@
+[
+	{
+    "account_id": "{{ output.account_id.value }}",
+    "akas": [
+      "{{ output.resource_aka.value }}"
+    ],
+    "key_id": "{{ output.resource_id.value }}",
+    "region": "us-east-1",
+    "title": "{{ output.resource_id.value }}"
+  }
+]
