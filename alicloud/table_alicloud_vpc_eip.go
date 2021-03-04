@@ -37,9 +37,10 @@ func tableAlicloudVpcEip(ctx context.Context) *plugin.Table {
 			},
 			// Other columns
 			{
-				Name:        "descritpion",
+				Name:        "description",
 				Description: "The description of the EIP.",
 				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("Descritpion"),
 			},
 			{
 				Name:        "ip_address",

@@ -1,6 +1,6 @@
 # Table: alicloud_vpc_eip
 
-An independent public IP resource that decouples ECS and public IP resources, allowing you to flexibly manage public IP resources.
+An Elastic IP is an independent public IP resource that decouples ECS and public IP resources, allowing you to flexibly manage public IP resources.
 
 ## Examples
 
@@ -10,7 +10,7 @@ An independent public IP resource that decouples ECS and public IP resources, al
 select
   name,
   allocation_id,
-  descritpion,
+  description,
   ip_address,
   status,
   region

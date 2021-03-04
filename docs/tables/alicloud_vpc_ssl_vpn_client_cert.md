@@ -1,6 +1,6 @@
 # Table: alicloud_vpc_ssl_vpn_client_cert
 
-An SSL VPN certificate is a server digital certificate that signed both the server certificate and the user certificate to ensure the data security.
+An SSL VPN client certificate is a digital certificate that is used by a SSL VPN client to authenticate and securely connect to an SSL VPN.
 
 ## Examples
 

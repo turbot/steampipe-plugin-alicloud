@@ -24,7 +24,8 @@ from
 select
   name,
   vpn_connection_id,
-  vco_health_check ->> 'Status' as health_check_status
+  vco_health_check ->> 'Status' as health_check_status,
+  status
 from
   alicloud_vpc_vpn_connection
 where vco_health_check ->> 'Status' = 'failed';
@@ -48,7 +49,7 @@ from
 ```
 
 
-### Get the vpn connections where NAT traversal feature is eneble
+### Get the vpn connections where NAT traversal feature is enabled
 
 ```sql
 select

@@ -14,9 +14,9 @@ import (
 
 //// TABLE DEFINITION
 
-func tableAlicloudVpcVpnSslServer(ctx context.Context) *plugin.Table {
+func tableAlicloudVpcSslVpnServer(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "alicloud_vpc_vpn_ssl_server",
+		Name:        "alicloud_vpc_ssl_vpn_server",
 		Description: "SSL Server refers to the SSL-VPN server within the VPC. It authenticates clients and manages configurations.",
 		List: &plugin.ListConfig{
 			Hydrate: listVpcVpnSslServers,
