@@ -1,0 +1,3 @@
+select name, secret_type, title
+from alicloud_kms_secret
+where arn = '{{ output.resource_aka.value }}';
