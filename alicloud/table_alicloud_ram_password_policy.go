@@ -89,7 +89,7 @@ func tableAlicloudRamPasswordPolicy(_ context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func listRAMPasswordPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func listRAMPasswordPolicy(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	client, err := RAMService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("listRamPasswordPolicy", "connection_error", err)
