@@ -147,13 +147,12 @@ func tableAlicloudVpcVSwitch(ctx context.Context) *plugin.Table {
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("ZoneId").Transform(switchRegion),
+				Transform:   transform.FromField("ZoneId").Transform(zoneToRegion),
 			},
 			{
 				Name:        "account_id",
 				Description: ColumnDescriptionAccount,
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getCommonColumns,
 				Transform:   transform.FromField("OwnerId"),
 			},
 		},
@@ -180,8 +179,8 @@ func listVSwitch(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 	if quals["is_default"] != nil {
 		request.IsDefault = requests.NewBoolean(quals["is_default"].GetBoolValue())
 	}
-	if quals["id"] != nil {
-		request.VSwitchId = quals["id"].GetStringValue()
+	if quals["vswitch_id"] != nil {
+		request.VSwitchId = quals["vswitch_id"].GetStringValue()
 	}
 
 	count := 0
@@ -228,12 +227,6 @@ func getVSwitchAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 }
 
 //// TRANSFORM FUNCTIONS
-
-func switchRegion(ctx context.Context, d *transform.TransformData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("switchRegion")
-	vswitch := d.Value.(string)
-	return vswitch[:len(vswitch)-1], nil
-}
 
 func vswitchAkas(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	i := d.HydrateItem.(vpc.VSwitch)
