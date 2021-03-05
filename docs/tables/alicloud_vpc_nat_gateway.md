@@ -20,6 +20,7 @@ from
   alicloud_vpc_nat_gateway;
 ```
 
+
 ### Get the Private network info of NAT gateway
 
 ```sql
