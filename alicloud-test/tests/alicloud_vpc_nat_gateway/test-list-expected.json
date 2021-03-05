@@ -1,0 +1,8 @@
+[
+	{
+    "description": "{{ output.description.value }}",
+		"name": "{{ resourceName }}",
+    "nat_gateway_id": "{{ output.nat_gateway_id.value }}",
+		"nat_type": "{{ output.nat_type.value }}"
+	}
+]

@@ -1,0 +1,9 @@
+[
+	{
+		"account_id": "{{ output.account_id.value }}",
+		"name": "{{ resourceName }}",
+    "nat_gateway_id": "{{ output.nat_gateway_id.value }}",
+		"region": "us-east-1",
+		"vpc_id": "{{ output.vpc_id.value }}"
+	}
+]
