@@ -18,18 +18,21 @@ from
   alicloud_vpc_eip;
 ```
 
+
 ### Get the info of instance bound to eip
 
 ```sql
 select
   name,
   allocation_id,
-  instance_type instance_id,
+  instance_type,
+  instance_id,
   instance_region_id,
   bandwidth
 from
   alicloud_vpc_eip;
 ```
+
 
 ### List all the available eips
 
@@ -44,6 +47,7 @@ from
 where
   status = 'Available';
 ```
+
 
 ### Get the eips where hd monitoring is off
 
