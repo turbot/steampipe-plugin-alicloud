@@ -7,8 +7,8 @@ import (
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/kms"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
-	"github.com/aws/aws-sdk-go/service/kms"
 
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )

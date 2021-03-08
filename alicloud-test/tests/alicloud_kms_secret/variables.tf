@@ -26,7 +26,7 @@ data "null_data_source" "resource" {
 # Create a new KMS secret.
 resource "alicloud_kms_secret" "named_test_resource" {
   secret_name                   = var.resource_name
-  description                   = "Testing secret"
+  description                   = "This is a test secret to validate the table outcome."
   secret_data                   = "Secret data."
   version_id                    = "000000000001"
   force_delete_without_recovery = true
@@ -35,29 +35,8 @@ resource "alicloud_kms_secret" "named_test_resource" {
   }
 }
 
-
 output "resource_name" {
   value = alicloud_kms_secret.named_test_resource.id
-}
-
-output "description" {
-  value = alicloud_kms_secret.named_test_resource.description
-}
-
-output "secret_data" {
-  value = alicloud_kms_secret.named_test_resource.secret_data
-}
-
-output "tags" {
-  value = alicloud_kms_secret.named_test_resource.tags
-}
-
-output "version_id" {
-  value = alicloud_kms_secret.named_test_resource.version_id
-}
-
-output "planned_delete_time" {
-  value = alicloud_kms_secret.named_test_resource.planned_delete_time
 }
 
 output "resource_id" {

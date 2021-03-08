@@ -17,7 +17,6 @@ from
   alicloud_kms_secret;
 ```
 
-
 ### Get the rotation info of secret
 
 ```sql
@@ -31,7 +30,6 @@ from
   alicloud_kms_secret;
 ```
 
-
 ### Get the extended configuration info of secret
 
 ```sql
@@ -43,7 +41,6 @@ select
 from
   alicloud_kms_secret;
 ```
-
 
 ### List of secrets without application tag key
 

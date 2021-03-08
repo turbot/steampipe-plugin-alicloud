@@ -1,7 +1,6 @@
 [
 	{
 		"name": "{{ output.resource_name.value }}",
-    "secret_type": "Generic",
-		"title": "{{ output.resource_name.value }}"
+		"secret_type": "Generic"
 	}
 ]

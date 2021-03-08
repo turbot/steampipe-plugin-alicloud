@@ -2,8 +2,8 @@ package alicloud
 
 import (
 	"context"
+	"strings"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/kms"
 
@@ -12,108 +12,111 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+//// TABLE DEFINITION
+
 func tableAlicloudKmsSecret(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_kms_secret",
-		Description: "Secret enables to manage secrets in a centralized manner throughout their lifecycle (creation, retrieval, updating, and deletion).",
+		Description: "Alicloud KMS Secret",
 		List: &plugin.ListConfig{
 			Hydrate: listKmsSecret,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("name"),
-			Hydrate:    getKmsSecret,
+			KeyColumns:        plugin.SingleColumn("name"),
+			Hydrate:           getKmsSecret,
+			ShouldIgnoreError: isNotFoundError([]string{"Forbidden.ResourceNotFound"}),
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
-			// Top columns
 			{
-				Name: "name",
-				Type: proto.ColumnType_STRING,
-				// Hydrate:     getKmsSecret,
-				Transform:   transform.FromField("SecretName"),
+				Name:        "name",
 				Description: "The name of the secret.",
-			},
-			{
-				Name:        "description",
 				Type:        proto.ColumnType_STRING,
-				Description: "The description of the secret.",
-				Hydrate:     getKmsSecret,
+				Transform:   transform.FromField("SecretName"),
 			},
 			{
 				Name:        "arn",
-				Type:        proto.ColumnType_STRING,
 				Description: "The Alibaba Cloud Resource Name (ARN).",
+				Type:        proto.ColumnType_STRING,
 				Hydrate:     getKmsSecret,
 			},
 			{
 				Name:        "secret_type",
-				Type:        proto.ColumnType_STRING,
 				Description: "The type of the secret.",
+				Type:        proto.ColumnType_STRING,
 			},
 			{
-				Name:        "encryption_key_id",
+				Name:        "automatic_rotation",
+				Description: "Specifies whether automatic key rotation is enabled.",
 				Type:        proto.ColumnType_STRING,
-				Description: "The ID of the KMS customer master key (CMK) that is used to encrypt the secret value.",
 				Hydrate:     getKmsSecret,
 			},
 			{
 				Name:        "create_time",
-				Type:        proto.ColumnType_TIMESTAMP,
 				Description: "The time when the KMS Secret was created.",
-			},
-			{
-				Name:        "update_time",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Description: "The time when the KMS Secret was modifies.",
 			},
 			{
-				Name:        "planned_delete_time",
-				Type:        proto.ColumnType_TIMESTAMP,
-				Description: "The time when the KMS Secret is planned to delete.",
-			},
-			{
-				Name:        "automatic_rotation",
+				Name:        "description",
+				Description: "The description of the secret.",
 				Type:        proto.ColumnType_STRING,
-				Description: "Specifies whether automatic key rotation is enabled.",
+				Hydrate:     getKmsSecret,
+			},
+			{
+				Name:        "encryption_key_id",
+				Description: "The ID of the KMS customer master key (CMK) that is used to encrypt the secret value.",
+				Type:        proto.ColumnType_STRING,
 				Hydrate:     getKmsSecret,
 			},
 			{
 				Name:        "last_rotation_date",
-				Type:        proto.ColumnType_TIMESTAMP,
 				Description: "Date of last rotation of Secret.",
-				Hydrate:     getKmsSecret,
-			},
-			{
-				Name:        "rotation_interval",
-				Type:        proto.ColumnType_STRING,
-				Description: "The rotation perion of Secret.",
+				Type:        proto.ColumnType_TIMESTAMP,
 				Hydrate:     getKmsSecret,
 			},
 			{
 				Name:        "next_rotation_date",
-				Type:        proto.ColumnType_TIMESTAMP,
 				Description: "The date of next rotation of Secret.",
+				Type:        proto.ColumnType_TIMESTAMP,
 				Hydrate:     getKmsSecret,
 			},
 			{
+				Name:        "planned_delete_time",
+				Description: "The time when the KMS Secret is planned to delete.",
+				Type:        proto.ColumnType_TIMESTAMP,
+			},
+			{
+				Name:        "rotation_interval",
+				Description: "The rotation perion of Secret.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getKmsSecret,
+			},
+			{
+				Name:        "update_time",
+				Description: "The time when the KMS Secret was modifies.",
+				Type:        proto.ColumnType_TIMESTAMP,
+			},
+			{
 				Name:        "extended_config",
-				Type:        proto.ColumnType_JSON,
 				Description: "The extended configuration of Secret.",
+				Type:        proto.ColumnType_JSON,
 				Hydrate:     getKmsSecret,
 			},
 			{
 				Name:        "version_ids",
+				Description: "The list of secret versions.",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     listKmsSecretVersionIds,
 				Transform:   transform.FromField("VersionId"),
-				Description: "The list of secret versions.",
 			},
 			{
-				Name:      "tags_src",
-				Type:      proto.ColumnType_JSON,
-				Hydrate:   getKmsSecret,
-				Transform: transform.FromField("Tags.Tag").Transform(modifyKmsSourceTags),
+				Name:        "tags_src",
+				Description: "A list of tags attached with the resource.",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getKmsSecret,
+				Transform:   transform.FromField("Tags.Tag").Transform(modifyKmsSourceTags),
 			},
+
 			// steampipe standard columns
 			{
 				Name:        "tags",
@@ -138,6 +141,13 @@ func tableAlicloudKmsSecret(ctx context.Context) *plugin.Table {
 
 			// alicloud standard columns
 			{
+				Name:        "region",
+				Description: ColumnDescriptionRegion,
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getKmsSecret,
+				Transform:   transform.From(fetchRegionFromArn),
+			},
+			{
 				Name:        "account_id",
 				Description: ColumnDescriptionAccount,
 				Type:        proto.ColumnType_STRING,
@@ -148,17 +158,23 @@ func tableAlicloudKmsSecret(ctx context.Context) *plugin.Table {
 	}
 }
 
+//// LIST FUNCTION
+
 func listKmsSecret(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
 	client, err := KMSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_kms_secret.listKmsSecret", "connection_error", err)
 		return nil, err
 	}
+
 	request := kms.CreateListSecretsRequest()
 	request.Scheme = "https"
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
+
 	count := 0
 	for {
 		response, err := client.ListSecrets(request)
@@ -167,8 +183,16 @@ func listKmsSecret(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 			return nil, err
 		}
 		for _, i := range response.SecretList.Secret {
-			plugin.Logger(ctx).Warn("alicloud_kms_secret.listKmsSecret", "tags", i.Tags, "item", i)
-			d.StreamListItem(ctx, i)
+			d.StreamListItem(ctx, &kms.DescribeSecretResponse{
+				CreateTime:        i.CreateTime,
+				PlannedDeleteTime: i.PlannedDeleteTime,
+				SecretName:        i.SecretName,
+				UpdateTime:        i.UpdateTime,
+				SecretType:        i.SecretType,
+				Tags: kms.TagsInDescribeSecret{
+					Tag: i.Tags.Tag,
+				},
+			})
 			count++
 		}
 		if count >= response.TotalCount {
@@ -179,43 +203,10 @@ func listKmsSecret(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 	return nil, nil
 }
 
+//// HYDRATE FUNCTIONS
+
 func getKmsSecret(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-	client, err := KMSService(ctx, d, region)
-	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_kms_secret.getKmsSecret", "connection_error", err)
-		return nil, err
-	}
-
-	var name string
-	if h.Item != nil {
-		data := h.Item.(kms.Secret)
-		name = data.SecretName
-	} else {
-		name = d.KeyColumnQuals["name"].GetStringValue()
-	}
-	// panic(name)
-
-	request := kms.CreateDescribeSecretRequest()
-	request.Scheme = "https"
-	request.SecretName = name
-	request.FetchTags = "true"
-
-	response, err := client.DescribeSecret(request)
-	if serverErr, ok := err.(*errors.ServerError); ok {
-		if serverErr.ErrorCode() == "Forbidden.ResourceNotFound" {
-			plugin.Logger(ctx).Warn("alicloud_kms_secret.getKmsSecret", "not_found_error", serverErr, "request", request)
-			return nil, nil
-		}
-		plugin.Logger(ctx).Error("alicloud_kms_secret.getKmsSecret", "query_error", serverErr, "request", request)
-		return nil, serverErr
-	}
-
-	return response, nil
-}
-
-func listKmsSecretVersionIds(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-
+	plugin.Logger(ctx).Trace("getKmsSecret")
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
@@ -225,7 +216,39 @@ func listKmsSecretVersionIds(ctx context.Context, d *plugin.QueryData, h *plugin
 		return nil, err
 	}
 
-	secretData := h.Item.(kms.Secret)
+	var name string
+	if h.Item != nil {
+		data := h.Item.(*kms.DescribeSecretResponse)
+		name = data.SecretName
+	} else {
+		name = d.KeyColumnQuals["name"].GetStringValue()
+	}
+
+	request := kms.CreateDescribeSecretRequest()
+	request.Scheme = "https"
+	request.SecretName = name
+	request.FetchTags = "true"
+
+	response, err := client.DescribeSecret(request)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_kms_secret.getKmsSecret", "query_error", err, "request", request)
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func listKmsSecretVersionIds(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("listKmsSecretVersionIds")
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := KMSService(ctx, d, region)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_kms_secret.getKmsSecret", "connection_error", err)
+		return nil, err
+	}
+	secretData := h.Item.(*kms.DescribeSecretResponse)
 
 	request := kms.CreateListSecretVersionIdsRequest()
 	request.Scheme = "https"
@@ -243,4 +266,14 @@ func listKmsSecretVersionIds(ctx context.Context, d *plugin.QueryData, h *plugin
 	}
 
 	return nil, nil
+}
+
+//// TRANSFORM FUNCTIONS
+
+func fetchRegionFromArn(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	data := d.HydrateItem.(*kms.DescribeSecretResponse)
+
+	resourceArn := data.Arn
+	region := strings.Split(resourceArn, ":")[2]
+	return region, nil
 }
