@@ -712,8 +712,8 @@ func getRdsTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 		return nil, err
 	}
 
-	if response.Items.TagInfos != nil && len(response.Items.TagInfos) > 0 {
-		return response.Items.TagInfos, nil
+	if response != nil {
+		return response, nil
 	}
 
 	return nil, nil
@@ -733,11 +733,11 @@ func getRdsInstanceAkas(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	return []string{"acs:rds:" + i.RegionId + ":" + accountID + ":instance/" + i.DBInstanceId}, nil
 }
 func rdsInstanceTagsSrc(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	tags := d.Value.([]rds.TagInfos)
+	tags := d.Value.(*rds.DescribeTagsResponse)
 	var turbotTagsMap []map[string]string
 
-	if tags != nil {
-		for _, i := range tags {
+	if tags.Items.TagInfos != nil {
+		for _, i := range tags.Items.TagInfos {
 			turbotTagsMap = append(turbotTagsMap, map[string]string{"Key": i.TagKey, "Value": i.TagValue})
 		}
 	}
@@ -746,12 +746,12 @@ func rdsInstanceTagsSrc(_ context.Context, d *transform.TransformData) (interfac
 }
 
 func rdsInstanceTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	tags := d.Value.([]rds.TagInfos)
+	tags := d.Value.(*rds.DescribeTagsResponse)
 	var turbotTagsMap map[string]string
 
-	if tags != nil {
+	if tags.Items.TagInfos != nil {
 		turbotTagsMap = map[string]string{}
-		for _, i := range tags {
+		for _, i := range tags.Items.TagInfos {
 			turbotTagsMap[i.TagKey] = i.TagValue
 		}
 	}
