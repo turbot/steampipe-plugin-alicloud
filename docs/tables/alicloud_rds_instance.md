@@ -54,6 +54,18 @@ from
   alicloud_rds_instance where engine='MySQL';
 ```
 
+### DB Instances which are Currently in Running status
+
+```sql
+select
+  db_instance_id,
+  vpc_id,
+  create_time,
+  engine
+from
+  alicloud_rds_instance where db_instance_status='Running';
+```
+
 ### DBInstance count by Instance ID
 
 ```sql
