@@ -1,14 +1,17 @@
 [
 	{
-    "account_id": "{{ output.account_id.value }}",
-    "akas": [
-      "{{ output.resource_aka.value }}"
-    ],
-    "automatic_rotation": "{{ output.automatic_rotation.value }}",
-    "description": "{{ output.description.value }}",
-    "key_id": "{{ output.resource_id.value }}",
-    "key_state": "{{ output.key_state.value }}",
-    "protection_level": "{{ output.protection_level.value }}",
-    "region": "us-east-1"
-  }
+		"account_id": "{{ output.account_id.value }}",
+		"akas": ["{{ output.resource_aka.value }}"],
+		"automatic_rotation": "{{ output.automatic_rotation.value }}",
+		"creation_date": "{{ output.creation_time.value }}",
+		"creator": "{{ output.account_id.value }}",
+		"description": "This is a test key used to validate the table outcome.",
+		"key_id": "{{ output.resource_id.value }}",
+		"key_spec": "Aliyun_AES_256",
+		"key_state": "{{ output.key_state.value }}",
+		"key_usage": "ENCRYPT/DECRYPT",
+		"origin": "Aliyun_KMS",
+		"protection_level": "{{ output.protection_level.value }}",
+		"region": "us-east-1"
+	}
 ]

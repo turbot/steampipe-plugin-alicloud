@@ -1,14 +1,18 @@
-SELECT
+select
   key_id,
   key_state,
+  creator,
   description,
   automatic_rotation,
   protection_level,
+  creation_date,
+  key_usage,
+  key_spec,
+  origin,
   akas,
   region,
   account_id
-FROM
+from
   alicloud_kms_key
-WHERE
+where
   key_id = '{{ output.resource_id.value }}';
-

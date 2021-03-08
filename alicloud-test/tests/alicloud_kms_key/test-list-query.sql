@@ -1,3 +1,3 @@
-select key_id, key_arn
+select key_id, arn
 from alicloud_kms_key
-where key_arn = '{{ output.resource_aka.value }}';
+where arn = '{{ output.resource_aka.value }}';

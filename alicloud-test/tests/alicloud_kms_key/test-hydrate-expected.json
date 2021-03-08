@@ -1,0 +1,12 @@
+[
+	{
+		"key_aliases": [
+			{
+				"AliasArn": "acs:kms:us-east-1:{{ output.account_id.value }}:alias/{{ resourceName }}",
+				"AliasName": "alias/{{ resourceName }}",
+				"KeyId": "{{ output.resource_id.value }}"
+			}
+		],
+		"key_id": "{{ output.resource_id.value }}"
+	}
+]

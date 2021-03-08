@@ -23,9 +23,9 @@ data "null_data_source" "resource" {
   }
 }
 
-# Create a new KMS key.
+# Create a KMS Key
 resource "alicloud_kms_key" "named_test_resource" {
-  description            = "Hello KMS"
+  description            = "This is a test key used to validate the table outcome."
   pending_window_in_days = "7"
   key_state              = "Enabled"
   key_usage              = "ENCRYPT/DECRYPT"
@@ -33,9 +33,10 @@ resource "alicloud_kms_key" "named_test_resource" {
   automatic_rotation     = "Disabled"
 }
 
-
-output "description" {
-  value = alicloud_kms_key.named_test_resource.description
+# Create a KMS Alias
+resource "alicloud_kms_alias" "named_test_resource" {
+  alias_name = "alias/${var.resource_name}"
+  key_id     = alicloud_kms_key.named_test_resource.id
 }
 
 output "resource_aka" {
@@ -48,6 +49,10 @@ output "pending_window_in_days" {
 
 output "resource_id" {
   value = alicloud_kms_key.named_test_resource.id
+}
+
+output "creation_time" {
+  value = formatdate("YYYY-MM-DD hh:mm:ss", alicloud_kms_key.named_test_resource.creation_date)
 }
 
 output "key_state" {
@@ -64,6 +69,10 @@ output "protection_level" {
 
 output "automatic_rotation" {
   value = alicloud_kms_key.named_test_resource.automatic_rotation
+}
+
+output "resource_name" {
+  value = var.resource_name
 }
 
 output "account_id" {
