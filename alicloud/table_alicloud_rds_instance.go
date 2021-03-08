@@ -696,16 +696,12 @@ func getRdsTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	}
 
 	var id string
-	if h.Item != nil {
-		rds := h.Item.(rds.DBInstanceAttribute)
-		id = rds.DBInstanceId
-	} else {
-		id = d.KeyColumnQuals["db_instance_id"].GetStringValue()
-	}
+	rdsInstance := h.Item.(rds.DBInstanceAttribute)
+	id = rdsInstance.RegionId
 
 	request := rds.CreateDescribeTagsRequest()
 	request.Scheme = "https"
-	request.DBInstanceId = id
+	request.RegionId = id
 	response, err := client.DescribeTags(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
 		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" {
