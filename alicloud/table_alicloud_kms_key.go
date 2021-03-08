@@ -3,7 +3,6 @@ package alicloud
 import (
 	"context"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/kms"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
@@ -16,103 +15,109 @@ type kmsKeyInfo = struct {
 	Region string
 }
 
+//// TABLE DEFINITION
+
 func tableAlicloudKmsKey(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_kms_key",
-		Description: "Key Management Service (KMS) provides secure and compliant key management and cryptography services to help you encrypt and protect sensitive data assets.",
+		Description: "Alicloud KMS Key",
 		List: &plugin.ListConfig{
 			Hydrate: listKmsKey,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("key_id"),
-			Hydrate:    getKmsKey,
+			KeyColumns:        plugin.SingleColumn("key_id"),
+			Hydrate:           getKmsKey,
+			ShouldIgnoreError: isNotFoundError([]string{"EntityNotExist.Key", "Forbidden.KeyNotFound"}),
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
-			// Top columns
 			{
 				Name:        "key_id",
-				Type:        proto.ColumnType_STRING,
 				Description: "The globally unique ID of the CMK.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "arn",
+				Description: "The Alibaba Cloud Resource Name (ARN) of the CMK.",
+				Type:        proto.ColumnType_STRING,
 			},
 			{
 				Name:        "key_state",
-				Type:        proto.ColumnType_STRING,
-				Hydrate:     getKmsKey,
 				Description: "The status of the CMK.",
-			},
-			// Other columns
-			{
-				Name:        "key_arn",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Arn"),
-				Description: "The Alibaba Cloud Resource Name (ARN) of the CMK.",
-			},
-			{
-				Name:        "creation_date",
-				Type:        proto.ColumnType_TIMESTAMP,
-				Hydrate:     getKmsKey,
-				Description: "The date and time the CMK was created.",
-			},
-			{
-				Name:        "description",
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getKmsKey,
-				Description: "The description of the CMK.",
 			},
 			{
 				Name:        "creator",
+				Description: "The creator of the CMK.",
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getKmsKey,
-				Description: "The creator of the CMK.",
+			},
+			{
+				Name:        "creation_date",
+				Description: "The date and time the CMK was created.",
+				Type:        proto.ColumnType_TIMESTAMP,
+				Hydrate:     getKmsKey,
+			},
+			{
+				Name:        "description",
+				Description: "The description of the CMK.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getKmsKey,
 			},
 			{
 				Name:        "key_usage",
+				Description: "The purpose of the CMK.",
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getKmsKey,
-				Description: "The purpose of the CMK.",
 			},
 			{
 				Name:        "key_spec",
+				Description: "The type of the CMK.",
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getKmsKey,
-				Description: "The type of the CMK.",
 			},
 			{
 				Name:        "last_rotation_date",
+				Description: "The date and time the last rotation was performed.",
 				Type:        proto.ColumnType_TIMESTAMP,
 				Hydrate:     getKmsKey,
-				Description: "The date and time the last rotation was performed.",
 			},
 			{
 				Name:        "automatic_rotation",
+				Description: "Indicates whether automatic key rotation is enabled.",
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getKmsKey,
-				Description: "Indicates whether automatic key rotation is enabled.",
 			},
 			{
 				Name:        "delete_date",
+				Description: "The date and time the CMK is scheduled for deletion.",
 				Type:        proto.ColumnType_TIMESTAMP,
 				Hydrate:     getKmsKey,
-				Description: "The date and time the CMK is scheduled for deletion.",
+			},
+			{
+				Name:        "material_expire_time",
+				Description: "The time and date the key material for the CMK expires.",
+				Type:        proto.ColumnType_TIMESTAMP,
+				Hydrate:     getKmsKey,
 			},
 			{
 				Name:        "origin",
+				Description: "The source of the key material for the CMK.",
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getKmsKey,
-				Description: "The source of the key material for the CMK.",
 			},
 			{
 				Name:        "protection_level",
+				Description: "The protection level of the CMK.",
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getKmsKey,
-				Description: "The protection level of the CMK.",
 			},
 			{
 				Name:        "primary_key_version",
+				Description: "The ID of the current primary key version of the symmetric CMK.",
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getKmsKey,
-				Description: "The ID of the current primary key version of the symmetric CMK.",
 			},
 			{
 				Name:        "key_aliases",
@@ -122,43 +127,39 @@ func tableAlicloudKmsKey(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromValue(),
 			},
 			{
-				Name:        "material_expire_time",
-				Type:        proto.ColumnType_TIMESTAMP,
-				Hydrate:     getKmsKey,
-				Description: "The time and date the key material for the CMK expires.",
-			},
-			{
 				Name:        "tags_src",
+				Description: "A list of tags assigned to the key.",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getKeyTags,
 				Transform:   transform.FromField("Tags.Tag").Transform(modifyKmsSourceTags),
-				Description: "A list of tags assigned to bucket",
 			},
+
 			// steampipe standard columns
 			{
 				Name:        "tags",
+				Description: ColumnDescriptionTags,
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getKeyTags,
 				Transform:   transform.FromField("Tags.Tag").Transform(kmsTagsToMap),
-				Description: ColumnDescriptionTags,
 			},
 			{
 				Name:        "title",
+				Description: ColumnDescriptionTitle,
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("KeyId"),
-				Description: ColumnDescriptionTitle,
 			},
 			{
 				Name:        "akas",
+				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.FromField("Arn").Transform(ensureStringArray),
-				Description: ColumnDescriptionAkas,
 			},
+
 			// alicloud standard columns
 			{
 				Name:        "region",
-				Type:        proto.ColumnType_STRING,
 				Description: ColumnDescriptionRegion,
+				Type:        proto.ColumnType_STRING,
 			},
 			{
 				Name:        "account_id",
@@ -217,6 +218,7 @@ func listKmsKey(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 //// HYDRATE FUNCTIONS
 
 func getKmsKey(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getKmsKey")
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
@@ -239,19 +241,16 @@ func getKmsKey(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) 
 	request.KeyId = id
 
 	response, err := client.DescribeKey(request)
-	if serverErr, ok := err.(*errors.ServerError); ok {
-		if serverErr.ErrorCode() == "EntityNotExist.Key" {
-			plugin.Logger(ctx).Warn("alicloud_kms_key.getKmsKey", "not_found_error", serverErr, "request", request)
-			return nil, nil
-		}
-		plugin.Logger(ctx).Error("alicloud_kms_key.getKmsKey", "query_error", serverErr, "request", request)
-		return nil, serverErr
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_kms_key.getKmsKey", "query_error", err, "request", request)
+		return nil, err
 	}
 
 	return kmsKeyInfo{response.KeyMetadata, region}, nil
 }
 
 func getKeyAlias(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getKeyAlias")
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
@@ -281,6 +280,7 @@ func getKeyAlias(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 }
 
 func getKeyTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getKeyTags")
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
