@@ -6,8 +6,9 @@ import (
 	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/kms"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
+	"github.com/aws/aws-sdk-go/service/kms"
 
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
@@ -64,24 +65,6 @@ func modifyEcsSourceTags(_ context.Context, d *transform.TransformData) (interfa
 	return sourceTags, nil
 }
 
-func modifyKmsSourceTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	tags := d.Value.([]kms.Tag)
-
-	type resourceTags = struct {
-		TagKey   string
-		TagValue string
-	}
-	var sourceTags []resourceTags
-
-	if tags != nil {
-		for _, i := range tags {
-			sourceTags = append(sourceTags, resourceTags{i.TagKey, i.TagValue})
-		}
-	}
-
-	return sourceTags, nil
-}
-
 func ecsTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	tags := d.Value.([]ecs.Tag)
 
@@ -113,6 +96,61 @@ func vpcTurbotTags(_ context.Context, d *transform.TransformData) (interface{}, 
 		turbotTags[i.Key] = i.Value
 	}
 	return turbotTags, nil
+}
+
+func modifyEssSourceTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	tags := d.Value.([]ess.TagResource)
+
+	type resourceTags = struct {
+		TagKey   string
+		TagValue string
+	}
+	var sourceTags []resourceTags
+
+	if tags != nil {
+		for _, i := range tags {
+			sourceTags = append(sourceTags, resourceTags{i.TagKey, i.TagValue})
+		}
+	}
+
+	return sourceTags, nil
+}
+
+func essTurbotTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	tags := d.Value.([]ess.TagResource)
+
+	if tags == nil || len(tags) == 0 {
+		return nil, nil
+	}
+
+	turbotTags := map[string]string{}
+	for _, i := range tags {
+		turbotTags[i.TagKey] = i.TagValue
+	}
+	return turbotTags, nil
+}
+
+func zoneToRegion(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	region := d.Value.(string)
+	return region[:len(region)-1], nil
+}
+
+func modifyKmsSourceTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	tags := d.Value.([]kms.Tag)
+
+	type resourceTags = struct {
+		TagKey   string
+		TagValue string
+	}
+	var sourceTags []resourceTags
+
+	if tags != nil {
+		for _, i := range tags {
+			sourceTags = append(sourceTags, resourceTags{i.TagKey, i.TagValue})
+		}
+	}
+
+	return sourceTags, nil
 }
 
 func kmsTurbotTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
