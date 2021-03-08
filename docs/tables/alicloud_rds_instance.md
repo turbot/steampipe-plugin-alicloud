@@ -42,6 +42,18 @@ from
 ```
 
 
+### DB Instance Details where engine is MySQL
+
+```sql
+select
+  db_instance_id,
+  vpc_id,
+  create_time,
+  engine
+from
+  alicloud_rds_instance where engine='MySQL';
+```
+
 ### DBInstance count by Instance ID
 
 ```sql
