@@ -22,7 +22,7 @@ type keypairInfo = struct {
 func tableAlicloudEcskeypair(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ecs_keypair",
-		Description: "ECS SSH Key Pair.",
+		Description: "An SSH key pair is a secure and convenient authentication method provided by Alibaba Cloud for instance logon. An SSH key pair consists of a public key and a private key. You can use SSH key pairs to log on to only Linux instances.",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsKeypair,
 		},

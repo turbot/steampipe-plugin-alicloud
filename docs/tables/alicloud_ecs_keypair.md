@@ -1,0 +1,35 @@
+# Table: alicloud_ecs_keypair
+
+An SSH key pair is a secure and convenient authentication method provided by Alibaba Cloud for instance logon. An SSH key pair consists of a public key and a private key. You can use SSH key pairs to log on to only Linux instances.
+
+## Examples
+
+### Keypair basic info
+
+```sql
+select
+  name,
+  key_pair_finger_print,
+  creation_time,
+  resource_group_id
+from
+  alicloud_ecs_keypair;
+```
+
+### List of available keypairs older than 30 days
+
+```sql
+select
+  name,
+  key_pair_finger_print,
+  creation_time,
+  age(creation_time)
+from
+  alicloud_ecs_keypair
+where
+  creation_time <= (current_date - interval '2' day)
+order by
+  creation_time;
+```
+
+
