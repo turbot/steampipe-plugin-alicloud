@@ -45,7 +45,7 @@ func tableAlicloudEcskeypair(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("KeyPair.KeyPairFingerPrint"),
 			},
 			{
-				Name:        "CreationTime",
+				Name:        "creation_time",
 				Description: "The time when the key pair was created.",
 				Type:        proto.ColumnType_TIMESTAMP,
 				Transform:   transform.FromField("KeyPair.CreationTime"),
@@ -192,7 +192,7 @@ func getEcsKeypairAka(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"arn:acs:ecs:" + data.Region + ":" + accountID + ":keypair/" + data.KeyPair.KeyPairName}
+	akas := []string{"acs:ecs:" + data.Region + ":" + accountID + ":keypair/" + data.KeyPair.KeyPairName}
 
 	return akas, nil
 }
