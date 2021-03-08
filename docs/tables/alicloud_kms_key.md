@@ -9,8 +9,8 @@ A kms key can help user to protect data security in the transmission process.
 ```sql
 select
   key_id,
+  arn,
   key_state,
-  key_arn,
   description,
   creation_date,
   region
@@ -18,6 +18,18 @@ from
   alicloud_kms_key;
 ```
 
+### List of KMS keys scheduled for deletion
+
+```sql
+select
+  key_id,
+  key_state,
+  delete_date
+from
+  alicloud_kms_key
+where
+  key_state = 'PendingDeletion';
+```
 
 ### Get the keys where automatic key rotation is suspended
 
@@ -31,7 +43,6 @@ where
   automatic_rotation = 'Suspended';
 ```
 
-
 ### Get the key alias info
 
 ```sql
@@ -44,7 +55,6 @@ from
   jsonb_array_elements(key_aliases) as alias;
 ```
 
-
 ### Count of key per region
 
 ```sql
@@ -53,6 +63,6 @@ select
   count(*)
 from
   alicloud_kms_key
-Group by
+group by
   region;
 ```
