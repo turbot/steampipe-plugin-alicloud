@@ -266,7 +266,7 @@ func ossBucketTagsSrc(_ context.Context, d *transform.TransformData) (interface{
 	return turbotTagsMap, nil
 }
 
-func bucketSSEConfiguration(ctx context.Context, d *transform.TransformData) (interface{}, error) {
+func bucketSSEConfiguration(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	sse := d.Value.(oss.SSERule)
 
 	return map[string]string{
