@@ -80,18 +80,18 @@ func tableAlicloudRamPolicy(_ context.Context) *plugin.Table {
 				Name:        "version_id",
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getRAMPolicy,
-				Description: "",
+				Description: "The ID of the default policy version.",
 			},
 			{
 				Name:        "is_default_version",
 				Type:        proto.ColumnType_BOOL,
 				Hydrate:     getRAMPolicy,
-				Description: "",
+				Description: "An attribute in the DefaultPolicyVersion parameter. The value of the IsDefaultVersion parameter is true.",
 			},
 			{
 				Name:        "policy_document",
 				Type:        proto.ColumnType_JSON,
-				Description: "The policy document",
+				Description: "The script of the default policy version.",
 				Hydrate:     getRAMPolicy,
 			},
 			{
