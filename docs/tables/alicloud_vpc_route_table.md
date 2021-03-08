@@ -18,7 +18,6 @@ from
   alicloud_vpc_route_table;
 ```
 
-
 ### Get VPC and VSwitch info attached to route table
 
 ```sql
@@ -29,7 +28,6 @@ select
 from
   alicloud_vpc_route_table;
 ```
-
 
 ### Routing details for each route table
 
@@ -53,7 +51,6 @@ from
   alicloud_vpc_route_table,
   jsonb_array_elements(route_entries) as route_detail;
 ```
-
 
 ### List Route tables without application tags key
 
