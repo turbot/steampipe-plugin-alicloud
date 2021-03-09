@@ -20,10 +20,6 @@ func tableAlicloudComputeZone(ctx context.Context) *plugin.Table {
 			ParentHydrate: listComputeRegions,
 			Hydrate:       listComputeZones,
 		},
-		// Get: &plugin.GetConfig{
-		// 	KeyColumns: plugin.SingleColumn("region"),
-		// 	Hydrate:    getComputeZone,
-		// },
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			// Top columns
@@ -153,35 +149,6 @@ func listComputeZones(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	}
 	return nil, nil
 }
-
-//// HYDRATE FUNCTIONS
-
-// func getComputeZone(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-// 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
-// 	// Create service connection
-// 	client, err := ECSService(ctx, d, region)
-// 	if err != nil {
-// 		plugin.Logger(ctx).Error("getComputeZone", "connection_error", err)
-// 		return nil, err
-// 	}
-// 	id := d.KeyColumnQuals["region_id"].GetStringValue()
-
-// 	request := ecs.CreateDescribeZonesRequest()
-// 	request.Scheme = "https"
-// 	request.RegionId = id
-// 	response, err := client.DescribeZones(request)
-// 	if err != nil {
-// 		plugin.Logger(ctx).Error("getComputeZone", "query_error", err, "request", request)
-// 		return nil, err
-// 	}
-
-// 	if response.Zones.Zone != nil && len(response.Zones.Zone) > 0 {
-// 		return response.Zones.Zone[0], nil
-// 	}
-
-// 	return nil, nil
-// }
 
 func getZoneAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getZoneAkas")
