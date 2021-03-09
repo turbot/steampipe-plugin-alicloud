@@ -19,10 +19,6 @@ func tableAlicloudComputeRegion(ctx context.Context) *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate: listComputeRegions,
 		},
-		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("region_id"),
-			Hydrate:    getComputeRegion,
-		},
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			// Top columns
@@ -101,41 +97,6 @@ func listComputeRegions(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 		plugin.Logger(ctx).Warn("alicloud_vpc.listComputeRegions", "item", i)
 		d.StreamListItem(ctx, i)
 	}
-	return nil, nil
-}
-
-//// HYDRATE FUNCTIONS
-
-func getComputeRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
-	// Create service connection
-	client, err := ECSService(ctx, d, region)
-	if err != nil {
-		plugin.Logger(ctx).Error("getComputeRegion", "connection_error", err)
-		return nil, err
-	}
-
-	var id string
-	if h.Item != nil {
-		ecs := h.Item.(ecs.Region)
-		id = ecs.RegionId
-	} else {
-		id = d.KeyColumnQuals["region_id"].GetStringValue()
-	}
-	request := ecs.CreateDescribeRegionsRequest()
-	request.Scheme = "https"
-	request.RegionId = id
-	response, err := client.DescribeRegions(request)
-	if err != nil {
-		plugin.Logger(ctx).Error("getComputeRegion", "query_error", err, "request", request)
-		return nil, err
-	}
-
-	if response.Regions.Region != nil && len(response.Regions.Region) > 0 {
-		return response.Regions.Region, nil
-	}
-
 	return nil, nil
 }
 
