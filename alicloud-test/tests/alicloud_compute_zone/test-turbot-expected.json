@@ -3,7 +3,7 @@
 		"akas": [
 			"{{ output.resource_aka.value }}"
 		],
-		"zone_id": "{{ output.zone_id.value }}",
-		"title": "{{ resourceName }}"
+		"title": "{{ output.zone_id.value }}",
+		"zone_id": "{{ output.zone_id.value }}"
 	}
 ]

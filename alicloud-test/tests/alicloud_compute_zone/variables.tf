@@ -56,5 +56,5 @@ output "resource_name" {
 }
 
 output "resource_aka" {
-  value = "acs:ram::${data.alicloud_caller_identity.current.account_id}:zone/${var.resource_name}"
+  value = "acs:ecs::${data.alicloud_caller_identity.current.account_id}:zone/${data.alicloud_zones.named_test_resource.zones.0.id}"
 }
