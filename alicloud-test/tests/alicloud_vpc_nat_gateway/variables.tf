@@ -29,48 +29,31 @@ resource "alicloud_vpc" "named_test_resource" {
   cidr_block = "10.0.0.0/8"
 }
 
-data "alicloud_enhanced_nat_available_zones" "named_test_resource" {
-}
-
 resource "alicloud_vswitch" "named_test_resource" {
   name              = var.resource_name
-  availability_zone = data.alicloud_enhanced_nat_available_zones.named_test_resource.zones.0.zone_id
+  availability_zone = "us-east-1b"
   cidr_block        = "10.10.0.0/20"
   vpc_id            = alicloud_vpc.named_test_resource.id
 }
 
 resource "alicloud_nat_gateway" "named_test_resource" {
-  depends_on           = [alicloud_vswitch.named_test_resource]
-  vpc_id               = alicloud_vpc.named_test_resource.id
-  description          = "test nat gateway table"
-  specification        = "Small"
   name                 = var.resource_name
+  nat_type             = "Enhanced"
+  specification        = "Small"
+  description          = "This is a test NAT gateway to verify the table outcome."
+  vpc_id               = alicloud_vpc.named_test_resource.id
   instance_charge_type = "PostPaid"
   vswitch_id           = alicloud_vswitch.named_test_resource.id
-  nat_type             = "Enhanced"
+
+  depends_on           = [alicloud_vswitch.named_test_resource]
 }
 
 output "nat_gateway_id" {
   value = alicloud_nat_gateway.named_test_resource.id
 }
 
-output "nat_gateway_name" {
-  value = alicloud_nat_gateway.named_test_resource.name
-}
-
 output "vpc_id" {
-  value = alicloud_nat_gateway.named_test_resource.vpc_id
-}
-
-output "nat_type" {
-  value = alicloud_nat_gateway.named_test_resource.nat_type
-}
-
-output "specification" {
-  value = alicloud_nat_gateway.named_test_resource.specification
-}
-output "description" {
-  value = alicloud_nat_gateway.named_test_resource.description
+  value = alicloud_vpc.named_test_resource.id
 }
 
 output "resource_name" {

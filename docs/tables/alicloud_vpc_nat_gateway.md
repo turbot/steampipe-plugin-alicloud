@@ -1,6 +1,6 @@
 # Table: alicloud_vpc_nat_gateway
 
-VPN Gateway is an Internet-based service that establishes a connection between a VPC and on-premise data center.
+NAT gateways are enterprise-class gateways that provide the Source Network Address Translation (SNAT) and Destination Network Address Translation (DNAT) features. Each NAT gateway provides a throughput capacity of up to 10 Gbit/s. NAT gateways also support cross-zone disaster recovery.
 
 ## Examples
 

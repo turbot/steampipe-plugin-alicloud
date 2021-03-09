@@ -228,7 +228,7 @@ func getVpcNatGateway(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 		return response.NatGateways.NatGateway[0], nil
 	}
 
-	return response, nil
+	return nil, nil
 }
 
 func getVpcNatGatewayAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
