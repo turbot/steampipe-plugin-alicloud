@@ -1,3 +1,3 @@
-select name, user_id, display_name
-from alicloud_ram_user
-where name = 'dummy-{{ resourceName }}';
+select region_id
+from alicloud_compute_region
+where region_id = 'dummy-{{ output.current_region_id.value }}';

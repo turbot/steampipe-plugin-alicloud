@@ -1,3 +1,3 @@
-select name, user_id, display_name
-from alicloud_ram_user
-where user_id = '{{ output.user_id.value }}';
+select id, local_name
+from alicloud_compute_region
+where akas::text = '["{{output.resource_aka.value}}"]';
