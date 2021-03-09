@@ -1,3 +1,3 @@
-select region_id
+select region
 from alicloud_compute_region
-where region_id = 'dummy-{{ output.current_region_id.value }}';
+where region = 'dummy-{{ output.current_region_id.value }}';

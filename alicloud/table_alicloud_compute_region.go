@@ -49,17 +49,17 @@ func tableAlicloudComputeRegion(ctx context.Context) *plugin.Table {
 			},
 
 			{
-				Name:        "title",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("RegionId"),
-				Description: ColumnDescriptionTitle,
-			},
-			{
 				Name:        "akas",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getRegionAkas,
 				Transform:   transform.FromValue(),
 				Description: ColumnDescriptionAkas,
+			},
+			{
+				Name:        "title",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("RegionId"),
+				Description: ColumnDescriptionTitle,
 			},
 
 			// alicloud common columns

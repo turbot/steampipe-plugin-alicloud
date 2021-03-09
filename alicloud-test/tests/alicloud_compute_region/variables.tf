@@ -44,5 +44,5 @@ output "resource_name" {
 }
 
 output "resource_aka" {
-  value = "acs:ecs::${data.alicloud_caller_identity.current.account_id}:zone/${data.alicloud_regions.named_test_resource.regions.0.id}"
+  value = "acs:ecs::${data.alicloud_caller_identity.current.account_id}:region/${data.alicloud_regions.named_test_resource.regions.0.id}"
 }

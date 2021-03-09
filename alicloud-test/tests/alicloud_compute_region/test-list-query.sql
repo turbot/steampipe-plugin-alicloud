@@ -1,3 +1,3 @@
-select id, local_name
+select region
 from alicloud_compute_region
-where akas::text = '["{{output.resource_aka.value}}"]';
+where region = '{{ output.current_region_id.value }}';

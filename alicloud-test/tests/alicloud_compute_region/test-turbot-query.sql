@@ -1,3 +1,3 @@
-select id, akas, title
+select region, akas, title
 from alicloud_compute_region
-where id = '{{ output.current_region_id.value }}';
+where region = '{{ output.current_region_id.value }}';

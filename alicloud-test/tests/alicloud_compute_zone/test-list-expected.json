@@ -1,7 +1,5 @@
 [
 	{
-		"available_instance_types": "{{ output.available_instance_types.value }}",
-		"local_name": "{{ output.local_name.value }}",
 		"zone_id": "{{ output.zone_id.value }}"
 	}
 ]

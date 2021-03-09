@@ -1,6 +1,0 @@
-[
-	{
-		"local_name": "{{ output.local_name.value }}",
-		"id": "{{ output.current_region_id.value }}"
-	}
-]
