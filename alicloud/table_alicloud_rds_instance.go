@@ -22,8 +22,9 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 			Hydrate: listRdsInstances,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("db_instance_id"),
-			Hydrate:    getRdsInstance,
+			KeyColumns:        plugin.SingleColumn("db_instance_id"),
+			ShouldIgnoreError: isNotFoundError([]string{"InvalidDBInstanceId.NotFound"}),
+			Hydrate:           getRdsInstance,
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -45,6 +46,7 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 			{
 				Name:        "category",
 				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
 				Description: "The RDS edition of the instance.",
 			},
 			{
@@ -127,6 +129,7 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 			{
 				Name:        "db_instance_storage_type",
 				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
 				Transform:   transform.FromField("DBInstanceStorageType"),
 				Description: "The type of storage media that is used by the instance.",
 			},
@@ -183,6 +186,7 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 			{
 				Name:        "auto_upgrade_minor_version",
 				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstance,
 				Transform:   transform.FromField("AutoUpgradeMinorVersion"),
 				Description: "The method that is used to update the minor engine version of the instance.",
 			},
@@ -543,36 +547,7 @@ func listRdsInstances(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 		}
 		for _, i := range response.Items.DBInstance {
 			plugin.Logger(ctx).Warn("alicloud_rds.DescribeDBInstances", "item", i)
-			d.StreamListItem(ctx, rds.DBInstanceAttribute{
-				DBInstanceId:            i.DBInstanceId,
-				Engine:                  i.Engine,
-				DBInstanceDescription:   i.DBInstanceDescription,
-				PayType:                 i.PayType,
-				DBInstanceType:          i.DBInstanceType,
-				InstanceNetworkType:     i.InstanceNetworkType,
-				ConnectionMode:          i.ConnectionMode,
-				RegionId:                i.RegionId,
-				ExpireTime:              i.ExpireTime,
-				DBInstanceStatus:        i.DBInstanceStatus,
-				DBInstanceNetType:       i.DBInstanceNetType,
-				LockMode:                i.LockMode,
-				LockReason:              i.LockReason,
-				MasterInstanceId:        i.MasterInstanceId,
-				GuardDBInstanceId:       i.GuardDBInstanceId,
-				TempDBInstanceId:        i.TempDBInstanceId,
-				AutoUpgradeMinorVersion: i.AutoUpgradeMinorVersion,
-				Category:                i.Category,
-				DBInstanceClass:         i.DBInstanceClass,
-				DBInstanceStorageType:   i.DBInstanceStorageType,
-				DedicatedHostGroupId:    i.DedicatedHostGroupId,
-				EngineVersion:           i.EngineVersion,
-				ResourceGroupId:         i.ResourceGroupId,
-				VSwitchId:               i.VSwitchId,
-				VpcCloudInstanceId:      i.VpcCloudInstanceId,
-				VpcId:                   i.VpcId,
-				ZoneId:                  i.ZoneId,
-				InsId:                   i.InsId,
-			})
+			d.StreamListItem(ctx, i)
 			count++
 		}
 		if count >= response.TotalRecordCount {
@@ -597,8 +572,7 @@ func getRdsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 
 	var id string
 	if h.Item != nil {
-		rds := h.Item.(rds.DBInstanceAttribute)
-		id = rds.DBInstanceId
+		id = databaseID(h.Item)
 	} else {
 		id = d.KeyColumnQuals["db_instance_id"].GetStringValue()
 	}
@@ -633,23 +607,13 @@ func getRdsInstanceIPArrayList(ctx context.Context, d *plugin.QueryData, h *plug
 		return nil, err
 	}
 
-	var id string
-	if h.Item != nil {
-		rds := h.Item.(rds.DBInstanceAttribute)
-		id = rds.DBInstanceId
-	} else {
-		id = d.KeyColumnQuals["db_instance_id"].GetStringValue()
-	}
+	var id = databaseID(h.Item)
 
 	request := rds.CreateDescribeDBInstanceIPArrayListRequest()
 	request.Scheme = "https"
 	request.DBInstanceId = id
 	response, err := client.DescribeDBInstanceIPArrayList(request)
-	if serverErr, ok := err.(*errors.ServerError); ok {
-		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" {
-			plugin.Logger(ctx).Warn("alicloud_rds_instance.getRdsInstanceIPArrayList", "not_found_error", serverErr, "request", request)
-			return nil, nil
-		}
+	if err != nil {
 		plugin.Logger(ctx).Error("getRdsInstanceIPArrayList", "query_error", err, "request", request)
 		return nil, err
 	}
@@ -671,13 +635,10 @@ func getRdsTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 		return nil, err
 	}
 
-	var id string
-	rdsInstance := h.Item.(rds.DBInstanceAttribute)
-	id = rdsInstance.RegionId
-
 	request := rds.CreateDescribeTagsRequest()
 	request.Scheme = "https"
-	request.RegionId = id
+	request.RegionId = region
+	request.DBInstanceId = databaseID(h.Item)
 	response, err := client.DescribeTags(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
 		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" {
@@ -695,10 +656,19 @@ func getRdsTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	return nil, nil
 }
 
-//// TRANSFORM FUNCTIONS
-
 func getRdsInstanceAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	i := h.Item.(rds.DBInstanceAttribute)
+	var region, instanceID string
+	switch h.Item.(type) {
+	case rds.DBInstance:
+		instance := h.Item.(rds.DBInstance)
+		region = instance.RegionId
+		instanceID = instance.DBInstanceId
+		break
+	case rds.DBInstanceAttribute:
+		instance := h.Item.(rds.DBInstanceAttribute)
+		region = instance.RegionId
+		instanceID = instance.DBInstanceId
+	}
 	// Get project details
 	commonData, err := getCommonColumns(ctx, d, h)
 	if err != nil {
@@ -706,12 +676,18 @@ func getRdsInstanceAkas(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	}
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
-	return []string{"acs:rds:" + i.RegionId + ":" + accountID + ":instance/" + i.DBInstanceId}, nil
+	return []string{"acs:rds:" + region + ":" + accountID + ":instance/" + instanceID}, nil
 }
+
+//// TRANSFORM FUNCTIONS
+
 func rdsInstanceTagsSrc(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	tags := d.Value.(*rds.DescribeTagsResponse)
-	var turbotTagsMap []map[string]string
+	if tags == nil {
+		return nil, nil
+	}
 
+	var turbotTagsMap []map[string]string
 	if tags.Items.TagInfos != nil {
 		for _, i := range tags.Items.TagInfos {
 			turbotTagsMap = append(turbotTagsMap, map[string]string{"Key": i.TagKey, "Value": i.TagValue})
@@ -733,4 +709,14 @@ func rdsInstanceTags(_ context.Context, d *transform.TransformData) (interface{}
 	}
 
 	return turbotTagsMap, nil
+}
+
+func databaseID(item interface{}) string {
+	switch item.(type) {
+	case rds.DBInstance:
+		return item.(rds.DBInstance).DBInstanceId
+	case rds.DBInstanceAttribute:
+		return item.(rds.DBInstanceAttribute).DBInstanceId
+	}
+	return ""
 }
