@@ -1,0 +1,19 @@
+[
+	{
+		"account_id": "{{ output.account_id.value }}",
+		"auto_propagate": false,
+		"billing_method": "PostpayByFlow",
+		"business_status": "Normal",
+		"description": "Test VPN gateway to validate the table outcome.",
+		"internet_ip": "{{ output.internet_ip.value }}",
+		"name": "{{ resourceName }}",
+		"region": "us-east-1",
+		"spec": "10M",
+		"ssl_max_connections": 5,
+		"ssl_vpn": "enable",
+		"status": "active",
+		"vpc_id": "{{ output.vpc_id.value }}",
+		"vpn_gateway_id": "{{ output.vpn_gateway_id.value }}",
+		"vswitch_id": "{{ output.vswitch_id.value }}"
+	}
+]
