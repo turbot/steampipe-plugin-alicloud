@@ -72,19 +72,18 @@ func tableAlicloudEcskeypair(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("KeyPair.Tags.Tag").Transform(ecsTagsToMap),
 			},
 			{
+				Name:        "title",
+				Description: ColumnDescriptionTitle,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("KeyPair.KeyPairName"),
+			},
+			{
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getEcsKeypairAka,
 				Transform:   transform.FromValue(),
 			},
-			{
-				Name:        "title",
-				Description: ColumnDescriptionTitle,
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("KeyPair.KeyPairName"),
-			},
-
 			// alibaba standard columns
 			{
 				Name:        "region",
@@ -119,7 +118,6 @@ func listEcsKeypair(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 	request.Scheme = "https"
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
-	//	request.RegionId = region
 	count := 0
 	for {
 		response, err := client.DescribeKeyPairs(request)
@@ -165,7 +163,6 @@ func getEcsKeypair(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	request := ecs.CreateDescribeKeyPairsRequest()
 	request.Scheme = "https"
 	request.KeyPairName = name
-	//request.RegionId = region
 
 	response, err := client.DescribeKeyPairs(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
