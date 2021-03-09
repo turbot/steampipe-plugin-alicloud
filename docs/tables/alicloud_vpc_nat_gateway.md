@@ -20,6 +20,27 @@ from
   alicloud_vpc_nat_gateway;
 ```
 
+### IP address details of the NAT gateway
+
+```sql
+select
+  nat_gateway_id,
+  address ->> 'IpAddress' as ip_address,
+  address ->> 'AllocationId' as allocation_id
+from
+  alicloud_vpc_nat_gateway,
+  jsonb_array_elements(ip_lists) as address;
+```
+
+### VPC details associated with the NAT gateway
+
+```sql
+select
+  nat_gateway_id,
+  vpc_id
+from
+  alicloud_vpc_nat_gateway;
+```
 
 ### Get the Private network info of NAT gateway
 
@@ -36,7 +57,6 @@ from
   alicloud_vpc_nat_gateway;
 ```
 
-
 ### Get the NAT gateway where traffic monitoring feature is not enabled
 
 ```sql
@@ -50,7 +70,6 @@ where
   not ecs_metric_enabled;
 ```
 
-
 ### Get the NAT gateway where deletion protection is not enabled
 
 ```sql
@@ -63,7 +82,6 @@ from
 where
   not deletion_protection;
 ```
-
 
 ### Count of NAT gateway per VPC id
 

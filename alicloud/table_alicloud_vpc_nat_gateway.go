@@ -4,11 +4,11 @@ import (
 	"context"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
-
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
+
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 )
 
 //// TABLE DEFINITION
@@ -16,15 +16,15 @@ import (
 func tableAlicloudVpcNatGateway(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_vpc_nat_gateway",
-		Description: "Aliclod VPC NAT Gateway.",
+		Description: "Aliclod VPC NAT Gateway",
 		List: &plugin.ListConfig{
 			Hydrate: listVpcNatGateways,
 		},
-		GetMatrixItem: BuildRegionList,
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("nat_gateway_id"),
 			Hydrate:    getVpcNatGateway,
 		},
+		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			{
 				Name:        "name",
@@ -115,8 +115,8 @@ func tableAlicloudVpcNatGateway(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "ip_lists",
-				Type:        proto.ColumnType_JSON,
 				Description: "The elastic IP address (EIP) that is associated with the NAT gateway.",
+				Type:        proto.ColumnType_JSON,
 				Transform:   transform.FromField("IpLists.IpList"),
 			},
 			{
@@ -175,6 +175,7 @@ func listVpcNatGateways(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 		plugin.Logger(ctx).Error("alicloud_vpc_nat_gateway.listVpcNatGateways", "connection_error", err)
 		return nil, err
 	}
+
 	request := vpc.CreateDescribeNatGatewaysRequest()
 	request.Scheme = "https"
 	request.PageSize = requests.NewInteger(50)
@@ -188,7 +189,6 @@ func listVpcNatGateways(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 			return nil, err
 		}
 		for _, i := range response.NatGateways.NatGateway {
-			plugin.Logger(ctx).Warn("alicloud_vpc_nat_gateway.listVpcNatGateways", "item", i)
 			d.StreamListItem(ctx, i)
 			count++
 		}
@@ -220,7 +220,7 @@ func getVpcNatGateway(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 
 	response, err := client.DescribeNatGateways(request)
 	if err != nil {
-		plugin.Logger(ctx).Error("getVpcNatGateway", "query_error", err, "request", request)
+		plugin.Logger(ctx).Error("alicloud_vpc_nat_gateway.getVpcNatGateway", "query_error", err, "request", request)
 		return nil, err
 	}
 
