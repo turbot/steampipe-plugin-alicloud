@@ -33,19 +33,19 @@ func tableAlicloudComputeRegion(ctx context.Context) *plugin.Table {
 				Name:        "local_name",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("LocalName"),
-				Description: "",
+				Description: "The local name of the region.",
 			},
 			{
 				Name:        "region_endpoint",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("RegionEndpoint"),
-				Description: "",
+				Description: "The endpoint of the region.",
 			},
 			{
 				Name:        "status",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("Status"),
-				Description: "",
+				Description: "Indicates whether the cluster is sold out.",
 			},
 
 			{

@@ -24,22 +24,21 @@ func tableAlicloudComputeZone(ctx context.Context) *plugin.Table {
 		Columns: []*plugin.Column{
 			// Top columns
 			{
-				Name:        "zone_no",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("ZoneNo"),
-				Description: "",
+				Name:      "zone_no",
+				Type:      proto.ColumnType_STRING,
+				Transform: transform.FromField("ZoneNo"),
 			},
 			{
 				Name:        "zone_id",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("ZoneId"),
-				Description: "",
+				Description: "The zone ID.",
 			},
 			{
 				Name:        "local_name",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("LocalName"),
-				Description: "",
+				Description: "The name of the zone in the local language.",
 			},
 
 			// Other columns
@@ -47,49 +46,48 @@ func tableAlicloudComputeZone(ctx context.Context) *plugin.Table {
 				Name:        "available_resource_creation",
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.FromField("AvailableResourceCreation"),
-				Description: "",
+				Description: "The types of the resources that can be created. The data type of this parameter is List.",
 			},
 			{
 				Name:        "available_volume_categories",
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.FromField("AvailableVolumeCategories"),
-				Description: "",
+				Description: "The categories of available shared storage. The data type of this parameter is List.",
 			},
 			{
 				Name:        "available_instance_types",
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.FromField("AvailableInstanceTypes"),
-				Description: "",
+				Description: "The instance types of instances that can be created. The data type of this parameter is List.",
 			},
 			{
 				Name:        "available_dedicated_host_types",
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.FromField("AvailableDedicatedHostTypes"),
-				Description: "",
+				Description: "The supported types of dedicated hosts. The data type of this parameter is List.",
 			},
 			{
-				Name:        "network_types",
-				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("NetworkTypes"),
-				Description: "",
+				Name:      "network_types",
+				Type:      proto.ColumnType_JSON,
+				Transform: transform.FromField("NetworkTypes"),
 			},
 			{
 				Name:        "available_disk_categories",
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.FromField("AvailableDiskCategories"),
-				Description: "",
+				Description: "The supported disk categories. The data type of this parameter is List.",
 			},
 			{
 				Name:        "dedicated_host_generations",
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.FromField("DedicatedHostGenerations"),
-				Description: "",
+				Description: "The generation numbers of dedicated hosts. The data type of this parameter is List.",
 			},
 			{
 				Name:        "available_resources",
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.FromField("AvailableResources"),
-				Description: "",
+				Description: "An array consisting of ResourcesInfo data.",
 			},
 
 			{
