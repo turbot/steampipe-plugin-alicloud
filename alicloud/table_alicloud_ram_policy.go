@@ -74,7 +74,7 @@ func tableAlicloudRamPolicy(_ context.Context) *plugin.Table {
 			{
 				Name:        "attachment_count",
 				Type:        proto.ColumnType_INT,
-				Description: "",
+				Description: "The number of references to the policy.",
 			},
 			{
 				Name:        "version_id",

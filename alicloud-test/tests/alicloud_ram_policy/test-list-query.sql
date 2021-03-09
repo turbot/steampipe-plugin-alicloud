@@ -1,3 +1,3 @@
 select name, description
 from alicloud_ram_policy
-where name = '{{ resourceName }}';
+where akas::text = '["{{output.resource_aka.value}}"]';
