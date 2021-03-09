@@ -87,12 +87,12 @@ func tableAlicloudEcskeypair(ctx context.Context) *plugin.Table {
 			// alibaba standard columns
 			{
 				Name:        "region",
-				Description: "The region ID where the resource is located.",
+				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
 			},
 			{
 				Name:        "account_id",
-				Description: "The alicloud Account ID in which the resource is located.",
+				Description: ColumnDescriptionAccount,
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getCommonColumns,
 				Transform:   transform.FromField("AccountID"),
