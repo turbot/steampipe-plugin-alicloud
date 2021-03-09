@@ -33,7 +33,6 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_vpc_vswitch":             tableAlicloudVpcVSwitch(ctx),
 			"alicloud_compute_zone":            tableAlicloudComputeZone(ctx),
 			"alicloud_compute_region":          tableAlicloudComputeRegion(ctx),
-			"alicloud_rds_instance":            tableAlicloudRdsInstance(ctx),
 		},
 	}
 	return p
