@@ -1,0 +1,7 @@
+[
+	{
+		"name": "{{ resourceName }}",
+		"nexthop_type": "{{ output.nexthop_type.value }}",
+		"route_table_id": "{{ output.resource_id.value }}"
+	}
+]
