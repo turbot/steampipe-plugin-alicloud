@@ -1,7 +1,6 @@
 [
 	{
-		"name": "{{ resourceName }}",
-		"nexthop_type": "{{ output.nexthop_type.value }}",
-		"route_table_id": "{{ output.resource_id.value }}"
+		"destination_cidr_block": "172.11.1.1/32",
+		"route_table_id": "{{ output.route_table_id.value }}"
 	}
 ]

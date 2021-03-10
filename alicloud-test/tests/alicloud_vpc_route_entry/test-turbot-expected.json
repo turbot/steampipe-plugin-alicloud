@@ -3,7 +3,6 @@
 		"akas": [
 			"{{ output.resource_aka.value }}"
 		],
-		"name": "{{ resourceName }}",
-		"title": "{{ resourceName }}"
+		"title": "{{ output.name.value }}"
 	}
 ]

@@ -28,7 +28,7 @@ data "alicloud_zones" "resource" {
 }
 
 data "alicloud_instance_types" "resource" {
-  availability_zone = data.alicloud_zones.default.zones[0].id
+  availability_zone = data.alicloud_zones.resource.zones[0].id
   cpu_core_count    = 1
   memory_size       = 2
 }
@@ -84,20 +84,24 @@ resource "alicloud_instance" "named_test_resource" {
 }
 
 resource "alicloud_route_entry" "named_test_resource" {
+  name                  = "test"
   route_table_id        = alicloud_vpc.named_test_resource.route_table_id
   destination_cidrblock = "172.11.1.1/32"
   nexthop_type          = "Instance"
   nexthop_id            = alicloud_instance.named_test_resource.id
 }
 
-output "id" {
-  value = alicloud_route_entry.named_test_resource.id
+output "name" {
+  value = alicloud_route_entry.named_test_resource.name
 }
 
-output "router_table_id" {
-  value = alicloud_route_entry.named_test_resource.router_table_id
+output "route_table_id" {
+  value = alicloud_route_entry.named_test_resource.route_table_id
 }
 
+output "destination_cidrblock" {
+  value = alicloud_route_entry.named_test_resource.destination_cidrblock
+}
 output "nexthop_type" {
   value = alicloud_route_entry.named_test_resource.nexthop_type
 }
