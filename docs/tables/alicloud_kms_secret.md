@@ -4,7 +4,7 @@ Secret enables to manage secrets in a centralized manner throughout their lifecy
 
 ## Examples
 
-### Basic secret info
+### Basic info
 
 ```sql
 select
@@ -17,7 +17,7 @@ from
   alicloud_kms_secret;
 ```
 
-### Get the rotation info of secret
+### Get the rotation info for each secret
 
 ```sql
 select
@@ -30,7 +30,7 @@ from
   alicloud_kms_secret;
 ```
 
-### Get the extended configuration info of secret
+### Get the extended configuration info for each secret
 
 ```sql
 select
@@ -42,7 +42,7 @@ from
   alicloud_kms_secret;
 ```
 
-### List of secrets without application tag key
+### List secrets without application tag key
 
 ```sql
 select
