@@ -41,7 +41,9 @@ select
   create_time,
   engine
 from
-  alicloud_rds_instance where engine='MySQL';
+  alicloud_rds_instance
+where
+  engine='MySQL';
 ```
 
 
