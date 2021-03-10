@@ -5,12 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
-
-	// "github.com/aliyun/alibaba-cloud-sdk-go/services/ims"
 	ims "github.com/alibabacloud-go/ims-20190815/client"
 	rpc "github.com/alibabacloud-go/tea-rpc/client"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
