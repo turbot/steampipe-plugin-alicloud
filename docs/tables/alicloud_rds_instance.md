@@ -16,33 +16,23 @@ from
   alicloud_rds_instance;
 ```
 
-### DB Instance Details for a particular DB Instance
+
+### DB instance count in each region
 
 ```sql
 select
-  db_instance_id,
-  vpc_id,
-  create_time,
-  engine
+  region_id as region,
+  db_instance_class,
+  count(*)
 from
-  alicloud_rds_instance where db_instance_id='****';
+  alicloud_rds_instance
+group by
+  region_id,
+  db_instance_class;
 ```
 
 
-### DB Instance Details from a region
-
-```sql
-select
-  db_instance_id,
-  vpc_id,
-  create_time,
-  engine
-from
-  alicloud_rds_instance where region_id='us-east-1';
-```
-
-
-### DB Instance Details where engine is MySQL
+### List DB instances whose engine is MySQL
 
 ```sql
 select
@@ -54,7 +44,8 @@ from
   alicloud_rds_instance where engine='MySQL';
 ```
 
-### DB Instances which are Currently in Running status
+
+### List DB instances that are currently running
 
 ```sql
 select
@@ -63,17 +54,7 @@ select
   create_time,
   engine
 from
-  alicloud_rds_instance where db_instance_status='Running';
-```
-
-### DBInstance count by Instance ID
-
-```sql
-select
-  db_instance_id,
-  count(db_instance_id) as db_instance_count
-from
   alicloud_rds_instance
-group by
-  vpc_id;
+where
+  db_instance_status='Running';
 ```
