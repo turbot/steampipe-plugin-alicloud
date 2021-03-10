@@ -18,7 +18,7 @@ from
   alicloud_kms_key;
 ```
 
-### List of KMS keys scheduled for deletion
+### List keys scheduled for deletion
 
 ```sql
 select
@@ -31,7 +31,7 @@ where
   key_state = 'PendingDeletion';
 ```
 
-### Get the keys where automatic key rotation is suspended
+### List keys that have automatic key rotation suspended
 
 ```sql
 select
@@ -43,7 +43,7 @@ where
   automatic_rotation = 'Suspended';
 ```
 
-### Get the key alias info
+### Get the key alias info for each key
 
 ```sql
 select
@@ -55,7 +55,7 @@ from
   jsonb_array_elements(key_aliases) as alias;
 ```
 
-### Count of key per region
+### Count of keys per region
 
 ```sql
 select
