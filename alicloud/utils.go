@@ -7,6 +7,7 @@ import (
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/kms"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
@@ -132,4 +133,41 @@ func essTurbotTags(_ context.Context, d *transform.TransformData) (interface{}, 
 func zoneToRegion(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	region := d.Value.(string)
 	return region[:len(region)-1], nil
+}
+
+func modifyKmsSourceTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	tags := d.Value.([]kms.Tag)
+
+	type resourceTags = struct {
+		TagKey   string
+		TagValue string
+	}
+	var sourceTags []resourceTags
+
+	if tags != nil {
+		for _, i := range tags {
+			sourceTags = append(sourceTags, resourceTags{i.TagKey, i.TagValue})
+		}
+	}
+
+	return sourceTags, nil
+}
+
+func kmsTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	tags := d.Value.([]kms.Tag)
+
+	if tags == nil {
+		return nil, nil
+	}
+
+	if len(tags) == 0 {
+		return nil, nil
+	}
+
+	turbotTagsMap := map[string]string{}
+	for _, i := range tags {
+		turbotTagsMap[i.TagKey] = i.TagValue
+	}
+
+	return turbotTagsMap, nil
 }
