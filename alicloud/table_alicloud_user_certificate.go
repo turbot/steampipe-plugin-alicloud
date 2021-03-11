@@ -3,6 +3,7 @@ package alicloud
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 
@@ -11,20 +12,24 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
-type certificateInfo = struct {
-	buyInAliyun string
-	city        string
-	common      string
+type certInfo struct {
+	CertificateList []certificateInfo
+}
+
+type certificateInfo struct {
 	country     string
-	endDate     string
-	expired     string
-	fingerprint string
-	id          string
-	issuer      string
-	name        string
 	orgName     string
-	province    string
+	city        string
+	endDate     string
 	sans        string
+	issuer      string
+	expired     bool
+	common      string
+	province    string
+	name        string
+	fingerprint string
+	buyInAliyun bool
+	id          string
 	startDate   string
 	Cert        string
 	Key         string
@@ -51,9 +56,10 @@ func tableAlicloudUserCertificate(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 			},
 			{
-				Name:        "id",
+				Name:        "cert_id",
 				Description: "The ID of the certificate.",
 				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("id"),
 			},
 			{
 				Name:        "start_date",
@@ -119,11 +125,13 @@ func tableAlicloudUserCertificate(ctx context.Context) *plugin.Table {
 				Name:        "cert",
 				Description: "The certificate content, in PEM format.",
 				Type:        proto.ColumnType_STRING,
+				Hydrate:     getUserCertificate,
 			},
 			{
 				Name:        "key",
 				Description: "The private key of the certificate, in PEM format.",
 				Type:        proto.ColumnType_STRING,
+				Hydrate:     getUserCertificate,
 			},
 			// steampipe standard columns
 			{
@@ -145,7 +153,6 @@ func tableAlicloudUserCertificate(ctx context.Context) *plugin.Table {
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("RegionId"),
 			},
 			{
 				Name:        "account_id",
@@ -175,7 +182,7 @@ func listUserCertificate(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 	request.Domain = "cas.aliyuncs.com"
 	request.Version = "2018-07-13"
 	request.ApiName = "DescribeUserCertificateList"
-	request.QueryParams["RegionId"] = region
+	request.QueryParams["RegionId"] = "cn-hangzhou"
 	request.QueryParams["ShowSize"] = "50"
 	request.QueryParams["CurrentPage"] = "1"
 
@@ -185,8 +192,14 @@ func listUserCertificate(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 		return nil, err
 	}
 	cert := response.GetHttpContentString()
-	json.Unmarshal([]byte(cert), &certificateInfo{})
-	d.StreamListItem(ctx, certificateInfo{})
+	cert1 := strings.Replace(cert, "\"{", "{", 1)
+	cert2 := strings.Replace(cert1, "}\"", "}", 1)
+	res := certInfo{}
+	json.Unmarshal([]byte(cert2), &res)
+	plugin.Logger(ctx).Warn("alicloud_user_certificate.listUserCertificate", "cert_value", res)
+	for _, i := range res.CertificateList {
+		d.StreamListItem(ctx, i)
+	}
 	return nil, nil
 }
 
@@ -205,18 +218,27 @@ func getUserCertificate(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	request.Domain = "cas.aliyuncs.com"
 	request.Version = "2018-07-13"
 	request.ApiName = "DescribeUserCertificateDetail"
-	request.QueryParams["RegionId"] = region
-	request.QueryParams["CertId"] = d.KeyColumnQuals["cert_id"].GetStringValue()
+	request.QueryParams["RegionId"] = "cn-hangzhou"
+
+	var id string
+	if h.Item != nil {
+		data := h.Item.(certificateInfo)
+		id = data.id
+	} else {
+		id = d.KeyColumnQuals["cert_id"].GetStringValue()
+	}
+	request.QueryParams["CertId"] = id
 
 	response, err := client.ProcessCommonRequest(request)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_user_certificate.getUserCertificate", "query_error", err, "request", request)
 		return nil, err
 	}
-
 	cert := response.GetHttpContentString()
-	json.Unmarshal([]byte(cert), &certificateInfo{})
-	return certificateInfo{}, nil
+	res := certificateInfo{}
+	json.Unmarshal([]byte(cert), &res)
+	plugin.Logger(ctx).Error("alicloud_user_certificate.getUserCertificate", "get_value", res)
+	return res, nil
 }
 
 //// HYDRATE FUNCTIONS
@@ -224,7 +246,7 @@ func getUserCertificate(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 func getUserCertificateAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getUserCertificateAka")
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-	cert := h.Item.(certificateInfo)
+	//cert := h.Item.(certInfo)
 
 	// Get project details
 	commonData, err := getCommonColumns(ctx, d, h)
@@ -234,7 +256,7 @@ func getUserCertificateAka(ctx context.Context, d *plugin.QueryData, h *plugin.H
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"arn:acs:ecs:" + region + ":" + accountID + ":disk/" + cert.id}
+	akas := []string{"arn:acs:ecs:" + region + ":" + accountID + ":disk/"}
 
 	return akas, nil
 }
