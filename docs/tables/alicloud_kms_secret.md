@@ -17,17 +17,29 @@ from
   alicloud_kms_secret;
 ```
 
-### Get the rotation info for each secret
+### List secrets that do not have automatic rotation enabled
 
 ```sql
 select
   name,
-  automatic_rotation,
-  last_rotation_date,
-  rotation_interval,
-  next_rotation_date
+  secret_type automatic_rotation
 from
-  alicloud_kms_secret;
+  alicloud_kms_secret
+where
+  automatic_rotation <> 'Enabled';
+```
+
+### List secrets that have not been rotated within the last 30 days
+
+```sql
+select
+  name,
+  secret_type,
+  automatic_rotation
+from
+  alicloud_kms_secret
+where
+  last_rotation_date < (current_date - interval '30' day);
 ```
 
 ### Get the extended configuration info for each secret
