@@ -4,14 +4,31 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
+
+type certificateInfo = struct {
+	buyInAliyun string
+	city        string
+	common      string
+	country     string
+	endDate     string
+	expired     string
+	fingerprint string
+	id          string
+	issuer      string
+	name        string
+	orgName     string
+	province    string
+	sans        string
+	startDate   string
+	Cert        string
+	Key         string
+}
 
 //// TABLE DEFINITION
 
@@ -23,286 +40,104 @@ func tableAlicloudUserCertificate(ctx context.Context) *plugin.Table {
 			Hydrate: listUserCertificate,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("disk_id"),
-			Hydrate:    getEcsDisk,
+			KeyColumns: plugin.SingleColumn("cert_id"),
+			Hydrate:    getUserCertificate,
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			{
 				Name:        "name",
-				Description: "A friendly name for the resource.",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("DiskName"),
-			},
-			{
-				Name:        "disk_id",
-				Description: "An unique identifier for the resource.",
+				Description: "The name of the certificate.",
 				Type:        proto.ColumnType_STRING,
 			},
 			{
-				Name:        "status",
-				Description: "Specifies the current state of the resource.",
+				Name:        "id",
+				Description: "The ID of the certificate.",
 				Type:        proto.ColumnType_STRING,
 			},
 			{
-				Name:        "size",
-				Description: "Specifies the size of the disk.",
-				Type:        proto.ColumnType_INT,
-			},
-			{
-				Name:        "type",
-				Description: "Specifies the type of the disk. Possible values are: 'system' and 'data'.",
-				Type:        proto.ColumnType_STRING,
-			},
-			{
-				Name:        "billing_method",
-				Description: "The billing method of the disk. Possible values are: PrePaid and PostPaid.",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("DiskChargeType"),
-			},
-			{
-				Name:        "attached_time",
-				Description: "The time when the disk was attached.",
+				Name:        "start_date",
+				Description: "The issuance date of the certificate.",
 				Type:        proto.ColumnType_TIMESTAMP,
 			},
 			{
-				Name:        "auto_snapshot_policy_id",
-				Description: "The ID of the automatic snapshot policy applied to the disk.",
+				Name:        "sans",
+				Description: "All domain names bound to the certificate.",
 				Type:        proto.ColumnType_STRING,
 			},
 			{
-				Name:        "auto_snapshot_policy_name",
-				Description: "The name of the automatic snapshot policy applied to the disk.",
-				Type:        proto.ColumnType_STRING,
-				Hydrate:     getEcsDiskAutoSnapshotPolicy,
-			},
-			{
-				Name:        "auto_snapshot_policy_creation_time",
-				Description: "The time when the auto snapshot policy was created.",
-				Type:        proto.ColumnType_STRING,
-				Hydrate:     getEcsDiskAutoSnapshotPolicy,
-				Transform:   transform.FromField("CreationTime"),
-			},
-			{
-				Name:        "auto_snapshot_policy_enable_cross_region_copy",
-				Description: "The ID of the automatic snapshot policy applied to the disk.",
-				Type:        proto.ColumnType_BOOL,
-				Hydrate:     getEcsDiskAutoSnapshotPolicy,
-				Transform:   transform.FromField("EnableCrossRegionCopy"),
-			},
-			{
-				Name:        "auto_snapshot_policy_repeat_week_days",
-				Description: "The days of a week on which automatic snapshots are created. Valid values: 1 to 7, which corresponds to the days of the week. 1 indicates Monday. One or more days can be specified.",
-				Type:        proto.ColumnType_STRING,
-				Hydrate:     getEcsDiskAutoSnapshotPolicy,
-				Transform:   transform.FromField("RepeatWeekdays"),
-			},
-			{
-				Name:        "auto_snapshot_policy_retention_days",
-				Description: "The retention period of the automatic snapshot.",
-				Type:        proto.ColumnType_INT,
-				Hydrate:     getEcsDiskAutoSnapshotPolicy,
-				Transform:   transform.FromField("RetentionDays"),
-			},
-			{
-				Name:        "auto_snapshot_policy_status",
-				Description: "The status of the automatic snapshot policy.",
-				Type:        proto.ColumnType_STRING,
-				Hydrate:     getEcsDiskAutoSnapshotPolicy,
-				Transform:   transform.FromField("Status"),
-			},
-			{
-				Name:        "auto_snapshot_policy_time_points",
-				Description: "The points in time at which automatic snapshots are created. The least interval at which snapshots can be created is one hour. Valid values: 0 to 23, which corresponds to the hours of the day from 00:00 to 23:00. 1 indicates 01:00. You can specify multiple points in time.",
-				Type:        proto.ColumnType_STRING,
-				Hydrate:     getEcsDiskAutoSnapshotPolicy,
-				Transform:   transform.FromField("TimePoints"),
-			},
-			{
-				Name:        "auto_snapshot_policy_tags",
-				Description: "The days of a week on which automatic snapshots are created. Valid values: 1 to 7, which corresponds to the days of the week. 1 indicates Monday. One or more days can be specified.",
-				Type:        proto.ColumnType_JSON,
-				Hydrate:     getEcsDiskAutoSnapshotPolicy,
-				Transform:   transform.FromField("Tags.Tag"),
-			},
-			{
-				Name:        "category",
-				Description: "The category of the disk.",
+				Name:        "province",
+				Description: "The province where the organization that purchases the certificate is located.",
 				Type:        proto.ColumnType_STRING,
 			},
 			{
-				Name:        "creation_time",
-				Description: "The time when the disk was created.",
+				Name:        "org_name",
+				Description: "The name of the organization that purchases the certificate.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "end_date",
+				Description: "The expiration date of the certificate.",
 				Type:        proto.ColumnType_TIMESTAMP,
 			},
 			{
-				Name:        "delete_auto_snapshot",
-				Description: "Indicates whether the automatic snapshots of the disk are deleted when the disk is released.",
+				Name:        "issuer",
+				Description: "The certificate authority.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "fingerprint",
+				Description: "The certificate fingerprint.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "expired",
+				Description: "Indicates whether the certificate has expired.",
 				Type:        proto.ColumnType_BOOL,
 			},
 			{
-				Name:        "delete_with_instance",
-				Description: "Indicates whether the disk is released when its associated instance is released.",
+				Name:        "Country",
+				Description: "The country where the organization that purchases the certificate is located.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "common",
+				Description: "The common name (CN) attribute of the certificate.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "City",
+				Description: "The city where the organization that purchases the certificate is located.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "buy_in_aliyun",
+				Description: "Indicates whether the certificate was purchased from Alibaba Cloud.",
 				Type:        proto.ColumnType_BOOL,
 			},
 			{
-				Name:        "description",
-				Description: "A user provided, human readable description for this resource.",
+				Name:        "cert",
+				Description: "The certificate content, in PEM format.",
 				Type:        proto.ColumnType_STRING,
 			},
 			{
-				Name:        "detached_time",
-				Description: "The time when the disk was detached.",
-				Type:        proto.ColumnType_TIMESTAMP,
-			},
-			{
-				Name:        "device",
-				Description: "The device name of the disk on its associated instance.",
+				Name:        "key",
+				Description: "The private key of the certificate, in PEM format.",
 				Type:        proto.ColumnType_STRING,
 			},
-			{
-				Name:        "enable_auto_snapshot",
-				Description: "Indicates whether the automatic snapshot policy feature was enabled for the disk.",
-				Type:        proto.ColumnType_BOOL,
-			},
-			{
-				Name:        "enable_automated_snapshot_policy",
-				Description: "Indicates whether an automatic snapshot policy was applied to the disk.",
-				Type:        proto.ColumnType_BOOL,
-			},
-			{
-				Name:        "encrypted",
-				Description: "Indicates whether the disk was encrypted.",
-				Type:        proto.ColumnType_BOOL,
-			},
-			{
-				Name:        "expired_time",
-				Description: "The time when the subscription disk expires.",
-				Type:        proto.ColumnType_TIMESTAMP,
-			},
-			{
-				Name:        "iops",
-				Description: "The number of input/output operations per second (IOPS).",
-				Type:        proto.ColumnType_INT,
-				Transform:   transform.FromField("IOPS"),
-			},
-			{
-				Name:        "iops_read",
-				Description: "The number of I/O reads per second.",
-				Type:        proto.ColumnType_INT,
-				Transform:   transform.FromField("IOPSRead"),
-			},
-			{
-				Name:        "iops_write",
-				Description: "The number of I/O writes per second.",
-				Type:        proto.ColumnType_INT,
-				Transform:   transform.FromField("IOPSWrite"),
-			},
-			{
-				Name:        "image_id",
-				Description: "The ID of the image used to create the instance. This parameter is empty unless the disk was created from an image. The value of this parameter remains unchanged throughout the lifecycle of the disk.",
-				Type:        proto.ColumnType_STRING,
-			},
-			{
-				Name:        "instance_id",
-				Description: "The ID of the instance to which the disk is attached. This parameter has a value only when the value of Status is In_use.",
-				Type:        proto.ColumnType_STRING,
-			},
-			{
-				Name:        "kms_key_id",
-				Description: "The device name of the disk on its associated instance.",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("KMSKeyId"),
-			},
-			{
-				Name:        "mount_instance_num",
-				Description: "The number of instances to which the Shared Block Storage device is attached.",
-				Type:        proto.ColumnType_INT,
-			},
-			{
-				Name:        "performance_level",
-				Description: "The performance level of the ESSD.",
-				Type:        proto.ColumnType_STRING,
-			},
-			{
-				Name:        "portable",
-				Description: "Indicates whether the disk is removable.",
-				Type:        proto.ColumnType_BOOL,
-			},
-			{
-				Name:        "product_code",
-				Description: "The product code in Alibaba Cloud Marketplace.",
-				Type:        proto.ColumnType_STRING,
-			},
-			{
-				Name:        "resource_group_id",
-				Description: "The ID of the resource group to which the disk belongs.",
-				Type:        proto.ColumnType_STRING,
-			},
-			{
-				Name:        "serial_number",
-				Description: "The serial number of the disk.",
-				Type:        proto.ColumnType_STRING,
-			},
-			{
-				Name:        "source_snapshot_id",
-				Description: "The ID of the snapshot used to create the disk. This parameter is empty unless the disk was created from a snapshot. The value of this parameter remains unchanged throughout the lifecycle of the disk.",
-				Type:        proto.ColumnType_STRING,
-			},
-			{
-				Name:        "storage_set_id",
-				Description: "The ID of the storage set.",
-				Type:        proto.ColumnType_STRING,
-			},
-			{
-				Name:        "storage_set_partition_number",
-				Description: "The maximum number of partitions in a storage set.",
-				Type:        proto.ColumnType_INT,
-			},
-			{
-				Name:        "zone",
-				Description: "The zone name in which the resource is created.",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("ZoneId"),
-			},
-			{
-				Name:        "mount_instances",
-				Description: "The attaching information of the disk.",
-				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("MountInstances.MountInstance"),
-			},
-			{
-				Name:        "operation_lock",
-				Description: "The reasons why the disk was locked.",
-				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("OperationLocks.OperationLock"),
-			},
-			{
-				Name:        "tags_src",
-				Description: "A list of tags attached with the resource.",
-				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("Tags.Tag").Transform(modifyEcsSourceTags),
-			},
-
 			// steampipe standard columns
-			{
-				Name:        "tags",
-				Description: ColumnDescriptionTags,
-				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("Tags.Tag").Transform(ecsTagsToMap),
-			},
 			{
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getEcsDiskAka,
+				Hydrate:     getUserCertificateAka,
 				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "title",
 				Description: ColumnDescriptionTitle,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.From(ecsDiskTitle),
+				Transform:   transform.FromField("Name"),
 			},
 
 			// alicloud standard columns
@@ -342,95 +177,54 @@ func listUserCertificate(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 	request.ApiName = "DescribeUserCertificateList"
 	request.QueryParams["RegionId"] = region
 	request.QueryParams["ShowSize"] = "50"
-	request.QueryParams["CurrentPage"] = "2"
+	request.QueryParams["CurrentPage"] = "1"
 
 	response, err := client.ProcessCommonRequest(request)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ecs_disk.listEcsDisk", "query_error", err, "request", request)
+		plugin.Logger(ctx).Error("alicloud_user_certificate.listUserCertificate", "query_error", err, "request", request)
 		return nil, err
 	}
 	cert := response.GetHttpContentString()
-	d.StreamListItem(ctx, cert)
+	json.Unmarshal([]byte(cert), &certificateInfo{})
+	d.StreamListItem(ctx, certificateInfo{})
 	return nil, nil
+}
+
+func getUserCertificate(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := CommonService(ctx, d, region)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_user_certificate.getUserCertificate", "connection_error", err)
+		return nil, err
+	}
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Scheme = "https"
+	request.Domain = "cas.aliyuncs.com"
+	request.Version = "2018-07-13"
+	request.ApiName = "DescribeUserCertificateDetail"
+	request.QueryParams["RegionId"] = region
+	request.QueryParams["CertId"] = d.KeyColumnQuals["cert_id"].GetStringValue()
+
+	response, err := client.ProcessCommonRequest(request)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_user_certificate.getUserCertificate", "query_error", err, "request", request)
+		return nil, err
+	}
+
+	cert := response.GetHttpContentString()
+	json.Unmarshal([]byte(cert), &certificateInfo{})
+	return certificateInfo{}, nil
 }
 
 //// HYDRATE FUNCTIONS
 
-func getEcsDisk(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getUserCertificateAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getUserCertificateAka")
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-	plugin.Logger(ctx).Trace("getEcsDisk")
-
-	// Create service connection
-	client, err := ECSService(ctx, d, region)
-	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ecs_disk.getEcsDisk", "connection_error", err)
-		return nil, err
-	}
-
-	var id string
-	if h.Item != nil {
-		disk := h.Item.(ecs.Disk)
-		id = disk.DiskId
-	} else {
-		id = d.KeyColumnQuals["disk_id"].GetStringValue()
-	}
-
-	// In SDK, the Datatype of DiskIds is string, though the value should be passed as
-	// ["d-bp67acfmxazb4p****", "d-bp67acfmxazb4g****", ... "d-bp67acfmxazb4d****"]
-	input, err := json.Marshal([]string{id})
-	if err != nil {
-		return nil, err
-	}
-
-	request := ecs.CreateDescribeDisksRequest()
-	request.Scheme = "https"
-	request.DiskIds = string(input)
-
-	response, err := client.DescribeDisks(request)
-	if serverErr, ok := err.(*errors.ServerError); ok {
-		plugin.Logger(ctx).Error("alicloud_ecs_disk.getEcsDisk", "query_error", serverErr, "request", request)
-		return nil, serverErr
-	}
-
-	if response.Disks.Disk != nil && len(response.Disks.Disk) > 0 {
-		return response.Disks.Disk[0], nil
-	}
-
-	return nil, nil
-}
-
-func getEcsDiskAutoSnapshotPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-	plugin.Logger(ctx).Trace("getEcsDiskAutomaticSnapshotPolicy")
-	disk := h.Item.(ecs.Disk)
-
-	// Create service connection
-	client, err := ECSService(ctx, d, region)
-	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ecs_disk.getEcsDisk", "connection_error", err)
-		return nil, err
-	}
-
-	request := ecs.CreateDescribeAutoSnapshotPolicyExRequest()
-	request.Scheme = "https"
-	request.AutoSnapshotPolicyId = disk.AutoSnapshotPolicyId
-
-	response, err := client.DescribeAutoSnapshotPolicyEx(request)
-	if serverErr, ok := err.(*errors.ServerError); ok {
-		plugin.Logger(ctx).Error("alicloud_ecs_disk.getEcsDiskAutoSnapshotPolicy", "query_error", serverErr, "request", request)
-		return nil, serverErr
-	}
-
-	if response.AutoSnapshotPolicies.AutoSnapshotPolicy != nil && len(response.AutoSnapshotPolicies.AutoSnapshotPolicy) > 0 {
-		return response.AutoSnapshotPolicies.AutoSnapshotPolicy[0], nil
-	}
-
-	return nil, nil
-}
-
-func getEcsDiskAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getEcsDiskAka")
-	disk := h.Item.(ecs.Disk)
+	cert := h.Item.(certificateInfo)
 
 	// Get project details
 	commonData, err := getCommonColumns(ctx, d, h)
@@ -440,22 +234,7 @@ func getEcsDiskAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"arn:acs:ecs:" + disk.RegionId + ":" + accountID + ":disk/" + disk.DiskId}
+	akas := []string{"arn:acs:ecs:" + region + ":" + accountID + ":disk/" + cert.id}
 
 	return akas, nil
-}
-
-//// TRANSFORM FUNCTIONS
-
-func ecsDiskTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	disk := d.HydrateItem.(ecs.Disk)
-
-	// Build resource title
-	title := disk.DiskId
-
-	if len(disk.DiskName) > 0 {
-		title = disk.DiskName
-	}
-
-	return title, nil
 }
