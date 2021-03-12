@@ -65,7 +65,7 @@ The Alicloud credential resolution order is:
 
 If `regions` is not specified, Steampipe will use a single default region using the resolution order as mentioned for `Region` in above table:
 
-Steampipe will require read access in order to query your Alicloud resources.[Create a RAM user with an access key pair](https://partners-intl.aliyun.com/help/doc-detail/116401.htm).
+Steampipe will require read access in order to query your Alicloud resources. [Create a RAM user with an access key pair](https://partners-intl.aliyun.com/help/doc-detail/116401.htm).
 
 **Note:** Read permissions are required for tables to work.
 
