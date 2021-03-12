@@ -1,0 +1,7 @@
+[
+	{
+		"db_instance_ip_array_name": "testArray",
+		"db_instance_ip_array_attribute": "testAttr",
+		"security_ip_type": "testIP"
+	}
+]
