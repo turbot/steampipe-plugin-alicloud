@@ -73,7 +73,7 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 				Name:        "logging",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getBucketLogging,
-				Transform:   transform.FromField("LoggingXML.LoggingEnabled"),
+				Transform:   transform.FromField("LoggingEnabled"),
 				Description: "Indicates the container used to store access logging configuration of a bucket.",
 			},
 			{
