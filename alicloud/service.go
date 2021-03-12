@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/cas"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/kms"
@@ -35,6 +35,34 @@ func AutoscalingService(ctx context.Context, d *plugin.QueryData, region string)
 
 	// so it was not in cache - create service
 	svc, err := ess.NewClientWithAccessKey(region, ak, secret)
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the service connection
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+	return svc, nil
+}
+
+// CasService returns the service connection for Alicloud SSL service
+func CasService(ctx context.Context, d *plugin.QueryData, region string) (*cas.Client, error) {
+	if region == "" {
+		return nil, fmt.Errorf("region must be passed RDSService")
+	}
+	// have we already created and cached the service?
+	serviceCacheKey := fmt.Sprintf("cas-%s", region)
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(*cas.Client), nil
+	}
+
+	ak, secret, err := getEnv(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+
+	// so it was not in cache - create service
+	svc, err := cas.NewClientWithAccessKey(region, ak, secret)
 	if err != nil {
 		return nil, err
 	}
@@ -316,34 +344,6 @@ func RDSService(ctx context.Context, d *plugin.QueryData, region string) (*rds.C
 
 	// so it was not in cache - create service
 	svc, err := rds.NewClientWithAccessKey(region, ak, secret)
-	if err != nil {
-		return nil, err
-	}
-
-	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
-
-	return svc, nil
-}
-
-// VpcService returns the service connection for Alicloud VPC service
-func CommonService(ctx context.Context, d *plugin.QueryData, region string) (*sdk.Client, error) {
-	if region == "" {
-		return nil, fmt.Errorf("region must be passed CommonService")
-	}
-	// have we already created and cached the service?
-	serviceCacheKey := fmt.Sprintf("sdk-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
-		return cachedData.(*sdk.Client), nil
-	}
-
-	ak, secret, err := getEnv(ctx, d)
-	if err != nil {
-		return nil, err
-	}
-
-	// so it was not in cache - create service
-	svc, err := sdk.NewClientWithAccessKey(region, ak, secret)
 	if err != nil {
 		return nil, err
 	}
