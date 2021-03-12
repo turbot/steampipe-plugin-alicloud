@@ -1,0 +1,7 @@
+[
+	{
+		"auto_provisioning_group_id": "{{ output.resource_id.value }}",
+		"auto_provisioning_group_type": "maintain",
+		"name": "{{ resourceName }}"
+	}
+]

@@ -1,0 +1,24 @@
+[
+	{
+		"account_id": "{{ output.account_id.value }}",
+		"auto_provisioning_group_id": "{{ output.resource_id.value }}",
+		"auto_provisioning_group_type": "maintain",
+		"launch_template_configs": {
+			"LaunchTemplateConfig": [
+				{
+					"InstanceType": "ecs.t5-lc2m1.nano",
+					"MaxPrice": 1,
+					"Priority": 0,
+					"VSwitchId": "{{ output.vswitch_id.value }}",
+					"WeightedCapacity": 1
+				}
+			]
+		},
+		"launch_template_id": "{{ output.launch_template_id.value }}",
+		"launch_template_version": "1",
+		"name": "{{ resourceName }}",
+		"region": "us-east-1",
+		"terminate_instances": true,
+		"terminate_instances_with_expiration": false
+	}
+]
