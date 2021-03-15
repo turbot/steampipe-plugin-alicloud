@@ -284,7 +284,7 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 			{
 				Name:        "security_ip_list",
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getRdsInstance,
+				Hydrate:     getRdsInstanceIPArrayList,
 				Transform:   transform.FromField("SecurityIPList"),
 				Description: "An array that consists of IP addresses in the IP address whitelist.",
 			},
