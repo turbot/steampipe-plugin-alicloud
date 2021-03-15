@@ -18,6 +18,8 @@ type certificateInfo struct {
 	Region string
 }
 
+// var supportedRegion = []string{"cn-hangzhou", "ap-south-1", "me-east-1", "eu-central-1", "ap-northeast-1", "ap-southeast-2"}
+
 //// TABLE DEFINITION
 
 func tableAlicloudUserCertificate(ctx context.Context) *plugin.Table {
@@ -163,6 +165,8 @@ func listUserCertificate(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 	request := cas.CreateDescribeUserCertificateListRequest()
 	request.ShowSize = "50"
 	request.CurrentPage = "1"
+	request.QueryParams["RegionId"] = region
+
 
 	count := 0
 	for {
@@ -171,6 +175,7 @@ func listUserCertificate(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 			plugin.Logger(ctx).Error("alicloud_user_certificate.listUserCertificate", "query_error", err, "request", request)
 			return nil, err
 		}
+
 		for _, i := range response.CertificateList {
 			d.StreamListItem(ctx, certificateInfo{
 				cas.DescribeUserCertificateDetailResponse{
@@ -199,33 +204,6 @@ func listUserCertificate(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 		request.CurrentPage = requests.NewInteger(response.CurrentPage + 1)
 	}
 
-	response, err := client.DescribeUserCertificateList(request)
-	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_user_certificate.listUserCertificate", "query_error", err, "request", request)
-		return nil, err
-	}
-
-	for _, i := range response.CertificateList {
-		d.StreamListItem(ctx, certificateInfo{
-			cas.DescribeUserCertificateDetailResponse{
-				Id:          i.Id,
-				Name:        i.Name,
-				Common:      i.Common,
-				Fingerprint: i.Fingerprint,
-				Issuer:      i.Issuer,
-				OrgName:     i.OrgName,
-				Province:    i.Province,
-				City:        i.City,
-				Country:     i.Country,
-				StartDate:   i.StartDate,
-				EndDate:     i.EndDate,
-				Sans:        i.Sans,
-				Expired:     i.Expired,
-				BuyInAliyun: i.BuyInAliyun,
-			},
-			region,
-		})
-	}
 	return nil, nil
 }
 

@@ -1,0 +1,11 @@
+[
+	{
+		"buy_in_aliyun": false,
+		"cert": "{{ output.certificate_body.value }}",
+		"common": "turbot.com",
+		"issuer": "Turbot HQ Pvt. Ltd.",
+		"key": "{{ output.private_key.value }}",
+		"name": "{{ resourceName }}",
+		"org_name": "Turbot HQ Pvt. Ltd."
+	}
+]
