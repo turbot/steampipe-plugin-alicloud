@@ -468,6 +468,20 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 			},
 
 			{
+				Name:        "tde_status",
+				Type:        proto.ColumnType_STRING,
+				Description: "The TDE status at the instance level. Valid values: Enable | Disable.",
+				Hydrate:     getTDEDetails,
+				Transform:   transform.FromField("TDEStatus"),
+			},
+			{
+				Name:        "ssl_encryption",
+				Type:        proto.ColumnType_STRING,
+				Description: "The SSL encryption status of the Instance",
+				Hydrate:     getSSLDetails,
+				Transform:   transform.FromValue(),
+			},
+			{
 				Name:        "readonly_db_instance_ids",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getRdsInstance,
@@ -625,6 +639,73 @@ func getRdsInstanceIPArrayList(ctx context.Context, d *plugin.QueryData, h *plug
 	return nil, nil
 }
 
+func getTDEDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := RDSService(ctx, d, region)
+	if err != nil {
+		plugin.Logger(ctx).Error("getTDEDetails", "connection_error", err)
+		return nil, err
+	}
+
+	var id string
+	if h.Item != nil {
+		id = databaseID(h.Item)
+	} else {
+		id = d.KeyColumnQuals["db_instance_id"].GetStringValue()
+	}
+
+	request := rds.CreateDescribeDBInstanceTDERequest()
+	request.Scheme = "https"
+	request.DBInstanceId = id
+	response, err := client.DescribeDBInstanceTDE(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" {
+			plugin.Logger(ctx).Warn("alicloud_rds_instance.getTDEDetails", "not_found_error", serverErr, "request", request)
+			return nil, nil
+		}
+		plugin.Logger(ctx).Error("getTDEDetails", "query_error", err, "request", request)
+		return nil, err
+	}
+	return response, nil
+}
+
+func getSSLDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := RDSService(ctx, d, region)
+	if err != nil {
+		plugin.Logger(ctx).Error("getSSLDetails", "connection_error", err)
+		return nil, err
+	}
+
+	var id string
+	if h.Item != nil {
+		id = databaseID(h.Item)
+	} else {
+		id = d.KeyColumnQuals["db_instance_id"].GetStringValue()
+	}
+
+	request := rds.CreateDescribeDBInstanceSSLRequest()
+	request.Scheme = "https"
+	request.DBInstanceId = id
+	response, err := client.DescribeDBInstanceSSL(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" {
+			plugin.Logger(ctx).Warn("alicloud_rds_instance.getSSLDetails", "not_found_error", serverErr, "request", request)
+			return nil, nil
+		}
+		plugin.Logger(ctx).Error("getSSLDetails", "query_error", err, "request", request)
+		return nil, err
+	}
+	if len(response.SSLExpireTime) > 0 {
+		return "Enabled", nil
+	}
+	return "Disabled", nil
+
+}
 func getRdsTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
