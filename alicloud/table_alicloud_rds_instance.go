@@ -12,6 +12,14 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+type IpArrayList struct {
+	DBInstanceIPArrayAttribute []string
+	SecurityIPType             []string
+	SecurityIPList             []string
+	WhitelistNetworkType       []string
+	DBInstanceIPArrayName      []string
+}
+
 //// TABLE DEFINITION
 
 func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
@@ -282,13 +290,6 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Description: "The memory capacity of the instance. Unit: MB.",
 			},
 			{
-				Name:        "security_ip_list",
-				Type:        proto.ColumnType_STRING,
-				Hydrate:     getRdsInstanceIPArrayList,
-				Transform:   transform.FromField("SecurityIPList"),
-				Description: "An array that consists of IP addresses in the IP address whitelist.",
-			},
-			{
 				Name:      "latest_kernel_version",
 				Type:      proto.ColumnType_STRING,
 				Hydrate:   getRdsInstance,
@@ -440,33 +441,12 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Description: "The availability status of the instance. Unit: %.",
 			},
 			{
-				Name:        "db_instance_ip_array_name",
-				Type:        proto.ColumnType_STRING,
+				Name:        "ip_array_list",
+				Type:        proto.ColumnType_JSON,
 				Hydrate:     getRdsInstanceIPArrayList,
-				Transform:   transform.FromField("DBInstanceIPArrayName"),
-				Description: "The name of the IP address whitelist.",
+				Transform:   transform.FromValue(),
+				Description: "An array that consists of IP details.",
 			},
-			{
-				Name:        "db_instance_ip_array_attribute",
-				Type:        proto.ColumnType_STRING,
-				Hydrate:     getRdsInstanceIPArrayList,
-				Transform:   transform.FromField("DBInstanceIPArrayAttribute"),
-				Description: "The attribute of the IP address whitelist.",
-			},
-			{
-				Name:        "security_ip_type",
-				Type:        proto.ColumnType_STRING,
-				Hydrate:     getRdsInstanceIPArrayList,
-				Transform:   transform.FromField("SecurityIPType"),
-				Description: "The type of the IP address.",
-			},
-			{
-				Name:      "whitelist_network_type",
-				Type:      proto.ColumnType_STRING,
-				Hydrate:   getRdsInstanceIPArrayList,
-				Transform: transform.FromField("WhitelistNetworkType"),
-			},
-
 			{
 				Name:        "readonly_db_instance_ids",
 				Type:        proto.ColumnType_JSON,
@@ -619,7 +599,7 @@ func getRdsInstanceIPArrayList(ctx context.Context, d *plugin.QueryData, h *plug
 	}
 
 	if response.Items.DBInstanceIPArray != nil && len(response.Items.DBInstanceIPArray) > 0 {
-		return response.Items.DBInstanceIPArray[0], nil
+		return response.Items.DBInstanceIPArray, nil
 	}
 
 	return nil, nil
