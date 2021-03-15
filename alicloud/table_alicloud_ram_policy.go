@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"context"
+	"unsafe"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
 
@@ -11,16 +12,8 @@ import (
 )
 
 type ramPolicyInfo = struct {
-	PolicyName       string
-	PolicyType       string
-	Description      string
-	DefaultVersion   string
-	CreateDate       string
-	UpdateDate       string
-	AttachmentCount  int
-	PolicyDocument   string
-	VersionId        string
-	IsDefaultVersion bool
+	ram.PolicyInListPolicies
+	DefaultPolicyVersion ram.DefaultPolicyVersion
 }
 
 //// TABLE DEFINITION
@@ -80,12 +73,14 @@ func tableAlicloudRamPolicy(_ context.Context) *plugin.Table {
 				Name:        "version_id",
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getRAMPolicy,
+				Transform:   transform.FromField("DefaultPolicyVersion.VersionId"),
 				Description: "The ID of the default policy version.",
 			},
 			{
 				Name:        "is_default_version",
 				Type:        proto.ColumnType_BOOL,
 				Hydrate:     getRAMPolicy,
+				Transform:   transform.FromField("DefaultPolicyVersion.IsDefaultVersion"),
 				Description: "An attribute in the DefaultPolicyVersion parameter. The value of the IsDefaultVersion parameter is true.",
 			},
 			{
@@ -93,14 +88,16 @@ func tableAlicloudRamPolicy(_ context.Context) *plugin.Table {
 				Type:        proto.ColumnType_JSON,
 				Description: "The script of the default policy version.",
 				Hydrate:     getRAMPolicy,
+				Transform:   transform.FromValue(),
+				//Transform:   transform.FromField("DefaultPolicyVersion.PolicyDocument"),
 			},
-			{
-				Name:        "policy_document_std",
-				Type:        proto.ColumnType_JSON,
-				Description: "The policy document",
-				Transform:   transform.FromField("PolicyDocument").Transform(policyToCanonical),
-				Hydrate:     getRAMPolicy,
-			},
+			// {
+			// 	Name:        "policy_document_std",
+			// 	Type:        proto.ColumnType_JSON,
+			// 	Description: "The policy document",
+			// 	Transform:   transform.FromField("DefaultPolicyVersion.PolicyDocument").Transform(policyToCanonical),
+			// 	Hydrate:     getRAMPolicy,
+			// },
 
 			// steampipe standard columns
 			{
@@ -151,7 +148,7 @@ func listRAMPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 		}
 		for _, policy := range response.Policies.Policy {
 			plugin.Logger(ctx).Warn("alicloud_ram.listRamPolicy", "item", policy)
-			d.StreamListItem(ctx, ramPolicyInfo{policy.PolicyName, policy.PolicyType, policy.Description, policy.DefaultVersion, policy.CreateDate, policy.UpdateDate, policy.AttachmentCount, "", "", true})
+			d.StreamListItem(ctx, ramPolicyInfo{policy, ram.DefaultPolicyVersion{}})
 		}
 		if !response.IsTruncated {
 			break
@@ -193,7 +190,8 @@ func getRAMPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 	}
 
 	if response != nil && len(response.Policy.PolicyName) > 0 {
-		return ramPolicyInfo{response.Policy.PolicyName, response.Policy.PolicyType, response.Policy.Description, response.Policy.DefaultVersion, response.Policy.CreateDate, response.Policy.UpdateDate, response.Policy.AttachmentCount, response.DefaultPolicyVersion.PolicyDocument, response.DefaultPolicyVersion.VersionId, response.DefaultPolicyVersion.IsDefaultVersion}, nil
+		policyData := *(*ram.PolicyInListPolicies)(unsafe.Pointer(&response.Policy))
+		return ramPolicyInfo{policyData, response.DefaultPolicyVersion}, nil
 	}
 
 	return nil, nil
