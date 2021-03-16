@@ -73,7 +73,7 @@ where
   not deletion_protection;
 ```
 
-### Count of NAT gateway per VPC id
+### Count of NAT gateways per VPC ID
 
 ```sql
 select
