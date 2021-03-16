@@ -4,8 +4,6 @@ github.com/OneOfOne/xxhash v1.2.2 h1:KMrpdQIwFcEqXDklaen+P1axHaj9BSKzvpUUfnHldSE
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/agext/levenshtein v1.2.1 h1:QmvMAjj2aEICytGiWzmxoE0x2KZvE0fvmqMOfy2tjT8=
 github.com/agext/levenshtein v1.2.1/go.mod h1:JEDfjyjHDjOF/1e4FlBE/PkbqA9OfWu2ki2W0IB5558=
-github.com/aliyun/alibaba-cloud-sdk-go v1.61.879 h1:Ld69BE2bIkkXOsMrKWVwqkT6ZlH3HhN0ULoLJ+JC9q8=
-github.com/aliyun/alibaba-cloud-sdk-go v1.61.879/go.mod h1:pUKYbK5JQ+1Dfxk80P0qxGqe5dkxDoabbZS7zOcouyA=
 github.com/aliyun/alibaba-cloud-sdk-go v1.61.947 h1:4vbl87eqXIh1uBSF8EbX2iMModwXUSG61bn44diMGFI=
 github.com/aliyun/alibaba-cloud-sdk-go v1.61.947/go.mod h1:pUKYbK5JQ+1Dfxk80P0qxGqe5dkxDoabbZS7zOcouyA=
 github.com/aliyun/aliyun-oss-go-sdk v2.1.6+incompatible h1:Ft+KeWIJxFP76LqgJbvtOA1qBIoC8vGkTV3QeCOeJC4=
