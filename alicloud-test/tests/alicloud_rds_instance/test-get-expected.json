@@ -1,0 +1,10 @@
+[
+	{
+		"engine": "MySQL",
+		"engine_version": "5.6",
+		"instance_type": "rds.mysql.s2.large",
+		"monitoring_period": "60",
+		"region": "global",
+		"db_instance_id": "{{ output.db_instance_id.value }}"
+	}
+]
