@@ -441,7 +441,14 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Description: "The availability status of the instance. Unit: %.",
 			},
 			{
-				Name:        "ip_array_list",
+				Name:        "security_ips",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getRdsInstanceIPArrayList,
+				Transform:   transform.FromValue().Transform(getSecurityIps),
+				Description: "An array that consists of IP addresses in the IP address whitelist.",
+			},
+			{
+				Name:        "security_ips_src",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getRdsInstanceIPArrayList,
 				Transform:   transform.FromValue(),
@@ -660,6 +667,19 @@ func getRdsInstanceAkas(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 }
 
 //// TRANSFORM FUNCTIONS
+
+func getSecurityIps(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	IpArray := d.Value.([]rds.DBInstanceIPArray)
+
+	if IpArray == nil || len(IpArray) == 0 {
+		return nil, nil
+	}
+	var IpList []string
+	for _, i := range IpArray {
+		IpList = append(IpList, i.SecurityIPList)
+	}
+	return IpList, nil
+}
 
 func rdsInstanceTagsSrc(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	tags := d.Value.(*rds.DescribeTagsResponse)
