@@ -1,14 +1,19 @@
 # Table: alicloud_ram_credential_report
 
-Retrieves a credential report for the Alibaba Cloud account. For more information about the credential report, see [Generate and download user credential reports](https://partners-intl.aliyun.com/help/doc-detail/143477.htm) in the RAM Guide.
+Retrieves a credential report for the Alibaba Cloud account. For more
+information about the credential report, see [Generate and download user
+credential
+reports](https://partners-intl.aliyun.com/help/doc-detail/143477.htm) in the
+RAM Guide.
 
-_Please note_: This table requires a valid credential report to exist. To generate, please run the follow Aliyun CLI command:
+_Please note_: This table requires a valid credential report to exist. To
+generate it, please run the follow Aliyun CLI command:
 
 `aliyun ims GenerateCredentialReport --endpoint ims.aliyuncs.com`
 
 ## Examples
 
-### List Users that have logged into the console in the past 90 days
+### List users that have logged into the console in the past 90 days
 
 ```sql
 select
@@ -22,7 +27,7 @@ where
   and user_last_logon > (current_date - interval '90' day);
 ```
 
-### Report of users that have NOT logged into the console in the past 90 days?
+### List users that have NOT logged into the console in the past 90 days
 
 ```sql
 select
@@ -39,7 +44,7 @@ order by
   user_last_logon;
 ```
 
-### List of users with console access that have never logged in to the console
+### List users with console access that have never logged in to the console
 
 ```sql
 select
@@ -51,7 +56,7 @@ where
   and user_last_logon is null;
 ```
 
-### Find Access Keys older than 90 days
+### Find access keys older than 90 days
 
 ```sql
 select
