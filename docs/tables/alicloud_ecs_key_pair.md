@@ -16,7 +16,7 @@ from
   alicloud_ecs_key_pair;
 ```
 
-### List of available keypairs older than 30 days
+### List key pairs older than 30 days
 
 ```sql
 select
@@ -31,16 +31,3 @@ where
 order by
   creation_time;
 ```
-
-### Access key count by Account ID
-
-```sql
-select
-  account_id,
-  count (name) as access_key_count
-from
-  alicloud_ecs_key_pair
-group by
-  account_id;
-```
-
