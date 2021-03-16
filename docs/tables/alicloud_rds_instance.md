@@ -61,7 +61,8 @@ where
   db_instance_status='Running';
 ```
 
-### List of security ips for a particular DB Instance
+### List of security ips for a particular DB Instance.
+## An array that consists of IP addresses in the IP address whitelist.
 
 ```sql
 select
