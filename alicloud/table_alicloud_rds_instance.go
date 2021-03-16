@@ -652,7 +652,7 @@ func getRdsInstanceParameter(ctx context.Context, d *plugin.QueryData, h *plugin
 		plugin.Logger(ctx).Error("getRdsInstanceParameter", "query_error", err, "request", request)
 		return nil, err
 	}
-	return response.RunningParameters, nil
+	return response, nil
 
 }
 
