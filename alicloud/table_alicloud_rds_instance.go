@@ -468,6 +468,13 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 			},
 
 			{
+				Name:        "parameters",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getRdsInstanceParameter,
+				Transform:   transform.FromValue(),
+				Description: "The list of running parameters for the instance.",
+			},
+			{
 				Name:        "readonly_db_instance_ids",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getRdsInstance,
@@ -623,6 +630,30 @@ func getRdsInstanceIPArrayList(ctx context.Context, d *plugin.QueryData, h *plug
 	}
 
 	return nil, nil
+}
+
+func getRdsInstanceParameter(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := RDSService(ctx, d, region)
+	if err != nil {
+		plugin.Logger(ctx).Error("getRdsInstanceParameter", "connection_error", err)
+		return nil, err
+	}
+
+	var id = databaseID(h.Item)
+
+	request := rds.CreateDescribeParametersRequest()
+	request.Scheme = "https"
+	request.DBInstanceId = id
+	response, err := client.DescribeParameters(request)
+	if err != nil {
+		plugin.Logger(ctx).Error("getRdsInstanceParameter", "query_error", err, "request", request)
+		return nil, err
+	}
+	return response.RunningParameters, nil
+
 }
 
 func getRdsTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
