@@ -111,6 +111,13 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 				Description: "Indicates whether the trail was created as a multi-account trail.",
 				Type:        proto.ColumnType_BOOL,
 			},
+			{
+				Name:        "events",
+				Description: "The returned events.",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getEvents,
+				Transform:   transform.FromValue(),
+			},
 
 			// steampipe standard columns
 
@@ -204,6 +211,31 @@ func getActionTrail(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 
 	if response.TrailList != nil && len(response.TrailList) > 0 {
 		return response.TrailList[0], nil
+	}
+
+	return nil, nil
+}
+
+func getEvents(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	plugin.Logger(ctx).Trace("getEvents")
+
+	// Create service connection
+	client, err := ActionTrailService(ctx, d, region)
+	if err != nil {
+		plugin.Logger(ctx).Error("getEvents", "connection_error", err)
+		return nil, err
+	}
+	request := actiontrail.CreateLookupEventsRequest()
+	request.Scheme = "https"
+	response, err := client.LookupEvents(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		plugin.Logger(ctx).Error("getActionTrail", "query_error", serverErr, "request", request)
+		return nil, serverErr
+	}
+
+	if response.Events != nil && len(response.Events) > 0 {
+		return response.Events, nil
 	}
 
 	return nil, nil
