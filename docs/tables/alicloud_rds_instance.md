@@ -60,3 +60,13 @@ from
 where
   db_instance_status='Running';
 ```
+
+### List of security ips for a particular DB Instance
+
+```sql
+select
+  db_instance_id,
+  security_ips
+from
+  alicloud_rds_instance;
+```
