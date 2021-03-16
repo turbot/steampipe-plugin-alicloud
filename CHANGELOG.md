@@ -1,3 +1,12 @@
+## v0.0.3 [2021-03-11]
+
+_What's new?_
+
+- New tables added
+  - [alicloud_kms_key](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_kms_key)
+  - [alicloud_rds_instance](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_rds_instance)
+  - [alicloud_vpc_route_table](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_vpc_route_table)
+
 ## v0.0.2 [2021-03-04]
 
 _What's new?_
