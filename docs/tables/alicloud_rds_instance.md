@@ -43,7 +43,7 @@ select
 from
   alicloud_rds_instance
 where
-  engine='MySQL';
+  engine = 'MySQL';
 ```
 
 
@@ -58,11 +58,11 @@ select
 from
   alicloud_rds_instance
 where
-  db_instance_status='Running';
+  db_instance_status = 'Running';
 ```
 
 
-### ### List DB instances where SSL Encryption is Disabled
+### List DB instances with SSL encryption disabled
 
 ```sql
 select
@@ -74,11 +74,11 @@ select
 from
   alicloud_rds_instance
 where
-  ssl_encryption='Disabled';
+  ssl_encryption = 'Disabled';
 ```
 
 
-### List DB instances where TDE is Disabled
+### List DB instances with TDE disabled
 
 ```sql
 select
@@ -90,5 +90,5 @@ select
 from
   alicloud_rds_instance
 where
-  tde_status='Disabled';
+  tde_status = 'Disabled';
 ```
