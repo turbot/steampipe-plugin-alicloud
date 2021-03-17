@@ -16,7 +16,6 @@ from
   alicloud_rds_instance;
 ```
 
-
 ### DB instance count in each region
 
 ```sql
@@ -59,6 +58,18 @@ from
   alicloud_rds_instance
 where
   db_instance_status = 'Running';
+```
+
+### List DB instances that allow 0.0.0.0/0
+
+```sql
+select
+  db_instance_id,
+  security_ips
+from
+  alicloud_rds_instance
+where
+  security_ips :: jsonb ? '0.0.0.0/0'
 ```
 
 
