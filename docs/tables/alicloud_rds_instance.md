@@ -62,7 +62,7 @@ where
 ```
 
 
-### ### List DB instances where SSL Encryption is Enabled
+### ### List DB instances where SSL Encryption is Disabled
 
 ```sql
 select
@@ -74,11 +74,11 @@ select
 from
   alicloud_rds_instance
 where
-  ssl_encryption='Enabled';
+  ssl_encryption='Disabled';
 ```
 
 
-### List DB instances where TDE is Enabled
+### List DB instances where TDE is Disabled
 
 ```sql
 select
@@ -90,5 +90,5 @@ select
 from
   alicloud_rds_instance
 where
-  tde_status='Enabled';
+  tde_status='Disabled';
 ```
