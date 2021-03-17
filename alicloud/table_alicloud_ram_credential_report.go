@@ -11,7 +11,7 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
-type awsIamCredentialReportResult struct {
+type alicloudRamCredentialReportResult struct {
 	GeneratedTime                   *string `csv:"-"`
 	UserName                        *string `csv:"user"`
 	UserCreationTime                *string `csv:"user_creation_time"`
@@ -260,7 +260,7 @@ func listRAMCredentialReports(ctx context.Context, d *plugin.QueryData, _ *plugi
 	}
 	content := string(data[:])
 
-	rows := []*awsIamCredentialReportResult{}
+	rows := []*alicloudRamCredentialReportResult{}
 	if err := gocsv.UnmarshalString(content, &rows); err != nil {
 		return nil, err
 	}
