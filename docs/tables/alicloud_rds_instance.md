@@ -65,13 +65,10 @@ where
 
 ```sql
 select
-	db_instance_id,
-	security_ips
+		db_instance_id,
+		security_ips
 from
-	alicloud_rds_instance
+		alicloud_rds_instance
 where
-	jsonb_path_exists(
-		security_ips,
-		'$.** ? (@.type() == "string" && @ like_regex "0.0.0.0/0")'
-	)
+		security_ips :: jsonb ? '0.0.0.0/0'
 ```
