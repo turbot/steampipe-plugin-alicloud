@@ -84,13 +84,6 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 				Description: "Allows you to grant permissions on OSS resources to RAM users from your Alibaba Cloud and other Alibaba Cloud accounts. You can also control access based on the request source.",
 			},
 			{
-				Name:        "policy_std",
-				Type:        proto.ColumnType_JSON,
-				Hydrate:     getBucketPolicy,
-				Transform:   transform.FromValue().Transform(policyToCanonical),
-				Description: "Allows you to grant permissions on OSS resources to RAM users from your Alibaba Cloud and other Alibaba Cloud accounts. You can also control access based on the request source.",
-			},
-			{
 				Name:        "tags_src",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getBucketTagging,
