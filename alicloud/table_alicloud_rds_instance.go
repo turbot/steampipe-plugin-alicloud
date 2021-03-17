@@ -12,14 +12,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
-type IpArrayList struct {
-	DBInstanceIPArrayAttribute []string
-	SecurityIPType             []string
-	SecurityIPList             []string
-	WhitelistNetworkType       []string
-	DBInstanceIPArrayName      []string
-}
-
 //// TABLE DEFINITION
 
 func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
@@ -444,14 +436,14 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Name:        "security_ips",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getRdsInstanceIPArrayList,
-				Transform:   transform.FromValue().Transform(getSecurityIps),
+				Transform:   transform.FromField("Items.DBInstanceIPArray").Transform(getSecurityIps),
 				Description: "An array that consists of IP addresses in the IP address whitelist.",
 			},
 			{
 				Name:        "security_ips_src",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getRdsInstanceIPArrayList,
-				Transform:   transform.FromValue(),
+				Transform:   transform.FromField("Items.DBInstanceIPArray"),
 				Description: "An array that consists of IP details.",
 			},
 			{
@@ -606,7 +598,7 @@ func getRdsInstanceIPArrayList(ctx context.Context, d *plugin.QueryData, h *plug
 	}
 
 	if response.Items.DBInstanceIPArray != nil && len(response.Items.DBInstanceIPArray) > 0 {
-		return response.Items.DBInstanceIPArray, nil
+		return response, nil
 	}
 
 	return nil, nil

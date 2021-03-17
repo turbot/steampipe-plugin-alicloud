@@ -61,15 +61,17 @@ where
   db_instance_status='Running';
 ```
 
-### List of security ips for a particular DB Instance.
-## An array that consists of IP addresses in the IP address whitelist.
+### List DB instances that allow 0.0.0.0/0.
 
 ```sql
 select
-  db_instance_id,
-  security_ips
+	db_instance_id,
+	security_ips
 from
-  alicloud_rds_instance
- where
-  db_instance_id = '********' ;
+	alicloud_rds_instance
+where
+	jsonb_path_exists(
+		security_ips,
+		'$.** ? (@.type() == "string" && @ like_regex "0.0.0.0/0")'
+	)
 ```
