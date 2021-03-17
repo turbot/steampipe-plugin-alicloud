@@ -1,0 +1,6 @@
+[
+	{
+		"key_pair_finger_print": "{{output.fingerprint.value}}",
+		"name": "{{ output.key_name.value }}"
+	}
+]
