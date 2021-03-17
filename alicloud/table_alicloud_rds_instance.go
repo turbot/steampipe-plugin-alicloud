@@ -466,7 +466,6 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Hydrate:   getRdsInstanceIPArrayList,
 				Transform: transform.FromField("WhitelistNetworkType"),
 			},
-
 			{
 				Name:        "tde_status",
 				Type:        proto.ColumnType_STRING,
@@ -475,7 +474,7 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("TDEStatus"),
 			},
 			{
-				Name:        "ssl_encryption",
+				Name:        "ssl_status",
 				Type:        proto.ColumnType_STRING,
 				Description: "The SSL encryption status of the Instance",
 				Hydrate:     getSSLDetails,
