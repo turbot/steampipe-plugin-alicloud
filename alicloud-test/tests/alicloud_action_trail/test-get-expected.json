@@ -1,0 +1,7 @@
+[
+	{
+		"name": "{{ resourceName }}",
+		"status": "Enable",
+		"trail_region": "cn-hangzhou"
+	}
+]

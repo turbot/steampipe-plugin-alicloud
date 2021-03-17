@@ -253,7 +253,7 @@ func getActionTrailAka(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"arn:acs:actiontrail:" + data.HomeRegion + ":" + accountID + ":actiontrail/" + data.Name}
+	akas := []string{"acs:actiontrail:" + data.HomeRegion + ":" + accountID + ":actiontrail/" + data.Name}
 
 	return akas, nil
 }
