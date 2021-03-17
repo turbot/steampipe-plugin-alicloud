@@ -74,7 +74,7 @@ select
 from
   alicloud_rds_instance
 where
-  ssl_encryption = 'Disabled';
+  ssl_status = 'Disabled';
 ```
 
 
