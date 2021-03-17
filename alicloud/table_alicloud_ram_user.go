@@ -33,8 +33,9 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 			Hydrate: listRAMUser,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("name"),
-			Hydrate:    getRAMUser,
+			KeyColumns:        plugin.SingleColumn("name"),
+			ShouldIgnoreError: isNotFoundError([]string{"EntityNotExist.User"}),
+			Hydrate:           getRAMUser,
 		},
 		Columns: []*plugin.Column{
 			// Top columns
@@ -201,13 +202,9 @@ func getRAMUser(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	request.UserName = name
 
 	response, err := client.GetUser(request)
-	if serverErr, ok := err.(*errors.ServerError); ok {
-		if serverErr.ErrorCode() == "EntityNotExist.User" {
-			plugin.Logger(ctx).Warn("alicloud_ram_user.getRAMUser", "not_found_error", serverErr, "request", request)
-			return nil, nil
-		}
-		plugin.Logger(ctx).Error("alicloud_ram_user.getRAMUser", "query_error", serverErr, "request", request)
-		return nil, serverErr
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_ram_user.getRAMUser", "query_error", err, "request", request)
+		return nil, err
 	}
 
 	data := response.User
