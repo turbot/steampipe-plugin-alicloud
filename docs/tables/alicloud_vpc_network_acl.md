@@ -6,12 +6,16 @@ Network ACLs are stateless. After you configure the inbound rules, you need to c
 
 ## Examples
 
-### List the attached VPC IDs for network ACLs
+### Basic info
 
 ```sql
 select
+  name,
   network_acl_id,
-  vpc_id
+  status,
+  vpc_id,
+  description,
+  region_id
 from
   alicloud_vpc_network_acl;
 ```

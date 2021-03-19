@@ -49,11 +49,11 @@ func tableAlicloudVpcNetworkACL(ctx context.Context) *plugin.Table {
 				Description: "The ID of the VPC associated with the network ACL.",
 				Type:        proto.ColumnType_STRING,
 			},
-			// {
-			// 	Name:        "creation_time",
-			// 	Description: "The time when the network ACL was created.",
-			// 	Type:        proto.ColumnType_TIMESTAMP,
-			// },
+			{
+				Name:        "creation_time",
+				Description: "The time when the network ACL was created.",
+				Type:        proto.ColumnType_TIMESTAMP,
+			},
 			{
 				Name:        "description",
 				Description: "The description of the network ACL.",
