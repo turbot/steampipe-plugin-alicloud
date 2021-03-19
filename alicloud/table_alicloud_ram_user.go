@@ -105,7 +105,7 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 				Description: "A list of policies attached to a RAM user.",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getRAMUserPolicies,
-				Transform:   transform.FromValue(),
+				Transform:   transform.FromField("Policies.Policy"),
 			},
 			{
 				Name:        "groups",
@@ -256,7 +256,7 @@ func getRAMUserPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		return nil, serverErr
 	}
 
-	return response.Policies.Policy, nil
+	return response, nil
 }
 
 func getRAMUserMfaDevices(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {

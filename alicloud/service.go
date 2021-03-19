@@ -5,9 +5,13 @@ import (
 	"fmt"
 	"os"
 
+	ims "github.com/alibabacloud-go/ims-20190815/client"
+	rpc "github.com/alibabacloud-go/tea-rpc/client"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/kms"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
@@ -60,6 +64,65 @@ func ECSService(ctx context.Context, d *plugin.QueryData, region string) (*ecs.C
 
 	// so it was not in cache - create service
 	svc, err := ecs.NewClientWithAccessKey(region, ak, secret)
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the service connection
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+	return svc, nil
+}
+
+// IMSService returns the service connection for Alicloud IMS service
+func IMSService(ctx context.Context, d *plugin.QueryData) (*ims.Client, error) {
+	region := GetDefaultRegion(d.Connection)
+	// have we already created and cached the service?
+	serviceCacheKey := fmt.Sprintf("ims-%s", region)
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(*ims.Client), nil
+	}
+
+	ak, secret, err := getEnv(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+
+	config := &rpc.Config{}
+	config.AccessKeyId = &ak
+	config.AccessKeySecret = &secret
+	config.RegionId = &region
+
+	// so it was not in cache - create service
+	svc, err := ims.NewClient(config)
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the service connection
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+	return svc, nil
+}
+
+// KMSService returns the service connection for Alicloud KMS service
+func KMSService(ctx context.Context, d *plugin.QueryData, region string) (*kms.Client, error) {
+	if region == "" {
+		return nil, fmt.Errorf("region must be passed KMSService")
+	}
+	// have we already created and cached the service?
+	serviceCacheKey := fmt.Sprintf("kms-%s", region)
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(*kms.Client), nil
+	}
+
+	ak, secret, err := getEnv(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+
+	// so it was not in cache - create service
+	svc, err := kms.NewClientWithAccessKey(region, ak, secret)
 	if err != nil {
 		return nil, err
 	}
@@ -265,4 +328,32 @@ func getEnv(_ context.Context, d *plugin.QueryData) (secretKey string, accessKey
 	}
 
 	return accessKey, secretKey, nil
+}
+
+// RDSService returns the service connection for Alicloud RDS service
+func RDSService(ctx context.Context, d *plugin.QueryData, region string) (*rds.Client, error) {
+	if region == "" {
+		return nil, fmt.Errorf("region must be passed RDSService")
+	}
+	// have we already created and cached the service?
+	serviceCacheKey := fmt.Sprintf("vpc-%s", region)
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(*rds.Client), nil
+	}
+
+	ak, secret, err := getEnv(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+
+	// so it was not in cache - create service
+	svc, err := rds.NewClientWithAccessKey(region, ak, secret)
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the service connection
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+	return svc, nil
 }
