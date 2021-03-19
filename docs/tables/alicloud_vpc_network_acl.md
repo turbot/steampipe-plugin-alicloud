@@ -6,7 +6,7 @@ Network ACLs are stateless. After you configure the inbound rules, you need to c
 
 ## Examples
 
-### List the attached VPC IDs for each network ACL
+### List the attached VPC IDs for network ACLs
 
 ```sql
 select
@@ -16,7 +16,7 @@ from
   alicloud_vpc_network_acl;
 ```
 
-### VSwitch associated with each network ACL
+### List the VSwitch associated with network ACLs
 
 ```sql
 select
@@ -29,4 +29,59 @@ from
   jsonb_array_elements(resources) as association
 where
   association ->> 'ResourceType' = 'VSwitch';
+```
+
+
+### List the inbound rule info of network ACLs
+
+```sql
+select
+  name,
+  network_acl_id,
+  vpc_id,
+  i ->> 'NetworkAclEntryId' as network_acl_entry_id,
+  i ->> 'NetworkAclEntryName' as network_acl_entry_name,
+  i ->> 'Description' as description,
+  i ->> 'EntryType' as entry_type,
+  i ->> 'Policy' as policy,
+  i ->> 'Port' as port,
+  i ->> 'Protocol' as protocol,
+  i ->> 'SourceCidrIp' as source_cidr_ip
+from
+  alicloud_vpc_network_acl,
+  jsonb_array_elements(ingress_acl_entries) as i;
+```
+
+
+### List the outbound rule info of network ACLs
+
+```sql
+select
+  name,
+  network_acl_id,
+  vpc_id,
+  i ->> 'NetworkAclEntryId' as network_acl_entry_id,
+  i ->> 'NetworkAclEntryName' as network_acl_entry_name,
+  i ->> 'Description' as description,
+  i ->> 'EntryType' as entry_type,
+  i ->> 'Policy' as policy,
+  i ->> 'Port' as port,
+  i ->> 'Protocol' as protocol,
+  i ->> 'DestinationCidrIp' as destination_cidr_ip
+from
+  alicloud_vpc_network_acl,
+  jsonb_array_elements(egress_acl_entries) as i;
+```
+
+
+### Count of network ACLs per region
+
+```sql
+select
+  region,
+  count(*) network_acl_count
+from
+  alicloud_vpc_network_acl
+group by
+  region;
 ```
