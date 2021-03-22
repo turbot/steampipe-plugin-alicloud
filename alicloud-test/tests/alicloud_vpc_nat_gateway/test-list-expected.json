@@ -1,0 +1,8 @@
+[
+	{
+		"description": "This is a test NAT gateway to verify the table outcome.",
+		"name": "{{ resourceName }}",
+		"nat_gateway_id": "{{ output.nat_gateway_id.value }}",
+		"nat_type": "Enhanced"
+	}
+]
