@@ -3,8 +3,10 @@ package alicloud
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/turbot/go-kit/types"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
@@ -17,13 +19,13 @@ import (
 func tableAlicloudVpcNetworkACL(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_vpc_network_acl",
-		Description: "Alicloud VPC Network ACL.",
+		Description: "Alicloud VPC Network ACL",
 		List: &plugin.ListConfig{
 			Hydrate: listNetworkACLs,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns:        plugin.SingleColumn("network_acl_id"),
-			Hydrate:           getNetworkACLAttribute,
+			Hydrate:           getNetworkACL,
 			ShouldIgnoreError: isNotFoundError([]string{"InvalidNetworkAcl.NotFound", "MissingParameter"}),
 		},
 		GetMatrixItem: BuildRegionList,
@@ -53,6 +55,7 @@ func tableAlicloudVpcNetworkACL(ctx context.Context) *plugin.Table {
 				Name:        "creation_time",
 				Description: "The time when the network ACL was created.",
 				Type:        proto.ColumnType_TIMESTAMP,
+				Transform:   transform.FromField("CreationTime").Transform(toTime),
 			},
 			{
 				Name:        "description",
@@ -108,7 +111,7 @@ func tableAlicloudVpcNetworkACL(ctx context.Context) *plugin.Table {
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("RegionId"),
+				Transform:   transform.From(networkAclRegion),
 			},
 			{
 				Name:        "account_id",
@@ -146,29 +149,19 @@ func listNetworkACLs(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 			return nil, err
 		}
 		for _, i := range response.NetworkAcls.NetworkAcl {
-			d.StreamListItem(ctx, vpc.NetworkAclAttribute{
-				NetworkAclName: i.NetworkAclName,
-				RegionId:       i.RegionId,
-				NetworkAclId:   i.NetworkAclId,
-				CreationTime:   i.CreationTime,
-				VpcId:          i.VpcId,
-				Status:         i.Status,
-				OwnerId:        i.OwnerId,
-				Description:    i.Description,
-				IngressAclEntries: vpc.IngressAclEntriesInCreateNetworkAcl{
-					IngressAclEntry: i.IngressAclEntries.IngressAclEntry,
-				},
-				Resources: vpc.ResourcesInCreateNetworkAcl{
-					Resource: i.Resources.Resource,
-				},
-				EgressAclEntries: vpc.EgressAclEntriesInCreateNetworkAcl{
-					EgressAclEntry: i.EgressAclEntries.EgressAclEntry,
-				},
-			})
+			d.StreamListItem(ctx, i)
 			count++
 		}
 		totalcount, err := strconv.Atoi(response.TotalCount)
+		if err != nil {
+			return nil, err
+		}
+
 		pageNumber, err := strconv.Atoi(response.PageNumber)
+		if err != nil {
+			return nil, err
+		}
+
 		if count >= totalcount {
 			break
 		}
@@ -179,14 +172,14 @@ func listNetworkACLs(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 
 //// HYDRATE FUNCTIONS
 
-func getNetworkACLAttribute(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getNetworkACLAttribute")
+func getNetworkACL(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getNetworkACL")
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
 	client, err := VpcService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc_network_acl.getNetworkACLAttribute", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_vpc_network_acl.getNetworkACL", "connection_error", err)
 		return nil, err
 	}
 	id := d.KeyColumnQuals["network_acl_id"].GetStringValue()
@@ -204,7 +197,8 @@ func getNetworkACLAttribute(ctx context.Context, d *plugin.QueryData, h *plugin.
 
 func getNetworkACLAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getNetworkACLAka")
-	data := h.Item.(vpc.NetworkAclAttribute)
+	data := networkAclData(h.Item)
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Get project details
 	commonData, err := getCommonColumns(ctx, d, h)
@@ -214,7 +208,7 @@ func getNetworkACLAka(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"acs:vpc:" + data.RegionId + ":" + accountID + ":network-acl/" + data.NetworkAclId}
+	akas := []string{"acs:vpc:" + region + ":" + accountID + ":network-acl/" + data["ID"]}
 
 	return akas, nil
 }
@@ -222,14 +216,42 @@ func getNetworkACLAka(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 //// TRANSFORM FUNCTIONS
 
 func vpcNetworkACLTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	data := d.HydrateItem.(vpc.NetworkAclAttribute)
+	data := networkAclData(d.HydrateItem)
 
 	// Build resource title
-	title := data.NetworkAclId
+	title := data["ID"]
 
-	if len(data.NetworkAclName) > 0 {
-		title = data.NetworkAclName
+	if len(data["Name"]) > 0 {
+		title = data["Name"]
 	}
 
 	return title, nil
+}
+
+func networkAclRegion(ctx context.Context, _ *transform.TransformData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	return region, nil
+}
+
+func networkAclData(item interface{}) map[string]string {
+	data := map[string]string{}
+	switch item := item.(type) {
+	case vpc.NetworkAcl:
+		data["ID"] = item.NetworkAclId
+		data["Name"] = item.NetworkAclName
+	case vpc.NetworkAclAttribute:
+		data["ID"] = item.NetworkAclId
+		data["Name"] = item.NetworkAclName
+	}
+	return data
+}
+
+func toTime(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	if d.Value == nil {
+		return nil, nil
+	}
+
+	// convert ISO 8601 into RFC3339 format
+	rfc3339t := strings.Replace(types.SafeString(d.Value), " ", "T", 1) + "Z"
+	return rfc3339t, nil
 }

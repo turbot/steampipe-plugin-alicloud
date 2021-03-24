@@ -26,7 +26,7 @@ data "null_data_source" "resource" {
 # Create a VPC
 resource "alicloud_vpc" "named_test_resource" {
   cidr_block = "172.16.0.0/12"
-  name       = var.resource_name
+  vpc_name   = var.resource_name
 }
 
 resource "alicloud_network_acl" "named_test_resource" {
@@ -52,5 +52,9 @@ output "resource_name" {
 }
 
 output "resource_aka" {
-  value = "acs:vpc:ap-south-in73-a01:${data.alicloud_caller_identity.current.account_id}:network-acl/${alicloud_network_acl.named_test_resource.id}"
+  value = "acs:vpc:${var.alicloud_region}:${data.alicloud_caller_identity.current.account_id}:network-acl/${alicloud_network_acl.named_test_resource.id}"
+}
+
+output "region_id" {
+  value = var.alicloud_region
 }

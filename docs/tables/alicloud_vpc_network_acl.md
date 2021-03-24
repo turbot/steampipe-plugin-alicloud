@@ -1,6 +1,6 @@
 # Table: alicloud_vpc_network_acl
 
-A network access control list (ACL) is an optional layer of security for traffic control in your VPC. You can associate a network ACL with a VSwitch to regulate access for one or more subnets. Similar to the rules of security groups, a user can configure custom rules for network ACLs.
+A Network Access Control List (ACL) is an optional layer of security for traffic control in your VPC. You can associate a network ACL with a VSwitch to regulate access for one or more subnets. Similar to the rules of security groups, a user can configure custom rules for network ACLs.
 
 Network ACLs are stateless. After you configure the inbound rules, you need to configure the corresponding outbound rules for certain requests to have a response.
 
@@ -15,7 +15,7 @@ select
   status,
   vpc_id,
   description,
-  region_id
+  region
 from
   alicloud_vpc_network_acl;
 ```
@@ -34,7 +34,6 @@ from
 where
   association ->> 'ResourceType' = 'VSwitch';
 ```
-
 
 ### List the inbound rule info of network ACLs
 
@@ -56,7 +55,6 @@ from
   jsonb_array_elements(ingress_acl_entries) as i;
 ```
 
-
 ### List the outbound rule info of network ACLs
 
 ```sql
@@ -76,7 +74,6 @@ from
   alicloud_vpc_network_acl,
   jsonb_array_elements(egress_acl_entries) as i;
 ```
-
 
 ### Count of network ACLs per region
 
