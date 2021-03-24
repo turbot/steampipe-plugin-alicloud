@@ -15,7 +15,7 @@ import (
 func tableAlicloudComputeZone(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_compute_zone",
-		Description: "",
+		Description: "Alicloud Compute Zone",
 		List: &plugin.ListConfig{
 			ParentHydrate: listComputeRegions,
 			Hydrate:       listComputeZones,
@@ -24,20 +24,13 @@ func tableAlicloudComputeZone(ctx context.Context) *plugin.Table {
 		Columns: []*plugin.Column{
 			// Top columns
 			{
-				Name:      "zone_no",
-				Type:      proto.ColumnType_STRING,
-				Transform: transform.FromField("ZoneNo"),
-			},
-			{
 				Name:        "zone_id",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("ZoneId"),
 				Description: "The zone ID.",
 			},
 			{
 				Name:        "local_name",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("LocalName"),
 				Description: "The name of the zone in the local language.",
 			},
 
@@ -67,9 +60,10 @@ func tableAlicloudComputeZone(ctx context.Context) *plugin.Table {
 				Description: "The supported types of dedicated hosts. The data type of this parameter is List.",
 			},
 			{
-				Name:      "network_types",
-				Type:      proto.ColumnType_JSON,
-				Transform: transform.FromField("NetworkTypes"),
+				Name:        "network_types",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("NetworkTypes"),
+				Description: "The types of the network.",
 			},
 			{
 				Name:        "available_disk_categories",
@@ -89,7 +83,7 @@ func tableAlicloudComputeZone(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("AvailableResources"),
 				Description: "An array consisting of ResourcesInfo data.",
 			},
-
+			// steampipe standard columns
 			{
 				Name:        "akas",
 				Type:        proto.ColumnType_JSON,
@@ -104,7 +98,7 @@ func tableAlicloudComputeZone(ctx context.Context) *plugin.Table {
 				Description: ColumnDescriptionTitle,
 			},
 
-			//	alicloud common columns
+			// alicloud common columns
 			{
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
@@ -138,11 +132,10 @@ func listComputeZones(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	request.RegionId = regionList.RegionId
 	response, err := client.DescribeZones(request)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc.listComputeZones", "query_error", err, "request", request)
+		plugin.Logger(ctx).Error("alicloud_ecs.listComputeZones", "query_error", err, "request", request)
 		return nil, err
 	}
 	for _, i := range response.Zones.Zone {
-		plugin.Logger(ctx).Warn("alicloud_vpc.listComputeZones", "item", i)
 		d.StreamLeafListItem(ctx, i)
 	}
 	return nil, nil
@@ -162,5 +155,3 @@ func getZoneAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 
 	return []string{"acs:ecs::" + accountID + ":zone/" + data.ZoneId}, nil
 }
-
-//// TRANSFORM FUNCTIONS

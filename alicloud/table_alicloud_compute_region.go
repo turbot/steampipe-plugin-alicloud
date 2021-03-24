@@ -15,7 +15,7 @@ import (
 func tableAlicloudComputeRegion(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_compute_region",
-		Description: "",
+		Description: "Alicloud Compute Region",
 		List: &plugin.ListConfig{
 			Hydrate: listComputeRegions,
 		},
@@ -32,7 +32,6 @@ func tableAlicloudComputeRegion(ctx context.Context) *plugin.Table {
 			{
 				Name:        "local_name",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("LocalName"),
 				Description: "The local name of the region.",
 			},
 			{
@@ -44,10 +43,9 @@ func tableAlicloudComputeRegion(ctx context.Context) *plugin.Table {
 			{
 				Name:        "status",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Status"),
 				Description: "Indicates whether the cluster is sold out.",
 			},
-
+			// steampipe standard columns
 			{
 				Name:        "akas",
 				Type:        proto.ColumnType_JSON,
@@ -90,11 +88,10 @@ func listComputeRegions(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 
 	response, err := client.DescribeRegions(request)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc.listComputeRegions", "query_error", err, "request", request)
+		plugin.Logger(ctx).Error("alicloud_ecs.listComputeRegions", "query_error", err, "request", request)
 		return nil, err
 	}
 	for _, i := range response.Regions.Region {
-		plugin.Logger(ctx).Warn("alicloud_vpc.listComputeRegions", "item", i)
 		d.StreamListItem(ctx, i)
 	}
 	return nil, nil
@@ -114,5 +111,3 @@ func getRegionAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 
 	return []string{"acs:ecs::" + accountID + ":region/" + data.RegionId}, nil
 }
-
-//// TRANSFORM FUNCTIONS

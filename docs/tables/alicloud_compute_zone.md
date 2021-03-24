@@ -1,6 +1,6 @@
 # Table: alicloud_compute_zone
 
-When you call this operation, only a list of zones and some resource information related to each zone is returned. If you want to query instance types and disk categories that are available for purchase in a specified zone, we recommend that you call the DescribeAvailableResource operation.
+You can call this operation to query available Alibaba Cloud zones.
 
 ## Examples
 
