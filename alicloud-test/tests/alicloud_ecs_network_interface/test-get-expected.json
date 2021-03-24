@@ -7,7 +7,9 @@
 		"network_interface_id": "{{ output.network_interface_id.value }}",
 		"owner_id": "{{ output.account_id.value }}",
 		"region": "us-east-1",
-		"security_group_ids": ["{{ output.security_group_id.value }}"],
+		"security_group_ids": [
+			"{{ output.security_group_id.value }}"
+		],
 		"service_managed": false,
 		"tags_src": [
 			{

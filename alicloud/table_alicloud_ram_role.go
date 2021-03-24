@@ -81,11 +81,18 @@ func tableAlicloudRAMRole(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("AssumeRolePolicyDocument").Transform(transform.UnmarshalYAML),
 			},
 			{
+				Name:        "assume_role_policy_document_std",
+				Description: "The standard content of the policy that specifies one or more entities entrusted to assume the RAM role.",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getRAMRole,
+				Transform:   transform.FromField("AssumeRolePolicyDocument").Transform(policyToCanonical),
+			},
+			{
 				Name:        "attached_policy",
 				Description: "A list of policies attached to a RAM role.",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getRAMRolePolicies,
-				Transform:   transform.FromValue(),
+				Transform:   transform.FromField("Policies.Policy"),
 			},
 
 			// steampipe standard columns
@@ -205,5 +212,5 @@ func getRAMRolePolicies(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		return nil, serverErr
 	}
 
-	return response.Policies.Policy, nil
+	return response, nil
 }
