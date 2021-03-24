@@ -56,7 +56,7 @@ func tableAlicloudEcsAutoProvisioningGroup(ctx context.Context) *plugin.Table {
 			{
 				Name:        "creation_time",
 				Description: "An unique identifier for the resource.",
-				Type:        proto.ColumnType_DATETIME,
+				Type:        proto.ColumnType_TIMESTAMP,
 			},
 			{
 				Name:        "allocation_strategy",
@@ -97,12 +97,12 @@ func tableAlicloudEcsAutoProvisioningGroup(ctx context.Context) *plugin.Table {
 			{
 				Name:        "valid_from",
 				Description: "An unique identifier for the resource.",
-				Type:        proto.ColumnType_DATETIME,
+				Type:        proto.ColumnType_TIMESTAMP,
 			},
 			{
 				Name:        "valid_until",
 				Description: "An unique identifier for the resource.",
-				Type:        proto.ColumnType_DATETIME,
+				Type:        proto.ColumnType_TIMESTAMP,
 			},
 			{
 				Name:        "instances",
