@@ -1,0 +1,6 @@
+[
+	{
+		"name": "{{ resourceName }}",
+		"version_id": "000000000001"
+	}
+]
