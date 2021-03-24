@@ -10,12 +10,11 @@ Provides an RDS instance resource. A DB instance is an isolated database environ
 select
   db_instance_id,
   vpc_id,
-  create_time,
+  creation_time,
   engine
 from
   alicloud_rds_instance;
 ```
-
 
 ### DB instance count in each region
 
@@ -38,12 +37,12 @@ group by
 select
   db_instance_id,
   vpc_id,
-  create_time,
+  creation_time,
   engine
 from
   alicloud_rds_instance
 where
-  engine='MySQL';
+  engine = 'MySQL';
 ```
 
 
@@ -53,10 +52,54 @@ where
 select
   db_instance_id,
   vpc_id,
-  create_time,
+  creation_time,
   engine
 from
   alicloud_rds_instance
 where
-  db_instance_status='Running';
+  db_instance_status = 'Running';
+```
+
+### List DB instances that allow 0.0.0.0/0
+
+```sql
+select
+  db_instance_id,
+  security_ips
+from
+  alicloud_rds_instance
+where
+  security_ips :: jsonb ? '0.0.0.0/0'
+```
+
+
+### List DB instances with SSL encryption disabled
+
+```sql
+select
+  db_instance_id,
+  vpc_id,
+  creation_time,
+  engine,
+  ssl_encryption
+from
+  alicloud_rds_instance
+where
+  ssl_status = 'Disabled';
+```
+
+
+### List DB instances with TDE disabled
+
+```sql
+select
+  db_instance_id,
+  vpc_id,
+  creation_time,
+  engine,
+  tde_status
+from
+  alicloud_rds_instance
+where
+  tde_status = 'Disabled';
 ```

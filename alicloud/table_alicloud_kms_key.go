@@ -140,7 +140,7 @@ func tableAlicloudKmsKey(ctx context.Context) *plugin.Table {
 				Description: ColumnDescriptionTags,
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getKeyTags,
-				Transform:   transform.FromField("Tags.Tag").Transform(kmsTagsToMap),
+				Transform:   transform.FromField("Tags.Tag").Transform(kmsTurbotTags),
 			},
 			{
 				Name:        "title",

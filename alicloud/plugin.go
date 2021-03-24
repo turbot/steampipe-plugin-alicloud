@@ -25,8 +25,10 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_ecs_security_group":       tableAlicloudEcsSecurityGroup(ctx),
 			"alicloud_ecs_snapshot":             tableAlicloudEcsSnapshot(ctx),
 			"alicloud_kms_key":                  tableAlicloudKmsKey(ctx),
+			"alicloud_kms_secret":               tableAlicloudKmsSecret(ctx),
 			"alicloud_oss_bucket":               tableAlicloudOssBucket(ctx),
 			"alicloud_ram_access_key":           tableAlicloudRAMAccessKey(ctx),
+			"alicloud_ram_credential_report":    tableAlicloudRAMCredentialReport(ctx),
 			"alicloud_ram_group":                tableAlicloudRAMGroup(ctx),
 			"alicloud_ram_password_policy":      tableAlicloudRamPasswordPolicy(ctx),
 			"alicloud_ram_role":                 tableAlicloudRAMRole(ctx),
@@ -35,6 +37,8 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_rds_instance":             tableAlicloudRdsInstance(ctx),
 			"alicloud_vpc":                      tableAlicloudVpc(ctx),
 			"alicloud_vpc_eip":                  tableAlicloudVpcEip(ctx),
+			"alicloud_vpc_nat_gateway":          tableAlicloudVpcNatGateway(ctx),
+			"alicloud_vpc_network_acl":          tableAlicloudVpcNetworkACL(ctx),
 			"alicloud_vpc_route_table":          tableAlicloudVpcRouteTable(ctx),
 			"alicloud_vpc_ssl_vpn_client_cert":  tableAlicloudVpcSslVpnClientCert(ctx),
 			"alicloud_vpc_ssl_vpn_server":       tableAlicloudVpcSslVpnServer(ctx),
@@ -42,6 +46,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_vpc_vpn_customer_gateway": tableAlicloudVpcVpnCustomerGateway(ctx),
 			"alicloud_vpc_vpn_gateway":          tableAlicloudVpcVpnGateway(ctx),
 			"alicloud_vpc_vswitch":              tableAlicloudVpcVSwitch(ctx),
+			"alicloud_ecs_key_pair":             tableAlicloudEcskeyPair(ctx),
 		},
 	}
 	return p

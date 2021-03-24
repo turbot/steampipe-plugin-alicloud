@@ -282,13 +282,6 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Description: "The memory capacity of the instance. Unit: MB.",
 			},
 			{
-				Name:        "security_ip_list",
-				Type:        proto.ColumnType_STRING,
-				Hydrate:     getRdsInstance,
-				Transform:   transform.FromField("SecurityIPList"),
-				Description: "An array that consists of IP addresses in the IP address whitelist.",
-			},
-			{
 				Name:      "latest_kernel_version",
 				Type:      proto.ColumnType_STRING,
 				Hydrate:   getRdsInstance,
@@ -440,37 +433,37 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Description: "The availability status of the instance. Unit: %.",
 			},
 			{
-				Name:        "db_instance_ip_array_name",
-				Type:        proto.ColumnType_STRING,
+				Name:        "security_ips",
+				Type:        proto.ColumnType_JSON,
 				Hydrate:     getRdsInstanceIPArrayList,
-				Transform:   transform.FromField("DBInstanceIPArrayName"),
-				Description: "The name of the IP address whitelist.",
+				Transform:   transform.FromField("Items.DBInstanceIPArray").Transform(getSecurityIps),
+				Description: "An array that consists of IP addresses in the IP address whitelist.",
 			},
 			{
-				Name:        "db_instance_ip_array_attribute",
-				Type:        proto.ColumnType_STRING,
+				Name:        "security_ips_src",
+				Type:        proto.ColumnType_JSON,
 				Hydrate:     getRdsInstanceIPArrayList,
-				Transform:   transform.FromField("DBInstanceIPArrayAttribute"),
-				Description: "The attribute of the IP address whitelist.",
+				Transform:   transform.FromField("Items.DBInstanceIPArray"),
+				Description: "An array that consists of IP details.",
 			},
 			{
-				Name:        "security_ip_type",
+				Name:        "tde_status",
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getRdsInstanceIPArrayList,
-				Transform:   transform.FromField("SecurityIPType"),
-				Description: "The type of the IP address.",
+				Description: "The TDE status at the instance level. Valid values: Enable | Disable.",
+				Hydrate:     getTDEDetails,
+				Transform:   transform.FromField("TDEStatus"),
 			},
 			{
-				Name:      "whitelist_network_type",
-				Type:      proto.ColumnType_STRING,
-				Hydrate:   getRdsInstanceIPArrayList,
-				Transform: transform.FromField("WhitelistNetworkType"),
+				Name:        "ssl_status",
+				Type:        proto.ColumnType_STRING,
+				Description: "The SSL encryption status of the Instance",
+				Hydrate:     getSSLDetails,
+				Transform:   transform.FromValue(),
 			},
-
 			{
 				Name:        "parameters",
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getRdsInstanceParameter,
+				Hydrate:     getRdsInstanceParameters,
 				Transform:   transform.FromValue(),
 				Description: "The list of running parameters for the instance.",
 			},
@@ -626,19 +619,87 @@ func getRdsInstanceIPArrayList(ctx context.Context, d *plugin.QueryData, h *plug
 	}
 
 	if response.Items.DBInstanceIPArray != nil && len(response.Items.DBInstanceIPArray) > 0 {
-		return response.Items.DBInstanceIPArray[0], nil
+		return response, nil
 	}
 
 	return nil, nil
 }
 
-func getRdsInstanceParameter(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getTDEDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
 	client, err := RDSService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("getRdsInstanceParameter", "connection_error", err)
+		plugin.Logger(ctx).Error("getTDEDetails", "connection_error", err)
+		return nil, err
+	}
+
+	var id string
+	if h.Item != nil {
+		id = databaseID(h.Item)
+	} else {
+		id = d.KeyColumnQuals["db_instance_id"].GetStringValue()
+	}
+
+	request := rds.CreateDescribeDBInstanceTDERequest()
+	request.Scheme = "https"
+	request.DBInstanceId = id
+	response, err := client.DescribeDBInstanceTDE(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" {
+			plugin.Logger(ctx).Warn("alicloud_rds_instance.getTDEDetails", "not_found_error", serverErr, "request", request)
+			return nil, nil
+		}
+		plugin.Logger(ctx).Error("getTDEDetails", "query_error", err, "request", request)
+		return nil, err
+	}
+	return response, nil
+}
+
+func getSSLDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := RDSService(ctx, d, region)
+	if err != nil {
+		plugin.Logger(ctx).Error("getSSLDetails", "connection_error", err)
+		return nil, err
+	}
+
+	var id string
+	if h.Item != nil {
+		id = databaseID(h.Item)
+	} else {
+		id = d.KeyColumnQuals["db_instance_id"].GetStringValue()
+	}
+
+	request := rds.CreateDescribeDBInstanceSSLRequest()
+	request.Scheme = "https"
+	request.DBInstanceId = id
+	response, err := client.DescribeDBInstanceSSL(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" {
+			plugin.Logger(ctx).Warn("alicloud_rds_instance.getSSLDetails", "not_found_error", serverErr, "request", request)
+			return nil, nil
+		}
+		plugin.Logger(ctx).Error("getSSLDetails", "query_error", err, "request", request)
+		return nil, err
+	}
+	if len(response.SSLExpireTime) > 0 {
+		return "Enabled", nil
+	}
+	return "Disabled", nil
+
+}
+
+func getRdsInstanceParameters(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := RDSService(ctx, d, region)
+	if err != nil {
+		plugin.Logger(ctx).Error("getRdsInstanceParameters", "connection_error", err)
 		return nil, err
 	}
 
@@ -649,7 +710,7 @@ func getRdsInstanceParameter(ctx context.Context, d *plugin.QueryData, h *plugin
 	request.DBInstanceId = id
 	response, err := client.DescribeParameters(request)
 	if err != nil {
-		plugin.Logger(ctx).Error("getRdsInstanceParameter", "query_error", err, "request", request)
+		plugin.Logger(ctx).Error("getRdsInstanceParameters", "query_error", err, "request", request)
 		return nil, err
 	}
 	return response, nil
@@ -711,6 +772,19 @@ func getRdsInstanceAkas(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 }
 
 //// TRANSFORM FUNCTIONS
+
+func getSecurityIps(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	IpArray := d.Value.([]rds.DBInstanceIPArray)
+
+	if IpArray == nil || len(IpArray) == 0 {
+		return nil, nil
+	}
+	var IpList []string
+	for _, i := range IpArray {
+		IpList = append(IpList, i.SecurityIPList)
+	}
+	return IpList, nil
+}
 
 func rdsInstanceTagsSrc(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	tags := d.Value.(*rds.DescribeTagsResponse)
