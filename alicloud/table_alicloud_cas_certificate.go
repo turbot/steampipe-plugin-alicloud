@@ -12,12 +12,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
-// Customized struct to store region details
-type certificateInfo struct {
-	cas.DescribeUserCertificateDetailResponse
-	Region string
-}
-
 // var supportedRegion = []string{"cn-hangzhou", "ap-south-1", "me-east-1", "eu-central-1", "ap-northeast-1", "ap-southeast-2"}
 
 //// TABLE DEFINITION
@@ -138,6 +132,8 @@ func tableAlicloudUserCertificate(ctx context.Context) *plugin.Table {
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
+				Hydrate:     getUserCertificateRegion,
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "account_id",
@@ -167,7 +163,6 @@ func listUserCertificate(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 	request.CurrentPage = "1"
 	request.QueryParams["RegionId"] = region
 
-
 	count := 0
 	for {
 		response, err := client.DescribeUserCertificateList(request)
@@ -177,25 +172,7 @@ func listUserCertificate(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 		}
 
 		for _, i := range response.CertificateList {
-			d.StreamListItem(ctx, certificateInfo{
-				cas.DescribeUserCertificateDetailResponse{
-					Id:          i.Id,
-					Name:        i.Name,
-					Common:      i.Common,
-					Fingerprint: i.Fingerprint,
-					Issuer:      i.Issuer,
-					OrgName:     i.OrgName,
-					Province:    i.Province,
-					City:        i.City,
-					Country:     i.Country,
-					StartDate:   i.StartDate,
-					EndDate:     i.EndDate,
-					Sans:        i.Sans,
-					Expired:     i.Expired,
-					BuyInAliyun: i.BuyInAliyun,
-				},
-				region,
-			})
+			d.StreamListItem(ctx, i)
 			count++
 		}
 		if count >= response.TotalCount {
@@ -222,8 +199,8 @@ func getUserCertificate(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 
 	var id int64
 	if h.Item != nil {
-		data := h.Item.(certificateInfo)
-		id = data.Id
+		data := casCertificate(h.Item)
+		id = data
 	} else {
 		id = d.KeyColumnQuals["id"].GetInt64Value()
 	}
@@ -237,12 +214,13 @@ func getUserCertificate(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		return nil, err
 	}
 
-	return certificateInfo{*response, region}, nil
+	return response, nil
 }
 
 func getUserCertificateAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getUserCertificateAka")
-	data := h.Item.(certificateInfo)
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	data := casCertificate(h.Item)
 
 	// Get project details
 	commonData, err := getCommonColumns(ctx, d, h)
@@ -252,7 +230,23 @@ func getUserCertificateAka(ctx context.Context, d *plugin.QueryData, h *plugin.H
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"acs:cas:" + data.Region + ":" + accountID + ":certificate/" + strconv.Itoa(int(data.Id))}
+	akas := []string{"acs:cas:" + region + ":" + accountID + ":certificate/" + strconv.Itoa(int(data))}
 
 	return akas, nil
+}
+
+func getUserCertificateRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getUserCertificateRegion")
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	return region, nil
+}
+
+func casCertificate(item interface{}) int64 {
+	switch item.(type) {
+	case cas.Certificate:
+		return item.(cas.Certificate).Id
+	case *cas.DescribeUserCertificateDetailResponse:
+		return item.(*cas.DescribeUserCertificateDetailResponse).Id
+	}
+	return 0
 }

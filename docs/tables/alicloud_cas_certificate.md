@@ -18,7 +18,7 @@ from
   alicloud_cas_certificate;
 ```
 
-### List of expired certificates
+### List expired certificates
 
 ```sql
 select
