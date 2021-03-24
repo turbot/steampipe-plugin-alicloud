@@ -105,7 +105,7 @@ func tableAlicloudEcsLaunchTemplate(ctx context.Context) *plugin.Table {
 				Name:        "title",
 				Description: ColumnDescriptionTitle,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.From(ecsLaunchTemplateAka),
+				Transform:   transform.From(ecsLaunchTemplateTitle),
 			},
 
 			// alicloud standard columns
@@ -246,7 +246,7 @@ func getEcsLaunchTemplateAka(ctx context.Context, d *plugin.QueryData, h *plugin
 
 //// TRANSFORM FUNCTIONS
 
-func ecsLaunchTemplateAka(_ context.Context, d *transform.TransformData) (interface{}, error) {
+func ecsLaunchTemplateTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	data := d.HydrateItem.(launchTemplateInfo)
 
 	// Build resource title

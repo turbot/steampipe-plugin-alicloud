@@ -25,16 +25,16 @@ data "null_data_source" "resource" {
 
 # Create a VPC
 resource "alicloud_vpc" "named_test_resource" {
-  name       = var.resource_name
+  vpc_name   = var.resource_name
   cidr_block = "192.168.0.0/24"
 }
 
 # Create a VSwitch
 resource "alicloud_vswitch" "named_test_resource" {
-  name              = var.resource_name
-  cidr_block        = "192.168.0.0/24"
-  availability_zone = "us-east-1b"
-  vpc_id            = alicloud_vpc.named_test_resource.id
+  vswitch_name = var.resource_name
+  cidr_block   = "192.168.0.0/24"
+  zone_id      = "us-east-1b"
+  vpc_id       = alicloud_vpc.named_test_resource.id
 }
 
 # Create a VPC Security Group

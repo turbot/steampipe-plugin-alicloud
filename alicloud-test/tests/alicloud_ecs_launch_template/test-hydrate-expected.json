@@ -6,7 +6,7 @@
 		"instance_type": "ecs.t5-lc2m1.nano",
 		"name": "{{ resourceName }}",
 		"security_group_id": "{{ output.security_group_id.value }}",
-		"vpc_id": "{{ output.vpc_id.value }}",
-		"vswitch_id": "{{ output.vswitch_id.value }}"
+		"v_switch_id": "{{ output.vswitch_id.value }}",
+		"vpc_id": "{{ output.vpc_id.value }}"
 	}
 ]
