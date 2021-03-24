@@ -149,10 +149,9 @@ func tableAlicloudElasticContainer(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("external_loadbalancer_id"),
 			},
 			{
-				Name:        "port",
-				Description: "",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("port"),
+				Name:      "port",
+				Type:      proto.ColumnType_STRING,
+				Transform: transform.FromField("port"),
 			},
 			{
 				Name:        "node_status",
@@ -173,28 +172,24 @@ func tableAlicloudElasticContainer(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("docker_version"),
 			},
 			{
-				Name:        "swarm_mode",
-				Description: "",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("swarm_mode"),
+				Name:      "swarm_mode",
+				Type:      proto.ColumnType_STRING,
+				Transform: transform.FromField("swarm_mode"),
 			},
 			{
-				Name:        "gw_bridge",
-				Description: "",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("gw_bridge"),
+				Name:      "gw_bridge",
+				Type:      proto.ColumnType_STRING,
+				Transform: transform.FromField("gw_bridge"),
 			},
 			{
-				Name:        "upgrade_components",
-				Description: "",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("upgrade_components"),
+				Name:      "upgrade_components",
+				Type:      proto.ColumnType_STRING,
+				Transform: transform.FromField("upgrade_components"),
 			},
 			{
-				Name:        "next_version",
-				Description: "",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("next_version"),
+				Name:      "next_version",
+				Type:      proto.ColumnType_STRING,
+				Transform: transform.FromField("next_version"),
 			},
 			{
 				Name:        "private_zone",
@@ -203,10 +198,9 @@ func tableAlicloudElasticContainer(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("private_zone"),
 			},
 			{
-				Name:        "service_discovery_types",
-				Description: "",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("service_discovery_types"),
+				Name:      "service_discovery_types",
+				Type:      proto.ColumnType_STRING,
+				Transform: transform.FromField("service_discovery_types"),
 			},
 			{
 				Name:        "profile",
@@ -221,40 +215,34 @@ func tableAlicloudElasticContainer(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("deletion_protection"),
 			},
 			{
-				Name:        "cluster_spec",
-				Description: "",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("cluster_spec"),
+				Name:      "cluster_spec",
+				Type:      proto.ColumnType_STRING,
+				Transform: transform.FromField("cluster_spec"),
 			},
 			{
-				Name:        "capabilities",
-				Description: "",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("capabilities"),
+				Name:      "capabilities",
+				Type:      proto.ColumnType_STRING,
+				Transform: transform.FromField("capabilities"),
 			},
 			{
-				Name:        "enabled_migration",
-				Description: "",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("enabled_migration"),
+				Name:      "enabled_migration",
+				Type:      proto.ColumnType_STRING,
+				Transform: transform.FromField("enabled_migration"),
 			},
 			{
-				Name:        "need_update_agent",
-				Description: "",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("need_update_agent"),
+				Name:      "need_update_agent",
+				Type:      proto.ColumnType_STRING,
+				Transform: transform.FromField("need_update_agent"),
 			},
 			{
-				Name:        "outputs",
-				Description: "",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("outputs"),
+				Name:      "outputs",
+				Type:      proto.ColumnType_STRING,
+				Transform: transform.FromField("outputs"),
 			},
 			{
-				Name:        "parameters",
-				Description: "",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("parameters"),
+				Name:      "parameters",
+				Type:      proto.ColumnType_STRING,
+				Transform: transform.FromField("parameters"),
 			},
 			{
 				Name:        "worker_ram_role_name",
@@ -263,16 +251,14 @@ func tableAlicloudElasticContainer(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("worker_ram_role_name"),
 			},
 			{
-				Name:        "maintenance_info",
-				Description: "",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("maintenance_info"),
+				Name:      "maintenance_info",
+				Type:      proto.ColumnType_STRING,
+				Transform: transform.FromField("maintenance_info"),
 			},
 			{
-				Name:        "maintenance_window",
-				Description: "",
-				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("maintenance_window"),
+				Name:      "maintenance_window",
+				Type:      proto.ColumnType_JSON,
+				Transform: transform.FromField("maintenance_window"),
 			},
 			{
 				Name:        "master_url",
@@ -295,7 +281,7 @@ func tableAlicloudElasticContainer(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "tags_src",
-				Description: "",
+				Description: ColumnDescriptionTags,
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.FromField("tags"),
 			},
@@ -471,7 +457,7 @@ func getElasticContainerAka(ctx context.Context, d *plugin.QueryData, h *plugin.
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"acs:cs:" + data["region_id"].(string) + ":" + accountID + ":container/" + data["cluster_id"].(string)}
+	akas := []string{"acs:cs:" + data["region_id"].(string) + ":" + accountID + ":container/" + data["name"].(string)}
 
 	return akas, nil
 }

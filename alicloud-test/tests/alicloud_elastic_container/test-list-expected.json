@@ -1,0 +1,7 @@
+[
+	{
+		"name": "{{ resourceName }}",
+		"cluster_id": "{{ output.instance_charge_type.value }}",
+		"state": "{{ output.instance_charge_type.value }}"
+	}
+]
