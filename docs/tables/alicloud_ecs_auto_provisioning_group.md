@@ -18,7 +18,7 @@ from
   alicloud_ecs_auto_provisioning_group;
 ```
 
-### Auto Provisioning group instance details
+### Instance details for a specific group
 
 ```sql
 select
@@ -42,7 +42,7 @@ where
   and apg.name = 'js_as_1';
 ```
 
-### List of Auto Provisioning group for which are not active
+### List groups which are inactive
 
 ```sql
 select
