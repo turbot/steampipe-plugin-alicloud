@@ -20,7 +20,7 @@ from
   alicloud_vpc_network_acl;
 ```
 
-### List the VSwitch associated with network ACLs
+### List the VSwitches associated with each network ACL
 
 ```sql
 select
@@ -35,7 +35,7 @@ where
   association ->> 'ResourceType' = 'VSwitch';
 ```
 
-### List the inbound rule info of network ACLs
+### Get inbound rule info for each network ACL
 
 ```sql
 select
@@ -55,7 +55,7 @@ from
   jsonb_array_elements(ingress_acl_entries) as i;
 ```
 
-### List the outbound rule info of network ACLs
+### Get outbound rule info for each network ACL
 
 ```sql
 select
@@ -73,16 +73,4 @@ select
 from
   alicloud_vpc_network_acl,
   jsonb_array_elements(egress_acl_entries) as i;
-```
-
-### Count of network ACLs per region
-
-```sql
-select
-  region,
-  count(*) network_acl_count
-from
-  alicloud_vpc_network_acl
-group by
-  region;
 ```
