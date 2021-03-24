@@ -153,21 +153,16 @@ func modifyKmsSourceTags(_ context.Context, d *transform.TransformData) (interfa
 	return sourceTags, nil
 }
 
-func kmsTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, error) {
+func kmsTurbotTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	tags := d.Value.([]kms.Tag)
 
-	if tags == nil {
+	if tags == nil || len(tags) == 0 {
 		return nil, nil
 	}
 
-	if len(tags) == 0 {
-		return nil, nil
-	}
-
-	turbotTagsMap := map[string]string{}
+	turbotTags := map[string]string{}
 	for _, i := range tags {
-		turbotTagsMap[i.TagKey] = i.TagValue
+		turbotTags[i.TagKey] = i.TagValue
 	}
-
-	return turbotTagsMap, nil
+	return turbotTags, nil
 }
