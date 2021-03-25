@@ -18,7 +18,7 @@ from
 ```
 
 
-### List flow logs where resource type is VPC.
+### List flow logs where resource type is VPC
 
 ```sql
 select

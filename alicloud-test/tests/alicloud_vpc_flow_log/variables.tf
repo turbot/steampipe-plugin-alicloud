@@ -23,17 +23,9 @@ data "null_data_source" "resource" {
   }
 }
 
-variable "log_store_name" {
-  default = "vpc-flow-log-for-vpc"
-}
-
-variable "project_name" {
-  default = "vpc-flow-log-for-vpc"
-}
-
 resource "alicloud_vpc" "named_test_resource" {
   cidr_block = "192.168.0.0/24"
-  name       = var.resource_name
+  vpc_name   = var.resource_name
 }
 
 resource "alicloud_vpc_flow_log" "named_test_resource" {
@@ -41,18 +33,15 @@ resource "alicloud_vpc_flow_log" "named_test_resource" {
   resource_id    = alicloud_vpc.named_test_resource.id
   resource_type  = "VPC"
   traffic_type   = "All"
-  log_store_name = var.log_store_name
-  project_name   = var.project_name
+  log_store_name = "vpc-flow-log-for-vpc"
+  project_name   = "vpc-flow-log-for-vpc"
   flow_log_name  = var.resource_name
   status         = "Active"
 }
 
-
-
 output "resource_id" {
   value = alicloud_vpc_flow_log.named_test_resource.id
 }
-
 
 output "resource_name" {
   value = var.resource_name

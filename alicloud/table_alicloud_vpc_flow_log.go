@@ -80,7 +80,7 @@ func tableAlicloudVpcFlowLog(ctx context.Context) *plugin.Table {
 				Description: "The type of traffic that is captured.",
 			},
 
-			// Resource interface
+			// steampipe standard columns
 			{
 				Name:        "title",
 				Type:        proto.ColumnType_STRING,
@@ -150,14 +150,7 @@ func getVpcFlowLog(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 		plugin.Logger(ctx).Error("getVpcFlowLog", "connection_error", err)
 		return nil, err
 	}
-
-	var name string
-	if h.Item != nil {
-		log := h.Item.(vpc.FlowLog)
-		name = log.FlowLogName
-	} else {
-		name = d.KeyColumnQuals["name"].GetStringValue()
-	}
+	name := d.KeyColumnQuals["name"].GetStringValue()
 
 	request := vpc.CreateDescribeFlowLogsRequest()
 	request.Scheme = "https"
@@ -175,10 +168,9 @@ func getVpcFlowLog(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	return nil, nil
 }
 
-//// TRANSFORM FUNCTIONS
-
 func vpcFlowLogAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	i := h.Item.(vpc.FlowLog)
+
 	// Get project details
 	commonData, err := getCommonColumns(ctx, d, h)
 	if err != nil {
@@ -188,6 +180,8 @@ func vpcFlowLogAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 	accountID := commonColumnData.AccountID
 	return []string{"acs:vpc:" + i.RegionId + ":" + accountID + ":flow-log/" + i.FlowLogId}, nil
 }
+
+//// TRANSFORM FUNCTIONS
 
 func vpcFlowLogTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	i := d.HydrateItem.(vpc.FlowLog)
