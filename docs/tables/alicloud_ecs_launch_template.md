@@ -21,7 +21,7 @@ from
   alicloud_ecs_launch_template;
 ```
 
-### Get the configuration of current template version
+### Get the current template version's configuration
 
 ```sql
 select
@@ -37,7 +37,7 @@ from
   alicloud_ecs_launch_template;
 ```
 
-### List templates that uses encrypted storage disk
+### List templates that use encrypted storage disk
 
 ```sql
 select
