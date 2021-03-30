@@ -1,3 +1,15 @@
+## v0.0.5 [2021-03-25]
+
+_What's new?_
+
+- New tables added
+  - [alicloud_vpc_network_acl](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_vpc_network_acl) ([#48](https://github.com/turbot/steampipe-plugin-alicloud/pull/48))
+
+_Enhancements_
+
+- Updated: Add `parameters` column to `alicloud_rds_instance` table ([#121](https://github.com/turbot/steampipe-plugin-alicloud/pull/121))
+- Recompiled plugin with [steampipe-plugin-sdk v0.2.6](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v026-2021-03-18)
+
 ## v0.0.4 [2021-03-18]
 
 _What's new?_
