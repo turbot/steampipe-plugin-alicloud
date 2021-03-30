@@ -26,14 +26,28 @@ from
 ```sql
 select
   name,
-  version_detail -> 'LaunchTemplateData' ->> 'InstanceName' as instance_name,
-  version_detail -> 'LaunchTemplateData' ->> 'InstanceType' as instance_type,
-  version_detail -> 'LaunchTemplateData' ->> 'InternetChargeType' as instance_charge_type,
-  version_detail -> 'LaunchTemplateData' ->> 'ImageId' as image_id,
-  version_detail -> 'LaunchTemplateData' ->> 'VpcId' as vpc_id,
-  version_detail -> 'LaunchTemplateData' ->> 'VSwitchId' as v_switch_id,
-  version_detail -> 'LaunchTemplateData' ->> 'SecurityGroupId' as security_group_id
+  latest_version_details -> 'LaunchTemplateData' ->> 'InstanceName' as instance_name,
+  latest_version_details -> 'LaunchTemplateData' ->> 'InstanceType' as instance_type,
+  latest_version_details -> 'LaunchTemplateData' ->> 'InternetChargeType' as instance_charge_type,
+  latest_version_details -> 'LaunchTemplateData' ->> 'ImageId' as image_id,
+  latest_version_details -> 'LaunchTemplateData' ->> 'VpcId' as vpc_id,
+  latest_version_details -> 'LaunchTemplateData' ->> 'VSwitchId' as v_switch_id,
+  latest_version_details -> 'LaunchTemplateData' ->> 'SecurityGroupId' as security_group_id
+from
+  alicloud_ecs_launch_template;
+```
+
+### List templates that uses encrypted storage disk
+
+```sql
+select
+  name,
+  disk_config ->> 'Encrypted' as disk_encryption,
+  disk_config ->> 'DeleteWithInstance' as delete_with_instance
 from
   alicloud_ecs_launch_template,
-  jsonb(latest_version_details) as version_detail;
+  jsonb_array_elements(latest_version_details -> 'LaunchTemplateData' -> 'DataDisks' -> 'DataDisk') as disk_config
+where
+  (disk_config ->> 'Encrypted')::boolean
+  and (disk_config ->> 'DeleteWithInstance')::boolean;
 ```
