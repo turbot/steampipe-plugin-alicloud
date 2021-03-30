@@ -21,14 +21,12 @@ func tableAlicloudComputeRegion(ctx context.Context) *plugin.Table {
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
-			// Top columns
 			{
 				Name:        "region",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("RegionId"),
 				Description: ColumnDescriptionRegion,
 			},
-
 			{
 				Name:        "local_name",
 				Type:        proto.ColumnType_STRING,
@@ -37,7 +35,6 @@ func tableAlicloudComputeRegion(ctx context.Context) *plugin.Table {
 			{
 				Name:        "region_endpoint",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("RegionEndpoint"),
 				Description: "The endpoint of the region.",
 			},
 			{
@@ -45,6 +42,7 @@ func tableAlicloudComputeRegion(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 				Description: "Indicates whether the cluster is sold out.",
 			},
+
 			// steampipe standard columns
 			{
 				Name:        "akas",
@@ -85,6 +83,7 @@ func listComputeRegions(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 	}
 	request := ecs.CreateDescribeRegionsRequest()
 	request.Scheme = "https"
+	request.AcceptLanguage = "en-US"
 
 	response, err := client.DescribeRegions(request)
 	if err != nil {

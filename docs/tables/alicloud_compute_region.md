@@ -1,6 +1,7 @@
 # Table: alicloud_compute_region
 
-You can call this operation to query available Alibaba Cloud regions.
+Elastic Compute resources are hosted in multiple locations worldwide. These locations are composed of regions and zones.
+A region is a geographic area where a data center resides.
 
 ## Examples
 
@@ -25,6 +26,7 @@ select
   region_endpoint,
   status
 from
-  alicloud_compute_region where region = 'us-east-1';
+  alicloud_compute_region 
+where 
+  region = 'us-east-1';
 ```
-
