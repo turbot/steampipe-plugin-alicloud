@@ -1,4 +1,3 @@
-
 variable "resource_name" {
   type        = string
   default     = "turbot-test-20200125-create-update"
@@ -29,12 +28,6 @@ data "alicloud_zones" "named_test_resource" {
   available_disk_category = "cloud_ssd"
 }
 
-# # Create an ECS instance with the first matched zone
-# resource "alicloud_instance" "named_test_resource" {
-#   availability_zone = data.alicloud_zones.named_test_resource.zones.0.id
-# }
-
-
 output "zone_id" {
   value = data.alicloud_zones.named_test_resource.zones.0.id
 }
@@ -49,6 +42,10 @@ output "available_instance_types" {
 
 output "account_id" {
   value = data.alicloud_caller_identity.current.account_id
+}
+
+output "region_id" {
+  value = var.alicloud_region
 }
 
 output "resource_name" {
