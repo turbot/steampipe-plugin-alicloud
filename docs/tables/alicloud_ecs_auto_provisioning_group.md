@@ -6,7 +6,7 @@ You can use auto provisioning groups to provide stable computing power, alleviat
 
 ## Examples
 
-### Basic auto provisioning group info
+### Basic info
 
 ```sql
 select
@@ -18,7 +18,7 @@ from
   alicloud_ecs_auto_provisioning_group;
 ```
 
-### Instance details for a specific group
+### Get instance details for a specific group
 
 ```sql
 select
@@ -39,10 +39,10 @@ from
   alicloud_ecs_instance as i
 where
   ins_detail ->> 'InstanceId' = i.instance_id
-  and apg.name = 'js_as_1';
+  and apg.name = 'my_group';
 ```
 
-### List groups which are inactive
+### List inactive groups
 
 ```sql
 select
