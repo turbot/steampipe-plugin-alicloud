@@ -1,0 +1,9 @@
+[
+	{
+		"description": "Test network acl table",
+		"name": "{{ resourceName }}",
+		"network_acl_id": "{{ output.network_acl_id.value }}",
+		"region": "{{ output.region_id.value }}",
+		"vpc_id": "{{ output.vpc_id.value }}"
+	}
+]
