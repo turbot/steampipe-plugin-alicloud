@@ -133,7 +133,6 @@ func listVpcFlowLogs(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 		return nil, err
 	}
 	for _, i := range response.FlowLogs.FlowLog {
-		plugin.Logger(ctx).Warn("alicloud_vpc.listVpc", "item", i)
 		d.StreamListItem(ctx, i)
 	}
 	return nil, nil

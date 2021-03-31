@@ -21,6 +21,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_ecs_disk":                 tableAlicloudEcsDisk(ctx),
 			"alicloud_ecs_image":                tableAlicloudEcsImage(ctx),
 			"alicloud_ecs_instance":             tableAlicloudEcsInstance(ctx),
+			"alicloud_ecs_key_pair":             tableAlicloudEcskeyPair(ctx),
 			"alicloud_ecs_network_interface":    tableAlicloudEcsEni(ctx),
 			"alicloud_ecs_security_group":       tableAlicloudEcsSecurityGroup(ctx),
 			"alicloud_ecs_snapshot":             tableAlicloudEcsSnapshot(ctx),
@@ -46,7 +47,6 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_vpc_vpn_gateway":          tableAlicloudVpcVpnGateway(ctx),
 			"alicloud_vpc_vswitch":              tableAlicloudVpcVSwitch(ctx),
 			"alicloud_vpc":                      tableAlicloudVpc(ctx),
-			"alicloud_ecs_key_pair":             tableAlicloudEcskeyPair(ctx),
 		},
 	}
 	return p
