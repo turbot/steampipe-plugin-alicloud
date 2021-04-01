@@ -17,9 +17,8 @@ func tableAlicloudEcsRegion(ctx context.Context) *plugin.Table {
 		Name:        "alicloud_ecs_region",
 		Description: "Elastic Compute Region",
 		List: &plugin.ListConfig{
-			Hydrate: listComputeRegions,
+			Hydrate: listEcsRegions,
 		},
-		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			{
 				Name:        "region",
@@ -72,13 +71,12 @@ func tableAlicloudEcsRegion(ctx context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func listComputeRegions(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
+func listEcsRegions(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	region := GetDefaultRegion(d.Connection)
 	// Create service connection
 	client, err := ECSService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ecs.listComputeRegions", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_ecs.listEcsRegions", "connection_error", err)
 		return nil, err
 	}
 	request := ecs.CreateDescribeRegionsRequest()

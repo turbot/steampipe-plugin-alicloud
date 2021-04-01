@@ -22,10 +22,9 @@ func tableAlicloudEcsZone(ctx context.Context) *plugin.Table {
 		Name:        "alicloud_ecs_zone",
 		Description: "Elastic Compute Zone",
 		List: &plugin.ListConfig{
-			ParentHydrate: listComputeRegions,
-			Hydrate:       listComputeZones,
+			ParentHydrate: listEcsRegions,
+			Hydrate:       listEcsZones,
 		},
-		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			{
 				Name:        "zone_id",
@@ -120,14 +119,14 @@ func tableAlicloudEcsZone(ctx context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func listComputeZones(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+func listEcsZones(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := GetDefaultRegion(d.Connection)
 	regionList := h.Item.(ecs.Region)
 
 	// Create service connection
 	client, err := ECSService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ecs.listComputeZones", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_ecs.listEcsZones", "connection_error", err)
 		return nil, err
 	}
 
@@ -138,7 +137,7 @@ func listComputeZones(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 
 	response, err := client.DescribeZones(request)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ecs.listComputeZones", "query_error", err, "request", request)
+		plugin.Logger(ctx).Error("alicloud_ecs.listEcsZones", "query_error", err, "request", request)
 		return nil, err
 	}
 	for _, i := range response.Zones.Zone {
