@@ -1,3 +1,11 @@
+## v0.0.6 [2021-04-01]
+
+_What's new?_
+
+- New tables added
+  - [alicloud_ecs_auto_provisioning_group](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_ecs_auto_provisioning_group) ([#107](https://github.com/turbot/steampipe-plugin-alicloud/pull/107))
+  - [alicloud_ecs_launch_template](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_ecs_launch_template) ([#92](https://github.com/turbot/steampipe-plugin-alicloud/pull/92))
+
 ## v0.0.5 [2021-03-25]
 
 _What's new?_
