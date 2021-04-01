@@ -15,7 +15,7 @@ import (
 func tableAlicloudEcsRegion(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ecs_region",
-		Description: "Alicloud Compute Region",
+		Description: "Elastic Compute Region",
 		List: &plugin.ListConfig{
 			Hydrate: listComputeRegions,
 		},

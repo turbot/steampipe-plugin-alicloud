@@ -20,7 +20,7 @@ type zoneInfo = struct {
 func tableAlicloudEcsZone(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ecs_zone",
-		Description: "Alicloud Compute Zone",
+		Description: "Elastic Compute Zone",
 		List: &plugin.ListConfig{
 			ParentHydrate: listComputeRegions,
 			Hydrate:       listComputeZones,
