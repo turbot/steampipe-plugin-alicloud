@@ -1,4 +1,4 @@
-![image](https://hub.steampipe.io/images/plugins/turbot/alicloud-salicloudal-graphic.png)
+![image](https://hub.steampipe.io/images/plugins/turbot/alicloud-social-graphic.png)
 
 # Alibaba Cloud Plugin for Steampipe
 
