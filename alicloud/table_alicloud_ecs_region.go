@@ -12,9 +12,9 @@ import (
 
 //// TABLE DEFINITION
 
-func tableAlicloudComputeRegion(ctx context.Context) *plugin.Table {
+func tableAlicloudEcsRegion(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "alicloud_compute_region",
+		Name:        "alicloud_ecs_region",
 		Description: "Alicloud Compute Region",
 		List: &plugin.ListConfig{
 			Hydrate: listComputeRegions,

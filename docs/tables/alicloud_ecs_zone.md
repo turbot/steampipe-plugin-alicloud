@@ -1,4 +1,4 @@
-# Table: alicloud_compute_zone
+# Table: alicloud_ecs_zone
 
 You can call this operation to query available Alibaba Cloud zones.
 
@@ -14,7 +14,7 @@ select
   available_volume_categories,
   available_instance_types
 from
-  alicloud_compute_zone;
+  alicloud_ecs_zone;
 ```
 
 ### Details of a particular zone
@@ -27,6 +27,6 @@ select
   available_volume_categories,
   available_instance_types
 from
-  alicloud_compute_zone where zone_id = 'ap-south-1b';
+  alicloud_ecs_zone where zone_id = 'ap-south-1b';
 ```
 

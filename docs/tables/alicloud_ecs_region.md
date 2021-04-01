@@ -1,4 +1,4 @@
-# Table: alicloud_compute_region
+# Table: alicloud_ecs_region
 
 You can call this operation to query available Alibaba Cloud regions.
 
@@ -13,7 +13,7 @@ select
   region_endpoint,
   status
 from
-  alicloud_compute_region;
+  alicloud_ecs_region;
 ```
 
 ### Details of a particular region
@@ -25,6 +25,6 @@ select
   region_endpoint,
   status
 from
-  alicloud_compute_region where region = 'us-east-1';
+  alicloud_ecs_region where region = 'us-east-1';
 ```
 

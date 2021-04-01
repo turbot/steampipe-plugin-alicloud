@@ -17,8 +17,8 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			Schema:      ConfigSchema,
 		},
 		TableMap: map[string]*plugin.Table{
-			"alicloud_compute_region":           tableAlicloudComputeRegion(ctx),
-			"alicloud_compute_zone":             tableAlicloudComputeZone(ctx),
+			"alicloud_ecs_region":               tableAlicloudEcsRegion(ctx),
+			"alicloud_ecs_zone":                 tableAlicloudEcsZone(ctx),
 			"alicloud_ecs_autoscaling_group":    tableAlicloudEcsAutoscalingGroup(ctx),
 			"alicloud_ecs_disk":                 tableAlicloudEcsDisk(ctx),
 			"alicloud_ecs_image":                tableAlicloudEcsImage(ctx),
