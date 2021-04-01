@@ -85,7 +85,7 @@ func listEcsRegions(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 
 	response, err := client.DescribeRegions(request)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ecs.listComputeRegions", "query_error", err, "request", request)
+		plugin.Logger(ctx).Error("alicloud_ecs.listEcsRegions", "query_error", err, "request", request)
 		return nil, err
 	}
 	for _, i := range response.Regions.Region {
