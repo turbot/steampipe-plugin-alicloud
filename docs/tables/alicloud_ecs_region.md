@@ -5,7 +5,7 @@ A region is a geographic area where a data center resides.
 
 ## Examples
 
-### Region basic info
+### Basic info
 
 ```sql
 select

@@ -5,7 +5,7 @@ Zones within the same region have access to each other, but faults within a sing
 
 ## Examples
 
-### Zone basic info
+### Basic info
 
 ```sql
 select

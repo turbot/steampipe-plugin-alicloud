@@ -37,6 +37,30 @@ func tableAlicloudEcsZone(ctx context.Context) *plugin.Table {
 				Description: "The name of the zone in the local language.",
 			},
 			{
+				Name:        "available_dedicated_host_types",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("AvailableDedicatedHostTypes.DedicatedHostType"),
+				Description: "The supported types of dedicated hosts. The data type of this parameter is List.",
+			},
+			{
+				Name:        "available_disk_categories",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("AvailableDiskCategories.DiskCategories"),
+				Description: "The supported disk categories. The data type of this parameter is List.",
+			},
+			{
+				Name:        "available_instance_types",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("AvailableInstanceTypes.InstanceTypes"),
+				Description: "The instance types of instances that can be created. The data type of this parameter is List.",
+			},
+			{
+				Name:        "available_resources",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("AvailableResources.ResourcesInfo"),
+				Description: "An array consisting of ResourcesInfo data.",
+			},
+			{
 				Name:        "available_resource_creation",
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.FromField("AvailableResourceCreation.ResourceTypes"),
@@ -49,16 +73,10 @@ func tableAlicloudEcsZone(ctx context.Context) *plugin.Table {
 				Description: "The categories of available shared storage. The data type of this parameter is List.",
 			},
 			{
-				Name:        "available_instance_types",
+				Name:        "dedicated_host_generations",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("AvailableInstanceTypes.InstanceTypes"),
-				Description: "The instance types of instances that can be created. The data type of this parameter is List.",
-			},
-			{
-				Name:        "available_dedicated_host_types",
-				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("AvailableDedicatedHostTypes.DedicatedHostType"),
-				Description: "The supported types of dedicated hosts. The data type of this parameter is List.",
+				Transform:   transform.FromField("DedicatedHostGenerations.DedicatedHostGeneration"),
+				Description: "The generation numbers of dedicated hosts. The data type of this parameter is List.",
 			},
 			{
 				Name:        "network_types",
@@ -66,25 +84,6 @@ func tableAlicloudEcsZone(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("NetworkTypes.NetworkType"),
 				Description: "The types of the network.",
 			},
-			{
-				Name:        "available_disk_categories",
-				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("AvailableDiskCategories.DiskCategories"),
-				Description: "The supported disk categories. The data type of this parameter is List.",
-			},
-			{
-				Name:        "dedicated_host_generations",
-				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("DedicatedHostGenerations.DedicatedHostGeneration"),
-				Description: "The generation numbers of dedicated hosts. The data type of this parameter is List.",
-			},
-			{
-				Name:        "available_resources",
-				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("AvailableResources.ResourcesInfo"),
-				Description: "An array consisting of ResourcesInfo data.",
-			},
-
 			// steampipe standard columns
 			{
 				Name:        "title",
