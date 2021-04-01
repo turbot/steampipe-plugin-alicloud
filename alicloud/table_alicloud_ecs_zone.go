@@ -10,6 +10,11 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
+type zoneInfo = struct {
+	ecs.Zone
+	Region string
+}
+
 //// TABLE DEFINITION
 
 func tableAlicloudEcsZone(ctx context.Context) *plugin.Table {
@@ -22,7 +27,6 @@ func tableAlicloudEcsZone(ctx context.Context) *plugin.Table {
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
-			// Top columns
 			{
 				Name:        "zone_id",
 				Type:        proto.ColumnType_STRING,
@@ -33,69 +37,68 @@ func tableAlicloudEcsZone(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 				Description: "The name of the zone in the local language.",
 			},
-
-			// Other columns
 			{
 				Name:        "available_resource_creation",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("AvailableResourceCreation"),
+				Transform:   transform.FromField("AvailableResourceCreation.ResourceTypes"),
 				Description: "The types of the resources that can be created. The data type of this parameter is List.",
 			},
 			{
 				Name:        "available_volume_categories",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("AvailableVolumeCategories"),
+				Transform:   transform.FromField("AvailableVolumeCategories.VolumeCategories"),
 				Description: "The categories of available shared storage. The data type of this parameter is List.",
 			},
 			{
 				Name:        "available_instance_types",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("AvailableInstanceTypes"),
+				Transform:   transform.FromField("AvailableInstanceTypes.InstanceTypes"),
 				Description: "The instance types of instances that can be created. The data type of this parameter is List.",
 			},
 			{
 				Name:        "available_dedicated_host_types",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("AvailableDedicatedHostTypes"),
+				Transform:   transform.FromField("AvailableDedicatedHostTypes.DedicatedHostType"),
 				Description: "The supported types of dedicated hosts. The data type of this parameter is List.",
 			},
 			{
 				Name:        "network_types",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("NetworkTypes"),
+				Transform:   transform.FromField("NetworkTypes.NetworkType"),
 				Description: "The types of the network.",
 			},
 			{
 				Name:        "available_disk_categories",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("AvailableDiskCategories"),
+				Transform:   transform.FromField("AvailableDiskCategories.DiskCategories"),
 				Description: "The supported disk categories. The data type of this parameter is List.",
 			},
 			{
 				Name:        "dedicated_host_generations",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("DedicatedHostGenerations"),
+				Transform:   transform.FromField("DedicatedHostGenerations.DedicatedHostGeneration"),
 				Description: "The generation numbers of dedicated hosts. The data type of this parameter is List.",
 			},
 			{
 				Name:        "available_resources",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("AvailableResources"),
+				Transform:   transform.FromField("AvailableResources.ResourcesInfo"),
 				Description: "An array consisting of ResourcesInfo data.",
 			},
+
 			// steampipe standard columns
+			{
+				Name:        "title",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("ZoneId"),
+				Description: ColumnDescriptionTitle,
+			},
 			{
 				Name:        "akas",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getZoneAkas,
 				Transform:   transform.FromValue(),
 				Description: ColumnDescriptionAkas,
-			},
-			{
-				Name:        "title",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("ZoneId"),
-				Description: ColumnDescriptionTitle,
 			},
 
 			// alicloud common columns
@@ -119,6 +122,7 @@ func tableAlicloudEcsZone(ctx context.Context) *plugin.Table {
 
 func listComputeZones(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	regionList := h.Item.(ecs.Region)
 
 	// Create service connection
 	client, err := ECSService(ctx, d, region)
@@ -126,24 +130,26 @@ func listComputeZones(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 		plugin.Logger(ctx).Error("alicloud_ecs.listComputeZones", "connection_error", err)
 		return nil, err
 	}
-	regionList := h.Item.(ecs.Region)
+
 	request := ecs.CreateDescribeZonesRequest()
 	request.Scheme = "https"
 	request.RegionId = regionList.RegionId
+	request.AcceptLanguage = "en-US"
+
 	response, err := client.DescribeZones(request)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs.listComputeZones", "query_error", err, "request", request)
 		return nil, err
 	}
 	for _, i := range response.Zones.Zone {
-		d.StreamLeafListItem(ctx, i)
+		d.StreamLeafListItem(ctx, zoneInfo{i, regionList.RegionId})
 	}
 	return nil, nil
 }
 
 func getZoneAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getZoneAkas")
-	data := h.Item.(ecs.Zone)
+	data := h.Item.(zoneInfo)
 
 	// Get project details
 	commonData, err := getCommonColumns(ctx, d, h)

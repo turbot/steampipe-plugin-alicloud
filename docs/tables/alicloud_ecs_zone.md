@@ -1,6 +1,7 @@
 # Table: alicloud_ecs_zone
 
-You can call this operation to query available Alibaba Cloud zones.
+A zone is a physical area with independent power grids and networks in a region.
+Zones within the same region have access to each other, but faults within a single zone will not affect the others.
 
 ## Examples
 
@@ -29,4 +30,3 @@ select
 from
   alicloud_ecs_zone where zone_id = 'ap-south-1b';
 ```
-
