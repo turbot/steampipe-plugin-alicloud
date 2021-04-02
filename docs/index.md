@@ -41,7 +41,7 @@ from
 
 ## Documentation
 
-- **[Table definitions & examples →](alicloud/tables)**
+- **[Table definitions & examples →](/plugins/turbot/alicloud/tables)**
 
 ## Get started
 
