@@ -78,12 +78,6 @@ func tableAlicloudEcsZone(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("DedicatedHostGenerations.DedicatedHostGeneration"),
 				Description: "The generation numbers of dedicated hosts. The data type of this parameter is List.",
 			},
-			{
-				Name:        "network_types",
-				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("NetworkTypes.NetworkType"),
-				Description: "The types of the network.",
-			},
 			// steampipe standard columns
 			{
 				Name:        "title",
@@ -134,6 +128,7 @@ func listEcsZones(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 	request.AcceptLanguage = "en-US"
 
 	response, err := client.DescribeZones(request)
+	plugin.Logger(ctx).Trace("alicloud_ecs.listEcsZones", "network_test:", response)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs.listEcsZones", "query_error", err, "request", request)
 		return nil, err
