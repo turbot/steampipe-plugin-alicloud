@@ -1,0 +1,9 @@
+[
+	{
+		"akas": [
+			"{{ output.resource_aka.value }}"
+		],
+		"name": "{{ output.key_name.value }}",
+		"title": "{{ output.key_name.value }}"
+	}
+]
