@@ -1,8 +1,6 @@
 # Table: alicloud_vpc_route_entry
 
-After you create a VPC, the system automatically adds the following system routes to the route table:
-A route entry with a destination CIDR block of 100.64.0.0/10. This route is used for communication among cloud resources within the VPC.
-Route entries whose destination CIDR blocks are the same as the CIDR blocks of the VSwitches in the VPC. These routes are used for communication among cloud resources within VSwitches.
+Routes are set of rules that are used to determine where network traffic from the vswitch or gateway is directed.
 
 ## Examples
 
@@ -35,5 +33,5 @@ select
   type,
   status
 from
-  alicloud_vpc_route_entry where route_table_id ='****';
+  alicloud_vpc_route_entry where route_table_id ='vtb-0xigrtestrt0c0f7krdhv';
 ```

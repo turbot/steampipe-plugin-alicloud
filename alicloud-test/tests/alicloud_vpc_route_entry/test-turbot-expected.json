@@ -1,8 +1,6 @@
 [
 	{
-		"akas": [
-			"{{ output.resource_aka.value }}"
-		],
+		"route_table_id": "{{ output.route_table_id.value }}",
 		"title": "{{ output.name.value }}"
 	}
 ]

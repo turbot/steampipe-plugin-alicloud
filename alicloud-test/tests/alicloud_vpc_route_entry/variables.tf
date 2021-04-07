@@ -1,4 +1,3 @@
-
 variable "resource_name" {
   type        = string
   default     = "turbot-test-20200125-create-update"
@@ -16,7 +15,6 @@ provider "alicloud" {
 }
 
 data "alicloud_caller_identity" "current" {}
-
 data "null_data_source" "resource" {
   inputs = {
     scope = "acs:::${data.alicloud_caller_identity.current.account_id}"
@@ -40,15 +38,15 @@ data "alicloud_images" "resource" {
 }
 
 resource "alicloud_vpc" "named_test_resource" {
-  name       = var.resource_name
+  vpc_name   = var.resource_name
   cidr_block = "10.1.0.0/21"
 }
 
 resource "alicloud_vswitch" "named_test_resource" {
-  vpc_id            = alicloud_vpc.named_test_resource.id
-  cidr_block        = "10.1.1.0/24"
-  availability_zone = data.alicloud_zones.resource.zones[0].id
-  name              = var.resource_name
+  vpc_id       = alicloud_vpc.named_test_resource.id
+  cidr_block   = "10.1.1.0/24"
+  zone_id      = data.alicloud_zones.resource.zones[0].id
+  vswitch_name = var.resource_name
 }
 
 resource "alicloud_security_group" "named_test_resource" {
@@ -84,7 +82,7 @@ resource "alicloud_instance" "named_test_resource" {
 }
 
 resource "alicloud_route_entry" "named_test_resource" {
-  name                  = "test"
+  name                  = var.resource_name
   route_table_id        = alicloud_vpc.named_test_resource.route_table_id
   destination_cidrblock = "172.11.1.1/32"
   nexthop_type          = "Instance"
@@ -99,6 +97,10 @@ output "route_table_id" {
   value = alicloud_route_entry.named_test_resource.route_table_id
 }
 
+output "instance_id" {
+  value = alicloud_instance.named_test_resource.id
+}
+
 output "destination_cidrblock" {
   value = alicloud_route_entry.named_test_resource.destination_cidrblock
 }
@@ -110,10 +112,10 @@ output "account_id" {
   value = data.alicloud_caller_identity.current.account_id
 }
 
-output "resource_name" {
-  value = var.resource_name
+output "region_id" {
+  value = var.alicloud_region
 }
 
-output "resource_aka" {
-  value = "acs:vpc:us-east-1:${data.alicloud_caller_identity.current.account_id}:route-entry/${alicloud_route_entry.named_test_resource.id}"
+output "resource_name" {
+  value = var.resource_name
 }
