@@ -33,5 +33,25 @@ select
   type,
   status
 from
-  alicloud_vpc_route_entry where route_table_id ='vtb-0xigrtestrt0c0f7krdhv';
+  alicloud_vpc_route_entry
+where
+  route_table_id = '*********';
+```
+
+### List route entries which are custom type
+
+```sql
+select
+  name,
+  route_table_id,
+  description,
+  instance_id,
+  route_entry_id,
+  destination_cidr_block,
+  type,
+  status
+from
+  alicloud_vpc_route_entry
+where
+  type = 'Custom';
 ```
