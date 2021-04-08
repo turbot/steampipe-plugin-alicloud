@@ -7,12 +7,13 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cas"
 
+	"github.com/turbot/go-kit/helpers"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
-// var supportedRegion = []string{"cn-hangzhou", "ap-south-1", "me-east-1", "eu-central-1", "ap-northeast-1", "ap-southeast-2"}
+var supportedRegions = []string{"cn-hangzhou", "ap-south-1", "me-east-1", "eu-central-1", "ap-northeast-1", "ap-southeast-2"}
 
 //// TABLE DEFINITION
 
@@ -151,6 +152,14 @@ func tableAlicloudUserCertificate(ctx context.Context) *plugin.Table {
 func listUserCertificate(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
+	// API does not return any error, if the request is made from an unsupported region
+	// If the request is made from an unsupported region, it lists all the certificates
+	// created in 'cn-hangzhou' region
+	// Return nil, if unsupported region (To avoid duplicate entries, when using multi-region configuration)
+	if !helpers.StringSliceContains(supportedRegions, region) {
+		return nil, nil
+	}
+
 	// Create service connection
 	client, err := CasService(ctx, d, region)
 	if err != nil {
@@ -189,6 +198,14 @@ func listUserCertificate(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 func getUserCertificate(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getUserCertificate")
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// API does not return any error, if the request is made from an unsupported region
+	// If the request is made from an unsupported region, it lists all the certificates
+	// created in 'cn-hangzhou' region
+	// Return nil, if unsupported region (To avoid duplicate entries, when using multi-region configuration)
+	if !helpers.StringSliceContains(supportedRegions, region) {
+		return nil, nil
+	}
 
 	// Create service connection
 	client, err := CasService(ctx, d, region)
@@ -242,11 +259,11 @@ func getUserCertificateRegion(ctx context.Context, d *plugin.QueryData, h *plugi
 }
 
 func casCertificate(item interface{}) int64 {
-	switch item.(type) {
+	switch item := item.(type) {
 	case cas.Certificate:
-		return item.(cas.Certificate).Id
+		return item.Id
 	case *cas.DescribeUserCertificateDetailResponse:
-		return item.(*cas.DescribeUserCertificateDetailResponse).Id
+		return item.Id
 	}
 	return 0
 }
