@@ -55,3 +55,21 @@ from
 where
   type = 'Custom';
 ```
+
+### List route entries where NextHopType is VPN Gateway
+
+```sql
+select
+  name,
+  route_table_id,
+  description,
+  route_entry_id,
+  destination_cidr_block,
+  type,
+  status
+from
+  alicloud_vpc_route_entry,
+  jsonb_array_elements(next_hops) as next_hop
+where
+  next_hop ->> 'NextHopType' = 'VpnGateway';
+```

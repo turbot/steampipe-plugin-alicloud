@@ -106,6 +106,7 @@ func tableAlicloudVpcRouteEntry(ctx context.Context) *plugin.Table {
 				Name:        "next_hops",
 				Description: "The information about the next hop.",
 				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("NextHops.NextHop"),
 			},
 
 			// Steampipe standard columns
