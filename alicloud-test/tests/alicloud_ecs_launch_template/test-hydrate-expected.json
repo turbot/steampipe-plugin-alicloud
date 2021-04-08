@@ -1,0 +1,12 @@
+[
+	{
+    "image_id": "aliyun_2_1903_x64_20G_alibase_20210120.vhd",
+		"instance_charge_type": "PayByTraffic",
+		"instance_name": "{{ resourceName }}",
+		"instance_type": "ecs.t5-lc2m1.nano",
+		"name": "{{ resourceName }}",
+		"security_group_id": "{{ output.security_group_id.value }}",
+		"v_switch_id": "{{ output.vswitch_id.value }}",
+		"vpc_id": "{{ output.vpc_id.value }}"
+	}
+]

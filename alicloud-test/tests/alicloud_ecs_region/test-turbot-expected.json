@@ -1,0 +1,7 @@
+[
+	{
+		"akas": ["{{ output.resource_aka.value }}"],
+		"region": "{{ output.current_region_id.value }}",
+		"title": "{{ output.current_region_id.value }}"
+	}
+]
