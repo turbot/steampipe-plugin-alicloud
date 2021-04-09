@@ -16,7 +16,7 @@ import (
 func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_action_trail",
-		Description: "Action Trail",
+		Description: "Alicloud Action Trail",
 		List: &plugin.ListConfig{
 			Hydrate: listActionTrails,
 		},
@@ -32,6 +32,11 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 			},
 			{
+				Name:        "mns_topic_arn",
+				Description: "The Alibaba Cloud Resource Name (ARN) of the Message Service (MNS) topic to which ActionTrail sends messages.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
 				Name:        "home_region",
 				Description: "The home region of the trail.",
 				Type:        proto.ColumnType_STRING,
@@ -39,6 +44,11 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 			{
 				Name:        "role_name",
 				Description: "The name of the Resource Access Management (RAM) role that ActionTrail is allowed to assume.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "status",
+				Description: "The status of the trail.",
 				Type:        proto.ColumnType_STRING,
 			},
 			{
@@ -65,11 +75,6 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 			{
 				Name:        "sls_project_arn",
 				Description: "The ARN of the Log Service project to which events are delivered.",
-				Type:        proto.ColumnType_STRING,
-			},
-			{
-				Name:        "status",
-				Description: "The status of the trail.",
 				Type:        proto.ColumnType_STRING,
 			},
 			{
@@ -102,11 +107,6 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("StopLoggingTime").Transform(transform.NullIfZeroValue).Transform(transform.UnixMsToTimestamp),
 			},
 			{
-				Name:        "mns_topic_arn",
-				Description: "The Alibaba Cloud Resource Name (ARN) of the Message Service (MNS) topic to which ActionTrail sends messages.",
-				Type:        proto.ColumnType_STRING,
-			},
-			{
 				Name:        "is_organization_trail",
 				Description: "Indicates whether the trail was created as a multi-account trail.",
 				Type:        proto.ColumnType_BOOL,
@@ -122,17 +122,17 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 			// steampipe standard columns
 
 			{
+				Name:        "title",
+				Description: ColumnDescriptionTitle,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("Name"),
+			},
+			{
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getActionTrailAka,
 				Transform:   transform.FromValue(),
-			},
-			{
-				Name:        "title",
-				Description: ColumnDescriptionTitle,
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Name"),
 			},
 
 			// alicloud standard columns
@@ -192,13 +192,7 @@ func getActionTrail(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 		return nil, err
 	}
 
-	var name string
-	if h.Item != nil {
-		data := h.Item.(actiontrail.TrailListItem)
-		name = data.Name
-	} else {
-		name = d.KeyColumnQuals["name"].GetStringValue()
-	}
+	name := d.KeyColumnQuals["name"].GetStringValue()
 
 	request := actiontrail.CreateDescribeTrailsRequest()
 	request.Scheme = "https"
@@ -230,11 +224,11 @@ func getEvents(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) 
 	request.Scheme = "https"
 	response, err := client.LookupEvents(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
-		plugin.Logger(ctx).Error("getActionTrail", "query_error", serverErr, "request", request)
+		plugin.Logger(ctx).Error("getEvents", "query_error", serverErr, "request", request)
 		return nil, serverErr
 	}
 
-	if response.Events != nil && len(response.Events) > 0 {
+	if response.Events != nil {
 		return response.Events, nil
 	}
 

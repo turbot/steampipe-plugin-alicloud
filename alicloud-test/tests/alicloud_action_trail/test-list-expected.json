@@ -2,6 +2,6 @@
 	{
 		"event_rw": "All",
 		"name": "{{ resourceName }}",
-		"trail_region": "cn-hangzhou"
+		"trail_region": "{{ regionName }}"
 	}
 ]

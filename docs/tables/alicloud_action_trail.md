@@ -17,7 +17,8 @@ from
   alicloud_action_trail;
 ```
 
-### List trails where status is Enabled
+### List trails which are Enabled
+
 ```sql
 select
   name,
@@ -27,12 +28,13 @@ select
   trail_region
 from
   alicloud_action_trail
-where status = 'Enable';
+where
+  status = 'Enable';
 ```
 
-### List of trails older than 60 days
+### List trails which are older than 60 days
 
- ```sql
+```sql
 select
   name,
   home_region,
@@ -41,10 +43,9 @@ select
   trail_region
 from
   alicloud_action_trail
-where create_time <= (current_date - interval '60' day)
- ```
-
-
+where
+  create_time <= (current_date - interval '60' day);
+```
 
 ### List of trails which were not created as a multi-account trail.
 
@@ -58,5 +59,5 @@ select
 from
   alicloud_action_trail
 where
- not is_organization_trail;
+  not is_organization_trail;
 ```
