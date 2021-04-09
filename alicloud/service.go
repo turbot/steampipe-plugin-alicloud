@@ -326,13 +326,13 @@ func RDSService(ctx context.Context, d *plugin.QueryData, region string) (*rds.C
 	return svc, nil
 }
 
-// CSService returns the service connection for Alicloud Container service
-func CSService(ctx context.Context, d *plugin.QueryData, region string) (*cs.Client, error) {
+// ContainerService returns the service connection for Alicloud Container service
+func ContainerService(ctx context.Context, d *plugin.QueryData, region string) (*cs.Client, error) {
 	if region == "" {
-		return nil, fmt.Errorf("region must be passed CSService")
+		return nil, fmt.Errorf("region must be passed ContainerService")
 	}
 	// have we already created and cached the service?
-	serviceCacheKey := fmt.Sprintf("cs-%s", region)
+	serviceCacheKey := fmt.Sprintf("ContainerService-%s", region)
 	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
 		return cachedData.(*cs.Client), nil
 	}

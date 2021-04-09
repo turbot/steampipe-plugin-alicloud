@@ -15,16 +15,16 @@ import (
 
 //// TABLE DEFINITION
 
-func tableAlicloudElasticContainer(ctx context.Context) *plugin.Table {
+func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "alicloud_elastic_container",
-		Description: "Elastic Elastic Container",
+		Name:        "alicloud_cs_kubernetes_cluster",
+		Description: "Alicloud Container Service Kubernetes Cluster",
 		List: &plugin.ListConfig{
-			Hydrate: listElasticContainers,
+			Hydrate: listCsKubernetesClusters,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("cluster_id"),
-			Hydrate:    getElasticContainer,
+			Hydrate:    getCsKubernetesCluster,
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -59,7 +59,7 @@ func tableAlicloudElasticContainer(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("cluster_type"),
 			},
 			{
-				Name:        "created",
+				Name:        "created_at",
 				Description: "The time when the cluster was created.",
 				Type:        proto.ColumnType_TIMESTAMP,
 				Transform:   transform.FromField("created"),
@@ -109,7 +109,7 @@ func tableAlicloudElasticContainer(ctx context.Context) *plugin.Table {
 			{
 				Name:        "vswitch_cidr",
 				Description: "The CIDR block of VSwitches.",
-				Type:        proto.ColumnType_STRING,
+				Type:        proto.ColumnType_CIDR,
 				Transform:   transform.FromField("vswitch_cidr"),
 			},
 			{
@@ -139,7 +139,7 @@ func tableAlicloudElasticContainer(ctx context.Context) *plugin.Table {
 			{
 				Name:        "subnet_cidr",
 				Description: "The CIDR block of pods in the cluster.",
-				Type:        proto.ColumnType_STRING,
+				Type:        proto.ColumnType_CIDR,
 				Transform:   transform.FromField("subnet_cidr"),
 			},
 			{
@@ -276,7 +276,7 @@ func tableAlicloudElasticContainer(ctx context.Context) *plugin.Table {
 				Name:        "cluster_log",
 				Description: "The logs of a cluster.",
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getClusterLog,
+				Hydrate:     getCsKubernetesClusterLog,
 				Transform:   transform.FromValue(),
 			},
 			{
@@ -288,23 +288,23 @@ func tableAlicloudElasticContainer(ctx context.Context) *plugin.Table {
 
 			// steampipe standard columns
 			{
+				Name:        "title",
+				Description: ColumnDescriptionTitle,
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("name"),
+			},
+			{
 				Name:        "tags",
 				Description: ColumnDescriptionTags,
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("tags").Transform(containerTagsToMap),
+				Transform:   transform.FromField("tags").Transform(csKubernetesClusterAkaTagsToMap),
 			},
 			{
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getElasticContainerAka,
+				Hydrate:     getCsKubernetesClusterAka,
 				Transform:   transform.FromValue(),
-			},
-			{
-				Name:        "title",
-				Description: ColumnDescriptionTitle,
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("name"),
 			},
 
 			// alicloud standard columns
@@ -327,13 +327,13 @@ func tableAlicloudElasticContainer(ctx context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func listElasticContainers(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func listCsKubernetesClusters(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
-	client, err := CSService(ctx, d, region)
+	client, err := ContainerService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("listElasticContainers", "connection_error", err)
+		plugin.Logger(ctx).Error("listCsKubernetesClusters", "connection_error", err)
 		return nil, err
 	}
 	request := cs.CreateDescribeClustersV1Request()
@@ -345,7 +345,7 @@ func listElasticContainers(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 	for {
 		response, err := client.DescribeClustersV1(request)
 		if err != nil {
-			plugin.Logger(ctx).Error("listElasticContainers", "query_error", err, "request", request)
+			plugin.Logger(ctx).Error("listCsKubernetesClusters", "query_error", err, "request", request)
 			return nil, err
 		}
 		var result map[string]interface{}
@@ -355,7 +355,7 @@ func listElasticContainers(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 		TotalCount := pageInfo["total_count"].(float64)
 		PageNumber := pageInfo["page_number"].(float64)
 		for _, cluster := range clusters {
-			plugin.Logger(ctx).Warn("listElasticContainers", "item", cluster)
+			plugin.Logger(ctx).Warn("listCsKubernetesClusters", "item", cluster)
 			clusterAsMap := cluster.(map[string]interface{})
 			d.StreamListItem(ctx, clusterAsMap)
 			count++
@@ -370,14 +370,14 @@ func listElasticContainers(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 
 //// HYDRATE FUNCTIONS
 
-func getElasticContainer(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getCsKubernetesCluster(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-	plugin.Logger(ctx).Trace("getElasticContainer")
+	plugin.Logger(ctx).Trace("getCsKubernetesCluster")
 
 	// Create service connection
-	client, err := CSService(ctx, d, region)
+	client, err := ContainerService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("getElasticContainer", "connection_error", err)
+		plugin.Logger(ctx).Error("getCsKubernetesCluster", "connection_error", err)
 		return nil, err
 	}
 
@@ -395,7 +395,7 @@ func getElasticContainer(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 
 	response, err := client.DescribeClusterDetail(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
-		plugin.Logger(ctx).Error("getElasticContainer", "query_error", serverErr, "request", request)
+		plugin.Logger(ctx).Error("getCsKubernetesCluster", "query_error", serverErr, "request", request)
 		return nil, serverErr
 	}
 
@@ -408,14 +408,14 @@ func getElasticContainer(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	return nil, nil
 }
 
-func getClusterLog(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getCsKubernetesClusterLog(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-	plugin.Logger(ctx).Trace("getClusterLog")
+	plugin.Logger(ctx).Trace("getCsKubernetesClusterLog")
 
 	// Create service connection
-	client, err := CSService(ctx, d, region)
+	client, err := ContainerService(ctx, d, region)
 	if err != nil {
-		plugin.Logger(ctx).Error("getClusterLog", "connection_error", err)
+		plugin.Logger(ctx).Error("getCsKubernetesClusterLog", "connection_error", err)
 		return nil, err
 	}
 
@@ -433,7 +433,7 @@ func getClusterLog(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 
 	response, err := client.DescribeClusterLogs(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
-		plugin.Logger(ctx).Error("getClusterLog", "query_error", serverErr, "request", request)
+		plugin.Logger(ctx).Error("getCsKubernetesClusterLog", "query_error", serverErr, "request", request)
 		return nil, serverErr
 	}
 
@@ -444,8 +444,8 @@ func getClusterLog(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	return nil, nil
 }
 
-func getElasticContainerAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getElasticContainerAka")
+func getCsKubernetesClusterAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getCsKubernetesClusterAka")
 
 	data := h.Item.(map[string]interface{})
 
@@ -462,7 +462,7 @@ func getElasticContainerAka(ctx context.Context, d *plugin.QueryData, h *plugin.
 	return akas, nil
 }
 
-func containerTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, error) {
+func csKubernetesClusterAkaTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	tags := d.Value.([]interface{})
 	if tags == nil {
 		return nil, nil

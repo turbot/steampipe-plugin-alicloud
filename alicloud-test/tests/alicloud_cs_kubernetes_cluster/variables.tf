@@ -23,8 +23,6 @@ data "null_data_source" "resource" {
   }
 }
 
-
-
 // If there is not specifying vpc_id, the module will launch a new vpc
 resource "alicloud_vpc" "named_test_resource" {
   vpc_name   = var.resource_name
@@ -50,11 +48,9 @@ resource "alicloud_cs_kubernetes" "named_test_resource" {
   name                  = var.resource_name
 }
 
-
 output "cluster_id" {
   value = alicloud_cs_kubernetes.named_test_resource.id
 }
-
 
 output "resource_name" {
   value = var.resource_name

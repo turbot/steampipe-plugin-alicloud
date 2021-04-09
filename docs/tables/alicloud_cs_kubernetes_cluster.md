@@ -29,7 +29,7 @@ select
 from
   alicloud_elastic_container
 where
-  state = 'running'
+  state = 'running';
 ```
 
 ### List of clusters which are managed kubernetes
@@ -44,5 +44,5 @@ select
 from
   alicloud_elastic_container
 where
-  cluster_type = 'ManagedKubernetes'
+  cluster_type = 'ManagedKubernetes';
 ```
