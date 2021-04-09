@@ -2,6 +2,6 @@
 	{
 		"name": "{{ resourceName }}",
 		"status": "Enable",
-		"trail_region": "{{ regionName }}"
+		"trail_region": "{{ output.region_name.value }}"
 	}
 ]
