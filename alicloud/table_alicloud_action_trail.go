@@ -52,34 +52,13 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 			},
 			{
+				Name:        "is_organization_trail",
+				Description: "Indicates whether the trail was created as a multi-account trail.",
+				Type:        proto.ColumnType_BOOL,
+			},
+			{
 				Name:        "oss_bucket_name",
 				Description: "The name of the OSS bucket to which events are delivered.",
-				Type:        proto.ColumnType_STRING,
-			},
-			{
-				Name:        "oss_key_prefix",
-				Description: "The prefix of log files stored in the OSS bucket.",
-				Type:        proto.ColumnType_STRING,
-			},
-			{
-				Name:        "event_rw",
-				Description: "The read/write type of the delivered events.",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("EventRW"),
-			},
-			{
-				Name:        "sls_write_role_arn",
-				Description: "The ARN of the RAM role assumed by ActionTrail for delivering logs to the destination Log Service project.",
-				Type:        proto.ColumnType_STRING,
-			},
-			{
-				Name:        "sls_project_arn",
-				Description: "The ARN of the Log Service project to which events are delivered.",
-				Type:        proto.ColumnType_STRING,
-			},
-			{
-				Name:        "trail_region",
-				Description: "The regions to which the trail is applied.",
 				Type:        proto.ColumnType_STRING,
 			},
 			{
@@ -89,10 +68,25 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("CreateTime").Transform(transform.UnixMsToTimestamp),
 			},
 			{
-				Name:        "update_time",
-				Description: "The most recent time when the configuration of the trail was updated.",
-				Type:        proto.ColumnType_TIMESTAMP,
-				Transform:   transform.FromField("UpdateTime").Transform(transform.UnixMsToTimestamp),
+				Name:        "event_rw",
+				Description: "The read/write type of the delivered events.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("EventRW"),
+			},
+			{
+				Name:        "oss_key_prefix",
+				Description: "The prefix of log files stored in the OSS bucket.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "sls_project_arn",
+				Description: "The ARN of the Log Service project to which events are delivered.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "sls_write_role_arn",
+				Description: "The ARN of the RAM role assumed by ActionTrail for delivering logs to the destination Log Service project.",
+				Type:        proto.ColumnType_STRING,
 			},
 			{
 				Name:        "start_logging_time",
@@ -107,20 +101,18 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("StopLoggingTime").Transform(transform.NullIfZeroValue).Transform(transform.UnixMsToTimestamp),
 			},
 			{
-				Name:        "is_organization_trail",
-				Description: "Indicates whether the trail was created as a multi-account trail.",
-				Type:        proto.ColumnType_BOOL,
+				Name:        "trail_region",
+				Description: "The regions to which the trail is applied.",
+				Type:        proto.ColumnType_STRING,
 			},
 			{
-				Name:        "events",
-				Description: "The returned events.",
-				Type:        proto.ColumnType_JSON,
-				Hydrate:     getEvents,
-				Transform:   transform.FromValue(),
+				Name:        "update_time",
+				Description: "The most recent time when the configuration of the trail was updated.",
+				Type:        proto.ColumnType_TIMESTAMP,
+				Transform:   transform.FromField("UpdateTime").Transform(transform.UnixMsToTimestamp),
 			},
 
-			// steampipe standard columns
-
+			// Steampipe standard columns
 			{
 				Name:        "title",
 				Description: ColumnDescriptionTitle,
@@ -135,7 +127,7 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromValue(),
 			},
 
-			// alicloud standard columns
+			// Alicloud standard columns
 			{
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
@@ -173,7 +165,6 @@ func listActionTrails(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 		return nil, err
 	}
 	for _, trail := range response.TrailList {
-		plugin.Logger(ctx).Warn("listActionTrails", "item", trail)
 		d.StreamListItem(ctx, trail)
 	}
 	return nil, nil
@@ -205,31 +196,6 @@ func getActionTrail(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 
 	if response.TrailList != nil && len(response.TrailList) > 0 {
 		return response.TrailList[0], nil
-	}
-
-	return nil, nil
-}
-
-func getEvents(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-	plugin.Logger(ctx).Trace("getEvents")
-
-	// Create service connection
-	client, err := ActionTrailService(ctx, d, region)
-	if err != nil {
-		plugin.Logger(ctx).Error("getEvents", "connection_error", err)
-		return nil, err
-	}
-	request := actiontrail.CreateLookupEventsRequest()
-	request.Scheme = "https"
-	response, err := client.LookupEvents(request)
-	if serverErr, ok := err.(*errors.ServerError); ok {
-		plugin.Logger(ctx).Error("getEvents", "query_error", serverErr, "request", request)
-		return nil, serverErr
-	}
-
-	if response.Events != nil {
-		return response.Events, nil
 	}
 
 	return nil, nil

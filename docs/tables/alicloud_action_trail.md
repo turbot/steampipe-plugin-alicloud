@@ -47,13 +47,13 @@ where
   create_time <= (current_date - interval '60' day);
 ```
 
-### List of trails which were not created as a multi-account trail.
+### List trails which are not multi-account trail
 
 ```sql
 select
   name,
   home_region,
-  event_rw,
+  is_organization_trail,
   status,
   trail_region
 from

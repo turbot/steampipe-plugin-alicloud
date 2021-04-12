@@ -23,10 +23,15 @@ data "null_data_source" "resource" {
   }
 }
 
+resource "alicloud_oss_bucket" "named_test_resource" {
+  bucket = var.resource_name
+  acl    = "private"
+}
+
 # Create a new actiontrail trail.
 resource "alicloud_actiontrail_trail" "named_test_resource" {
   trail_name      = var.resource_name
-  oss_bucket_name = "cis-test2"
+  oss_bucket_name = var.resource_name
   event_rw        = "All"
   trail_region    = var.alicloud_region
 }
