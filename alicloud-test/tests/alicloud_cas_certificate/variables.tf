@@ -5,6 +5,7 @@ variable "resource_name" {
   description = "Name of the resource used throughout the test."
 }
 
+# The Cas Certificate region only support cn-hangzhou, ap-south-1, me-east-1, eu-central-1, ap-northeast-1, ap-southeast-2.
 variable "alicloud_region" {
   type        = string
   default     = "ap-south-1"

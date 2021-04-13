@@ -38,7 +38,7 @@ func tableAlicloudUserCertificate(ctx context.Context) *plugin.Table {
 			{
 				Name:        "id",
 				Description: "The ID of the certificate.",
-				Type:        proto.ColumnType_INT,
+				Type:        proto.ColumnType_DOUBLE,
 			},
 			{
 				Name:        "org_name",
@@ -113,7 +113,7 @@ func tableAlicloudUserCertificate(ctx context.Context) *plugin.Table {
 				Hydrate:     getUserCertificate,
 			},
 
-			//steampipe standard columns
+			// Steampipe standard columns
 			{
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
@@ -128,7 +128,7 @@ func tableAlicloudUserCertificate(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("Name"),
 			},
 
-			// alicloud standard columns
+			// Alicloud standard columns
 			{
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
