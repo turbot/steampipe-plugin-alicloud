@@ -17,7 +17,7 @@ from
   alicloud_elastic_container;
 ```
 
-### List of clusters which are currently running
+### List clusters which are running
 
 ```sql
 select
@@ -32,7 +32,7 @@ where
   state = 'running';
 ```
 
-### List of clusters which are managed kubernetes
+### List clusters which are managed by kubernetes
 
 ```sql
 select

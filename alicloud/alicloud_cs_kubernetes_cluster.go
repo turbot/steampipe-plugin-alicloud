@@ -23,7 +23,7 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 			Hydrate: listCsKubernetesClusters,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("cluster_id"),
+			KeyColumns: plugin.AllColumns([]string{"cluster_id", "region"}),
 			Hydrate:    getCsKubernetesCluster,
 		},
 		GetMatrixItem: BuildRegionList,
@@ -149,9 +149,10 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("external_loadbalancer_id"),
 			},
 			{
-				Name:      "port",
-				Type:      proto.ColumnType_STRING,
-				Transform: transform.FromField("port"),
+				Name:        "port",
+				Description: "Container port in Kubernetes.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("port"),
 			},
 			{
 				Name:        "node_status",
@@ -286,7 +287,7 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("tags"),
 			},
 
-			// steampipe standard columns
+			// Steampipe standard columns
 			{
 				Name:        "title",
 				Description: ColumnDescriptionTitle,
@@ -307,7 +308,7 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromValue(),
 			},
 
-			// alicloud standard columns
+			// Alicloud standard columns
 			{
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
@@ -355,7 +356,6 @@ func listCsKubernetesClusters(ctx context.Context, d *plugin.QueryData, _ *plugi
 		TotalCount := pageInfo["total_count"].(float64)
 		PageNumber := pageInfo["page_number"].(float64)
 		for _, cluster := range clusters {
-			plugin.Logger(ctx).Warn("listCsKubernetesClusters", "item", cluster)
 			clusterAsMap := cluster.(map[string]interface{})
 			d.StreamListItem(ctx, clusterAsMap)
 			count++
@@ -371,16 +371,20 @@ func listCsKubernetesClusters(ctx context.Context, d *plugin.QueryData, _ *plugi
 //// HYDRATE FUNCTIONS
 
 func getCsKubernetesCluster(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	matrixRegion := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 	plugin.Logger(ctx).Trace("getCsKubernetesCluster")
 
 	// Create service connection
-	client, err := ContainerService(ctx, d, region)
+	client, err := ContainerService(ctx, d, matrixRegion)
 	if err != nil {
 		plugin.Logger(ctx).Error("getCsKubernetesCluster", "connection_error", err)
 		return nil, err
 	}
+	region := d.KeyColumnQuals["region"].GetStringValue()
 
+	if region != matrixRegion {
+		return nil, nil
+	}
 	var id string
 	if h.Item != nil {
 		clusterData := h.Item.(map[string]interface{})
@@ -461,6 +465,8 @@ func getCsKubernetesClusterAka(ctx context.Context, d *plugin.QueryData, h *plug
 
 	return akas, nil
 }
+
+//// TRANSFORM FUNCTIONS
 
 func csKubernetesClusterAkaTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	tags := d.Value.([]interface{})

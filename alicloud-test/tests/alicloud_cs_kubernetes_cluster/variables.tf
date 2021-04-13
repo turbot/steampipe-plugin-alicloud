@@ -26,36 +26,41 @@ data "null_data_source" "resource" {
 // If there is not specifying vpc_id, the module will launch a new vpc
 resource "alicloud_vpc" "named_test_resource" {
   vpc_name   = var.resource_name
-  cidr_block = "172.16.0.0/12"
+  cidr_block = "10.1.0.0/21"
 }
 
 // According to the vswitch cidr blocks to launch several vswitches
 resource "alicloud_vswitch" "named_test_resource" {
   vpc_id     = alicloud_vpc.named_test_resource.id
-  cidr_block = "172.16.0.0/21"
+  cidr_block = "10.1.1.0/24"
   zone_id    = "us-east-1b"
 }
 
-resource "alicloud_cs_kubernetes" "named_test_resource" {
-  master_vswitch_ids    = [alicloud_vswitch.named_test_resource.id, alicloud_vswitch.named_test_resource.id, alicloud_vswitch.named_test_resource.id]
-  worker_vswitch_ids    = [alicloud_vswitch.named_test_resource.id, alicloud_vswitch.named_test_resource.id, alicloud_vswitch.named_test_resource.id]
-  master_instance_types = ["ecs.c5.large", "ecs.c5.large", "ecs.c5.large"]
-  worker_instance_types = ["ecs.c5.large", "ecs.c5.large", "ecs.c5.large"]
-  worker_number         = "3"
-  pod_cidr              = "10.10.0.0/24"
-  service_cidr          = "192.168.0.0/24"
-  password              = "Test1234!"
-  name                  = var.resource_name
+resource "alicloud_cs_managed_kubernetes" "named_test_resource" {
+  name                         = var.resource_name
+  count                        = 1
+  cluster_spec                 = "ack.standard"
+  is_enterprise_security_group = true
+  worker_number                = 2
+  password                     = "Hello1234"
+  pod_cidr                     = "172.20.0.0/16"
+  service_cidr                 = "172.21.0.0/20"
+  worker_vswitch_ids           = [alicloud_vswitch.named_test_resource.id]
+  worker_instance_types        = ["ecs.c5.large"]
 }
 
 output "cluster_id" {
-  value = alicloud_cs_kubernetes.named_test_resource.id
+  value = alicloud_cs_managed_kubernetes.named_test_resource[0].id
 }
 
 output "resource_name" {
   value = var.resource_name
 }
 
+output "region" {
+  value = var.alicloud_region
+}
+
 output "resource_aka" {
-  value = "acs:cs::${data.alicloud_caller_identity.current.account_id}:container/${var.resource_name}"
+  value = "acs:cs:us-east-1:${data.alicloud_caller_identity.current.account_id}:container/${var.resource_name}"
 }

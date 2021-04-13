@@ -332,7 +332,7 @@ func ContainerService(ctx context.Context, d *plugin.QueryData, region string) (
 		return nil, fmt.Errorf("region must be passed ContainerService")
 	}
 	// have we already created and cached the service?
-	serviceCacheKey := fmt.Sprintf("ContainerService-%s", region)
+	serviceCacheKey := fmt.Sprintf("cs-%s", region)
 	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
 		return cachedData.(*cs.Client), nil
 	}
