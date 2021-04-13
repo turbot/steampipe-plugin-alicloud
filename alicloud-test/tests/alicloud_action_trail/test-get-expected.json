@@ -1,7 +1,9 @@
 [
 	{
 		"name": "{{ resourceName }}",
+		"oss_bucket_name": "{{ resourceName }}",
+		"region": "{{ output.region_name.value }}",
 		"status": "Enable",
-		"trail_region": "{{ output.region_name.value }}"
+		"trail_region": "All"
 	}
 ]

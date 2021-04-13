@@ -6,7 +6,7 @@ variable "resource_name" {
 
 variable "alicloud_region" {
   type        = string
-  default     = "cn-hangzhou"
+  default     = "us-east-1"
   description = "Alicloud region used for the test."
 }
 
@@ -25,14 +25,23 @@ data "null_data_source" "resource" {
 resource "alicloud_oss_bucket" "named_test_resource" {
   bucket = var.resource_name
   acl    = "private"
+  policy = <<POLICY
+  {"Statement":
+      [{"Action":
+          ["oss:PutObject", "oss:GetObject", "oss:DeleteBucket"],
+        "Effect":"Allow",
+        "Resource":
+            ["acs:oss:*:*:*"]}],
+   "Version":"1"}
+  POLICY
 }
 
 # Create a new actiontrail trail.
 resource "alicloud_actiontrail_trail" "named_test_resource" {
   trail_name      = var.resource_name
-  oss_bucket_name = var.resource_name
+  oss_bucket_name = alicloud_oss_bucket.named_test_resource.id
   event_rw        = "All"
-  trail_region    = var.alicloud_region
+  trail_region    = "All"
 }
 
 output "account_id" {
@@ -48,5 +57,5 @@ output "region_name"{
 }
 
 output "resource_aka" {
-  value = "acs:actiontrail:cn-hangzhou:${data.alicloud_caller_identity.current.account_id}:actiontrail/${var.resource_name}"
+  value = "acs:actiontrail:${var.alicloud_region}:${data.alicloud_caller_identity.current.account_id}:actiontrail/${var.resource_name}"
 }

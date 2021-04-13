@@ -2,6 +2,6 @@
 	{
 		"event_rw": "All",
 		"name": "{{ resourceName }}",
-		"trail_region": "{{ output.region_name.value }}"
+		"trail_region": "All"
 	}
 ]
