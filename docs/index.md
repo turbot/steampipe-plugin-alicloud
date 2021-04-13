@@ -6,67 +6,128 @@ brand_color: "#FF6600"
 display_name: Alibaba Cloud
 name: alicloud
 description: Steampipe plugin for querying Alibaba Cloud servers, databases, networks, and other resources.
+og_description: Query Alibaba Cloud with SQL! Open source CLI. No DB required. 
+og_image: "/images/plugins/turbot/alicloud-social-graphic.png"
 ---
 
-# Alibaba Cloud
+# Alibaba Cloud + Steampipe
 
-Query your Alibaba Cloud infrastructure including servers, database, networks and other resources.
+[Steampipe](https://steampipe.io) is an open source CLI to instantly query cloud APIs using SQL.
 
-### Installation
+[Alibaba Cloud](https://alibabacloud.com) provides on-demand cloud computing platforms and APIs to authenticated customers on a metered pay-as-you-go basis. 
 
-To download and install the latest Alibaba Cloud plugin:
+For example:
+
+```sql
+select
+  name,
+  display_name,
+  mfa_enabled
+from
+  alicloud_ram_user;
+```
+
+```
++---------+----------------+-------------+
+| name    | display_name   | mfa_enabled |
++---------+----------------+-------------+
+| pam     | pam_beesly     | false       |
+| creed   | creed_bratton  | true        |
+| stanley | stanley_hudson | false       |
+| michael | michael_scott  | false       |
+| dwight  | dwight_schrute | true        |
++---------+----------------+-------------+
+```
+
+## Documentation
+
+- **[Table definitions & examples →](/plugins/turbot/alicloud/tables)**
+
+## Get started
+
+### Install
+
+Download and install the latest Alibaba Cloud plugin:
 
 ```bash
 steampipe plugin install alicloud
 ```
 
-## Connection Configuration
+### Credentials
 
-Connection configurations are defined using HCL in one or more Steampipe config files. Steampipe will load ALL configuration files from `~/.steampipe/config` that have a `.spc` extension. A config file may contain multiple connections.
+| Item | Description |
+| - | - |
+| Credentials | [Create API keys](https://www.alibabacloud.com/help/doc-detail/53045.htm) and add to `~/.steampipe/config/alicloud.spc` |
+| Permissions | Minimally grant the user `AliyunOSSReadOnlyAccess`  |
+| Radius | Each connection represents a single Alibaba Cloud account. |
+| Resolution |  1. Credentials specified in connection argument file.<br />2. Credentials specified in environment variables. |
+| Region Resolution | If `regions` is not specified, Steampipe will use the single default region. |
 
-### Scope
+### Configuration
 
-Each `alicloud` connection is scoped to a single Alibaba Cloud account, with a single set of credentials. You may configure multiple `alicloud` connections if desired, with each connecting to a different account. Each `alicloud` connection may be configured for multiple regions.
-
-### Configuration Arguments
-
-The Alicloud plugin allows you set static credentials with the `access_key` and `secret_key` arguments. You may select one or more regions with the `regions` argument. A connection may connect to multiple regions, however be aware that performance may be negatively affected by both the number of regions and the latency to them.
+Installing the latest alicloud plugin will create a config file (`~/.steampipe/config/alicloud.spc`) with a single connection named `alicloud`:
 
 ```hcl
-# credentials via key pair
-connection "alicloud_account_x" {
+connection "alicloud" {
   plugin      = "alicloud"
   secret_key  = "gMCYsoGqjfThisISNotARealKeyVVhh"
-  access_key  = "ASIA3ODZSWFYSN2PFHPJ"
+  access_key  = "ASIA42DZSWFYSN2PFHPJ"
   regions     = ["us-east-1" , "ap-south-1"]
 }
 ```
 
-If no credentials are specified, the plugin will get the current credentials from environment variables:
+## Get involved
+
+* Open source: https://github.com/turbot/steampipe-plugin-alicloud
+* Community: [Discussion forums](https://github.com/turbot/steampipe/discussions)
+
+
+## Advanced configuration options
+
+For users with multiple accounts and more complex authentication use cases, here are some examples of advanced configuration options:
+
+### Specify multiple accounts 
+A common configuration is to have multiple connections to different accounts:
 
 ```hcl
-# default
-connection "alicloud" {
+connection "ali_account_aaa" {
   plugin      = "alicloud"
+  secret_key  = "gMCYsoGqjfThisISNotARealKeyVVhh"
+  access_key  = "ASIA42DZSWFYSN2PFHPJ"
+  regions     = ["us-east-1" , "ap-south-1"]
 }
+
+connection "ali_account_bbb" {
+  plugin      = "alicloud"
+  secret_key  = "gMCYsoGqjfThisAintARealKeyVVhh"
+  access_key  = "ASIA42DZSWFYS42PFJHP"
+  regions     = ["cn-east-1"]
+}
+
 ```
 
-The Alicloud credential resolution order is:
+### Specify static credentials using environment variables 
+Steampipe supports three different naming conventions for Alicloud authentication environment variables, checking for existence in the following order:
 
-1. Credentials specified in connection argument file.
-2. Credentials specified in environment variables.
-   Environment variables are loaded in this order of precedence, aligning with the aliyun CLI (first) and Terraform (second):
+1. aliyun CLI format
+```sh
+export ALIBABACLOUD_ACCESS_KEY_ID=ASIA42DZSWFYS42PFJHP  
+export ALIBABACLOUD_ACCESS_KEY_SECRET=gMCYsoGqjfThisAintARealKeyVVhh
+export ALIBABACLOUD_REGION_ID=cn-east-1
+``` 
 
-   | Priority | Access Key                 | Secret Key                     | Region                 |
-   | :------- | :------------------------- | :----------------------------- | :--------------------- |
-   | 1        | ALIBABACLOUD_ACCESS_KEY_ID | ALIBABACLOUD_ACCESS_KEY_SECRET | ALIBABACLOUD_REGION_ID |
-   | 2        | ALICLOUD_ACCESS_KEY_ID     | ALICLOUD_ACCESS_KEY_SECRET     | ALICLOUD_REGION_ID     |
-   | 3        | ALICLOUD_ACCESS_KEY        | ALICLOUD_SECRET_KEY            | ALICLOUD_REGION        |
+2. Terraform format
+```sh
+export ALICLOUD_ACCESS_KEY_ID=ASIA42DZSWFYS42PFJHP  
+export ALICLOUD_ACCESS_KEY_SECRET=gMCYsoGqjfThisAintARealKeyVVhh
+export ALICLOUD_REGION_ID=cn-east-1
+``` 
 
-If `regions` is not specified, Steampipe will use a single default region using the resolution order as mentioned for `Region` in above table:
+3. Steampipe format
+```sh
+export ALICLOUD_ACCESS_KEY=ASIA42DZSWFYS42PFJHP  
+export ALICLOUD_SECRET_KEY=gMCYsoGqjfThisAintARealKeyVVhh
+export ALICLOUD_REGION=cn-east-1
+``` 
 
-Steampipe will require read access in order to query your Alicloud resources.[Create a RAM user with an access key pair](https://partners-intl.aliyun.com/help/doc-detail/116401.htm).
-
-**Note:** Read permissions are required for tables to work.
-
-_Steampipe does not yet automatically load `aliyun` configuration files._
+If regions is not specified, Steampipe will use the single default region.
