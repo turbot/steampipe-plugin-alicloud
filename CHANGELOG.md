@@ -1,3 +1,11 @@
+## v0.0.8 [2021-04-08]
+
+_What's new?_
+
+- New tables added
+  - [alicloud_ecs_region](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_ecs_region) ([#91](https://github.com/turbot/steampipe-plugin-alicloud/pull/91))
+  - [alicloud_ecs_zone](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_ecs_zone) ([#91](https://github.com/turbot/steampipe-plugin-alicloud/pull/91))
+
 ## v0.0.7 [2021-04-02]
 
 _Bug fixes_
