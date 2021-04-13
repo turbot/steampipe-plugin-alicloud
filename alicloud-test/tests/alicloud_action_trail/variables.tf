@@ -48,5 +48,5 @@ output "region_name"{
   value = var.alicloud_region
 }
 output "resource_aka" {
-  value = "acs:actiontrail:us-east-1:${data.alicloud_caller_identity.current.account_id}:actiontrail/${var.resource_name}"
+  value = "acs:actiontrail:cn-hangzhou:${data.alicloud_caller_identity.current.account_id}:actiontrail/${var.resource_name}"
 }
