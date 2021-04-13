@@ -1,4 +1,3 @@
-
 variable "resource_name" {
   type        = string
   default     = "turbot-test-20200125-create-update"
@@ -47,6 +46,7 @@ output "resource_name" {
 output "region_name"{
   value = var.alicloud_region
 }
+
 output "resource_aka" {
   value = "acs:actiontrail:cn-hangzhou:${data.alicloud_caller_identity.current.account_id}:actiontrail/${var.resource_name}"
 }
