@@ -20,25 +20,7 @@ from
   alicloud_vpc_route_entry;
 ```
 
-### Get route entry details for a particular route table
-
-```sql
-select
-  name,
-  route_table_id,
-  description,
-  instance_id,
-  route_entry_id,
-  destination_cidr_block,
-  type,
-  status
-from
-  alicloud_vpc_route_entry
-where
-  route_table_id = '*********';
-```
-
-### List route entries which are custom type
+### List custom route entries
 
 ```sql
 select
@@ -56,7 +38,7 @@ where
   type = 'Custom';
 ```
 
-### List route entries where NextHopType is VPN Gateway
+### List route entries that have a next hop type of VPN gateway
 
 ```sql
 select
