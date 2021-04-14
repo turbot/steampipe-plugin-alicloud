@@ -17,6 +17,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			Schema:      ConfigSchema,
 		},
 		TableMap: map[string]*plugin.Table{
+			"alicloud_cas_certificate":             tableAlicloudUserCertificate(ctx),
 			"alicloud_ecs_auto_provisioning_group": tableAlicloudEcsAutoProvisioningGroup(ctx),
 			"alicloud_ecs_autoscaling_group":       tableAlicloudEcsAutoscalingGroup(ctx),
 			"alicloud_ecs_disk":                    tableAlicloudEcsDisk(ctx),
@@ -40,6 +41,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_ram_security_preference":     tableAlicloudRAMSecurityPreference(ctx),
 			"alicloud_ram_user":                    tableAlicloudRAMUser(ctx),
 			"alicloud_rds_instance":                tableAlicloudRdsInstance(ctx),
+			"alicloud_vpc":                         tableAlicloudVpc(ctx),
 			"alicloud_vpc_eip":                     tableAlicloudVpcEip(ctx),
 			"alicloud_vpc_nat_gateway":             tableAlicloudVpcNatGateway(ctx),
 			"alicloud_vpc_network_acl":             tableAlicloudVpcNetworkACL(ctx),
@@ -50,7 +52,6 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_vpc_vpn_customer_gateway":    tableAlicloudVpcVpnCustomerGateway(ctx),
 			"alicloud_vpc_vpn_gateway":             tableAlicloudVpcVpnGateway(ctx),
 			"alicloud_vpc_vswitch":                 tableAlicloudVpcVSwitch(ctx),
-			"alicloud_vpc":                         tableAlicloudVpc(ctx),
 		},
 	}
 	return p
