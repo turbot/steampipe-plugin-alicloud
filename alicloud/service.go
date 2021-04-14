@@ -7,6 +7,7 @@ import (
 
 	ims "github.com/alibabacloud-go/ims-20190815/client"
 	rpc "github.com/alibabacloud-go/tea-rpc/client"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/actiontrail"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cas"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
@@ -377,6 +378,34 @@ func RDSService(ctx context.Context, d *plugin.QueryData, region string) (*rds.C
 
 	// so it was not in cache - create service
 	svc, err := rds.NewClientWithAccessKey(region, ak, secret)
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the service connection
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+	return svc, nil
+}
+
+// ActionTrailService returns the service connection for Alicloud ActionTrail service
+func ActionTrailService(ctx context.Context, d *plugin.QueryData, region string) (*actiontrail.Client, error) {
+	if region == "" {
+		return nil, fmt.Errorf("region must be passed ActionTrailService")
+	}
+	// have we already created and cached the service?
+	serviceCacheKey := fmt.Sprintf("actiontrail-%s", region)
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(*actiontrail.Client), nil
+	}
+
+	ak, secret, err := getEnv(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+
+	// so it was not in cache - create service
+	svc, err := actiontrail.NewClientWithAccessKey(region, ak, secret)
 	if err != nil {
 		return nil, err
 	}
