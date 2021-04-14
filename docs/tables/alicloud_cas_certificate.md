@@ -6,7 +6,7 @@ This service is offered in cooperation with qualified certificate authorities. F
 
 ## Examples
 
-### Basic certificate info
+### Basic info
 
 ```sql
 select
@@ -32,7 +32,7 @@ where
   expired;
 ```
 
-### List of third-party certificates
+### List third-party certificates
 
 ```sql
 select
