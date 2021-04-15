@@ -1,0 +1,25 @@
+[
+	{
+		"account_id": "{{ output.account_id.value }}",
+		"destination_cidr_block": "172.11.1.1/32",
+		"next_hops": [
+				{
+					"Enabled": 0,
+					"NextHopId": "{{ output.instance_id.value }}",
+					"NextHopOppsiteInstanceId": "",
+					"NextHopOppsiteRegionId": "",
+					"NextHopOppsiteType": "",
+					"NextHopRegionId": "",
+					"NextHopRelatedInfo": {
+						"InstanceId": "",
+						"InstanceType": "",
+						"RegionId": ""
+					},
+					"NextHopType": "Instance",
+					"Weight": 0
+				}
+			],
+		"region": "{{ output.region_id.value }}",
+		"route_table_id": "{{ output.route_table_id.value }}"
+	}
+]

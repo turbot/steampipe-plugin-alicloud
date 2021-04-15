@@ -46,6 +46,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_vpc_eip":                     tableAlicloudVpcEip(ctx),
 			"alicloud_vpc_nat_gateway":             tableAlicloudVpcNatGateway(ctx),
 			"alicloud_vpc_network_acl":             tableAlicloudVpcNetworkACL(ctx),
+			"alicloud_vpc_route_entry":             tableAlicloudVpcRouteEntry(ctx),
 			"alicloud_vpc_route_table":             tableAlicloudVpcRouteTable(ctx),
 			"alicloud_vpc_ssl_vpn_client_cert":     tableAlicloudVpcSslVpnClientCert(ctx),
 			"alicloud_vpc_ssl_vpn_server":          tableAlicloudVpcSslVpnServer(ctx),
