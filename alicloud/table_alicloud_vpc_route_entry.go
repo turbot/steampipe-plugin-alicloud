@@ -114,13 +114,13 @@ func tableAlicloudVpcRouteEntry(ctx context.Context) *plugin.Table {
 				Name:        "title",
 				Description: ColumnDescriptionTitle,
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getAwsVpcRouteEntryTurbotData,
+				Hydrate:     getVpcRouteEntryTurbotData,
 			},
 			{
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getAwsVpcRouteEntryTurbotData,
+				Hydrate:     getVpcRouteEntryTurbotData,
 			},
 
 			// Alicloud standard columns
@@ -128,7 +128,7 @@ func tableAlicloudVpcRouteEntry(ctx context.Context) *plugin.Table {
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getAwsVpcRouteEntryTurbotData,
+				Hydrate:     getVpcRouteEntryTurbotData,
 			},
 			{
 				Name:        "account_id",
@@ -215,7 +215,7 @@ func listVpcRouteEntries(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 // 	return nil, nil
 // }
 
-func getAwsVpcRouteEntryTurbotData(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getVpcRouteEntryTurbotData(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getAwsVpcRouteEntryTurbotData")
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 	data := h.Item.(vpc.RouteEntry)
