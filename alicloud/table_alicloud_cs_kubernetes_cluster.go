@@ -70,13 +70,6 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("cluster_healthy"),
 			},
 			{
-				Name:        "cluster_log",
-				Description: "The logs of a cluster.",
-				Type:        proto.ColumnType_JSON,
-				Hydrate:     getCsKubernetesClusterLog,
-				Transform:   transform.FromValue(),
-			},
-			{
 				Name:      "cluster_spec",
 				Type:      proto.ColumnType_STRING,
 				Transform: transform.FromField("cluster_spec"),
@@ -149,23 +142,6 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 				Name:      "maintenance_info",
 				Type:      proto.ColumnType_STRING,
 				Transform: transform.FromField("maintenance_info"),
-			},
-			{
-				Name:      "maintenance_window",
-				Type:      proto.ColumnType_JSON,
-				Transform: transform.FromField("maintenance_window"),
-			},
-			{
-				Name:        "master_url",
-				Description: "The endpoints that are open for connections to the cluster.",
-				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("master_url"),
-			},
-			{
-				Name:        "meta_data",
-				Description: "The metadata of the cluster.",
-				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("meta_data"),
 			},
 			{
 				Name:      "need_update_agent",
@@ -279,6 +255,30 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 				Description: "The ID of the zone where the cluster is deployed.",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("zone_id"),
+			},
+			{
+				Name:        "cluster_log",
+				Description: "The logs of a cluster.",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getCsKubernetesClusterLog,
+				Transform:   transform.FromValue(),
+			},
+			{
+				Name:      "maintenance_window",
+				Type:      proto.ColumnType_JSON,
+				Transform: transform.FromField("maintenance_window"),
+			},
+			{
+				Name:        "master_url",
+				Description: "The endpoints that are open for connections to the cluster.",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("master_url"),
+			},
+			{
+				Name:        "meta_data",
+				Description: "The metadata of the cluster.",
+				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("meta_data"),
 			},
 			{
 				Name:        "tags_src",
@@ -469,6 +469,9 @@ func getCsKubernetesClusterAka(ctx context.Context, d *plugin.QueryData, h *plug
 //// TRANSFORM FUNCTIONS
 
 func csKubernetesClusterAkaTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	if d.Value == nil {
+		return nil, nil
+	}
 	tags := d.Value.([]interface{})
 	if tags == nil {
 		return nil, nil
