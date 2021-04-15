@@ -1,4 +1,4 @@
-# Table: alicloud_elastic_container
+# Table: alicloud_cs_kubernetes_cluster
 
 Alibaba Cloud Container Service for Kubernetes (ACK) integrates virtualization, storage, networking, and security capabilities. ACK allows you to deploy applications in high-performance and scalable containers and provides full lifecycle management of enterprise-class containerized applications.
 
@@ -14,7 +14,7 @@ select
   size,
   cluster_type
 from
-  alicloud_elastic_container;
+  alicloud_cs_kubernetes_cluster;
 ```
 
 ### List clusters which are running
@@ -27,7 +27,7 @@ select
   size,
   cluster_type
 from
-  alicloud_elastic_container
+  alicloud_cs_kubernetes_cluster
 where
   state = 'running';
 ```
@@ -42,7 +42,7 @@ select
   size,
   cluster_type
 from
-  alicloud_elastic_container
+  alicloud_cs_kubernetes_cluster
 where
   cluster_type = 'ManagedKubernetes';
 ```

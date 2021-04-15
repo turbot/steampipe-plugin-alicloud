@@ -58,8 +58,6 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_TIMESTAMP,
 				Transform:   transform.FromField("created"),
 			},
-
-			// Other columns
 			{
 				Name:      "capabilities",
 				Type:      proto.ColumnType_STRING,
