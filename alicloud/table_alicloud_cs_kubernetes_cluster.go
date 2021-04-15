@@ -469,9 +469,6 @@ func getCsKubernetesClusterAka(ctx context.Context, d *plugin.QueryData, h *plug
 //// TRANSFORM FUNCTIONS
 
 func csKubernetesClusterAkaTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	if d.Value == nil {
-		return nil, nil
-	}
 	tags := d.Value.([]interface{})
 	if tags == nil {
 		return nil, nil
