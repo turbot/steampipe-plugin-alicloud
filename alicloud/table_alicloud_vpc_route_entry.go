@@ -20,10 +20,6 @@ func tableAlicloudVpcRouteEntry(ctx context.Context) *plugin.Table {
 			ParentHydrate: listVpcRouteTable,
 			Hydrate:       listVpcRouteEntries,
 		},
-		// Get: &plugin.GetConfig{
-		// 	KeyColumns: plugin.AllColumns([]string{"route_table_id", "name"}),
-		// 	Hydrate:    getVpcRouteEntry,
-		// },
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			{
@@ -173,47 +169,6 @@ func listVpcRouteEntries(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 }
 
 //// HYDRATE FUNCTIONS
-
-// Error: 2 list calls returned errors:
-//  SDK.ServerError
-// ErrorCode: OperationFailed.FilterParamUnderWrongRouteType
-// Recommend: https://error-center.aliyun.com/status/search?Keyword=OperationFailed.FilterParamUnderWrongRouteType&source=PopGw
-// RequestId: B3229B34-03E2-4735-889C-D643C0BE0A8A
-// Message: Operation failed because only custom type support filter by routeEntryId or routeEntryName
-// SDK.ServerError
-// ErrorCode: OperationFailed.FilterParamUnderWrongRouteType
-// Recommend: https://error-center.aliyun.com/status/search?Keyword=OperationFailed.FilterParamUnderWrongRouteType&source=PopGw
-// RequestId: 460BA9A6-3C13-4242-977D-D8EF37895A15
-// Message: Operation failed because only custom type support filter by routeEntryId or routeEntryName
-
-// func getVpcRouteEntry(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-// 	plugin.Logger(ctx).Trace("getVpcRouteEntry")
-// 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
-// 	// Create service connection
-// 	client, err := VpcService(ctx, d, region)
-// 	if err != nil {
-// 		plugin.Logger(ctx).Error("alicloud_vpc_route_entry.getVpcRouteEntry", "connection_error", err)
-// 		return nil, err
-// 	}
-// 	routeTableId := d.KeyColumnQuals["route_table_id"].GetStringValue()
-// 	routeEntryName := d.KeyColumnQuals["name"].GetStringValue()
-
-// 	request := vpc.CreateDescribeRouteEntryListRequest()
-// 	request.Scheme = "https"
-// 	request.RouteTableId = routeTableId
-// 	request.RouteEntryName = routeEntryName
-
-// 	response, err := client.DescribeRouteEntryList(request)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	if response.RouteEntrys.RouteEntry != nil && len(response.RouteEntrys.RouteEntry) > 0 {
-// 		return response.RouteEntrys.RouteEntry[0], nil
-// 	}
-// 	return nil, nil
-// }
 
 func getVpcRouteEntryTurbotData(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getAwsVpcRouteEntryTurbotData")

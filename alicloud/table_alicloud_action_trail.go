@@ -32,6 +32,11 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 			},
 			{
+				Name:        "mns_topic_arn",
+				Description: "The Alibaba Cloud Resource Name (ARN) of the Message Service (MNS) topic to which ActionTrail sends messages.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
 				Name:        "home_region",
 				Description: "The home region of the trail.",
 				Type:        proto.ColumnType_STRING,
