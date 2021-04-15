@@ -1,3 +1,12 @@
+## v0.0.9 [2021-04-15]
+
+_What's new?_
+
+- New tables added
+  - [alicloud_action_trail](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_action_trail) ([#122](https://github.com/turbot/steampipe-plugin-alicloud/pull/122))
+  - [alicloud_cas_certificate](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_cas_certificate) ([#101](https://github.com/turbot/steampipe-plugin-alicloud/pull/101))
+  - [alicloud_vpc_route_entry](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_vpc_route_entry) ([#95](https://github.com/turbot/steampipe-plugin-alicloud/pull/95))
+
 ## v0.0.8 [2021-04-08]
 
 _What's new?_
