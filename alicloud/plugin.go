@@ -17,6 +17,8 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			Schema:      ConfigSchema,
 		},
 		TableMap: map[string]*plugin.Table{
+			"alicloud_action_trail":                tableAlicloudActionTrail(ctx),
+			"alicloud_cas_certificate":             tableAlicloudUserCertificate(ctx),
 			"alicloud_cs_kubernetes_cluster":       tableAlicloudCsKubernetesCluster(ctx),
 			"alicloud_ecs_auto_provisioning_group": tableAlicloudEcsAutoProvisioningGroup(ctx),
 			"alicloud_ecs_autoscaling_group":       tableAlicloudEcsAutoscalingGroup(ctx),
