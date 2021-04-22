@@ -17,7 +17,7 @@ from
   alicloud_cs_kubernetes_cluster;
 ```
 
-### List clusters which are running
+### List running clusters
 
 ```sql
 select
@@ -32,7 +32,7 @@ where
   state = 'running';
 ```
 
-### List clusters which are managed by kubernetes
+### List managed Kubernetes clusters
 
 ```sql
 select
