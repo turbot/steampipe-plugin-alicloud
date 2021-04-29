@@ -3,7 +3,7 @@
 _What's new?_
 
 - New tables added
-  - [alicloud_cs_kubernetes_cluster](https://hub.steampipe.io/plugins/turbot/steampipe-plugin-alicloud/tables/alicloud_cs_kubernetes_cluster) ([#128](https://github.com/turbot/steampipe-plugin-alicloud/pull/128))
+  - [alicloud_cs_kubernetes_cluster](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_cs_kubernetes_cluster) ([#128](https://github.com/turbot/steampipe-plugin-alicloud/pull/128))
 
 _Bug fixes_
 
