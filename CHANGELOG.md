@@ -1,3 +1,14 @@
+## v0.0.10 [2021-04-29]
+
+_What's new?_
+
+- New tables added
+  - [alicloud_cs_kubernetes_cluster](https://hub.steampipe.io/plugins/turbot/steampipe-plugin-alicloud/tables/alicloud_cs_kubernetes_cluster) ([#128](https://github.com/turbot/steampipe-plugin-alicloud/pull/128))
+
+_Bug fixes_
+
+- Fixed: Remove unsupported `mns_topic_arn` column from `alicloud_action_trail` table ([#139](https://github.com/turbot/steampipe-plugin-alicloud/pull/139))
+
 ## v0.0.9 [2021-04-15]
 
 _What's new?_
