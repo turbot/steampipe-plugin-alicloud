@@ -39,7 +39,7 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "arn",
-				Description: "The ID of the instance.",
+				Description: "The Alibaba Cloud Resource Name (ARN) of the ECS instance.",
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getEcsInstanceArn,
 				Transform:   transform.FromValue(),
@@ -551,7 +551,7 @@ func getEcsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 }
 
 func getEcsInstanceArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getEcsInstanceAka")
+	plugin.Logger(ctx).Trace("getEcsInstanceArn")
 	instance := h.Item.(ecs.Instance)
 
 	// Get project details
