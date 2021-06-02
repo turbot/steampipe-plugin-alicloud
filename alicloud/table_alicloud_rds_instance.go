@@ -36,6 +36,13 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Description: "The ID of the single instance to query.",
 			},
 			{
+				Name:        "arn",
+				Description: "The Alibaba Cloud Resource Name (ARN) of the RDS instance.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstanceArn,
+				Transform:   transform.FromValue(),
+			},
+			{
 				Name:        "vpc_id",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("VpcId"),
@@ -499,8 +506,8 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 			{
 				Name:        "akas",
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getRdsInstanceAkas,
-				Transform:   transform.FromValue(),
+				Hydrate:     getRdsInstanceArn,
+				Transform:   transform.FromValue().Transform(ensureStringArray),
 				Description: ColumnDescriptionAkas,
 			},
 
@@ -748,7 +755,7 @@ func getRdsTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	return nil, nil
 }
 
-func getRdsInstanceAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getRdsInstanceArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	var region, instanceID string
 	switch h.Item.(type) {
 	case rds.DBInstance:
@@ -768,7 +775,7 @@ func getRdsInstanceAkas(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	}
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
-	return []string{"acs:rds:" + region + ":" + accountID + ":instance/" + instanceID}, nil
+	return "acs:rds:" + region + ":" + accountID + ":instance/" + instanceID, nil
 }
 
 //// TRANSFORM FUNCTIONS
