@@ -40,6 +40,13 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 			},
 			{
+				Name:        "arn",
+				Description: "The Alibaba Cloud Resource Name (ARN) of the ECS disk.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getEcsDiskArn,
+				Transform:   transform.FromValue(),
+			},
+			{
 				Name:        "status",
 				Description: "Specifies the current state of the resource.",
 				Type:        proto.ColumnType_STRING,
@@ -295,8 +302,8 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getEcsDiskAka,
-				Transform:   transform.FromValue(),
+				Hydrate:     getEcsDiskArn,
+				Transform:   transform.FromValue().Transform(ensureStringArray),
 			},
 			{
 				Name:        "title",
@@ -433,8 +440,8 @@ func getEcsDiskAutoSnapshotPolicy(ctx context.Context, d *plugin.QueryData, h *p
 	return nil, nil
 }
 
-func getEcsDiskAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getEcsDiskAka")
+func getEcsDiskArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getEcsDiskArn")
 	disk := h.Item.(ecs.Disk)
 
 	// Get project details
@@ -445,9 +452,9 @@ func getEcsDiskAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"arn:acs:ecs:" + disk.RegionId + ":" + accountID + ":disk/" + disk.DiskId}
+	arn := "arn:acs:ecs:" + disk.RegionId + ":" + accountID + ":disk/" + disk.DiskId
 
-	return akas, nil
+	return arn, nil
 }
 
 //// TRANSFORM FUNCTIONS
