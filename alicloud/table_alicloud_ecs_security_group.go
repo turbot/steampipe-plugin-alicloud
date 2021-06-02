@@ -42,6 +42,13 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("SecurityGroup.SecurityGroupId"),
 			},
 			{
+				Name:        "arn",
+				Description: "The Alibaba Cloud Resource Name (ARN) of the ECS security group.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getEcsSecurityGroupArn,
+				Transform:   transform.FromValue(),
+			},
+			{
 				Name:        "type",
 				Description: "The type of the security group. Possible values are: normal, and enterprise.",
 				Type:        proto.ColumnType_STRING,
@@ -120,8 +127,8 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getEcsSecurityGroupAka,
-				Transform:   transform.FromValue(),
+				Hydrate:     getEcsSecurityGroupArn,
+				Transform:   transform.FromValue().Transform(ensureStringArray),
 			},
 
 			// alicloud standard columns
@@ -242,8 +249,8 @@ func getSecurityGroupAttribute(ctx context.Context, d *plugin.QueryData, h *plug
 	return response, nil
 }
 
-func getEcsSecurityGroupAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getEcsSecurityGroupAka")
+func getEcsSecurityGroupArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getEcsSecurityGroupArn")
 	data := h.Item.(securityGroupInfo)
 
 	// Get project details
@@ -254,9 +261,9 @@ func getEcsSecurityGroupAka(ctx context.Context, d *plugin.QueryData, h *plugin.
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"arn:acs:ecs:" + data.Region + ":" + accountID + ":securitygroup/" + data.SecurityGroup.SecurityGroupId}
+	arn := "arn:acs:ecs:" + data.Region + ":" + accountID + ":securitygroup/" + data.SecurityGroup.SecurityGroupId
 
-	return akas, nil
+	return arn, nil
 }
 
 //// TRANSFORM FUNCTIONS
