@@ -102,6 +102,13 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Description: "The instance type of the instances.",
 			},
 			{
+				Name:        "sql_collector_status",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getSqlCollectorPolicy,
+				Transform:   transform.FromField("SQLCollectorStatus"),
+				Description: "The status of the SQL Explorer (SQL Audit) feature.",
+			},
+			{
 				Name:        "vpc_cloud_instance_id",
 				Type:        proto.ColumnType_STRING,
 				Description: "The ID of the cloud instance on which the specified VPC is deployed.",
@@ -776,6 +783,32 @@ func getRdsInstanceArn(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 	return "acs:rds:" + region + ":" + accountID + ":instance/" + instanceID, nil
+}
+
+func getSqlCollectorPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := RDSService(ctx, d, region)
+	if err != nil {
+		plugin.Logger(ctx).Error("getSqlCollectorPolicy", "connection_error", err)
+		return nil, err
+	}
+
+	var id = databaseID(h.Item)
+
+	request := rds.CreateDescribeSQLCollectorPolicyRequest()
+	request.Scheme = "https"
+	request.DBInstanceId = id
+	request.RegionId = region
+	request.DBInstanceId = databaseID(h.Item)
+	response, err := client.DescribeSQLCollectorPolicy(request)
+	if err != nil {
+		plugin.Logger(ctx).Error("getSqlCollectorPolicy", "query_error", err, "request", request)
+		return nil, err
+	}
+	return response, nil
+
 }
 
 //// TRANSFORM FUNCTIONS
