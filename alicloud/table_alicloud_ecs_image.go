@@ -48,7 +48,7 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 				Name:        "arn",
 				Description: "The Alibaba Cloud Resource Name (ARN) of the ECS image.",
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getEcsImageArn,
+				Hydrate:     getEcsImageARN,
 				Transform:   transform.FromValue(),
 			},
 			{
@@ -208,8 +208,8 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getEcsImageArn,
-				Transform:   transform.FromValue().Transform(ensureStringArray),
+				Hydrate:     getEcsImageARN,
+				Transform:   transform.FromValue().Transform(transform.EnsureStringArray),
 			},
 			{
 				Name:        "title",
@@ -367,8 +367,8 @@ func getEcsImageSharePermission(ctx context.Context, d *plugin.QueryData, h *plu
 	return result, nil
 }
 
-func getEcsImageArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getEcsImageArn")
+func getEcsImageARN(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getEcsImageARN")
 
 	data := h.Item.(imageInfo)
 
