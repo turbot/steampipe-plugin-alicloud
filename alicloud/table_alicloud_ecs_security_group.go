@@ -45,7 +45,7 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 				Name:        "arn",
 				Description: "The Alibaba Cloud Resource Name (ARN) of the ECS security group.",
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getEcsSecurityGroupArn,
+				Hydrate:     getEcsSecurityGroupARN,
 				Transform:   transform.FromValue(),
 			},
 			{
@@ -127,8 +127,8 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getEcsSecurityGroupArn,
-				Transform:   transform.FromValue().Transform(ensureStringArray),
+				Hydrate:     getEcsSecurityGroupARN,
+				Transform:   transform.FromValue().Transform(transform.EnsureStringArray),
 			},
 
 			// alicloud standard columns
@@ -249,8 +249,8 @@ func getSecurityGroupAttribute(ctx context.Context, d *plugin.QueryData, h *plug
 	return response, nil
 }
 
-func getEcsSecurityGroupArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getEcsSecurityGroupArn")
+func getEcsSecurityGroupARN(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getEcsSecurityGroupARN")
 	data := h.Item.(securityGroupInfo)
 
 	// Get project details
