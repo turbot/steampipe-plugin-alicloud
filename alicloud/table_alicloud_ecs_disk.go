@@ -43,7 +43,7 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Name:        "arn",
 				Description: "The Alibaba Cloud Resource Name (ARN) of the ECS disk.",
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getEcsDiskArn,
+				Hydrate:     getEcsDiskARN,
 				Transform:   transform.FromValue(),
 			},
 			{
@@ -302,8 +302,8 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getEcsDiskArn,
-				Transform:   transform.FromValue().Transform(ensureStringArray),
+				Hydrate:     getEcsDiskARN,
+				Transform:   transform.FromValue().Transform(transform.EnsureStringArray),
 			},
 			{
 				Name:        "title",
@@ -440,8 +440,8 @@ func getEcsDiskAutoSnapshotPolicy(ctx context.Context, d *plugin.QueryData, h *p
 	return nil, nil
 }
 
-func getEcsDiskArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getEcsDiskArn")
+func getEcsDiskARN(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getEcsDiskARN")
 	disk := h.Item.(ecs.Disk)
 
 	// Get project details
