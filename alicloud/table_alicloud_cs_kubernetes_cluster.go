@@ -44,7 +44,7 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 				Name:        "arn",
 				Description: "The Alibaba Cloud Resource Name (ARN) of the cluster.",
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getCsKubernetesClusterArn,
+				Hydrate:     getCsKubernetesClusterARN,
 				Transform:   transform.FromValue(),
 			},
 			{
@@ -311,8 +311,8 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getCsKubernetesClusterArn,
-				Transform:   transform.FromValue().Transform(ensureStringArray),
+				Hydrate:     getCsKubernetesClusterARN,
+				Transform:   transform.FromValue().Transform(transform.EnsureStringArray),
 			},
 
 			// Alicloud standard columns
@@ -455,8 +455,8 @@ func getCsKubernetesClusterLog(ctx context.Context, d *plugin.QueryData, h *plug
 	return nil, nil
 }
 
-func getCsKubernetesClusterArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getCsKubernetesClusterArn")
+func getCsKubernetesClusterARN(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getCsKubernetesClusterARN")
 
 	data := h.Item.(map[string]interface{})
 
