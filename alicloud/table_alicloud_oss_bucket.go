@@ -30,7 +30,7 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 				Name:        "arn",
 				Description: "The Alibaba Cloud Resource Name (ARN) of the OSS bucket.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.From(bucketArn),
+				Transform:   transform.From(bucketARN),
 			},
 			{
 				Name:        "location",
@@ -114,7 +114,7 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 			{
 				Name:        "akas",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.From(bucketArn).Transform(ensureStringArray),
+				Transform:   transform.From(bucketARN).Transform(transform.EnsureStringArray),
 				Description: ColumnDescriptionAkas,
 			},
 
@@ -282,8 +282,8 @@ func bucketSSEConfiguration(_ context.Context, d *transform.TransformData) (inte
 	}, nil
 }
 
-func bucketArn(ctx context.Context, d *transform.TransformData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("bucketArn")
+func bucketARN(ctx context.Context, d *transform.TransformData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("bucketARN")
 	bucket := d.HydrateItem.(oss.BucketProperties)
 
 	return "acs:oss:::" + bucket.Name, nil
