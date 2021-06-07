@@ -283,9 +283,9 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("meta_data"),
 			},
 			{
-				Name: "cluster_name_spaces",
-				Type: proto.ColumnType_JSON,
-				Hydrate: getCsKubernetesClusterNameSpaces,
+				Name:      "cluster_name_spaces",
+				Type:      proto.ColumnType_JSON,
+				Hydrate:   getCsKubernetesClusterNameSpaces,
 				Transform: transform.FromValue(),
 			},
 			{
@@ -481,11 +481,11 @@ func getCsKubernetesClusterNameSpaces(ctx context.Context, d *plugin.QueryData, 
 	request.Domain = "cs.aliyuncs.com"
 	request.Version = "2015-12-15"
 	request.PathPattern = "/k8s/" + id + "/namespaces"
-  request.Headers["Content-Type"] = "application/json"
-  request.QueryParams["RegionId"] = region
+	request.Headers["Content-Type"] = "application/json"
+	request.QueryParams["RegionId"] = region
 	body := `{}`
 	request.Content = []byte(body)
-	
+
 	response, err := client.ProcessCommonRequest(request)
 	if err != nil {
 		return nil, nil
