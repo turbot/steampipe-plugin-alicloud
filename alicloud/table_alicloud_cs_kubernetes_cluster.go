@@ -3,7 +3,9 @@ package alicloud
 import (
 	"context"
 	"encoding/json"
+	"os"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cs"
@@ -281,6 +283,12 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("meta_data"),
 			},
 			{
+				Name: "cluster_name_spaces",
+				Type: proto.ColumnType_JSON,
+				Hydrate: getCsKubernetesClusterNameSpaces,
+				Transform: transform.FromValue(),
+			},
+			{
 				Name:        "tags_src",
 				Description: "A list of tags attached with the cluster.",
 				Type:        proto.ColumnType_JSON,
@@ -446,6 +454,44 @@ func getCsKubernetesClusterLog(ctx context.Context, d *plugin.QueryData, h *plug
 	}
 
 	return nil, nil
+}
+
+func getCsKubernetesClusterNameSpaces(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	plugin.Logger(ctx).Trace("getCsKubernetesClusterNameSpaces")
+
+	var id string
+	if h.Item != nil {
+		clusterData := h.Item.(map[string]interface{})
+		id = clusterData["cluster_id"].(string)
+	} else {
+		id = d.KeyColumnQuals["cluster_id"].GetStringValue()
+	}
+
+	accessKey := os.Getenv("ALICLOUD_ACCESS_KEY")
+	secretAccess := os.Getenv("ALICLOUD_SECRET_KEY")
+	client, err := sdk.NewClientWithAccessKey(region, accessKey, secretAccess)
+	if err != nil {
+		return nil, nil
+	}
+
+	request := requests.NewCommonRequest()
+	request.Method = "GET"
+	request.Scheme = "https"
+	request.Domain = "cs.aliyuncs.com"
+	request.Version = "2015-12-15"
+	request.PathPattern = "/k8s/" + id + "/namespaces"
+  request.Headers["Content-Type"] = "application/json"
+  request.QueryParams["RegionId"] = region
+	body := `{}`
+	request.Content = []byte(body)
+	
+	response, err := client.ProcessCommonRequest(request)
+	if err != nil {
+		return nil, nil
+	}
+
+	return response.GetHttpContentString(), nil
 }
 
 func getCsKubernetesClusterAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
