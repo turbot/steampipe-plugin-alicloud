@@ -39,7 +39,7 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Name:        "arn",
 				Description: "The Alibaba Cloud Resource Name (ARN) of the RDS instance.",
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getRdsInstanceArn,
+				Hydrate:     getRdsInstanceARN,
 				Transform:   transform.FromValue(),
 			},
 			{
@@ -513,8 +513,8 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 			{
 				Name:        "akas",
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getRdsInstanceArn,
-				Transform:   transform.FromValue().Transform(ensureStringArray),
+				Hydrate:     getRdsInstanceARN,
+				Transform:   transform.FromValue().Transform(transform.EnsureStringArray),
 				Description: ColumnDescriptionAkas,
 			},
 
@@ -560,7 +560,7 @@ func listRdsInstances(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 			return nil, err
 		}
 		for _, i := range response.Items.DBInstance {
-			plugin.Logger(ctx).Warn("alicloud_rds.DescribeDBInstances", "item", i)
+			plugin.Logger(ctx).Warn("alicloud_rds.DescribeDBInstancesxxxxxxxxx", "item", i)
 			d.StreamListItem(ctx, i)
 			count++
 		}
@@ -661,7 +661,7 @@ func getTDEDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	request.DBInstanceId = id
 	response, err := client.DescribeDBInstanceTDE(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
-		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" {
+		if serverErr.ErrorCode() == "InstanceEngineType.NotSupport" {
 			plugin.Logger(ctx).Warn("alicloud_rds_instance.getTDEDetails", "not_found_error", serverErr, "request", request)
 			return nil, nil
 		}
@@ -762,7 +762,7 @@ func getRdsTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	return nil, nil
 }
 
-func getRdsInstanceArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getRdsInstanceARN(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	var region, instanceID string
 	switch h.Item.(type) {
 	case rds.DBInstance:
