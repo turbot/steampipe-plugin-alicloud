@@ -102,7 +102,7 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Description: "The instance type of the instances.",
 			},
 			{
-				Name:        "sql_collector_status",
+				Name:        "audit_status",
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getSqlCollectorPolicy,
 				Transform:   transform.FromField("SQLCollectorStatus"),
@@ -113,7 +113,7 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getSqlCollectorRetention,
 				Transform:   transform.FromField("ConfigValue"),
-				Description: "The log backup retention duration that is allowed by the SQL explorer feature on the instance.",
+				Description: "The audit retention duration that is allowed by the SQL explorer feature on the instance.",
 			},
 			{
 				Name:        "vpc_cloud_instance_id",
@@ -567,7 +567,7 @@ func listRdsInstances(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 			return nil, err
 		}
 		for _, i := range response.Items.DBInstance {
-			plugin.Logger(ctx).Warn("alicloud_rds.DescribeDBInstancesxxxxxxxxx", "item", i)
+			plugin.Logger(ctx).Warn("alicloud_rds.DescribeDBInstances", "item", i)
 			d.StreamListItem(ctx, i)
 			count++
 		}
@@ -668,7 +668,7 @@ func getTDEDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	request.DBInstanceId = id
 	response, err := client.DescribeDBInstanceTDE(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
-		if serverErr.ErrorCode() == "InstanceEngineType.NotSupport" {
+		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" || serverErr.ErrorCode() == "InstanceEngineType.NotSupport" {
 			plugin.Logger(ctx).Warn("alicloud_rds_instance.getTDEDetails", "not_found_error", serverErr, "request", request)
 			return nil, nil
 		}
@@ -789,7 +789,7 @@ func getRdsInstanceARN(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	}
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
-	return "acs:rds:" + region + ":" + accountID + ":instance/" + instanceID, nil
+	return "acs:acs:rds:" + region + ":" + accountID + ":instance/" + instanceID, nil
 }
 
 func getSqlCollectorPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
@@ -802,11 +802,8 @@ func getSqlCollectorPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.H
 		return nil, err
 	}
 
-	var id = databaseID(h.Item)
-
 	request := rds.CreateDescribeSQLCollectorPolicyRequest()
 	request.Scheme = "https"
-	request.DBInstanceId = id
 	request.RegionId = region
 	request.DBInstanceId = databaseID(h.Item)
 	response, err := client.DescribeSQLCollectorPolicy(request)
@@ -827,11 +824,8 @@ func getSqlCollectorRetention(ctx context.Context, d *plugin.QueryData, h *plugi
 		return nil, err
 	}
 
-	var id = databaseID(h.Item)
-
 	request := rds.CreateDescribeSQLCollectorRetentionRequest()
 	request.Scheme = "https"
-	request.DBInstanceId = id
 	request.RegionId = region
 	request.DBInstanceId = databaseID(h.Item)
 	response, err := client.DescribeSQLCollectorRetention(request)
