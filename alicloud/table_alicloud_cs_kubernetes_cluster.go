@@ -3,9 +3,7 @@ package alicloud
 import (
 	"context"
 	"encoding/json"
-	"os"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cs"
@@ -283,9 +281,9 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("meta_data"),
 			},
 			{
-				Name:      "cluster_name_spaces",
+				Name:      "cluster_namespace",
 				Type:      proto.ColumnType_JSON,
-				Hydrate:   getCsKubernetesClusterNameSpaces,
+				Hydrate:   getCsKubernetesClusterNamespace,
 				Transform: transform.FromValue(),
 			},
 			{
@@ -456,9 +454,9 @@ func getCsKubernetesClusterLog(ctx context.Context, d *plugin.QueryData, h *plug
 	return nil, nil
 }
 
-func getCsKubernetesClusterNameSpaces(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getCsKubernetesClusterNamespace(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-	plugin.Logger(ctx).Trace("getCsKubernetesClusterNameSpaces")
+	plugin.Logger(ctx).Trace("getCsKubernetesClusterNamespace")
 
 	var id string
 	if h.Item != nil {
@@ -468,9 +466,7 @@ func getCsKubernetesClusterNameSpaces(ctx context.Context, d *plugin.QueryData, 
 		id = d.KeyColumnQuals["cluster_id"].GetStringValue()
 	}
 
-	accessKey := os.Getenv("ALICLOUD_ACCESS_KEY")
-	secretAccess := os.Getenv("ALICLOUD_SECRET_KEY")
-	client, err := sdk.NewClientWithAccessKey(region, accessKey, secretAccess)
+	client, err := ContainerService(ctx, d, region)
 	if err != nil {
 		return nil, nil
 	}
