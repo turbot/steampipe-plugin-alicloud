@@ -41,6 +41,13 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("cluster_id"),
 			},
 			{
+				Name:        "arn",
+				Description: "The Alibaba Cloud Resource Name (ARN) of the cluster.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getCsKubernetesClusterARN,
+				Transform:   transform.FromValue(),
+			},
+			{
 				Name:        "state",
 				Description: "The status of the cluster.",
 				Type:        proto.ColumnType_STRING,
@@ -310,8 +317,8 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getCsKubernetesClusterAka,
-				Transform:   transform.FromValue(),
+				Hydrate:     getCsKubernetesClusterARN,
+				Transform:   transform.FromValue().Transform(transform.EnsureStringArray),
 			},
 
 			// Alicloud standard columns
@@ -490,8 +497,8 @@ func getCsKubernetesClusterNamespace(ctx context.Context, d *plugin.QueryData, h
 	return response.GetHttpContentString(), nil
 }
 
-func getCsKubernetesClusterAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getCsKubernetesClusterAka")
+func getCsKubernetesClusterARN(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getCsKubernetesClusterARN")
 
 	data := h.Item.(map[string]interface{})
 
@@ -503,9 +510,9 @@ func getCsKubernetesClusterAka(ctx context.Context, d *plugin.QueryData, h *plug
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"acs:cs:" + data["region_id"].(string) + ":" + accountID + ":container/" + data["name"].(string)}
+	arn := "acs:cs:" + data["region_id"].(string) + ":" + accountID + ":container/" + data["name"].(string)
 
-	return akas, nil
+	return arn, nil
 }
 
 //// TRANSFORM FUNCTIONS
