@@ -22,8 +22,8 @@ github.com/alibabacloud-go/tea-rpc-utils v1.1.2/go.mod h1:V5HdNi6Xdn0JMpgVhQ19vs
 github.com/alibabacloud-go/tea-utils v1.3.5/go.mod h1:EI/o33aBfj3hETm4RLiAxF/ThQdSngxrpF8rKUDJjPE=
 github.com/alibabacloud-go/tea-utils v1.3.6 h1:bVjrxHztM8hAs6nOfLWCgxQfAtKb9RgFFMV6J3rdvB4=
 github.com/alibabacloud-go/tea-utils v1.3.6/go.mod h1:EI/o33aBfj3hETm4RLiAxF/ThQdSngxrpF8rKUDJjPE=
-github.com/aliyun/alibaba-cloud-sdk-go v1.61.947 h1:4vbl87eqXIh1uBSF8EbX2iMModwXUSG61bn44diMGFI=
-github.com/aliyun/alibaba-cloud-sdk-go v1.61.947/go.mod h1:pUKYbK5JQ+1Dfxk80P0qxGqe5dkxDoabbZS7zOcouyA=
+github.com/aliyun/alibaba-cloud-sdk-go v1.61.1127 h1:8e0pd/MgFCSSSskjqkg+KBi3nXcR8oiBoJEiDL8R6V4=
+github.com/aliyun/alibaba-cloud-sdk-go v1.61.1127/go.mod h1:pUKYbK5JQ+1Dfxk80P0qxGqe5dkxDoabbZS7zOcouyA=
 github.com/aliyun/aliyun-oss-go-sdk v2.1.6+incompatible h1:Ft+KeWIJxFP76LqgJbvtOA1qBIoC8vGkTV3QeCOeJC4=
 github.com/aliyun/aliyun-oss-go-sdk v2.1.6+incompatible/go.mod h1:T/Aws4fEfogEE9v+HPhhw+CntffsBHJ8nXQCwKr0/g8=
 github.com/aliyun/credentials-go v1.1.2 h1:qU1vwGIBb3UJ8BwunHDRFtAhS6jnQLnde/yk0+Ih2GY=
