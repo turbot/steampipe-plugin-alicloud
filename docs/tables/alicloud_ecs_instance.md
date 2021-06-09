@@ -9,6 +9,7 @@ An ECS instance is a virtual machine that contains basic computing components su
 select
   instance_id,
   name,
+  arn,
   status,
   instance_type,
   os_name_en,
@@ -39,7 +40,7 @@ where
 ```
 
 
-### List linux instances 
+### List linux instances
 ```sql
 select
   instance_id,
@@ -74,7 +75,7 @@ select
   count(instance_type) as count
 from
   alicloud_ecs_instance
-group by 
+group by
   instance_type;
 ```
 
