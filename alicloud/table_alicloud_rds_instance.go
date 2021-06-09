@@ -789,7 +789,7 @@ func getRdsInstanceARN(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	}
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
-	return "acs:acs:rds:" + region + ":" + accountID + ":instance/" + instanceID, nil
+	return "arn:acs:rds:" + region + ":" + accountID + ":instance/" + instanceID, nil
 }
 
 func getSqlCollectorPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
