@@ -69,7 +69,7 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "sql_collector_retention",
-				Type:        proto.ColumnType_STRING,
+				Type:        proto.ColumnType_INT,
 				Hydrate:     getSqlCollectorRetention,
 				Transform:   transform.FromField("ConfigValue"),
 				Description: "The log backup retention duration that is allowed by the SQL explorer feature on the instance.",
