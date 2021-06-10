@@ -13,8 +13,6 @@ select
   vpc_id,
   creation_time,
   engine,
-  audit_status,
-  audit_retention_duration
 from
   alicloud_rds_instance;
 ```
