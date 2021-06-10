@@ -2,7 +2,6 @@ package alicloud
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sas"
 
@@ -31,76 +30,80 @@ func tableAlicloudSecurityCenterFieldStatistics(ctx context.Context) *plugin.Tab
 			{
 				Name:        "category_count",
 				Type:        proto.ColumnType_INT,
+				Default:     0,
 				Description: "The number of assets category.",
 			},
 			{
 				Name:        "general_asset_count",
 				Type:        proto.ColumnType_INT,
+				Default:     0,
 				Description: "The number of general assets.",
 			},
 			{
 				Name:        "group_count",
 				Type:        proto.ColumnType_INT,
+				Default:     0,
 				Description: "The number of asset groups.",
 			},
 			{
 				Name:        "important_asset_count",
 				Type:        proto.ColumnType_INT,
+				Default:     0,
 				Description: "The number of important assets.",
 			},
 			{
 				Name:        "instance_count",
 				Type:        proto.ColumnType_INT,
+				Default:     0,
 				Description: "The total number of assets of the specified type.",
 			},
 			{
 				Name:        "new_instance_count",
 				Type:        proto.ColumnType_INT,
+				Default:     0,
 				Description: "The number of new servers.",
 			},
 			{
 				Name:        "not_running_status_count",
 				Type:        proto.ColumnType_INT,
+				Default:     0,
 				Description: "The number of inactive servers.",
 			},
 			{
 				Name:        "offline_instance_count",
 				Type:        proto.ColumnType_INT,
+				Default:     0,
 				Description: "The number of offline servers.",
 			},
 			{
 				Name:        "region_count",
 				Type:        proto.ColumnType_INT,
+				Default:     0,
 				Description: "The number of regions to which the servers belong.",
 			},
 			{
 				Name:        "risk_instance_count",
 				Type:        proto.ColumnType_INT,
+				Default:     0,
 				Description: "The number of assets that are at risk.",
 			},
 			{
 				Name:        "test_asset_count",
 				Type:        proto.ColumnType_INT,
+				Default:     0,
 				Description: "The number of test assets.",
 			},
 			{
 				Name:        "unprotected_instance_count",
 				Type:        proto.ColumnType_INT,
+				Default:     0,
 				Description: "The number of unprotected assets.",
 			},
 			{
 				Name:        "vpc_count",
 				Type:        proto.ColumnType_INT,
+				Default:     0,
 				Description: "The number of VPCs.",
-			},
-
-			// Steampipe standard columns
-			{
-				Name:        "akas",
-				Type:        proto.ColumnType_JSON,
-				Description: ColumnDescriptionAkas,
-				Hydrate:     getSecurityCenterFieldStatisticAkas,
-				Transform:   transform.FromValue(),
 			},
 
 			// Alicloud standard columns
@@ -148,24 +151,4 @@ func listSecurityCenterFieldStatistics(ctx context.Context, d *plugin.QueryData,
 	d.StreamListItem(ctx, FieldInfo{response.GroupedFields, region})
 
 	return nil, nil
-}
-
-//// HYDRATE FUNCTIONS
-
-func getSecurityCenterFieldStatisticAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getSecurityCenterFieldStatisticAkas")
-
-	data := h.Item.(FieldInfo)
-
-	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
-	if err != nil {
-		return nil, err
-	}
-	commonColumnData := commonData.(*alicloudCommonColumnData)
-	accountID := commonColumnData.AccountID
-
-	akas := []string{"arn:acs:security-center:" + data.Region + ":" + accountID + ":version/" + strconv.Itoa(data.GeneralAssetCount)}
-
-	return akas, nil
 }

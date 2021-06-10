@@ -14,19 +14,7 @@ select
   group_count,
   important_asset_count,
   instance_count,
-  region
-from
-  alicloud_security_center_field_statistics;
-```
-
-### Ensure that all assets are installed with security agent
-
-```sql
-select
-  general_asset_count,
-  group_count,
-  important_asset_count,
-  instance_count,
+  unprotected_instance_count,
   region
 from
   alicloud_security_center_field_statistics;
