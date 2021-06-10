@@ -10,6 +10,7 @@ An ECS image stores information that is required to create an ECS instance. An i
 select
   name,
   image_id,
+  arn,
   size,
   status,
   usage
@@ -53,7 +54,7 @@ where
 ```sql
 select
   name,
-  image_id, 
+  image_id,
   tags
 from
   alicloud_ecs_image
