@@ -668,7 +668,7 @@ func getTDEDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	response, err := client.DescribeDBInstanceTDE(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
 		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" || serverErr.ErrorCode() == "InstanceEngineType.NotSupport" {
-			plugin.Logger(ctx).Warn("alicloud_rds_instance.getTDEDetails", "not_found_error", serverErr, "request", request)
+			plugin.Logger(ctx).Warn("alicloud_rds_instance.getTDEDetails", "error", serverErr, "request", request)
 			return nil, nil
 		}
 		plugin.Logger(ctx).Error("getTDEDetails", "query_error", err, "request", request)
