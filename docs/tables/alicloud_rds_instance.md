@@ -12,7 +12,7 @@ select
   arn,
   vpc_id,
   creation_time,
-  engine,
+  engine
 from
   alicloud_rds_instance;
 ```
