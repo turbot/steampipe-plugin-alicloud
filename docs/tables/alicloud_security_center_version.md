@@ -13,7 +13,6 @@ select
   version,
   is_trial_version,
   is_over_balance,
-  is_sas_opening,
   region
 from
   alicloud_security_center_version;
@@ -26,9 +25,9 @@ select
   version,
   is_trial_version,
   is_over_balance,
-  is_sas_opening
   region
 from
   alicloud_security_center_version
-where !is_trial_version;
+where
+version in ('2','3','5');
 ```

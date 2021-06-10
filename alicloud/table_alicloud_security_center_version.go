@@ -13,7 +13,7 @@ import (
 )
 
 type versionInfo struct {
-	*sas.DescribeVersionConfigResponse
+	sas.DescribeVersionConfigResponse
 	Region string
 }
 
@@ -37,11 +37,10 @@ func tableAlicloudSecurityCenterVersion(ctx context.Context) *plugin.Table {
 				Name:        "version",
 				Type:        proto.ColumnType_STRING,
 				Description: "The purchased edition of Security Center.",
-				Transform:   transform.FromField("Version"),
 			},
 			{
 				Name:        "is_trial_version",
-				Type:        proto.ColumnType_STRING,
+				Type:        proto.ColumnType_BOOL,
 				Description: "Indicates whether Security Center is the free trial edition.",
 			},
 			{
@@ -60,47 +59,15 @@ func tableAlicloudSecurityCenterVersion(ctx context.Context) *plugin.Table {
 				Description: "The purchased quota for Security Center.",
 			},
 			{
-				Name:        "avds_flag",
-				Type:        proto.ColumnType_INT,
-				Description: "",
-			},
-			{
-				Name:        "create_time",
-				Type:        proto.ColumnType_TIMESTAMP,
-				Description: "",
-				Transform:   transform.FromField("CreateTime").Transform(transform.UnixToTimestamp),
-			},
-			{
-				Name:        "flag",
-				Type:        proto.ColumnType_INT,
-				Description: "",
-			},
-			{
 				Name:        "is_over_balance",
 				Type:        proto.ColumnType_BOOL,
 				Description: "Indicates whether the number of existing servers exceeds your quota.",
-			},
-			{
-				Name:        "is_sas_opening",
-				Type:        proto.ColumnType_BOOL,
-				Description: "",
 			},
 			{
 				Name:        "last_trail_end_time",
 				Type:        proto.ColumnType_TIMESTAMP,
 				Description: "The time when the last free trial ends.",
 				Transform:   transform.FromField("LastTrailEndTime").Transform(transform.UnixToTimestamp),
-			},
-			{
-				Name:        "log_capacity",
-				Type:        proto.ColumnType_INT,
-				Description: "",
-			},
-			{
-				Name:        "log_time",
-				Type:        proto.ColumnType_TIMESTAMP,
-				Description: "",
-				Transform:   transform.FromField("LogTime").Transform(transform.UnixToTimestamp),
 			},
 			{
 				Name:        "release_time",
@@ -196,7 +163,7 @@ func listSecurityCenterVersions(ctx context.Context, d *plugin.QueryData, _ *plu
 		plugin.Logger(ctx).Error("alicloud_listSecurityCenterVersions", "query_error", err, "request", request)
 		return nil, err
 	}
-	d.StreamListItem(ctx, versionInfo{response, region})
+	d.StreamListItem(ctx, versionInfo{*response, region})
 
 	return nil, nil
 }
