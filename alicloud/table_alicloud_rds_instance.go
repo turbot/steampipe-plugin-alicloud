@@ -102,6 +102,20 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Description: "The instance type of the instances.",
 			},
 			{
+				Name:        "audit_status",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getSqlCollectorPolicy,
+				Transform:   transform.FromField("SQLCollectorStatus"),
+				Description: "The status of the SQL Explorer (SQL Audit) feature.",
+			},
+			{
+				Name:        "audit_retention_duration",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getSqlCollectorRetention,
+				Transform:   transform.FromField("ConfigValue"),
+				Description: "The audit retention duration that is allowed by the SQL explorer feature on the instance.",
+			},
+			{
 				Name:        "vpc_cloud_instance_id",
 				Type:        proto.ColumnType_STRING,
 				Description: "The ID of the cloud instance on which the specified VPC is deployed.",
@@ -654,7 +668,7 @@ func getTDEDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	request.DBInstanceId = id
 	response, err := client.DescribeDBInstanceTDE(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
-		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" {
+		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" || serverErr.ErrorCode() == "InstanceEngineType.NotSupport" {
 			plugin.Logger(ctx).Warn("alicloud_rds_instance.getTDEDetails", "not_found_error", serverErr, "request", request)
 			return nil, nil
 		}
@@ -776,6 +790,50 @@ func getRdsInstanceARN(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 	return "arn:acs:rds:" + region + ":" + accountID + ":instance/" + instanceID, nil
+}
+
+func getSqlCollectorPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := RDSService(ctx, d, region)
+	if err != nil {
+		plugin.Logger(ctx).Error("getSqlCollectorPolicy", "connection_error", err)
+		return nil, err
+	}
+
+	request := rds.CreateDescribeSQLCollectorPolicyRequest()
+	request.Scheme = "https"
+	request.RegionId = region
+	request.DBInstanceId = databaseID(h.Item)
+	response, err := client.DescribeSQLCollectorPolicy(request)
+	if err != nil {
+		plugin.Logger(ctx).Error("getSqlCollectorPolicy", "query_error", err, "request", request)
+		return nil, err
+	}
+	return response, nil
+}
+
+func getSqlCollectorRetention(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := RDSService(ctx, d, region)
+	if err != nil {
+		plugin.Logger(ctx).Error("getSqlCollectorRetention", "connection_error", err)
+		return nil, err
+	}
+
+	request := rds.CreateDescribeSQLCollectorRetentionRequest()
+	request.Scheme = "https"
+	request.RegionId = region
+	request.DBInstanceId = databaseID(h.Item)
+	response, err := client.DescribeSQLCollectorRetention(request)
+	if err != nil {
+		plugin.Logger(ctx).Error("getSqlCollectorRetention", "query_error", err, "request", request)
+		return nil, err
+	}
+	return response, nil
 }
 
 //// TRANSFORM FUNCTIONS
