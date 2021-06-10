@@ -8,8 +8,7 @@ provider "alicloud" {
   region = var.alicloud_region
 }
 
-data "alicloud_account" "current" {
-}
+data "alicloud_account" "current" {}
 
 output "current_account_id" {
   value = "${data.alicloud_account.current.id}"

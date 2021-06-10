@@ -27,7 +27,7 @@ func tableAlicloudAccount(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("AccountAlias"),
 			},
 
-			// steampipe standard columns
+			// Steampipe standard columns
 			{
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
