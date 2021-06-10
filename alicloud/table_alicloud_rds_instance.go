@@ -68,6 +68,13 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Description: "The reason why the instance is locked.",
 			},
 			{
+				Name:        "sql_collector_retention",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getSqlCollectorRetention,
+				Transform:   transform.FromField("ConfigValue"),
+				Description: "The log backup retention duration that is allowed by the SQL explorer feature on the instance.",
+			},
+			{
 				Name:      "ins_id",
 				Type:      proto.ColumnType_INT,
 				Transform: transform.FromField("InsId"),
@@ -100,20 +107,6 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("DBInstanceClass"),
 				Description: "The instance type of the instances.",
-			},
-			{
-				Name:        "audit_status",
-				Type:        proto.ColumnType_STRING,
-				Hydrate:     getSqlCollectorPolicy,
-				Transform:   transform.FromField("SQLCollectorStatus"),
-				Description: "The status of the SQL Explorer (SQL Audit) feature.",
-			},
-			{
-				Name:        "audit_retention_duration",
-				Type:        proto.ColumnType_STRING,
-				Hydrate:     getSqlCollectorRetention,
-				Transform:   transform.FromField("ConfigValue"),
-				Description: "The audit retention duration that is allowed by the SQL explorer feature on the instance.",
 			},
 			{
 				Name:        "vpc_cloud_instance_id",
@@ -495,7 +488,13 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("ReadOnlyDBInstanceIds"),
 				Description: "An array that consists of the IDs of the read-only instances attached to the primary instance.",
 			},
-
+			{
+				Name:        "sql_collector_policy",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getSqlCollectorPolicy,
+				Transform:   transform.FromValue(),
+				Description: "The status of the SQL Explorer (SQL Audit) feature.",
+			},
 			{
 				Name:        "tags_src",
 				Type:        proto.ColumnType_JSON,
