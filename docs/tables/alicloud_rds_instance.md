@@ -9,6 +9,7 @@ Provides an RDS instance resource. A DB instance is an isolated database environ
 ```sql
 select
   db_instance_id,
+  arn,
   vpc_id,
   creation_time,
   engine
