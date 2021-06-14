@@ -23,10 +23,10 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 			Hydrate: listCsKubernetesClusters,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.AllColumns([]string{"cluster_id", "region"}),
+			KeyColumns: plugin.SingleColumn("cluster_id"),
 			Hydrate:    getCsKubernetesCluster,
 		},
-		GetMatrixItem: BuildRegionList,
+		// GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			{
 				Name:        "name",
@@ -342,7 +342,7 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listCsKubernetesClusters(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	region := GetDefaultRegion(d.Connection)
 
 	// Create service connection
 	client, err := ContainerService(ctx, d, region)
@@ -352,6 +352,7 @@ func listCsKubernetesClusters(ctx context.Context, d *plugin.QueryData, _ *plugi
 	}
 	request := cs.CreateDescribeClustersV1Request()
 	request.Scheme = "https"
+	request.QueryParams["RegionId"] = region
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
 
@@ -384,7 +385,7 @@ func listCsKubernetesClusters(ctx context.Context, d *plugin.QueryData, _ *plugi
 //// HYDRATE FUNCTIONS
 
 func getCsKubernetesCluster(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	matrixRegion := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	matrixRegion := GetDefaultRegion(d.Connection)
 	plugin.Logger(ctx).Trace("getCsKubernetesCluster")
 
 	// Create service connection
@@ -393,11 +394,11 @@ func getCsKubernetesCluster(ctx context.Context, d *plugin.QueryData, h *plugin.
 		plugin.Logger(ctx).Error("getCsKubernetesCluster", "connection_error", err)
 		return nil, err
 	}
-	region := d.KeyColumnQuals["region"].GetStringValue()
+	// region := d.KeyColumnQuals["region"].GetStringValue()
 
-	if region != matrixRegion {
-		return nil, nil
-	}
+	// if region != matrixRegion {
+	// 	return nil, nil
+	// }
 	var id string
 	if h.Item != nil {
 		clusterData := h.Item.(map[string]interface{})
@@ -426,7 +427,7 @@ func getCsKubernetesCluster(ctx context.Context, d *plugin.QueryData, h *plugin.
 }
 
 func getCsKubernetesClusterLog(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	region := GetDefaultRegion(d.Connection)
 	plugin.Logger(ctx).Trace("getCsKubernetesClusterLog")
 
 	// Create service connection
@@ -436,13 +437,7 @@ func getCsKubernetesClusterLog(ctx context.Context, d *plugin.QueryData, h *plug
 		return nil, err
 	}
 
-	var id string
-	if h.Item != nil {
-		clusterData := h.Item.(map[string]interface{})
-		id = clusterData["cluster_id"].(string)
-	} else {
-		id = d.KeyColumnQuals["cluster_id"].GetStringValue()
-	}
+	id := h.Item.(map[string]interface{})["cluster_id"].(string)
 
 	request := cs.CreateDescribeClusterLogsRequest()
 	request.Scheme = "https"
@@ -462,16 +457,10 @@ func getCsKubernetesClusterLog(ctx context.Context, d *plugin.QueryData, h *plug
 }
 
 func getCsKubernetesClusterNamespace(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	region := GetDefaultRegion(d.Connection)
 	plugin.Logger(ctx).Trace("getCsKubernetesClusterNamespace")
 
-	var id string
-	if h.Item != nil {
-		clusterData := h.Item.(map[string]interface{})
-		id = clusterData["cluster_id"].(string)
-	} else {
-		id = d.KeyColumnQuals["cluster_id"].GetStringValue()
-	}
+	id := h.Item.(map[string]interface{})["cluster_id"].(string)
 
 	client, err := ContainerService(ctx, d, region)
 	if err != nil {
@@ -479,15 +468,10 @@ func getCsKubernetesClusterNamespace(ctx context.Context, d *plugin.QueryData, h
 	}
 
 	request := requests.NewCommonRequest()
-	request.Method = "GET"
 	request.Scheme = "https"
 	request.Domain = "cs.aliyuncs.com"
 	request.Version = "2015-12-15"
 	request.PathPattern = "/k8s/" + id + "/namespaces"
-	request.Headers["Content-Type"] = "application/json"
-	request.QueryParams["RegionId"] = region
-	body := `{}`
-	request.Content = []byte(body)
 
 	response, err := client.ProcessCommonRequest(request)
 	if err != nil {
@@ -510,7 +494,7 @@ func getCsKubernetesClusterARN(ctx context.Context, d *plugin.QueryData, h *plug
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	arn := "acs:cs:" + data["region_id"].(string) + ":" + accountID + ":container/" + data["name"].(string)
+	arn := "arn:acs:cs:" + data["region_id"].(string) + ":" + accountID + ":cluster/" + data["cluster_id"].(string)
 
 	return arn, nil
 }
