@@ -286,7 +286,7 @@ func bucketARN(ctx context.Context, d *transform.TransformData) (interface{}, er
 	plugin.Logger(ctx).Trace("bucketARN")
 	bucket := d.HydrateItem.(oss.BucketProperties)
 
-	return "arn:acs:oss:::" + bucket.Name, nil
+	return "acs:oss:::" + bucket.Name, nil
 }
 
 func bucketRegion(ctx context.Context, d *transform.TransformData) (interface{}, error) {
