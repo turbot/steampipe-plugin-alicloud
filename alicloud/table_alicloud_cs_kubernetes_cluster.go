@@ -26,7 +26,6 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 			KeyColumns: plugin.SingleColumn("cluster_id"),
 			Hydrate:    getCsKubernetesCluster,
 		},
-		// GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			{
 				Name:        "name",
