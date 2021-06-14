@@ -21,7 +21,7 @@ func tableAlicloudCmsMonitorHost(ctx context.Context) *plugin.Table {
 			Hydrate: listCmsMonitorHosts,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.AllColumns([]string{"host_name", "region"}),
+			KeyColumns: plugin.SingleColumn("host_name"),
 			Hydrate:    getCmsMonitorHost,
 		},
 		GetMatrixItem: BuildRegionList,
@@ -45,13 +45,6 @@ func tableAlicloudCmsMonitorHost(ctx context.Context) *plugin.Table {
 				Name:        "agent_version",
 				Description: "The version of the Cloud Monitor agent.",
 				Type:        proto.ColumnType_STRING,
-			},
-			{
-				Name:        "monitoring_agent_status",
-				Description: "The status of the Cloud Monitor agent.",
-				Type:        proto.ColumnType_STRING,
-				Hydrate:     getCmsMonitoringAgentStatus,
-				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "is_aliyun_host",
@@ -97,6 +90,15 @@ func tableAlicloudCmsMonitorHost(ctx context.Context) *plugin.Table {
 				Name:        "serial_number",
 				Type:        proto.ColumnType_STRING,
 				Description: "The serial number of the host. A host that is not provided by Alibaba Cloud has a serial number instead of an instance ID.",
+			},
+
+			//JSON Column
+			{
+				Name:        "monitoring_agent_status",
+				Description: "The status of the Cloud Monitor agent.",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getCmsMonitoringAgentStatus,
+				Transform:   transform.FromValue(),
 			},
 
 			// Steampipe standard columns
@@ -185,12 +187,10 @@ func getCmsMonitorHost(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	request := cms.CreateDescribeMonitoringAgentHostsRequest()
 	request.Scheme = "https"
 	request.HostName = hostName
-	request.PageSize = requests.NewInteger(50)
-	request.PageNumber = requests.NewInteger(1)
 
 	response, err := client.DescribeMonitoringAgentHosts(request)
 	if err != nil {
-		plugin.Logger(ctx).Error("listCmsMonitorHosts", "query_error", err, "request", request)
+		plugin.Logger(ctx).Error("getCmsMonitorHost", "query_error", err, "request", request)
 		return nil, err
 	}
 
