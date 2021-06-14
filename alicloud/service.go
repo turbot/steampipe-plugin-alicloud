@@ -9,6 +9,7 @@ import (
 	rpc "github.com/alibabacloud-go/tea-rpc/client"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/actiontrail"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cas"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
@@ -67,6 +68,34 @@ func CasService(ctx context.Context, d *plugin.QueryData, region string) (*cas.C
 
 	// so it was not in cache - create service
 	svc, err := cas.NewClientWithAccessKey(region, ak, secret)
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the service connection
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+	return svc, nil
+}
+
+// CmsService returns the service connection for Alicloud CMS service
+func CmsService(ctx context.Context, d *plugin.QueryData, region string) (*cms.Client, error) {
+	if region == "" {
+		return nil, fmt.Errorf("region must be passed CmsService")
+	}
+	// have we already created and cached the service?
+	serviceCacheKey := fmt.Sprintf("cms-%s", region)
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(*cms.Client), nil
+	}
+
+	ak, secret, err := getEnv(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+
+	// so it was not in cache - create service
+	svc, err := cms.NewClientWithAccessKey(region, ak, secret)
 	if err != nil {
 		return nil, err
 	}
