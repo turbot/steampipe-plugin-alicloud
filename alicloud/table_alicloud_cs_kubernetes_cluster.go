@@ -394,11 +394,7 @@ func getCsKubernetesCluster(ctx context.Context, d *plugin.QueryData, h *plugin.
 		plugin.Logger(ctx).Error("getCsKubernetesCluster", "connection_error", err)
 		return nil, err
 	}
-	// region := d.KeyColumnQuals["region"].GetStringValue()
-
-	// if region != matrixRegion {
-	// 	return nil, nil
-	// }
+	
 	var id string
 	if h.Item != nil {
 		clusterData := h.Item.(map[string]interface{})
