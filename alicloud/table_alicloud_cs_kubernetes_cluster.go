@@ -274,12 +274,12 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 				Type:      proto.ColumnType_JSON,
 				Transform: transform.FromField("maintenance_window"),
 			},
-			{
-				Name:        "master_url",
-				Description: "The endpoints that are open for connections to the cluster.",
-				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("master_url"),
-			},
+			// {
+			// 	Name:        "master_url",
+			// 	Description: "The endpoints that are open for connections to the cluster.",
+			// 	Type:        proto.ColumnType_JSON,
+			// 	Transform:   transform.FromField("master_url"),
+			// },
 			{
 				Name:        "meta_data",
 				Description: "The metadata of the cluster.",
@@ -306,12 +306,12 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("name"),
 			},
-			{
-				Name:        "tags",
-				Description: ColumnDescriptionTags,
-				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("tags").Transform(csKubernetesClusterAkaTagsToMap),
-			},
+			// {
+			// 	Name:        "tags",
+			// 	Description: ColumnDescriptionTags,
+			// 	Type:        proto.ColumnType_JSON,
+			// 	Transform:   transform.FromField("tags").Transform(csKubernetesClusterAkaTagsToMap),
+			// },
 			{
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
