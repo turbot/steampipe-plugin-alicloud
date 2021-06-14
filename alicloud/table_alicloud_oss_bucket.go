@@ -30,7 +30,8 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 				Name:        "arn",
 				Description: "The Alibaba Cloud Resource Name (ARN) of the OSS bucket.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.From(bucketARN),
+				Hydrate:     getBucketARN,
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "location",
@@ -114,8 +115,9 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 			{
 				Name:        "akas",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.From(bucketARN).Transform(transform.EnsureStringArray),
 				Description: ColumnDescriptionAkas,
+				Hydrate:     getBucketARN,
+				Transform:   transform.FromValue().Transform(transform.EnsureStringArray),
 			},
 
 			// alicloud standard columns
@@ -282,11 +284,19 @@ func bucketSSEConfiguration(_ context.Context, d *transform.TransformData) (inte
 	}, nil
 }
 
-func bucketARN(ctx context.Context, d *transform.TransformData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("bucketARN")
-	bucket := d.HydrateItem.(oss.BucketProperties)
+func getBucketARN(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getBucketARN")
+	bucket := h.Item.(oss.BucketProperties)
 
-	return "acs:oss:::" + bucket.Name, nil
+	// Get project details
+	commonData, err := getCommonColumns(ctx, d, h)
+	if err != nil {
+		return nil, err
+	}
+	commonColumnData := commonData.(*alicloudCommonColumnData)
+	accountID := commonColumnData.AccountID
+
+	return "arn:acs:oss:" + strings.TrimLeft(bucket.Location, "oss-") + ":" + accountID + ":bucket/" + bucket.Name, nil
 }
 
 func bucketRegion(ctx context.Context, d *transform.TransformData) (interface{}, error) {
