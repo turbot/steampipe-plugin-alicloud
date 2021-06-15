@@ -23,7 +23,7 @@ func tableAlicloudCsKubernetesClusterNode(ctx context.Context) *plugin.Table {
 			ParentHydrate: listCsKubernetesClusters,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.AllColumns([]string{"cluster_id", "nodepool_id"}),
+			KeyColumns: plugin.AllColumns([]string{"cluster_id", "instance_id"}),
 			Hydrate:    getCsKubernetesClusterNode,
 		},
 		GetMatrixItem: BuildRegionList,
@@ -31,11 +31,6 @@ func tableAlicloudCsKubernetesClusterNode(ctx context.Context) *plugin.Table {
 			{
 				Name:        "node_name",
 				Description: "The name of the node in the ACK cluster.",
-				Type:        proto.ColumnType_STRING,
-			},
-			{
-				Name:        "nodepool_id",
-				Description: "The ID of the node pool.",
 				Type:        proto.ColumnType_STRING,
 			},
 			{
@@ -80,12 +75,6 @@ func tableAlicloudCsKubernetesClusterNode(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 			},
 			{
-				Name:        "cluster_healthy",
-				Description: "The health status of the cluster.",
-				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("cluster_healthy"),
-			},
-			{
 				Name:        "instance_name",
 				Description: "The name of the node. This name contains the ID of the cluster to which the node is deployed.",
 				Type:        proto.ColumnType_STRING,
@@ -114,7 +103,6 @@ func tableAlicloudCsKubernetesClusterNode(ctx context.Context) *plugin.Table {
 				Name:        "instance_type_family",
 				Description: "The ECS instance family of the node.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("data_disk_size"),
 			},
 			{
 				Name:        "ip_address",
@@ -132,6 +120,11 @@ func tableAlicloudCsKubernetesClusterNode(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 			},
 			{
+				Name:        "nodepool_id",
+				Description: "The ID of the node pool.",
+				Type:        proto.ColumnType_STRING,
+			},
+			{
 				Name:        "error_message",
 				Description: "The error message generated when the node was created.",
 				Type:        proto.ColumnType_STRING,
@@ -144,20 +137,20 @@ func tableAlicloudCsKubernetesClusterNode(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("NodeName"),
 			},
-			// {
-			// 	Name:        "akas",
-			// 	Description: ColumnDescriptionAkas,
-			// 	Type:        proto.ColumnType_JSON,
-			// 	Hydrate:     getCsKubernetesClusterAka,
-			// 	Transform:   transform.FromValue(),
-			// },
+			{
+				Name:        "akas",
+				Description: ColumnDescriptionAkas,
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getCsKubernetesClusterNodeAka,
+				Transform:   transform.FromValue(),
+			},
 
 			// Alicloud standard columns
 			{
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("region_id"),
+				Transform:   transform.From(getNodeRegion),
 			},
 			{
 				Name:        "account_id",
@@ -201,7 +194,7 @@ func listCsKubernetesClusterNodes(ctx context.Context, d *plugin.QueryData, h *p
 
 func getCsKubernetesClusterNode(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	matrixRegion := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-	plugin.Logger(ctx).Trace("getCsKubernetesClusterNode inseide get call")
+	plugin.Logger(ctx).Trace("getCsKubernetesClusterNode")
 
 	// Create service connection
 	client, err := ContainerService(ctx, d, matrixRegion)
@@ -211,86 +204,55 @@ func getCsKubernetesClusterNode(ctx context.Context, d *plugin.QueryData, h *plu
 	}
 
 	clusterId := d.KeyColumnQuals["cluster_id"].GetStringValue()
-	nodePoolId := d.KeyColumnQuals["nodepool_id"].GetStringValue()
+	instanceId := d.KeyColumnQuals["instance_id"].GetStringValue()
 
-	request := cs.CreateDescribeClusterNodePoolDetailRequest()
+	request := cs.CreateDescribeClusterNodesRequest()
 	request.Scheme = "https"
 	request.ClusterId = clusterId
-	request.NodepoolId = nodePoolId
 
-	response, err := client.DescribeClusterNodePoolDetail(request)
+	response, err := client.DescribeClusterNodes(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
 		plugin.Logger(ctx).Error("getCsKubernetesClusterNode", "query_error", serverErr, "request", request)
 		return nil, serverErr
 	}
 
-	plugin.Logger(ctx).Trace("getCsKubernetesClusterNodexxxxxxx", response)
-
-	if response. != nil && len(response.Nodes) > 0 {
-		return response.Nodes[0], nil
+	for _, item := range response.Nodes {
+		if item.InstanceId == instanceId {
+			return item, nil
+		}
 	}
 
 	return nil, nil
 }
 
-// func getCsKubernetesClusterLog(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-// 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-// 	plugin.Logger(ctx).Trace("getCsKubernetesClusterLog")
+func getCsKubernetesClusterNodeAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getCsKubernetesClusterNodeAka")
 
-// 	// Create service connection
-// 	client, err := ContainerService(ctx, d, region)
-// 	if err != nil {
-// 		plugin.Logger(ctx).Error("getCsKubernetesClusterLog", "connection_error", err)
-// 		return nil, err
-// 	}
+	nodeName := h.Item.(cs.Node).NodeName
 
-// 	var id string
-// 	if h.Item != nil {
-// 		clusterData := h.Item.(map[string]interface{})
-// 		id = clusterData["cluster_id"].(string)
-// 	} else {
-// 		id = d.KeyColumnQuals["cluster_id"].GetStringValue()
-// 	}
+	// Get project details
+	commonData, err := getCommonColumns(ctx, d, h)
+	if err != nil {
+		return nil, err
+	}
+	commonColumnData := commonData.(*alicloudCommonColumnData)
+	accountID := commonColumnData.AccountID
 
-// 	request := cs.CreateDescribeClusterLogsRequest()
-// 	request.Scheme = "https"
-// 	request.ClusterId = id
+	akas := []string{"acs:cs:" + strings.Split(nodeName, ".")[0] + ":" + accountID + ":node/" + nodeName}
 
-// 	response, err := client.DescribeClusterLogs(request)
-// 	if serverErr, ok := err.(*errors.ServerError); ok {
-// 		plugin.Logger(ctx).Error("getCsKubernetesClusterLog", "query_error", serverErr, "request", request)
-// 		return nil, serverErr
-// 	}
+	return akas, nil
+}
 
-// 	if len(response.GetHttpContentString()) > 0 {
-// 		return response.GetHttpContentString(), nil
-// 	}
-
-// 	return nil, nil
-// }
-
-// //// TRANSFORM FUNCTIONS
-
-// func csKubernetesClusterNodeTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, error) {
-// 	tags := d.Value.([]interface{})
-// 	if tags == nil {
-// 		return nil, nil
-// 	}
-
-// 	if len(tags) == 0 {
-// 		return nil, nil
-// 	}
-// 	turbotTagsMap := map[string]string{}
-// 	for _, i := range tags {
-// 		tagDetails := i.(map[string]interface{})
-// 		turbotTagsMap[tagDetails["key"].(string)] = tagDetails["value"].(string)
-// 	}
-
-// 	return turbotTagsMap, nil
-// }
+//// TRANSFORM FUNCTIONS
 
 func getClusterId(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	instanceName := d.HydrateItem.(cs.Node).InstanceName
 
 	return strings.Split(instanceName, "-")[4], nil
+}
+
+func getNodeRegion(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	nodeName := d.HydrateItem.(cs.Node).NodeName
+
+	return strings.Split(nodeName, ".")[0], nil
 }
