@@ -183,7 +183,7 @@ func getSecurityCenterVersionAkas(ctx context.Context, d *plugin.QueryData, h *p
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"arn:acs:security-center:" + "" + ":" + accountID + ":version/" + strconv.Itoa(data.Version)}
+	akas := []string{"arn:acs:security-center:" + data.Region + ":" + accountID + ":version/" + strconv.Itoa(data.Version)}
 
 	return akas, nil
 }

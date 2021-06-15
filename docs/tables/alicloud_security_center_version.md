@@ -1,8 +1,8 @@
 # Table: alicloud_security_center_version
 
-Security Center is a centralized security management system that dynamically identifies and analyzes security threats, and generates alerts when threats are detected. Security Center provides multiple features to ensure the security of cloud resources and servers in data centers.
+Security center is a centralized security management system that dynamically identifies and analyzes security threats, and generates alerts when threats are detected. It provides multiple features to ensure the security of cloud resources and servers in data centers.
 
-Alicloud Security Center Version provides the details of the purchased edition of Security Center.
+Alicloud security center version provides the details of the purchased edition of security center.
 
 ## Examples
 
