@@ -91,8 +91,6 @@ func tableAlicloudCmsMonitorHost(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 				Description: "The serial number of the host. A host that is not provided by Alibaba Cloud has a serial number instead of an instance ID.",
 			},
-
-			//JSON Column
 			{
 				Name:        "monitoring_agent_status",
 				Description: "The status of the Cloud Monitor agent.",

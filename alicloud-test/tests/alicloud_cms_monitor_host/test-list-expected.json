@@ -1,0 +1,8 @@
+[
+	{
+		"host_name": "{{ output.host_name.value }}",
+		"instance_id": "{{ output.instance_id.value }}",
+		"region": "{{ output.region.value }}",
+		"title": "{{ output.host_name.value }}"
+	}
+]
