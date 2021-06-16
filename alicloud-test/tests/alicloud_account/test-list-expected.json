@@ -1,0 +1,7 @@
+[
+  {
+    "account_id": "{{ output.current_account_id.value }}",
+    "akas": ["arn:acs:::{{ output.current_account_id.value }}"],
+    "alias": "{{ output.current_account_id.value }}"
+  }
+]
