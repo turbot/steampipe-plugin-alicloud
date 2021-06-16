@@ -10,7 +10,7 @@ Alicloud security center version provides the details of the purchased edition o
 5: Advanced
 6: Basic Anti-Virus
 
-Note Both 2 and 3 indicate the Enterprise edition and have no differences.
+Note: Both 2 and 3 indicate the Enterprise edition and have no differences.
 
 ## Examples
 
