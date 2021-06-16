@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
@@ -34,7 +35,7 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns:        plugin.SingleColumn("name"),
-			ShouldIgnoreError: isNotFoundError([]string{"EntityNotExist.User"}),
+			ShouldIgnoreError: isNotFoundError([]string{"EntityNotExist.User", "MissingParameter"}),
 			Hydrate:           getRAMUser,
 		},
 		Columns: []*plugin.Column{
@@ -108,6 +109,13 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("Policies.Policy"),
 			},
 			{
+				Name:        "cs_user_permission",
+				Description: "User permissions for container service kubernetes clusters.",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getCsUserPermission,
+				Transform:   transform.FromValue(),
+			},
+			{
 				Name:        "groups",
 				Description: "A list of groups attached to the user.",
 				Type:        proto.ColumnType_JSON,
@@ -115,7 +123,7 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromValue(),
 			},
 
-			// steampipe standard columns
+			// Steampipe standard columns
 			{
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
@@ -302,6 +310,37 @@ func getUserAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 	accountID := commonColumnData.AccountID
 
 	return []string{"acs:ram::" + accountID + ":user/" + data.UserName}, nil
+}
+
+func getCsUserPermission(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getCsUserPermission")
+
+	// Create service connection
+	client, err := RAMService(ctx, d)
+	if err != nil {
+		plugin.Logger(ctx).Error("getCsUserPermission", "connection_error", err)
+		return nil, err
+	}
+
+	data := h.Item.(userInfo)
+
+	request := requests.NewCommonRequest()
+	request.Method = "GET"
+	request.Scheme = "https"
+	request.Domain = "cs.aliyuncs.com"
+	request.Version = "2015-12-15"
+	request.PathPattern = "/permissions/users/" + data.UserId
+	request.Headers["Content-Type"] = "application/json"
+	body := `{}`
+	request.Content = []byte(body)
+
+	response, err := client.ProcessCommonRequest(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		plugin.Logger(ctx).Error("getCsUserPermission", "query_error", serverErr, "request", request)
+		return nil, err
+	}
+
+	return response.GetHttpContentString(), nil
 }
 
 //// TRANSFORM FUNCTION
