@@ -1,3 +1,21 @@
+## v0.0.11 [2021-06-10]
+
+_What's new?_
+
+- New tables added
+  - [alicloud_account](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_account) ([#175](https://github.com/turbot/steampipe-plugin-alicloud/pull/175))
+
+_Enhancements_
+
+- Updated plugin license to Apache 2.0 per [turbot/steampipe#488](https://github.com/turbot/steampipe/issues/488)
+- Updated: Add column `arn` to `alicloud_ecs_disk` table ([#152](https://github.com/turbot/steampipe-plugin-alicloud/pull/152))
+- Updated: Add column `arn` to `alicloud_ecs_image` table ([#153](https://github.com/turbot/steampipe-plugin-alicloud/pull/153))
+- Updated: Add column `arn` to `alicloud_ecs_instance` table ([#151](https://github.com/turbot/steampipe-plugin-alicloud/pull/151))
+- Updated: Add column `arn` to `alicloud_ecs_security_group` table ([#154](https://github.com/turbot/steampipe-plugin-alicloud/pull/154))
+- Updated: Add column `arn` to `alicloud_rds_instance` table ([#156](https://github.com/turbot/steampipe-plugin-alicloud/pull/156))
+- Updated: Add columns `sql_collector_policy` and `sql_collector_retention` to `alicloud_rds_instance` table ([#176](https://github.com/turbot/steampipe-plugin-alicloud/pull/176))
+- Recompiled plugin with [steampipe-plugin-sdk v0.2.10](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v0210-2021-06-09)
+
 ## v0.0.10 [2021-04-29]
 
 _What's new?_

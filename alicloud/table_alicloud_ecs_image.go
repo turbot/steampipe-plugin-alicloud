@@ -45,6 +45,13 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("Image.ImageId"),
 			},
 			{
+				Name:        "arn",
+				Description: "The Alibaba Cloud Resource Name (ARN) of the ECS image.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getEcsImageARN,
+				Transform:   transform.FromValue(),
+			},
+			{
 				Name:        "size",
 				Description: "The size of the image (in GiB).",
 				Type:        proto.ColumnType_INT,
@@ -201,8 +208,8 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getEcsImageAka,
-				Transform:   transform.FromValue(),
+				Hydrate:     getEcsImageARN,
+				Transform:   transform.FromValue().Transform(transform.EnsureStringArray),
 			},
 			{
 				Name:        "title",
@@ -360,8 +367,8 @@ func getEcsImageSharePermission(ctx context.Context, d *plugin.QueryData, h *plu
 	return result, nil
 }
 
-func getEcsImageAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getEcsImageAka")
+func getEcsImageARN(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getEcsImageARN")
 
 	data := h.Item.(imageInfo)
 
@@ -373,7 +380,7 @@ func getEcsImageAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"arn:acs:ecs:" + data.Region + ":" + accountID + ":image/" + data.Image.ImageId}
+	arn := "arn:acs:ecs:" + data.Region + ":" + accountID + ":image/" + data.Image.ImageId
 
-	return akas, nil
+	return arn, nil
 }

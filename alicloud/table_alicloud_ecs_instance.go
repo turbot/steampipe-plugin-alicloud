@@ -38,6 +38,13 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 			},
 			{
+				Name:        "arn",
+				Description: "The Alibaba Cloud Resource Name (ARN) of the ECS instance.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getEcsInstanceARN,
+				Transform:   transform.FromValue(),
+			},
+			{
 				Name:        "instance_type",
 				Description: "The type of the instance.",
 				Type:        proto.ColumnType_STRING,
@@ -429,8 +436,8 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getEcsInstanceAka,
-				Transform:   transform.FromValue(),
+				Hydrate:     getEcsInstanceARN,
+				Transform:   transform.FromValue().Transform(transform.EnsureStringArray),
 			},
 			{
 				Name:        "title",
@@ -543,8 +550,8 @@ func getEcsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 	return nil, nil
 }
 
-func getEcsInstanceAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getEcsInstanceAka")
+func getEcsInstanceARN(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getEcsInstanceARN")
 	instance := h.Item.(ecs.Instance)
 
 	// Get project details
@@ -555,7 +562,7 @@ func getEcsInstanceAka(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"arn:acs:ecs:" + instance.RegionId + ":" + accountID + ":instance/" + instance.InstanceId}
+	arn := "arn:acs:ecs:" + instance.RegionId + ":" + accountID + ":instance/" + instance.InstanceId
 
-	return akas, nil
+	return arn, nil
 }
