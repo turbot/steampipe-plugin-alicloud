@@ -63,7 +63,7 @@ select
 from
   alicloud_ram_user,
   jsonb_array_elements(attached_policy) as policies
-where 
+where
   policies ->> 'PolicyName' = 'AdministratorAccess';
 ```
 
@@ -78,4 +78,16 @@ from
   alicloud_ram_user
 where
   not mfa_enabled;
+```
+
+### List all the users for whom role-based access control (RBAC) authorization is Enabled on Kubernetes Engine Clusters
+
+```sql
+select
+  name as user_name,
+  user_id as user_id
+from
+  alicloud_ram_user
+where
+  cs_user_permission <> '[]';
 ```
