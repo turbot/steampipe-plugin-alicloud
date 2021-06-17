@@ -22,7 +22,7 @@ func tableAlicloudEcsAutoscalingGroup(ctx context.Context) *plugin.Table {
 			Hydrate: listEcsAutoscalingGroup,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("scaling_group_id"),
+			KeyColumns: plugin.AnyColumn([]string{"scaling_group_id", "name"}),
 			Hydrate:    getEcsAutoscalingGroup,
 		},
 		GetMatrixItem: BuildRegionList,
@@ -337,17 +337,18 @@ func getEcsAutoscalingGroup(ctx context.Context, d *plugin.QueryData, h *plugin.
 		return nil, err
 	}
 
-	var id string
-	if h.Item != nil {
-		data := h.Item.(ess.ScalingGroup)
-		id = data.ScalingGroupId
-	} else {
-		id = d.KeyColumnQuals["scaling_group_id"].GetStringValue()
-	}
+	name := d.KeyColumnQuals["name"].GetStringValue()
+	id := d.KeyColumnQuals["scaling_group_id"].GetStringValue()
 
 	request := ess.CreateDescribeScalingGroupsRequest()
 	request.Scheme = "https"
-	request.ScalingGroupId1 = id
+
+	if name != "" {
+		request.ScalingGroupName = name
+	} else {
+		request.ScalingGroupId = &[]string{id}
+	}
+
 	response, err := client.DescribeScalingGroups(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
 		plugin.Logger(ctx).Error("alicloud_ecs_autoscaling_group.getEcsAutoscalingGroup", "query_error", serverErr, "request", request)
