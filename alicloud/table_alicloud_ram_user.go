@@ -109,10 +109,10 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("Policies.Policy"),
 			},
 			{
-				Name:        "cs_user_permission",
-				Description: "User permissions for container service kubernetes clusters.",
+				Name:        "cs_user_permissions",
+				Description: "User permissions for Container Service Kubernetes clusters.",
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getCsUserPermission,
+				Hydrate:     getCsUserPermissions,
 				Transform:   transform.FromValue(),
 			},
 			{
@@ -312,13 +312,13 @@ func getUserAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 	return []string{"acs:ram::" + accountID + ":user/" + data.UserName}, nil
 }
 
-func getCsUserPermission(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getCsUserPermission")
+func getCsUserPermissions(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getCsUserPermissions")
 
 	// Create service connection
 	client, err := RAMService(ctx, d)
 	if err != nil {
-		plugin.Logger(ctx).Error("getCsUserPermission", "connection_error", err)
+		plugin.Logger(ctx).Error("getCsUserPermissions", "connection_error", err)
 		return nil, err
 	}
 
@@ -336,7 +336,7 @@ func getCsUserPermission(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 
 	response, err := client.ProcessCommonRequest(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
-		plugin.Logger(ctx).Error("getCsUserPermission", "query_error", serverErr, "request", request)
+		plugin.Logger(ctx).Error("getCsUserPermissions", "query_error", serverErr, "request", request)
 		return nil, err
 	}
 

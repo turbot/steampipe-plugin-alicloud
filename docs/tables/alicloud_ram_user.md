@@ -80,7 +80,7 @@ where
   not mfa_enabled;
 ```
 
-### List all the users for whom role-based access control (RBAC) authorization is Enabled on Kubernetes Engine Clusters
+### List users with Container Service for Kubernetes role-based access control (RBAC) permissions
 
 ```sql
 select
