@@ -1,3 +1,18 @@
+## v0.0.12 [2021-06-17]
+
+_What's new?_
+
+- New tables added
+  - [alicloud_security_center_field_statistics](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_security_center_field_statistics) ([#177](https://github.com/turbot/steampipe-plugin-alicloud/pull/177))
+  - [alicloud_security_center_version](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_security_center_version) ([#173](https://github.com/turbot/steampipe-plugin-alicloud/pull/173))
+
+_Enhancements_
+
+- Updated: Add `name` column to get key columns in `alicloud_ecs_autoscaling_group` table ([#179](https://github.com/turbot/steampipe-plugin-alicloud/pull/179))
+- Updated: Add column `arn` to `alicloud_oss_bucket` table ([#155](https://github.com/turbot/steampipe-plugin-alicloud/pull/155))
+- Updated: Add column `cs_user_permissions` to `alicloud_ram_user` table ([#183](https://github.com/turbot/steampipe-plugin-alicloud/pull/183))
+- Updated: Add columns `arn` and `cluster_namespace` to `alicloud_cs_kubernetes_cluster` table ([#166](https://github.com/turbot/steampipe-plugin-alicloud/pull/166))
+
 ## v0.0.11 [2021-06-10]
 
 _What's new?_
