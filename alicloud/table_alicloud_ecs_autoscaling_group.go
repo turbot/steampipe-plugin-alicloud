@@ -340,7 +340,7 @@ func getEcsAutoscalingGroup(ctx context.Context, d *plugin.QueryData, h *plugin.
 	var name, id string
 	if h.Item != nil {
 		data := h.Item.(ess.ScalingGroup)
-		name = data.ScalingGroupName
+		id = data.ScalingGroupId
 	} else {
 		name = d.KeyColumnQuals["name"].GetStringValue()
 		id = d.KeyColumnQuals["scaling_group_id"].GetStringValue()
