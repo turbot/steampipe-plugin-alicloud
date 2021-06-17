@@ -37,7 +37,7 @@ func tableAlicloudCsKubernetesClusterNode(ctx context.Context) *plugin.Table {
 				Name:        "cluster_id",
 				Description: "The ID of the cluster that the node pool belongs to.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.From(getClusterId),
+				Transform:   transform.From(clusterIdFromInstanceName),
 			},
 			{
 				Name:        "state",
@@ -56,7 +56,7 @@ func tableAlicloudCsKubernetesClusterNode(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "node_status",
-				Description: "Indicates whether the node is ready in the ACK cluster. Valid values: true, false",
+				Description: "Indicates whether the node is ready in the ACK cluster. Valid values: true, false.",
 				Type:        proto.ColumnType_STRING,
 			},
 			{
@@ -150,7 +150,7 @@ func tableAlicloudCsKubernetesClusterNode(ctx context.Context) *plugin.Table {
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.From(getNodeRegion),
+				Transform:   transform.From(clusterNodeRegion),
 			},
 			{
 				Name:        "account_id",
@@ -174,6 +174,7 @@ func listCsKubernetesClusterNodes(ctx context.Context, d *plugin.QueryData, h *p
 		plugin.Logger(ctx).Error("listCsKubernetesClusterNodes", "connection_error", err)
 		return nil, err
 	}
+
 	clusterId := h.Item.(map[string]interface{})["cluster_id"].(string)
 	request := cs.CreateDescribeClusterNodesRequest()
 	request.Scheme = "https"
@@ -185,7 +186,7 @@ func listCsKubernetesClusterNodes(ctx context.Context, d *plugin.QueryData, h *p
 		return nil, err
 	}
 	for _, node := range response.Nodes {
-		d.StreamLeafListItem(ctx, node)
+		d.StreamListItem(ctx, node)
 	}
 	return nil, nil
 }
@@ -205,6 +206,10 @@ func getCsKubernetesClusterNode(ctx context.Context, d *plugin.QueryData, h *plu
 
 	clusterId := d.KeyColumnQuals["cluster_id"].GetStringValue()
 	instanceId := d.KeyColumnQuals["instance_id"].GetStringValue()
+
+	if clusterId == "" {
+		return nil, nil
+	}
 
 	request := cs.CreateDescribeClusterNodesRequest()
 	request.Scheme = "https"
@@ -245,13 +250,13 @@ func getCsKubernetesClusterNodeAka(ctx context.Context, d *plugin.QueryData, h *
 
 //// TRANSFORM FUNCTIONS
 
-func getClusterId(_ context.Context, d *transform.TransformData) (interface{}, error) {
+func clusterIdFromInstanceName(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	instanceName := d.HydrateItem.(cs.Node).InstanceName
 
 	return strings.Split(instanceName, "-")[4], nil
 }
 
-func getNodeRegion(_ context.Context, d *transform.TransformData) (interface{}, error) {
+func clusterNodeRegion(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	nodeName := d.HydrateItem.(cs.Node).NodeName
 
 	return strings.Split(nodeName, ".")[0], nil
