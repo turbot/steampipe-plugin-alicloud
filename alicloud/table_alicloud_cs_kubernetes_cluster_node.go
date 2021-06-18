@@ -166,7 +166,7 @@ func tableAlicloudCsKubernetesClusterNode(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listCsKubernetesClusterNodes(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	region := GetDefaultRegion(d.Connection)
 
 	// Create service connection
 	client, err := ContainerService(ctx, d, region)
@@ -194,7 +194,7 @@ func listCsKubernetesClusterNodes(ctx context.Context, d *plugin.QueryData, h *p
 //// HYDRATE FUNCTIONS
 
 func getCsKubernetesClusterNode(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	matrixRegion := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	matrixRegion := GetDefaultRegion(d.Connection)
 	plugin.Logger(ctx).Trace("getCsKubernetesClusterNode")
 
 	// Create service connection
@@ -207,7 +207,7 @@ func getCsKubernetesClusterNode(ctx context.Context, d *plugin.QueryData, h *plu
 	clusterId := d.KeyColumnQuals["cluster_id"].GetStringValue()
 	instanceId := d.KeyColumnQuals["instance_id"].GetStringValue()
 
-	// Check if clusterId or instanceId is empty then return nil
+	// handle empty clusterId or instanceId in get call
 	if clusterId == "" || instanceId == "" {
 		return nil, nil
 	}
