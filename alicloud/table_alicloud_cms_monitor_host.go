@@ -134,7 +134,7 @@ func tableAlicloudCmsMonitorHost(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listCmsMonitorHosts(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	region := GetDefaultRegion(d.Connection)
 
 	// Create service connection
 	client, err := CmsService(ctx, d, region)
@@ -170,11 +170,11 @@ func listCmsMonitorHosts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 //// HYDRATE FUNCTIONS
 
 func getCmsMonitorHost(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	matrixRegion := GetDefaultRegion(d.Connection)
 	plugin.Logger(ctx).Trace("getCmsMonitorHost")
 
 	// Create service connection
-	client, err := CmsService(ctx, d, region)
+	client, err := CmsService(ctx, d, matrixRegion)
 	if err != nil {
 		plugin.Logger(ctx).Error("getCmsMonitorHost", "connection_error", err)
 		return nil, err
@@ -183,7 +183,7 @@ func getCmsMonitorHost(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	hostName := d.KeyColumnQuals["host_name"].GetStringValue()
 	instanceId := d.KeyColumnQuals["instance_id"].GetStringValue()
 
-	// Check if hostName and instanceId is empty then return nil
+	// handle empty hostName or instanceId in get call
 	if hostName == "" || instanceId == "" {
 		return nil, nil
 	}
