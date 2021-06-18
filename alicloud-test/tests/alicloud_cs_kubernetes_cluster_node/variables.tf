@@ -73,5 +73,5 @@ output "region" {
 }
 
 output "resource_aka" {
-  value = "acs:cs:${var.alicloud_region}:${data.alicloud_caller_identity.current.account_id}:container/${var.resource_name}"
+  value = "acs:cs:${var.alicloud_region}:${data.alicloud_caller_identity.current.account_id}:node/${var.resource_name}"
 }
