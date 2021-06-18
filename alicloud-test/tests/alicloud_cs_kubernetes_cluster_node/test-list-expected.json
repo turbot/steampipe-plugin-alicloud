@@ -1,7 +1,7 @@
 [
   {
-		"cluster_id": "{{ output.cluster_id.value }}",
-		"instance_id": "{{ output.instance_id.value }}",
-		"instance_name": "{{ output.instance_name.value }}"
-	}
+    "cluster_id": "{{ output.cluster_id.value }}",
+    "instance_id": "{{ output.instance_id.value }}",
+    "instance_name": "{{ output.instance_name.value }}"
+  }
 ]
