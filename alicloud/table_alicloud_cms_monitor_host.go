@@ -21,7 +21,7 @@ func tableAlicloudCmsMonitorHost(ctx context.Context) *plugin.Table {
 			Hydrate: listCmsMonitorHosts,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("host_name"),
+			KeyColumns: plugin.AllColumns([]string{"host_name", "instance_id"}),
 			Hydrate:    getCmsMonitorHost,
 		},
 		GetMatrixItem: BuildRegionList,
@@ -181,10 +181,17 @@ func getCmsMonitorHost(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	}
 
 	hostName := d.KeyColumnQuals["host_name"].GetStringValue()
+	instanceId := d.KeyColumnQuals["instance_id"].GetStringValue()
+
+	// Check if hostName and instanceId is empty then return nil
+	if hostName == "" || instanceId == "" {
+		return nil, nil
+	}
 
 	request := cms.CreateDescribeMonitoringAgentHostsRequest()
 	request.Scheme = "https"
 	request.HostName = hostName
+	request.InstanceIds = instanceId
 
 	response, err := client.DescribeMonitoringAgentHosts(request)
 	if err != nil {
@@ -192,11 +199,7 @@ func getCmsMonitorHost(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 		return nil, err
 	}
 
-	if response.Hosts.Host != nil && len(response.Hosts.Host) > 0 {
-		return response.Hosts.Host[0], nil
-	}
-
-	return nil, nil
+	return response.Hosts.Host, nil
 }
 
 func getCmsMonitoringAgentStatus(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
