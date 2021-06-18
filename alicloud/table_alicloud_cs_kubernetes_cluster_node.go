@@ -207,7 +207,8 @@ func getCsKubernetesClusterNode(ctx context.Context, d *plugin.QueryData, h *plu
 	clusterId := d.KeyColumnQuals["cluster_id"].GetStringValue()
 	instanceId := d.KeyColumnQuals["instance_id"].GetStringValue()
 
-	if clusterId == "" {
+	// Check if clusterId or instanceId is empty then return nil
+	if clusterId == "" || instanceId == "" {
 		return nil, nil
 	}
 

@@ -12,7 +12,7 @@ select
   cluster_id,
   state,
   creation_time,
-  instance_id,
+  instance_id
 from
   alicloud_cs_kubernetes_cluster_node;
 ```
