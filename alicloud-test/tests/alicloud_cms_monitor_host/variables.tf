@@ -1,4 +1,3 @@
-
 variable "resource_name" {
   type        = string
   default     = "tf-testcontainer"
