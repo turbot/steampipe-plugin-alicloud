@@ -1,9 +1,9 @@
 [
-	{
-		"akas": [
+  {
+    "akas": [
 			"{{ output.resource_aka.value }}"
 		],
-		"host_name": "{{ output.host_name.value }}",
-		"title": "{{ output.host_name.value }}"
-	}
+    "host_name": "{{ output.host_name.value }}",
+    "title": "{{ output.host_name.value }}"
+  }
 ]
