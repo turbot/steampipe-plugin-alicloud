@@ -26,7 +26,6 @@ func tableAlicloudCsKubernetesClusterNode(ctx context.Context) *plugin.Table {
 			KeyColumns: plugin.AllColumns([]string{"cluster_id", "instance_id"}),
 			Hydrate:    getCsKubernetesClusterNode,
 		},
-		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			{
 				Name:        "node_name",
@@ -194,11 +193,10 @@ func listCsKubernetesClusterNodes(ctx context.Context, d *plugin.QueryData, h *p
 //// HYDRATE FUNCTIONS
 
 func getCsKubernetesClusterNode(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	matrixRegion := GetDefaultRegion(d.Connection)
-	plugin.Logger(ctx).Trace("getCsKubernetesClusterNode")
+	region := GetDefaultRegion(d.Connection)
 
 	// Create service connection
-	client, err := ContainerService(ctx, d, matrixRegion)
+	client, err := ContainerService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("getCsKubernetesClusterNode", "connection_error", err)
 		return nil, err
