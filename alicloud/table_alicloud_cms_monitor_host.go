@@ -24,7 +24,6 @@ func tableAlicloudCmsMonitorHost(ctx context.Context) *plugin.Table {
 			KeyColumns: plugin.AllColumns([]string{"host_name", "instance_id"}),
 			Hydrate:    getCmsMonitorHost,
 		},
-		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
 			{
 				Name:        "host_name",
@@ -170,11 +169,11 @@ func listCmsMonitorHosts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 //// HYDRATE FUNCTIONS
 
 func getCmsMonitorHost(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	matrixRegion := GetDefaultRegion(d.Connection)
 	plugin.Logger(ctx).Trace("getCmsMonitorHost")
+	region := GetDefaultRegion(d.Connection)
 
 	// Create service connection
-	client, err := CmsService(ctx, d, matrixRegion)
+	client, err := CmsService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("getCmsMonitorHost", "connection_error", err)
 		return nil, err
@@ -199,12 +198,12 @@ func getCmsMonitorHost(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 		return nil, err
 	}
 
-	return response.Hosts.Host, nil
+	return response.Hosts.Host[0], nil
 }
 
 func getCmsMonitoringAgentStatus(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 	plugin.Logger(ctx).Trace("getCmsMonitoringAgentStatus")
+	region := GetDefaultRegion(d.Connection)
 
 	// Create service connection
 	client, err := CmsService(ctx, d, region)
