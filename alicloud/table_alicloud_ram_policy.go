@@ -93,13 +93,13 @@ func tableAlicloudRamPolicy(_ context.Context) *plugin.Table {
 				Hydrate:     getRAMPolicy,
 				Transform:   transform.FromField("DefaultPolicyVersion.PolicyDocument"),
 			},
-			// {
-			// 	Name:        "policy_document_std",
-			// 	Type:        proto.ColumnType_JSON,
-			// 	Description: "The policy document",
-			// 	Transform:   transform.FromField("DefaultPolicyVersion.PolicyDocument").Transform(policyToCanonical),
-			// 	Hydrate:     getRAMPolicy,
-			// },
+			{
+				Name:        "policy_document_std",
+				Type:        proto.ColumnType_JSON,
+				Description: "The policy document",
+				Hydrate:     getRAMPolicy,
+				Transform:   transform.FromField("DefaultPolicyVersion.PolicyDocument").Transform(policyToCanonical),
+			},
 
 			// steampipe standard columns
 			{
