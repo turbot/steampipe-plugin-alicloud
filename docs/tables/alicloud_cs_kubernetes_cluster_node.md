@@ -1,6 +1,6 @@
-# Table: alicloud_cs_kubernetes_cluster
+# Table: alicloud_cs_kubernetes_cluster_node
 
-A Node is a worker machine in Kubernetes and may be either a virtual or a physical machine, depending on the cluster. Each Node is managed by the Master. A Node can have multiple pods, and the Kubernetes master automatically handles scheduling the pods across the Nodes in the cluster.
+A node is a worker machine in Kubernetes and may be either a virtual or a physical machine, depending on the cluster. Each Node is managed by the Master. A node can have multiple pods, and the Kubernetes master automatically handles scheduling the pods across the nodes in the cluster.
 
 ## Examples
 
@@ -17,7 +17,7 @@ from
   alicloud_cs_kubernetes_cluster_node;
 ```
 
-### List of worker nodes
+### List worker nodes
 
 ```sql
 select
@@ -31,22 +31,7 @@ where
   instance_role = 'Worker';
 ```
 
-### List ecs instance info of nodes
-
-```sql
-select
-  node_name,
-  instance_id,
-  instance_name,
-  instance_role,
-  instance_type,
-  instance_charge_type,
-  instance_type_family
-from
-  alicloud_cs_kubernetes_cluster_node;
-```
-
-### Count of node per instance
+### Count the number of nodes per instance
 
 ```sql
 select
