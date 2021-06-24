@@ -1,3 +1,11 @@
+## v0.0.13 [2021-06-24]
+
+_What's new?_
+
+- New tables added
+  - [alicloud_cms_monitor_host](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_cms_monitor_host) ([#180](https://github.com/turbot/steampipe-plugin-alicloud/pull/180))
+  - [alicloud_cs_kubernetes_cluster_node](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_cs_kubernetes_cluster_node) ([#182](https://github.com/turbot/steampipe-plugin-alicloud/pull/182))
+
 ## v0.0.12 [2021-06-17]
 
 _What's new?_
