@@ -5,29 +5,62 @@ A policy defines a set of permissions that are described based on the policy str
 
 ## Examples
 
-### List of Policies
+### Basic info
 
 ```sql
 select
-  name,policy_type,description,default_version,policy_document
+  name,
+  policy_type,
+  description,
+  default_version,
+  policy_document
 from
   alicloud_ram_policy;
 ```
 
-### List of Policies where Policy type is System Policy
+### List system policies
 
 ```sql
 select
-  name,policy_type,description,default_version,policy_document
+  name,
+  policy_type,
+  description,
+  default_version,
+  policy_document
 from
-  alicloud_ram_policy where policy_type = 'System';
+  alicloud_ram_policy
+where
+  policy_type = 'System';
 ```
 
-### List of Policies where Policy type is Custom Policy
+### List custom policies
 
 ```sql
 select
-  name,policy_type,description,default_version,policy_document
+  name,
+  policy_type,
+  description,
+  default_version,
+  policy_document
 from
-  alicloud_ram_policy where policy_type = 'Custom';
+  alicloud_ram_policy
+where
+  policy_type = 'Custom';
+```
+
+### Find policy statements that grant Full Control access
+
+```sql
+select
+  name,
+  policy_type,
+  action,
+  s ->> 'Effect' as effect
+from
+  alicloud_ram_policy,
+  jsonb_array_elements(policy_document_std -> 'Statement') as s,
+  jsonb_array_elements_text(s -> 'Action') as action
+where
+  action in ('*', '*:*')
+  and s ->> 'Effect' = 'Allow';
 ```
