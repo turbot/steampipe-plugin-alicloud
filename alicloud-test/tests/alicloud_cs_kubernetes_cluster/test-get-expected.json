@@ -1,0 +1,7 @@
+[
+	{
+		"cluster_id": "{{ output.cluster_id.value }}",
+		"name": "{{ resourceName }}",
+		"size": 2
+	}
+]

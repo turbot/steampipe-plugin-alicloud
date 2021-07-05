@@ -10,6 +10,7 @@ Cloud disks are block-level Elastic Block Storage (EBS) products provided by Ali
 select
   name,
   disk_id,
+  arn,
   size,
   type,
   billing_method,
@@ -31,13 +32,13 @@ select
   instance_id,
   kms_key_id
 from
-  alicloud_ecs_disk 
-where 
+  alicloud_ecs_disk
+where
   not encrypted;
 ```
- 
+
 ### List of disks Encrypted with Default Service CMK
- 
+
  ```sql
  select
    name,
@@ -49,12 +50,12 @@ where
   instance_id,
    kms_key_id
  from
-  alicloud_ecs_disk 
-where 
+  alicloud_ecs_disk
+where
   encrypted
   and kms_key_id = '';
  ```
- 
+
 
 
 ### List Auto Snapshot Policy details applied to disk
@@ -138,7 +139,7 @@ order by
 
 ### Top 10 largest Disks
 ```sql
-select 
+select
   name,
   disk_id,
   size,

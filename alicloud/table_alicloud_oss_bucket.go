@@ -27,6 +27,12 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 				Description: "Name of the Bucket.",
 			},
 			{
+				Name:        "arn",
+				Description: "The Alibaba Cloud Resource Name (ARN) of the OSS bucket.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.From(bucketARN),
+			},
+			{
 				Name:        "location",
 				Type:        proto.ColumnType_STRING,
 				Description: "Location of the Bucket.",
@@ -73,7 +79,7 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 				Name:        "logging",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getBucketLogging,
-				Transform:   transform.FromField("LoggingXML.LoggingEnabled"),
+				Transform:   transform.FromField("LoggingEnabled"),
 				Description: "Indicates the container used to store access logging configuration of a bucket.",
 			},
 			{
@@ -108,7 +114,7 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 			{
 				Name:        "akas",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.From(bucketAka),
+				Transform:   transform.From(bucketARN).Transform(transform.EnsureStringArray),
 				Description: ColumnDescriptionAkas,
 			},
 
@@ -276,11 +282,11 @@ func bucketSSEConfiguration(_ context.Context, d *transform.TransformData) (inte
 	}, nil
 }
 
-func bucketAka(ctx context.Context, d *transform.TransformData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getBucketAka")
+func bucketARN(ctx context.Context, d *transform.TransformData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("bucketARN")
 	bucket := d.HydrateItem.(oss.BucketProperties)
 
-	return []string{"acs:oss:::" + bucket.Name}, nil
+	return "arn:acs:oss:::" + bucket.Name, nil
 }
 
 func bucketRegion(ctx context.Context, d *transform.TransformData) (interface{}, error) {

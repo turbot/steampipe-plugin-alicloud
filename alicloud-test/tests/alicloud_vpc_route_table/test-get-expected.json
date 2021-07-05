@@ -1,0 +1,21 @@
+[
+	{
+		"account_id": "{{ output.account_id.value }}",
+		"description": "This is a test route table to validate the table outcome.",
+		"name": "{{ resourceName }}",
+		"owner_id": "{{ output.account_id.value }}",
+		"region": "us-east-1",
+		"route_table_id": "{{ output.resource_id.value }}",
+		"route_table_type": "Custom",
+		"router_id": "{{ output.router_id.value }}",
+		"router_type": "VRouter",
+		"tags_src": [
+			{
+				"Key": "Name",
+				"Value": "{{ resourceName }}"
+			}
+		],
+		"vpc_id": "{{ output.vpc_id.value }}",
+		"vswitch_ids": ["{{ output.vswitch_id.value }}"]
+	}
+]

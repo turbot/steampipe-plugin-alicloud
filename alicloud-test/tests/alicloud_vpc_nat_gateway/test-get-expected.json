@@ -1,0 +1,15 @@
+[
+	{
+		"account_id": "{{ output.account_id.value }}",
+		"auto_pay": false,
+		"billing_method": "PostPaid",
+		"deletion_protection": false,
+		"description": "This is a test NAT gateway to verify the table outcome.",
+		"ecs_metric_enabled": false,
+		"name": "{{ resourceName }}",
+		"nat_gateway_id": "{{ output.nat_gateway_id.value }}",
+		"nat_type": "Enhanced",
+		"region": "us-east-1",
+		"vpc_id": "{{ output.vpc_id.value }}"
+	}
+]

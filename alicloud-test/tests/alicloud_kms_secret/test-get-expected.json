@@ -1,0 +1,16 @@
+[
+	{
+		"account_id": "{{ output.account_id.value }}",
+		"arn": "{{ output.resource_aka.value }}",
+		"description": "This is a test secret to validate the table outcome.",
+		"name": "{{ resourceName }}",
+		"region": "us-east-1",
+		"secret_type": "Generic",
+		"tags_src": [
+			{
+				"TagKey": "Name",
+				"TagValue": "{{ resourceName }}"
+			}
+		]
+	}
+]

@@ -9,6 +9,7 @@ An OSS bucket is the container used to store objects. All objects are contained 
 ```sql
 select
   name,
+  arn,
   region,
   account_id,
   versioning

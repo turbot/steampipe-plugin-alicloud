@@ -1,0 +1,6 @@
+[
+	{
+		"region": "{{ output.region_id.value }}",
+		"zone_id": "{{ output.zone_id.value }}"
+	}
+]
