@@ -89,14 +89,14 @@ func tableAlicloudRamPolicy(_ context.Context) *plugin.Table {
 			{
 				Name:        "policy_document",
 				Type:        proto.ColumnType_JSON,
-				Description: "The script of the default policy version.",
+				Description: "Contains the details about the policy.",
 				Hydrate:     getRAMPolicy,
 				Transform:   transform.FromField("DefaultPolicyVersion.PolicyDocument"),
 			},
 			{
 				Name:        "policy_document_std",
 				Type:        proto.ColumnType_JSON,
-				Description: "The policy document",
+				Description: "Contains the policy document in a canonical form for easier searching.",
 				Hydrate:     getRAMPolicy,
 				Transform:   transform.FromField("DefaultPolicyVersion.PolicyDocument").Transform(policyToCanonical),
 			},
