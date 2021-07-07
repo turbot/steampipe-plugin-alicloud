@@ -76,7 +76,7 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 				Description: "The server-side encryption configuration for bucket",
 			},
 			{
-				Name:        "lifecycle_configuration",
+				Name:        "lifecycle_rules",
 				Type:        proto.ColumnType_JSON,
 				Description: "A list of lifecycle rules for a bucket.",
 				Hydrate:     getBucketLifecycle,
