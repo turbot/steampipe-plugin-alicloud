@@ -21,16 +21,16 @@ func tableAlicloudRamPolicy(_ context.Context) *plugin.Table {
 		Description:      "Alibaba Cloud RAM Policy",
 		DefaultTransform: transform.FromCamel(),
 		List: &plugin.ListConfig{
-			Hydrate: listRAMPolicy,
+			Hydrate: listRAMPolicies,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"name", "policy_type"}),
+			KeyColumns:        plugin.AllColumns([]string{"policy_name", "policy_type"}),
 			ShouldIgnoreError: isNotFoundError([]string{"InvalidParameter.PolicyType", "EntityNotExist.Policy", "MissingParameter"}),
 			Hydrate:           getRAMPolicy,
 		},
 		Columns: []*plugin.Column{
 			{
-				Name:        "name",
+				Name:        "policy_name",
 				Type:        proto.ColumnType_STRING,
 				Description: "The name of the policy.",
 				Transform:   transform.FromField("PolicyName", "Policy.PolicyName"),
@@ -43,28 +43,10 @@ func tableAlicloudRamPolicy(_ context.Context) *plugin.Table {
 				Transform:   transform.FromField("PolicyType", "Policy.PolicyType"),
 			},
 			{
-				Name:        "description",
-				Type:        proto.ColumnType_STRING,
-				Description: "The policy description",
-				Transform:   transform.FromField("Description", "Policy.Description"),
-			},
-			{
-				Name:        "default_version",
-				Type:        proto.ColumnType_STRING,
-				Description: "Deafult version of the policy",
-				Transform:   transform.FromField("DefaultVersion", "Policy.DefaultVersion"),
-			},
-			{
 				Name:        "create_date",
 				Type:        proto.ColumnType_TIMESTAMP,
 				Description: "Policy creation date",
 				Transform:   transform.FromField("CreateDate", "Policy.CreateDate"),
-			},
-			{
-				Name:        "update_date",
-				Type:        proto.ColumnType_TIMESTAMP,
-				Description: "Last time when policy got updated ",
-				Transform:   transform.FromField("UpdateDate", "Policy.UpdateDate"),
 			},
 			{
 				Name:        "attachment_count",
@@ -73,11 +55,16 @@ func tableAlicloudRamPolicy(_ context.Context) *plugin.Table {
 				Transform:   transform.FromField("AttachmentCount", "Policy.AttachmentCount"),
 			},
 			{
-				Name:        "version_id",
+				Name:        "default_version",
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getRAMPolicy,
-				Transform:   transform.FromField("DefaultPolicyVersion.VersionId"),
-				Description: "The ID of the default policy version.",
+				Description: "Deafult version of the policy",
+				Transform:   transform.FromField("DefaultVersion", "Policy.DefaultVersion"),
+			},
+			{
+				Name:        "description",
+				Type:        proto.ColumnType_STRING,
+				Description: "The policy description",
+				Transform:   transform.FromField("Description", "Policy.Description"),
 			},
 			{
 				Name:        "is_default_version",
@@ -85,6 +72,19 @@ func tableAlicloudRamPolicy(_ context.Context) *plugin.Table {
 				Hydrate:     getRAMPolicy,
 				Transform:   transform.FromField("DefaultPolicyVersion.IsDefaultVersion"),
 				Description: "An attribute in the DefaultPolicyVersion parameter. The value of the IsDefaultVersion parameter is true.",
+			},
+			{
+				Name:        "update_date",
+				Type:        proto.ColumnType_TIMESTAMP,
+				Description: "Last time when policy got updated ",
+				Transform:   transform.FromField("UpdateDate", "Policy.UpdateDate"),
+			},
+			{
+				Name:        "version_id",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRAMPolicy,
+				Transform:   transform.FromField("DefaultPolicyVersion.VersionId"),
+				Description: "The ID of the default policy version.",
 			},
 			{
 				Name:        "policy_document",
@@ -101,7 +101,7 @@ func tableAlicloudRamPolicy(_ context.Context) *plugin.Table {
 				Transform:   transform.FromField("DefaultPolicyVersion.PolicyDocument").Transform(policyToCanonical),
 			},
 
-			// steampipe standard columns
+			// Steampipe standard columns
 			{
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
@@ -116,7 +116,7 @@ func tableAlicloudRamPolicy(_ context.Context) *plugin.Table {
 				Transform:   transform.FromField("PolicyName", "Policy.PolicyName"),
 			},
 
-			// alicloud standard columns
+			// Alicloud standard columns
 			{
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
@@ -136,10 +136,10 @@ func tableAlicloudRamPolicy(_ context.Context) *plugin.Table {
 
 //// LIST FUNCTION
 
-func listRAMPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func listRAMPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	client, err := RAMService(ctx, d)
 	if err != nil {
-		plugin.Logger(ctx).Error("listRamPolicy", "connection_error", err)
+		plugin.Logger(ctx).Error("listRAMPolicies", "connection_error", err)
 		return nil, err
 	}
 	request := ram.CreateListPoliciesRequest()
@@ -148,11 +148,11 @@ func listRAMPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	for {
 		response, err := client.ListPolicies(request)
 		if err != nil {
-			plugin.Logger(ctx).Error("listRamPolicy", "query_error", err, "request", request)
+			plugin.Logger(ctx).Error("listRAMPolicies", "query_error", err, "request", request)
 			return nil, err
 		}
 		for _, policy := range response.Policies.Policy {
-			plugin.Logger(ctx).Warn("alicloud_ram.listRamPolicy", "item", policy)
+			plugin.Logger(ctx).Warn("alicloud_ram.listRAMPolicies", "item", policy)
 			d.StreamListItem(ctx, policy)
 		}
 		if !response.IsTruncated {
@@ -179,7 +179,7 @@ func getRAMPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 		name = i.PolicyName
 		policyType = i.PolicyType
 	} else {
-		name = d.KeyColumnQuals["name"].GetStringValue()
+		name = d.KeyColumnQuals["policy_name"].GetStringValue()
 		policyType = d.KeyColumnQuals["policy_type"].GetStringValue()
 	}
 

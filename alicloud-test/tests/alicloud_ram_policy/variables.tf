@@ -55,6 +55,10 @@ output "resource_name" {
   value = var.resource_name
 }
 
+output "policy_type" {
+  value = alicloud_ram_policy.named_test_resource.type
+}
+
 output "resource_aka" {
   value = "acs:ram::${data.alicloud_caller_identity.current.account_id}:policy/${var.resource_name}"
 }

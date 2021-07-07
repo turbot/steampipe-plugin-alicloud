@@ -1,3 +1,3 @@
-select name, akas, title
+select akas, title
 from alicloud_ram_policy
-where name = '{{ resourceName }}';
+where policy_name = '{{ resourceName }}';
