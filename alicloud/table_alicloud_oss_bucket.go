@@ -76,6 +76,13 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 				Description: "The server-side encryption configuration for bucket",
 			},
 			{
+				Name:        "lifecycle_rules",
+				Type:        proto.ColumnType_JSON,
+				Description: "A list of lifecycle rules for a bucket.",
+				Hydrate:     getBucketLifecycle,
+				Transform:   transform.FromField("Rules"),
+			},
+			{
 				Name:        "logging",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getBucketLogging,
@@ -238,6 +245,26 @@ func getBucketInfo(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	response, err := client.GetBucketInfo(bucket.Name)
 	if err != nil {
 		logger.Error("getBucketInfo", "query_error", err, "bucket", bucket.Name)
+		return nil, err
+	}
+	return response, nil
+}
+
+func getBucketLifecycle(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getBucketLifecycle")
+
+	bucket := h.Item.(oss.BucketProperties)
+	client, err := OssService(ctx, d, removeSuffixFromLocation(bucket.Location))
+	if err != nil {
+		return nil, err
+	}
+
+	// Get bucket encryption
+	response, err := client.GetBucketLifecycle(bucket.Name)
+	if a, ok := err.(oss.ServiceError); ok {
+		if a.Code == "NoSuchLifecycle" {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return response, nil

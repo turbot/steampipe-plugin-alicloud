@@ -1,0 +1,59 @@
+[
+  {
+    "account_id": "{{ output.account_id.value }}",
+    "acl": "private",
+    "arn": "{{ output.bucket_arn.value }}",
+    "lifecycle_rules": [
+      {
+        "AbortMultipartUpload": null,
+        "Expiration": {
+          "CreatedBeforeDate": "",
+          "Date": "",
+          "Days": 365,
+          "ExpiredObjectDeleteMarker": null,
+          "XMLName": {
+            "Local": "Expiration",
+            "Space": ""
+          }
+        },
+        "ID": "rule-days",
+        "NonVersionExpiration": null,
+        "NonVersionTransition": null,
+        "NonVersionTransitions": null,
+        "Prefix": "path1/",
+        "Status": "Enabled",
+        "Tags": null,
+        "Transitions": null,
+        "XMLName": {
+          "Local": "Rule",
+          "Space": ""
+        }
+      }
+    ],
+    "location": "oss-{{ output.region.value }}",
+    "name": "{{ output.bucket_id.value }}",
+    "policy": {
+      "Statement": [
+        {
+          "Action": ["oss:PutObject", "oss:GetObject", "oss:DeleteBucket"],
+          "Effect": "Allow",
+          "Resource": ["acs:oss:*:*:*"]
+        }
+      ],
+      "Version": "1"
+    },
+    "region": "{{ output.region.value }}",
+    "server_side_encryption": {
+      "KMSDataEncryption": "",
+      "KMSMasterKeyID": "",
+      "SSEAlgorithm": "AES256"
+    },
+    "tags_src": [
+      {
+        "Key": "name",
+        "Value": "{{ output.bucket_id.value }}"
+      }
+    ],
+    "versioning": "Suspended"
+  }
+]
