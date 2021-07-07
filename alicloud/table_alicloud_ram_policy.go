@@ -67,24 +67,10 @@ func tableAlicloudRamPolicy(_ context.Context) *plugin.Table {
 				Transform:   transform.FromField("Description", "Policy.Description"),
 			},
 			{
-				Name:        "is_default_version",
-				Type:        proto.ColumnType_BOOL,
-				Hydrate:     getRAMPolicy,
-				Transform:   transform.FromField("DefaultPolicyVersion.IsDefaultVersion"),
-				Description: "An attribute in the DefaultPolicyVersion parameter. The value of the IsDefaultVersion parameter is true.",
-			},
-			{
 				Name:        "update_date",
 				Type:        proto.ColumnType_TIMESTAMP,
 				Description: "Last time when policy got updated ",
 				Transform:   transform.FromField("UpdateDate", "Policy.UpdateDate"),
-			},
-			{
-				Name:        "version_id",
-				Type:        proto.ColumnType_STRING,
-				Hydrate:     getRAMPolicy,
-				Transform:   transform.FromField("DefaultPolicyVersion.VersionId"),
-				Description: "The ID of the default policy version.",
 			},
 			{
 				Name:        "policy_document",
