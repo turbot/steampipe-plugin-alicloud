@@ -1,0 +1,9 @@
+[
+  {
+    "akas": ["{{ output.bucket_arn.value }}"],
+    "tags": {
+      "name": "{{ output.bucket_id.value }}"
+    },
+    "title": "{{ output.bucket_id.value }}"
+  }
+]
