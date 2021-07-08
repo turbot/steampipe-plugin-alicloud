@@ -300,7 +300,7 @@ func getEcsSnapshotArn(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := "arn:acs:ecs:" + data.Region + ":" + accountID + ":snapshot/" + data.Snapshot.SnapshotId
+	arn := "arn:acs:ecs:" + data.Region + ":" + accountID + ":snapshot/" + data.Snapshot.SnapshotId
 
-	return akas, nil
+	return arn, nil
 }
