@@ -88,3 +88,18 @@ where
     or p = '*'
   );
 ```
+
+### List of buckets with no lifecycle policy
+
+```sql
+select
+  name,
+  arn,
+  region,
+  account_id,
+  lifecycle_rules
+from
+  alicloud_oss_bucket
+where
+  lifecycle_rules is null;
+```
