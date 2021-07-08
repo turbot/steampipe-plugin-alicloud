@@ -42,6 +42,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_ram_credential_report":            tableAlicloudRAMCredentialReport(ctx),
 			"alicloud_ram_group":                        tableAlicloudRAMGroup(ctx),
 			"alicloud_ram_password_policy":              tableAlicloudRamPasswordPolicy(ctx),
+			"alicloud_ram_policy":                       tableAlicloudRamPolicy(ctx),
 			"alicloud_ram_role":                         tableAlicloudRAMRole(ctx),
 			"alicloud_ram_security_preference":          tableAlicloudRAMSecurityPreference(ctx),
 			"alicloud_ram_user":                         tableAlicloudRAMUser(ctx),

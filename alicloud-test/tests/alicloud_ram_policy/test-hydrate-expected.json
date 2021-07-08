@@ -1,0 +1,6 @@
+[
+  {
+    "default_version": "v1",
+    "policy_name": "{{ resourceName }}"
+  }
+]

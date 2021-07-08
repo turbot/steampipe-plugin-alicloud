@@ -1,0 +1,6 @@
+[
+  {
+    "description": "this is a policy test",
+    "policy_name": "{{ resourceName }}"
+  }
+]
