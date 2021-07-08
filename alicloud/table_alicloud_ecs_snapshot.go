@@ -45,6 +45,13 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("Snapshot.SnapshotId"),
 			},
 			{
+				Name:        "arn",
+				Description: "The Alibaba Cloud Resource Name (ARN) of the snapshot.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getEcsSnapshotArn,
+				Transform:   transform.FromValue(),
+			},
+			{
 				Name:        "type",
 				Description: "The type of the snapshot. Default value: all. Possible values are: auto, user, and all.",
 				Type:        proto.ColumnType_STRING,
@@ -176,8 +183,8 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getEcsSnapshotAka,
-				Transform:   transform.FromValue(),
+				Hydrate:     getEcsSnapshotArn,
+				Transform:   transform.FromValue().Transform(transform.EnsureStringArray),
 			},
 			{
 				Name:        "title",
@@ -281,8 +288,8 @@ func getEcsSnapshot(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 	return nil, nil
 }
 
-func getEcsSnapshotAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getEcsSnapshotAka")
+func getEcsSnapshotArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getEcsSnapshotArn")
 	data := h.Item.(snapshotInfo)
 
 	// Get account details
@@ -293,7 +300,7 @@ func getEcsSnapshotAka(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"arn:acs:ecs:" + data.Region + ":" + accountID + ":snapshot/" + data.Snapshot.SnapshotId}
+	akas := "arn:acs:ecs:" + data.Region + ":" + accountID + ":snapshot/" + data.Snapshot.SnapshotId
 
 	return akas, nil
 }
