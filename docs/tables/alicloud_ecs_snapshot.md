@@ -10,6 +10,7 @@ The Alibaba Cloud snapshot service allows you to create crash-consistent snapsho
 select
   name,
   snapshot_id,
+  arn,
   encrypted
 from
   alicloud_ecs_snapshot
