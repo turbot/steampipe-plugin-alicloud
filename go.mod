@@ -11,7 +11,7 @@ require (
 	github.com/gocarina/gocsv v0.0.0-20201208093247-67c824bc04d4
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sethvargo/go-retry v0.1.0
-	github.com/turbot/go-kit v0.1.1
-	github.com/turbot/steampipe-plugin-sdk v0.2.10
+	github.com/turbot/go-kit v0.2.2-0.20210628165333-268ba0a30be3
+	github.com/turbot/steampipe-plugin-sdk v1.3.0
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba // indirect
 )
