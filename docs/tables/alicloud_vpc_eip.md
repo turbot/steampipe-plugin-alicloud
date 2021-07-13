@@ -10,6 +10,7 @@ An Elastic IP is an independent public IP resource that decouples ECS and public
 select
   name,
   allocation_id,
+  arn,
   description,
   ip_address,
   status,

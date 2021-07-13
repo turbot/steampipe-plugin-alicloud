@@ -35,6 +35,14 @@ func tableAlicloudVpcEip(ctx context.Context) *plugin.Table {
 				Description: "The unique ID of the EIP.",
 				Type:        proto.ColumnType_STRING,
 			},
+			{
+				Name:        "arn",
+				Description: "The Alibaba Cloud Resource Name (ARN) of the EIP.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getVpcEipArn,
+				Transform:   transform.FromValue(),
+			},
+
 			// Other columns
 			{
 				Name:        "description",
@@ -169,8 +177,8 @@ func tableAlicloudVpcEip(ctx context.Context) *plugin.Table {
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getVpcEipAka,
-				Transform:   transform.FromValue(),
+				Hydrate:     getVpcEipArn,
+				Transform:   transform.FromValue().Transform(transform.EnsureStringArray),
 			},
 			{
 				Name:        "title",
@@ -263,8 +271,8 @@ func getEip(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (in
 	return nil, nil
 }
 
-func getVpcEipAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getVpcEipAka")
+func getVpcEipArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getVpcEipArn")
 	data := h.Item.(vpc.EipAddress)
 
 	// Get account details
@@ -275,9 +283,9 @@ func getVpcEipAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"acs:vpc:" + data.RegionId + ":" + accountID + ":eip/" + data.AllocationId}
+	arn := "arn:acs:vpc:" + data.RegionId + ":" + accountID + ":eip/" + data.AllocationId
 
-	return akas, nil
+	return arn, nil
 }
 
 //// TRANSFORM FUNCTION
