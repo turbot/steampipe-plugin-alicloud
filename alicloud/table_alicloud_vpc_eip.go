@@ -42,6 +42,7 @@ func tableAlicloudVpcEip(ctx context.Context) *plugin.Table {
 				Hydrate:     getVpcEipArn,
 				Transform:   transform.FromValue(),
 			},
+
 			// Other columns
 			{
 				Name:        "description",
