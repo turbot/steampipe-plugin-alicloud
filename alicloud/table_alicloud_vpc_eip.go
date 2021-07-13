@@ -282,7 +282,7 @@ func getVpcEipArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	arn := "acs:vpc:" + data.RegionId + ":" + accountID + ":eip/" + data.AllocationId
+	arn := "arn:acs:vpc:" + data.RegionId + ":" + accountID + ":eip/" + data.AllocationId
 
 	return arn, nil
 }
