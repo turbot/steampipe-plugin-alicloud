@@ -12,6 +12,6 @@ require (
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sethvargo/go-retry v0.1.0
 	github.com/turbot/go-kit v0.2.2-0.20210628165333-268ba0a30be3
-	github.com/turbot/steampipe-plugin-sdk v1.3.0
+	github.com/turbot/steampipe-plugin-sdk v1.3.1
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba // indirect
 )
