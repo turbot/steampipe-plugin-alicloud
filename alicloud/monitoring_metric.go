@@ -33,16 +33,19 @@ func commonCMMetricColumns() []*plugin.Column {
 			Name:        "average",
 			Description: "The average of the metric values that correspond to the data point.",
 			Type:        proto.ColumnType_DOUBLE,
+			Default:     0,
 		},
 		{
 			Name:        "maximum",
 			Description: "The maximum metric value for the data point.",
 			Type:        proto.ColumnType_DOUBLE,
+			Default:     0,
 		},
 		{
 			Name:        "minimum",
 			Description: "The minimum metric value for the data point.",
 			Type:        proto.ColumnType_DOUBLE,
+			Default:     0,
 		},
 		{
 			Name:        "timestamp",
