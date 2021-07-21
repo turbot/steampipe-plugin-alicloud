@@ -26,6 +26,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_ecs_auto_provisioning_group":      tableAlicloudEcsAutoProvisioningGroup(ctx),
 			"alicloud_ecs_autoscaling_group":            tableAlicloudEcsAutoscalingGroup(ctx),
 			"alicloud_ecs_disk":                         tableAlicloudEcsDisk(ctx),
+			"alicloud_ecs_disk_metric_read_ops":         tableAlicloudEcsDiskMetricReadOps(ctx),
 			"alicloud_ecs_image":                        tableAlicloudEcsImage(ctx),
 			"alicloud_ecs_instance":                     tableAlicloudEcsInstance(ctx),
 			"alicloud_ecs_key_pair":                     tableAlicloudEcskeyPair(ctx),
