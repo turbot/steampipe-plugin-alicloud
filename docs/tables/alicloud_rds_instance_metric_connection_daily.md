@@ -1,6 +1,6 @@
-# Table: alicloud_rds_instance_metric_connections_daily
+# Table: alicloud_rds_instance_metric_connection_daily
 
-Alicloud Monitoring metrics provide data about the performance of your systems. The `alicloud_rds_instance_metric_connections_daily` table provides metric statistics at 24 hour intervals for the most recent 90 days.
+Alicloud Monitoring metrics provide data about the performance of your systems. The `alicloud_rds_instance_metric_connection_daily` table provides metric statistics at 24 hour intervals for the most recent 90 days.
 
 ## Examples
 
@@ -14,7 +14,7 @@ select
   maximum,
   average
 from
-  alicloud_rds_instance_metric_connections_daily
+  alicloud_rds_instance_metric_connection_daily
 order by
   instance_id,
   timestamp;
@@ -30,7 +30,7 @@ select
   round(maximum::numeric,2) as max_conn,
   round(average::numeric,2) as avg_conn,
 from
-  alicloud_rds_instance_metric_connections_daily
+  alicloud_rds_instance_metric_connection_daily
 where average > 1000
 order by
   instance_id,
