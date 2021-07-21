@@ -3,6 +3,7 @@ package alicloud
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -44,21 +45,6 @@ func commonCMMetricColumns() []*plugin.Column {
 			Type:        proto.ColumnType_DOUBLE,
 		},
 		{
-			Name:        "sample_count",
-			Description: "The number of metric values that contributed to the aggregate value of this data point.",
-			Type:        proto.ColumnType_DOUBLE,
-		},
-		{
-			Name:        "sum",
-			Description: "The sum of the metric values for the data point.",
-			Type:        proto.ColumnType_DOUBLE,
-		},
-		{
-			Name:        "unit",
-			Description: "The standard unit for the data point.",
-			Type:        proto.ColumnType_STRING,
-		},
-		{
 			Name:        "timestamp",
 			Description: "The time stamp used for the data point.",
 			Type:        proto.ColumnType_TIMESTAMP,
@@ -91,31 +77,22 @@ type CMMetricRow struct {
 	// The minimum metric value for the data point.
 	Minimum float64
 
-	// The number of metric values that contributed to the aggregate value of this
-	// data point.
-	SampleCount *float64
-
-	// The sum of the metric values for the data point.
-	Sum *float64
-
 	// The time stamp used for the data point.
-	Timestamp *time.Time
-
-	// The standard unit for the data point.
-	Unit *string
+	Timestamp time.Time
 }
 
 func getCMStartDateForGranularity(granularity string) string {
+	str := "2006-01-02T15:04:05Z"
 	switch strings.ToUpper(granularity) {
 	case "DAILY":
 		// 1 year
-		return time.Now().AddDate(-1, 0, 0).Format(time.RFC3339)
+		return time.Now().AddDate(-1, 0, 0).Format(str)
 	case "HOURLY":
 		// 60 days
-		return time.Now().AddDate(0, 0, -60).Format(time.RFC3339)
+		return time.Now().AddDate(0, 0, -60).Format(str)
 	}
 	// else 5 days
-	return time.Now().AddDate(0, 0, -5).Format(time.RFC3339)
+	return time.Now().AddDate(0, 0, -5).Format(str)
 }
 
 func getCMPeriodForGranularity(granularity string) string {
@@ -131,7 +108,7 @@ func getCMPeriodForGranularity(granularity string) string {
 	return "300"
 }
 
-func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularity string, namespace string, metricName string, dimensionName string, dimensionValue string) (*cms.DescribeMetricListResponse, error) {
+func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularity string, namespace string, metricName string, dimensionName string) (*cms.DescribeMetricListResponse, error) {
 	region := GetDefaultRegion(d.Connection)
 
 	// Create service connection
@@ -143,11 +120,10 @@ func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularit
 	request := cms.CreateDescribeMetricListRequest()
 
 	request.MetricName = metricName
-	request.StartTime = "2021-07-20T05:57:35Z" //getCMStartDateForGranularity(granularity)
-	request.EndTime = "2021-07-21T05:57:35Z"//time.Now().Format(time.RFC3339)
+	request.StartTime = getCMStartDateForGranularity(granularity)
+	request.EndTime = time.Now().Format("2006-01-02T15:04:05Z")
 	request.Namespace = namespace
-	// request.Dimensions = "[{\"" + dimensionName + "\":\"" + dimensionValue + "\"}]"
-	request.Period = "60" //getCMPeriodForGranularity(granularity)
+	request.Period = getCMPeriodForGranularity(granularity)
 
 	// count := 0
 	// for {
@@ -157,33 +133,34 @@ func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularit
 	}
 	plugin.Logger(ctx).Trace("My Result => ", stats)
 
-
-
 	var results []map[string]interface{}
 	json.Unmarshal([]byte(stats.Datapoints), &results)
 	plugin.Logger(ctx).Trace("Point Values => ", results)
 	for _, pointValue := range results {
 		d.StreamListItem(ctx, &CMMetricRow{
 			DimensionName:  &dimensionName,
-			DimensionValue: &dimensionValue,
+			DimensionValue: pointValue[dimensionName].(*string),
 			Namespace:      &namespace,
 			MetricName:     &metricName,
 			Average:        pointValue["Average"].(float64),
 			Maximum:        pointValue["Maximum"].(float64),
 			Minimum:        pointValue["Minimum"].(float64),
-			// Sum: "",
-			// SampleCount: "",
-			// Timestamp: pointValue["timestamp"].(*time.Time),
-			// Unit: "",
+			Timestamp:      formatTime(pointValue["timestamp"]),
 		})
 	}
-	//[{"timestamp":1548777660000,"userId":"120886317861****","instanceId":"i-abc","Minimum":9.92,"Average":9.92,"Maximum":9.92}]
 
 	if stats.NextToken != "" {
 		request.NextToken = stats.NextToken
 	}
 
-	// }
-
 	return nil, nil
+}
+
+func formatTime(timestamp interface{}) time.Time {
+	formatedTime, err := time.Parse(time.RFC3339, fmt.Sprintf("%f", timestamp))
+	if err != nil {
+		return time.Time{}
+	}
+
+	return formatedTime
 }
