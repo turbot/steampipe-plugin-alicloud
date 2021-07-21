@@ -38,6 +38,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_kms_key":                          tableAlicloudKmsKey(ctx),
 			"alicloud_kms_secret":                       tableAlicloudKmsSecret(ctx),
 			"alicloud_oss_bucket":                       tableAlicloudOssBucket(ctx),
+			"alicloud_ots_instance":                     tableAlicloudOtsInstance(ctx),
 			"alicloud_ram_access_key":                   tableAlicloudRAMAccessKey(ctx),
 			"alicloud_ram_credential_report":            tableAlicloudRAMCredentialReport(ctx),
 			"alicloud_ram_group":                        tableAlicloudRAMGroup(ctx),

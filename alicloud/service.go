@@ -14,6 +14,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/kms"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ots"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sas"
@@ -494,6 +495,35 @@ func SecurityCenterService(ctx context.Context, d *plugin.QueryData, region stri
 
 	// so it was not in cache - create service
 	svc, err := sas.NewClientWithAccessKey(region, ak, secret)
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the service connection
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+	return svc, nil
+}
+
+// TableStoreService returns the service connection for Alicloud Table Store service
+func TableStoreService(ctx context.Context, d *plugin.QueryData, region string) (*ots.Client, error) {
+	if region == "" {
+		return nil, fmt.Errorf("region must be passed TableStoreService")
+	}
+
+	// have we already created and cached the service?
+	serviceCacheKey := fmt.Sprintf("ots-%s", region)
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(*ots.Client), nil
+	}
+
+	ak, secret, err := getEnv(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+
+	// so it was not in cache - create service
+	svc, err := ots.NewClientWithAccessKey(region, ak, secret)
 	if err != nil {
 		return nil, err
 	}
