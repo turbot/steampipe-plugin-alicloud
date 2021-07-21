@@ -85,7 +85,7 @@ func getCMStartDateForGranularity(granularity string) string {
 	str := "2006-01-02T15:04:05Z"
 	switch strings.ToUpper(granularity) {
 	case "DAILY":
-		// 1 year
+		// 90 days
 		return time.Now().AddDate(0, 0, -89).Format(str)
 	case "HOURLY":
 		// 60 days
