@@ -54,16 +54,16 @@ func commonCMMetricColumns() []*plugin.Column {
 
 type CMMetricRow struct {
 	// The (single) metric Dimension name
-	DimensionName *string
+	DimensionName string
 
 	// The value for the (single) metric Dimension
-	DimensionValue *string
+	DimensionValue string
 
 	// The namespace of the metric
-	Namespace *string
+	Namespace string
 
 	// The name of the metric
-	MetricName *string
+	MetricName string
 
 	// The average of the metric values that correspond to the data point.
 	Average float64
@@ -138,10 +138,10 @@ func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularit
 	plugin.Logger(ctx).Trace("Point Values => ", results)
 	for _, pointValue := range results {
 		d.StreamListItem(ctx, &CMMetricRow{
-			DimensionName:  &dimensionName,
-			DimensionValue: pointValue[dimensionName].(*string),
-			Namespace:      &namespace,
-			MetricName:     &metricName,
+			DimensionName:  dimensionName,
+			DimensionValue: pointValue[dimensionName].(string),
+			Namespace:      namespace,
+			MetricName:     metricName,
 			Average:        pointValue["Average"].(float64),
 			Maximum:        pointValue["Maximum"].(float64),
 			Minimum:        pointValue["Minimum"].(float64),
