@@ -28,7 +28,7 @@ select
   timestamp,
   round(minimum::numeric,2) as min_ops,
   round(maximum::numeric,2) as max_ops,
-  round(average::numeric,2) as avg_ops,
+  round(average::numeric,2) as avg_ops
 from
   alicloud_ecs_disk_metric_read_ops
 where average > 1000

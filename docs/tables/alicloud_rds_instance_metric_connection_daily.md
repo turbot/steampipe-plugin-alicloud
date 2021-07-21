@@ -28,7 +28,7 @@ select
   timestamp,
   round(minimum::numeric,2) as min_conn,
   round(maximum::numeric,2) as max_conn,
-  round(average::numeric,2) as avg_conn,
+  round(average::numeric,2) as avg_conn
 from
   alicloud_rds_instance_metric_connection_daily
 where average > 1000
