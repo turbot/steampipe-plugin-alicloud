@@ -3,7 +3,7 @@ package alicloud
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"math"
 	"strings"
 	"time"
 
@@ -78,7 +78,7 @@ type CMMetricRow struct {
 	Minimum float64
 
 	// The time stamp used for the data point.
-	Timestamp time.Time
+	Timestamp string
 }
 
 func getCMStartDateForGranularity(granularity string) string {
@@ -86,7 +86,7 @@ func getCMStartDateForGranularity(granularity string) string {
 	switch strings.ToUpper(granularity) {
 	case "DAILY":
 		// 1 year
-		return time.Now().AddDate(-1, 0, 0).Format(str)
+		return time.Now().AddDate(0, 0, -89).Format(str)
 	case "HOURLY":
 		// 60 days
 		return time.Now().AddDate(0, 0, -60).Format(str)
@@ -145,7 +145,7 @@ func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularit
 			Average:        pointValue["Average"].(float64),
 			Maximum:        pointValue["Maximum"].(float64),
 			Minimum:        pointValue["Minimum"].(float64),
-			Timestamp:      formatTime(pointValue["timestamp"]),
+			Timestamp:      formatTime(pointValue["timestamp"].(float64)),
 		})
 	}
 
@@ -156,11 +156,9 @@ func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularit
 	return nil, nil
 }
 
-func formatTime(timestamp interface{}) time.Time {
-	formatedTime, err := time.Parse(time.RFC3339, fmt.Sprintf("%f", timestamp))
-	if err != nil {
-		return time.Time{}
-	}
-
-	return formatedTime
+func formatTime(timestamp float64) string {
+	timeInSec := math.Floor(timestamp / 1000)
+	unixTimestamp := time.Unix(int64(timeInSec), 0)
+	timestampRFC3339Format := unixTimestamp.Format(time.RFC3339)
+	return timestampRFC3339Format
 }
