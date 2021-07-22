@@ -9,19 +9,20 @@ import (
 )
 
 //// TABLE DEFINITION
-func tableAlicloudRdsInstanceMetricConnection(_ context.Context) *plugin.Table {
+
+func tableAlicloudRdsInstanceMetricConnections(_ context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "alicloud_rds_instance_metric_connection",
-		Description: "Alicloud RDS Instance Cloud Monitor Metrics - connection",
+		Name:        "alicloud_rds_instance_metric_connections",
+		Description: "Alicloud RDS Instance Cloud Monitor Metrics - Connections",
 		List: &plugin.ListConfig{
-			Hydrate: listRdsInstanceMetricconnection,
+			Hydrate: listRdsInstanceMetricConnections,
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: cmMetricColumns(
 			[]*plugin.Column{
 				{
-					Name:        "instance_id",
-					Description: "An unique identifier for the resource.",
+					Name:        "db_instance_id",
+					Description: "The ID of the single instance to query.",
 					Type:        proto.ColumnType_STRING,
 					Transform:   transform.FromField("DimensionValue"),
 				},
@@ -29,6 +30,6 @@ func tableAlicloudRdsInstanceMetricConnection(_ context.Context) *plugin.Table {
 	}
 }
 
-func listRdsInstanceMetricconnection(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func listRdsInstanceMetricConnections(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	return listCMMetricStatistics(ctx, d, "5_MIN", "acs_rds_dashboard", "ConnectionUsage", "instanceId")
 }

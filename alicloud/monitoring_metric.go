@@ -49,7 +49,7 @@ func commonCMMetricColumns() []*plugin.Column {
 		},
 		{
 			Name:        "timestamp",
-			Description: "The time stamp used for the data point.",
+			Description: "The timestamp used for the data point.",
 			Type:        proto.ColumnType_TIMESTAMP,
 		},
 	}

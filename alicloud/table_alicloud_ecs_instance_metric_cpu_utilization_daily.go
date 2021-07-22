@@ -9,19 +9,20 @@ import (
 )
 
 //// TABLE DEFINITION
+
 func tableAlicloudEcsInstanceMetricCpuUtilizationDaily(_ context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ecs_instance_metric_cpu_utilization_daily",
-		Description: "Alicloud ECS Disk Cloud Monitor Metrics - CPU Utilization (Daily)",
+		Description: "Alicloud ECS Instance Cloud Monitor Metrics - CPU Utilization (Daily)",
 		List: &plugin.ListConfig{
-			Hydrate: listEcsInstanceMetricCpuUtilization,
+			Hydrate: listEcsInstanceMetricCpuUtilizationDaily,
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: cmMetricColumns(
 			[]*plugin.Column{
 				{
 					Name:        "instance_id",
-					Description: "An unique identifier for the resource.",
+					Description: "The ID of the instance.",
 					Type:        proto.ColumnType_STRING,
 					Transform:   transform.FromField("DimensionValue"),
 				},
@@ -29,6 +30,6 @@ func tableAlicloudEcsInstanceMetricCpuUtilizationDaily(_ context.Context) *plugi
 	}
 }
 
-func listEcsInstanceMetricCpuUtilization(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func listEcsInstanceMetricCpuUtilizationDaily(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	return listCMMetricStatistics(ctx, d, "DAILY", "acs_ecs_dashboard", "CPUUtilization", "instanceId")
 }
