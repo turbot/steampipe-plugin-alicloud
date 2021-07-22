@@ -1,3 +1,25 @@
+## v0.0.14 [2021-07-22]
+
+_What's new?_
+
+- New tables added
+  - [alicloud_ecs_disk_metric_read_iops](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_ecs_disk_metric_read_iops) ([#204](https://github.com/turbot/steampipe-plugin-alicloud/pull/204))
+  - [alicloud_ecs_disk_metric_read_ops_daily](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_ecs_disk_metric_read_ops_daily) ([#204](https://github.com/turbot/steampipe-plugin-alicloud/pull/204))
+  - [alicloud_ecs_disk_metric_write_iops](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_ecs_disk_metric_write_iops) ([#204](https://github.com/turbot/steampipe-plugin-alicloud/pull/204))
+  - [alicloud_ecs_disk_metric_write_iops_daily](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_ecs_disk_metric_write_iops_daily) ([#204](https://github.com/turbot/steampipe-plugin-alicloud/pull/204))
+  - [alicloud_ecs_instance_metric_cpu_utilization_daily](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_ecs_instance_metric_cpu_utilization_daily) ([#204](https://github.com/turbot/steampipe-plugin-alicloud/pull/204))
+  - [alicloud_ram_policy](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_ram_policy) ([#86](https://github.com/turbot/steampipe-plugin-alicloud/pull/86))
+  - [alicloud_rds_instance_metric_connections](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_rds_instance_metric_connections) ([#204](https://github.com/turbot/steampipe-plugin-alicloud/pull/204))
+  - [alicloud_rds_instance_metric_connections_daily](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_rds_instance_metric_connections_daily) ([#204](https://github.com/turbot/steampipe-plugin-alicloud/pull/204))
+
+_Enhancements_
+
+- Updated: Add column `arn` to `alicloud_vpc_eip` table ([#198](https://github.com/turbot/steampipe-plugin-alicloud/pull/198))
+- Updated: Add column `arn` to `alicloud_ecs_snapshot` table ([#197](https://github.com/turbot/steampipe-plugin-alicloud/pull/197))
+- Updated: Add column `lifecycle_rules` to `alicloud_oss_bucket` table ([#189](https://github.com/turbot/steampipe-plugin-alicloud/pull/189))
+- Updated: `alicloud_action_trail` table now also returns shadow trails ([#208](https://github.com/turbot/steampipe-plugin-alicloud/pull/208))
+- Recompiled plugin with [steampipe-plugin-sdk v1.3.1](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v131--2021-07-15)
+
 ## v0.0.13 [2021-06-24]
 
 _What's new?_
