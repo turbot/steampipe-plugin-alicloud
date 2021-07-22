@@ -1,7 +1,8 @@
 [
-	{
-		"event_rw": "All",
-		"name": "{{ resourceName }}",
-		"trail_region": "All"
-	}
+  {
+    "event_rw": "All",
+    "home_region": "{{ output.region_name.value }}",
+    "name": "{{ resourceName }}",
+    "trail_region": "All"
+  }
 ]

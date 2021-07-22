@@ -46,3 +46,17 @@ from
 where
   is_organization_trail;
 ```
+
+### List shadow trails
+
+```sql
+select
+  name,
+  region,
+  home_region
+from
+  alicloud_action_trail
+where
+  trail_region = 'All'
+  and home_region <> region;
+```
