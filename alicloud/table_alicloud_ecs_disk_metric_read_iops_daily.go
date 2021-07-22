@@ -10,6 +10,7 @@ import (
 )
 
 //// TABLE DEFINITION
+
 func tableAlicloudEcsDiskMetricReadIopsDaily(_ context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ecs_disk_metric_read_iops_daily",

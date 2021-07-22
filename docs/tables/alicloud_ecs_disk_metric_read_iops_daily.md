@@ -1,6 +1,6 @@
 # Table: alicloud_ecs_disk_metric_read_iops_daily
 
-Alicloud Monitoring metrics provide data about the performance of your systems. The `alicloud_ecs_disk_metric_read_iops_daily` table provides metric statistics at 24 hour intervals for the most recent 90 days.
+Alicloud Monitoring metrics provide data about the performance of your systems. The `alicloud_ecs_disk_metric_read_iops_daily` table provides metric statistics at 24 hour intervals for the most recent 30 days.
 
 Note: If the instance is not older than one day then we will not get any metric statistics.
 

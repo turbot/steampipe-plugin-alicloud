@@ -10,6 +10,7 @@ import (
 )
 
 //// TABLE DEFINITION
+
 func tableAlicloudEcsDiskMetricWriteIops(_ context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ecs_disk_metric_write_iops",

@@ -72,7 +72,7 @@ type CMMetricRow struct {
 	Average float64
 
 	// The percentile statistic for the data point.
-	//ExtendedStatistics map[string]*float64 `type:"map"`
+	// ExtendedStatistics map[string]*float64 `type:"map"`
 
 	// The maximum metric value for the data point.
 	Maximum float64
