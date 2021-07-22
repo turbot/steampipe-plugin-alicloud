@@ -80,7 +80,7 @@ type CMMetricRow struct {
 	// The minimum metric value for the data point.
 	Minimum float64
 
-	// The time stamp used for the data point.
+	// The timestamp used for the data point.
 	Timestamp string
 }
 
