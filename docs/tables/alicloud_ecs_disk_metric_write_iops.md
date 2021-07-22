@@ -20,7 +20,7 @@ order by
   timestamp;
 ```
 
-### Intervals where operation exceed 1000 average write ops
+### Intervals where operation exceed 1000 average write iops
 
 ```sql
 select
