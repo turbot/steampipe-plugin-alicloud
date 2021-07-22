@@ -128,17 +128,13 @@ func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularit
 	request.Namespace = namespace
 	request.Period = getCMPeriodForGranularity(granularity)
 
-	// count := 0
-	// for {
 	stats, err := client.DescribeMetricList(request)
 	if err != nil {
 		return nil, err
 	}
-	plugin.Logger(ctx).Trace("My Result => ", stats)
 
 	var results []map[string]interface{}
 	json.Unmarshal([]byte(stats.Datapoints), &results)
-	plugin.Logger(ctx).Trace("Point Values => ", results)
 	for _, pointValue := range results {
 		d.StreamListItem(ctx, &CMMetricRow{
 			DimensionName:  dimensionName,
