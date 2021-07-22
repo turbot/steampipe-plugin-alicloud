@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/actiontrail"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
@@ -127,7 +128,7 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("HomeRegion"),
+				Transform:   transform.From(actionTrailRegion),
 			},
 			{
 				Name:        "account_id",
@@ -153,6 +154,7 @@ func listActionTrails(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 	}
 	request := actiontrail.CreateDescribeTrailsRequest()
 	request.Scheme = "https"
+	request.IncludeShadowTrails = requests.NewBoolean(true)
 
 	response, err := client.DescribeTrails(request)
 	if err != nil {
@@ -211,4 +213,12 @@ func getActionTrailAka(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	akas := []string{"acs:actiontrail:" + data.HomeRegion + ":" + accountID + ":actiontrail/" + data.Name}
 
 	return akas, nil
+}
+
+//// TRANSFORM FUNCTIONS
+
+func actionTrailRegion(ctx context.Context, d *transform.TransformData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	return region, nil
 }

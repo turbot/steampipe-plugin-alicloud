@@ -23,9 +23,10 @@ data "null_data_source" "resource" {
 }
 
 resource "alicloud_oss_bucket" "named_test_resource" {
-  bucket = var.resource_name
-  acl    = "private"
-  policy = <<POLICY
+  bucket        = var.resource_name
+  acl           = "private"
+  force_destroy = true
+  policy        = <<POLICY
   {"Statement":
       [{"Action":
           ["oss:PutObject", "oss:GetObject", "oss:DeleteBucket"],
@@ -52,7 +53,7 @@ output "resource_name" {
   value = var.resource_name
 }
 
-output "region_name"{
+output "region_name" {
   value = var.alicloud_region
 }
 
