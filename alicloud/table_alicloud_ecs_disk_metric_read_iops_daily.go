@@ -10,13 +10,13 @@ import (
 )
 
 //// TABLE DEFINITION
-func tableAlicloudEcsDiskMetricReadOps(_ context.Context) *plugin.Table {
+func tableAlicloudEcsDiskMetricReadIopsDaily(_ context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "alicloud_ecs_disk_metric_read_ops",
-		Description: "Alicloud ECS Disk Cloud Monitor Metrics - Read Ops",
+		Name:        "alicloud_ecs_disk_metric_read_iops_daily",
+		Description: "Alicloud ECS Disk Cloud Monitor Metrics - Read IOPS (Daily)",
 		List: &plugin.ListConfig{
 			ParentHydrate: listEcsInstance,
-			Hydrate:       listEcsDisksMetricReadIops,
+			Hydrate:       listEcsDisksMetricReadIopsDaily,
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: cmMetricColumns(
@@ -31,7 +31,7 @@ func tableAlicloudEcsDiskMetricReadOps(_ context.Context) *plugin.Table {
 	}
 }
 
-func listEcsDisksMetricReadIops(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func listEcsDisksMetricReadIopsDaily(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	data := h.Item.(ecs.Instance)
-	return listCMMetricStatistics(ctx, d, "5_MIN", "acs_ecs_dashboard", "DiskReadIOPS", "instanceId", data.InstanceId)
+	return listCMMetricStatistics(ctx, d, "DAILY", "acs_ecs_dashboard", "DiskReadIOPS", "instanceId", data.InstanceId)
 }

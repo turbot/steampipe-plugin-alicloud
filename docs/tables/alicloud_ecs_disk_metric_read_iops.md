@@ -1,6 +1,6 @@
-# Table: alicloud_ecs_disk_metric_read_ops
+# Table: alicloud_ecs_disk_metric_read_iops
 
-Alicloud Monitoring metrics provide data about the performance of your systems. The `alicloud_ecs_disk_metric_read_ops` table provides metric statistics at 5 minute intervals for the most recent 5 days.
+Alicloud Monitoring metrics provide data about the performance of your systems. The `alicloud_ecs_disk_metric_read_iops` table provides metric statistics at 5 minute intervals for the most recent 5 days.
 
 ## Examples
 
@@ -14,7 +14,7 @@ select
   maximum,
   average
 from
-  alicloud_ecs_disk_metric_read_ops
+  alicloud_ecs_disk_metric_read_iops
 order by
   instance_id,
   timestamp;
@@ -30,7 +30,7 @@ select
   round(maximum::numeric,2) as max_ops,
   round(average::numeric,2) as avg_ops
 from
-  alicloud_ecs_disk_metric_read_ops
+  alicloud_ecs_disk_metric_read_iops
 where average > 1000
 order by
   instance_id,
