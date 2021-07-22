@@ -2,6 +2,7 @@
 
 Alicloud Monitoring metrics provide data about the performance of your systems. The `alicloud_ecs_disk_metric_write_iops` table provides metric statistics at 5 minute intervals for the most recent 5 days.
 
+Note: If the instance is not older than 5 minute then we will not get any metric statistics.
 ## Examples
 
 ### Basic info
