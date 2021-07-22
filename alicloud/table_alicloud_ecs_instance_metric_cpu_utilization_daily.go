@@ -3,6 +3,7 @@ package alicloud
 import (
 	"context"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
@@ -15,7 +16,8 @@ func tableAlicloudEcsInstanceMetricCpuUtilizationDaily(_ context.Context) *plugi
 		Name:        "alicloud_ecs_instance_metric_cpu_utilization_daily",
 		Description: "Alicloud ECS Instance Cloud Monitor Metrics - CPU Utilization (Daily)",
 		List: &plugin.ListConfig{
-			Hydrate: listEcsInstanceMetricCpuUtilizationDaily,
+			ParentHydrate: listEcsInstance,
+			Hydrate:       listEcsInstanceMetricCpuUtilizationDaily,
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: cmMetricColumns(
@@ -31,5 +33,6 @@ func tableAlicloudEcsInstanceMetricCpuUtilizationDaily(_ context.Context) *plugi
 }
 
 func listEcsInstanceMetricCpuUtilizationDaily(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	return listCMMetricStatistics(ctx, d, "DAILY", "acs_ecs_dashboard", "CPUUtilization", "instanceId")
+	data := h.Item.(ecs.Instance)
+	return listCMMetricStatistics(ctx, d, "DAILY", "acs_ecs_dashboard", "CPUUtilization", "instanceId", data.InstanceId)
 }

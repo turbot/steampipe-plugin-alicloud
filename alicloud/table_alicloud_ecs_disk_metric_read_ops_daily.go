@@ -3,6 +3,7 @@ package alicloud
 import (
 	"context"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
@@ -14,7 +15,8 @@ func tableAlicloudEcsDiskMetricReadOpsDaily(_ context.Context) *plugin.Table {
 		Name:        "alicloud_ecs_disk_metric_read_ops_daily",
 		Description: "Alicloud ECS Disk Cloud Monitor Metrics - Read Ops (Daily)",
 		List: &plugin.ListConfig{
-			Hydrate: listEcsDisksMetricReadIopsDaily,
+			ParentHydrate: listEcsInstance,
+			Hydrate:       listEcsDisksMetricReadIopsDaily,
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: cmMetricColumns(
@@ -30,5 +32,6 @@ func tableAlicloudEcsDiskMetricReadOpsDaily(_ context.Context) *plugin.Table {
 }
 
 func listEcsDisksMetricReadIopsDaily(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	return listCMMetricStatistics(ctx, d, "DAILY", "acs_ecs_dashboard", "DiskReadIOPS", "instanceId")
+	data := h.Item.(ecs.Instance)
+	return listCMMetricStatistics(ctx, d, "DAILY", "acs_ecs_dashboard", "DiskReadIOPS", "instanceId", data.InstanceId)
 }
