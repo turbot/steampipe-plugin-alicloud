@@ -111,7 +111,7 @@ func getCMPeriodForGranularity(granularity string) string {
 	return "300"
 }
 
-func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularity string, namespace string, metricName string, dimensionName string) (*cms.DescribeMetricListResponse, error) {
+func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularity string, namespace string, metricName string, dimensionName string, dimensionValue string) (*cms.DescribeMetricListResponse, error) {
 	region := GetDefaultRegion(d.Connection)
 
 	// Create service connection
@@ -121,12 +121,14 @@ func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularit
 		return nil, err
 	}
 	request := cms.CreateDescribeMetricListRequest()
+	metricDimension := "[{\"" + dimensionName + "\": \"" + dimensionValue + "\"}]"
 
 	request.MetricName = metricName
 	request.StartTime = getCMStartDateForGranularity(granularity)
 	request.EndTime = time.Now().Format("2006-01-02T15:04:05Z")
 	request.Namespace = namespace
 	request.Period = getCMPeriodForGranularity(granularity)
+	request.Dimensions = metricDimension
 
 	stats, err := client.DescribeMetricList(request)
 	if err != nil {
