@@ -140,17 +140,15 @@ func tableAlicloudVpcRouteEntry(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listVpcRouteEntries(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_route_entry.listVpcRouteEntries", "connection_error", err)
 		return nil, err
 	}
 
 	// Get VPC Route Table details
-	routeTable := h.Item.(routeTableRowData)
+	routeTable := h.Item.(vpc.RouterTableListType)
 
 	request := vpc.CreateDescribeRouteEntryListRequest()
 	request.Scheme = "https"
@@ -176,7 +174,8 @@ func getVpcRouteEntryTurbotData(ctx context.Context, d *plugin.QueryData, h *plu
 	data := h.Item.(vpc.RouteEntry)
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}

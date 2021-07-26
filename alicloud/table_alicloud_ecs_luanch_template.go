@@ -12,11 +12,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 )
 
-type launchTemplateInfo = struct {
-	ecs.LaunchTemplateSet
-	Region string
-}
-
 //// TABLE DEFINITION
 
 func tableAlicloudEcsLaunchTemplate(ctx context.Context) *plugin.Table {
@@ -87,7 +82,7 @@ func tableAlicloudEcsLaunchTemplate(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("Tags.Tag").Transform(modifyEcsSourceTags),
 			},
 
-			// steampipe standard columns
+			// Steampipe standard columns
 			{
 				Name:        "tags",
 				Description: ColumnDescriptionTags,
@@ -108,11 +103,13 @@ func tableAlicloudEcsLaunchTemplate(ctx context.Context) *plugin.Table {
 				Transform:   transform.From(ecsLaunchTemplateTitle),
 			},
 
-			// alicloud standard columns
+			// Alicloud standard columns
 			{
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
+				Hydrate:     getLaunchTemplateRegion,
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "account_id",
@@ -128,10 +125,8 @@ func tableAlicloudEcsLaunchTemplate(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listEcsLaunchTemplates(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_launch_template.listEcsLaunchTemplates", "connection_error", err)
 		return nil, err
@@ -149,7 +144,7 @@ func listEcsLaunchTemplates(ctx context.Context, d *plugin.QueryData, _ *plugin.
 			return nil, err
 		}
 		for _, launchTemplate := range response.LaunchTemplateSets.LaunchTemplateSet {
-			d.StreamListItem(ctx, launchTemplateInfo{launchTemplate, region})
+			d.StreamListItem(ctx, launchTemplate)
 			count++
 		}
 		if count >= response.TotalCount {
@@ -163,11 +158,10 @@ func listEcsLaunchTemplates(ctx context.Context, d *plugin.QueryData, _ *plugin.
 //// HYDRATE FUNCTIONS
 
 func getEcsLaunchTemplate(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 	plugin.Logger(ctx).Trace("getEcsLaunchTemplate")
 
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_launch_template.getEcsLaunchTemplate", "connection_error", err)
 		return nil, err
@@ -191,7 +185,7 @@ func getEcsLaunchTemplate(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 	}
 
 	if response.LaunchTemplateSets.LaunchTemplateSet != nil && len(response.LaunchTemplateSets.LaunchTemplateSet) > 0 {
-		return launchTemplateInfo{response.LaunchTemplateSets.LaunchTemplateSet[0], region}, nil
+		return response.LaunchTemplateSets.LaunchTemplateSet[0], nil
 	}
 
 	return nil, nil
@@ -200,11 +194,10 @@ func getEcsLaunchTemplate(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 func getEcsLaunchTemplateLatestVersionDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsLaunchTemplateLatestVersionDetails")
 
-	data := h.Item.(launchTemplateInfo)
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	data := h.Item.(ecs.LaunchTemplateSet)
 
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_launch_template.getEcsLaunchTemplateLatestVersionDetails", "connection_error", err)
 		return nil, err
@@ -229,25 +222,33 @@ func getEcsLaunchTemplateLatestVersionDetails(ctx context.Context, d *plugin.Que
 
 func getEcsLaunchTemplateAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsLaunchTemplateAka")
-	data := h.Item.(launchTemplateInfo)
+	data := h.Item.(ecs.LaunchTemplateSet)
+	region := d.KeyColumnQualString(matrixKeyRegion)
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"acs:ecs:" + data.Region + ":" + accountID + ":launch-template/" + data.LaunchTemplateId}
+	akas := []string{"acs:ecs:" + region + ":" + accountID + ":launch-template/" + data.LaunchTemplateId}
 
 	return akas, nil
+}
+
+func getLaunchTemplateRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := d.KeyColumnQualString(matrixKeyRegion)
+
+	return region, nil
 }
 
 //// TRANSFORM FUNCTIONS
 
 func ecsLaunchTemplateTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	data := d.HydrateItem.(launchTemplateInfo)
+	data := d.HydrateItem.(ecs.LaunchTemplateSet)
 
 	// Build resource title
 	title := data.LaunchTemplateId

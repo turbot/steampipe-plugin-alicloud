@@ -128,7 +128,8 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.From(actionTrailRegion),
+				Hydrate:     getActionTrailRegion,
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "account_id",
@@ -144,10 +145,8 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listActionTrails(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := ActionTrailService(ctx, d, region)
+	client, err := ActionTrailService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("listActionTrails", "connection_error", err)
 		return nil, err
@@ -170,11 +169,10 @@ func listActionTrails(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 //// HYDRATE FUNCTIONS
 
 func getActionTrail(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 	plugin.Logger(ctx).Trace("getActionTrail")
 
 	// Create service connection
-	client, err := ActionTrailService(ctx, d, region)
+	client, err := ActionTrailService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("getActionTrail", "connection_error", err)
 		return nil, err
@@ -203,7 +201,8 @@ func getActionTrailAka(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	data := h.Item.(actiontrail.TrailListItem)
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}
@@ -215,10 +214,9 @@ func getActionTrailAka(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	return akas, nil
 }
 
-//// TRANSFORM FUNCTIONS
-
-func actionTrailRegion(ctx context.Context, d *transform.TransformData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+func getActionTrailRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getActionTrailRegion")
+	region := d.KeyColumnQualString(matrixKeyRegion)
 
 	return region, nil
 }

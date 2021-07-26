@@ -167,10 +167,8 @@ func tableAlicloudVpcNatGateway(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listVpcNatGateways(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_nat_gateway.listVpcNatGateways", "connection_error", err)
 		return nil, err
@@ -204,10 +202,9 @@ func listVpcNatGateways(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 
 func getVpcNatGateway(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getVpcNatGateway")
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_nat_gateway.getVpcNatGateway", "connection_error", err)
 		return nil, err
@@ -236,7 +233,8 @@ func getVpcNatGatewayAka(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	ngw := h.Item.(vpc.NatGateway)
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}

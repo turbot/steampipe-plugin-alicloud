@@ -11,11 +11,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
-type securityGroupInfo = struct {
-	SecurityGroup ecs.SecurityGroup
-	Region        string
-}
-
 func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ecs_security_group",
@@ -133,10 +128,11 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 
 			// alicloud standard columns
 			{
-				Name:        "region_id",
+				Name:        "region",
 				Description: "The name of the region where the resource belongs.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Region"),
+				Hydrate:     getSecurityGroupRegion,
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "account_id",
@@ -152,10 +148,8 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listEcsSecurityGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_security_group.listEcsSecurityGroups", "connection_error", err)
 		return nil, err
@@ -174,7 +168,7 @@ func listEcsSecurityGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 		}
 		for _, securityGroup := range response.SecurityGroups.SecurityGroup {
 			plugin.Logger(ctx).Warn("alicloud_ecs_security_group.listEcsSecurityGroups", "query_error", err, "item", securityGroup)
-			d.StreamListItem(ctx, securityGroupInfo{securityGroup, response.RegionId})
+			d.StreamListItem(ctx, securityGroup)
 			count++
 		}
 		if count >= response.TotalCount {
@@ -190,10 +184,8 @@ func listEcsSecurityGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 func getEcsSecurityGroup(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsSecurityGroup")
 
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_security_group.getEcsSecurityGroup", "connection_error", err)
 		return nil, err
@@ -218,7 +210,7 @@ func getEcsSecurityGroup(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	}
 
 	if response.SecurityGroups.SecurityGroup != nil && len(response.SecurityGroups.SecurityGroup) > 0 {
-		return securityGroupInfo{response.SecurityGroups.SecurityGroup[0], response.RegionId}, nil
+		return response.SecurityGroups.SecurityGroup[0], nil
 	}
 
 	return nil, nil
@@ -226,12 +218,10 @@ func getEcsSecurityGroup(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 
 func getSecurityGroupAttribute(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getSecurityGroupAttribute")
-	data := h.Item.(securityGroupInfo)
-
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	data := h.Item.(ecs.SecurityGroup)
 
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_security_group.getVSecurityGroupAttribute", "connection_error", err)
 		return nil, err
@@ -239,7 +229,7 @@ func getSecurityGroupAttribute(ctx context.Context, d *plugin.QueryData, h *plug
 
 	request := ecs.CreateDescribeSecurityGroupAttributeRequest()
 	request.Scheme = "https"
-	request.SecurityGroupId = data.SecurityGroup.SecurityGroupId
+	request.SecurityGroupId = data.SecurityGroupId
 
 	response, err := client.DescribeSecurityGroupAttribute(request)
 	if err != nil {
@@ -251,31 +241,39 @@ func getSecurityGroupAttribute(ctx context.Context, d *plugin.QueryData, h *plug
 
 func getEcsSecurityGroupARN(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsSecurityGroupARN")
-	data := h.Item.(securityGroupInfo)
+	data := h.Item.(ecs.SecurityGroup)
+	region := d.KeyColumnQualString(matrixKeyRegion)
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	arn := "arn:acs:ecs:" + data.Region + ":" + accountID + ":securitygroup/" + data.SecurityGroup.SecurityGroupId
+	arn := "arn:acs:ecs:" + region + ":" + accountID + ":securitygroup/" + data.SecurityGroupId
 
 	return arn, nil
+}
+
+func getSecurityGroupRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := d.KeyColumnQualString(matrixKeyRegion)
+
+	return region, nil
 }
 
 //// TRANSFORM FUNCTIONS
 
 func ecsSecurityGroupTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	data := d.HydrateItem.(securityGroupInfo)
+	data := d.HydrateItem.(ecs.SecurityGroup)
 
 	// Build resource title
-	title := data.SecurityGroup.SecurityGroupId
+	title := data.SecurityGroupId
 
-	if len(data.SecurityGroup.SecurityGroupName) > 0 {
-		title = data.SecurityGroup.SecurityGroupName
+	if len(data.SecurityGroupName) > 0 {
+		title = data.SecurityGroupName
 	}
 
 	return title, nil

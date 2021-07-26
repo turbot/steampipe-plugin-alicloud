@@ -12,11 +12,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
-type snapshotInfo = struct {
-	Snapshot ecs.Snapshot
-	Region   string
-}
-
 //// TABLE DEFINITION
 
 func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
@@ -172,7 +167,7 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("Snapshot.Tags.Tag").Transform(modifyEcsSourceTags),
 			},
 
-			// steampipe standard columns
+			// Steampipe standard columns
 			{
 				Name:        "tags",
 				Description: ColumnDescriptionTags,
@@ -194,11 +189,13 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("Snapshot.SnapshotId"),
 			},
 
-			// alibaba standard columns
+			// Alibaba standard columns
 			{
 				Name:        "region",
 				Description: "The region ID where the resource is located.",
 				Type:        proto.ColumnType_STRING,
+				Hydrate:     getSnapshotRegion,
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "account_id",
@@ -215,10 +212,7 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 
 func listEcsSnapshot(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service connection
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
-	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_snapshot.listEcsSnapshot", "connection_error", err)
@@ -238,7 +232,7 @@ func listEcsSnapshot(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 		}
 		for _, snapshot := range response.Snapshots.Snapshot {
 			plugin.Logger(ctx).Warn("listEcsSnapshot", "item", snapshot)
-			d.StreamListItem(ctx, snapshotInfo{snapshot, region})
+			d.StreamListItem(ctx, snapshot)
 			count++
 		}
 		if count >= response.TotalCount {
@@ -254,10 +248,8 @@ func listEcsSnapshot(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 func getEcsSnapshot(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsSnapshot")
 
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_snapshot.getEcsSnapshot", "connection_error", err)
 		return nil, err
@@ -282,7 +274,7 @@ func getEcsSnapshot(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 	}
 
 	if response.Snapshots.Snapshot != nil && len(response.Snapshots.Snapshot) > 0 {
-		return snapshotInfo{response.Snapshots.Snapshot[0], region}, nil
+		return response.Snapshots.Snapshot[0], nil
 	}
 
 	return nil, nil
@@ -290,7 +282,8 @@ func getEcsSnapshot(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 
 func getEcsSnapshotArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsSnapshotArn")
-	data := h.Item.(snapshotInfo)
+	data := h.Item.(ecs.Snapshot)
+	region := d.KeyColumnQualString(matrixKeyRegion)
 
 	// Get account details
 	commonData, err := getCommonColumns(ctx, d, h)
@@ -300,7 +293,13 @@ func getEcsSnapshotArn(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	arn := "arn:acs:ecs:" + data.Region + ":" + accountID + ":snapshot/" + data.Snapshot.SnapshotId
+	arn := "arn:acs:ecs:" + region + ":" + accountID + ":snapshot/" + data.SnapshotId
 
 	return arn, nil
+}
+
+func getSnapshotRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := d.KeyColumnQualString(matrixKeyRegion)
+
+	return region, nil
 }

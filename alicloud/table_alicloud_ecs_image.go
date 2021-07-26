@@ -197,7 +197,7 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("Image.Tags.Tag").Transform(modifyEcsSourceTags),
 			},
 
-			// steampipe standard columns
+			// Steampipe standard columns
 			{
 				Name:        "tags",
 				Description: ColumnDescriptionTags,
@@ -219,7 +219,7 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("Image.ImageName"),
 			},
 
-			// alicloud standard columns
+			// Alicloud standard columns
 			{
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
@@ -239,10 +239,8 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listEcsImages(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_image.listEcsImages", "connection_error", err)
 		return nil, err
@@ -276,10 +274,8 @@ func listEcsImages(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 
 func getEcsImage(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsImage")
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_image.getEcsImage", "connection_error", err)
 		return nil, err
@@ -312,7 +308,6 @@ func getEcsImage(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 
 func getEcsImageSharePermission(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsImageSharePermission")
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	data := h.Item.(imageInfo)
 
@@ -324,7 +319,7 @@ func getEcsImageSharePermission(ctx context.Context, d *plugin.QueryData, h *plu
 	id := data.Image.ImageId
 
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_image.getEcsImage", "connection_error", err)
 		return nil, err
@@ -373,7 +368,8 @@ func getEcsImageARN(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 	data := h.Item.(imageInfo)
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}

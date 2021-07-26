@@ -136,10 +136,8 @@ func tableAlicloudVpcSslVpnServer(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listVpcVpnSslServers(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_server.listVpcVpnSslServers", "connection_error", err)
 		return nil, err
@@ -173,10 +171,9 @@ func listVpcVpnSslServers(ctx context.Context, d *plugin.QueryData, _ *plugin.Hy
 
 func getVpnSslServer(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getVpnSslServer")
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_server.getVpnSslServer", "connection_error", err)
 		return nil, err
@@ -212,7 +209,8 @@ func getVpnSslServerAka(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	sslServer := h.Item.(vpc.SslVpnServer)
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}

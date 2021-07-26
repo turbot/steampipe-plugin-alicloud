@@ -197,10 +197,8 @@ func tableAlicloudEcsEni(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listEcsEni(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_network_interface.listEcsEni", "connection_error", err)
 		return nil, err
@@ -233,10 +231,9 @@ func listEcsEni(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 
 func getEcsEni(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsEni")
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_network_interface.getEcsEni", "connection_error", err)
 		return nil, err

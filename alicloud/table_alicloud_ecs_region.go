@@ -72,9 +72,8 @@ func tableAlicloudEcsRegion(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listEcsRegions(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := GetDefaultRegion(d.Connection)
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs.listEcsRegions", "connection_error", err)
 		return nil, err
@@ -99,7 +98,8 @@ func getRegionAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	data := h.Item.(ecs.Region)
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}

@@ -11,11 +11,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 )
 
-type routeTableRowData = struct {
-	vpc.RouterTableListType
-	Region string
-}
-
 //// TABLE DEFINITION
 
 func tableAlicloudVpcRouteTable(ctx context.Context) *plugin.Table {
@@ -107,7 +102,7 @@ func tableAlicloudVpcRouteTable(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("Tags.Tag"),
 			},
 
-			// steampipe standard columns
+			// Steampipe standard columns
 			{
 				Name:        "tags",
 				Description: ColumnDescriptionTags,
@@ -128,11 +123,13 @@ func tableAlicloudVpcRouteTable(ctx context.Context) *plugin.Table {
 				Transform:   transform.From(vpcRouteTableTitle),
 			},
 
-			// alicloud standard columns
+			// Alicloud standard columns
 			{
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
+				Hydrate:     getVpcRouteTableRegion,
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "account_id",
@@ -147,10 +144,8 @@ func tableAlicloudVpcRouteTable(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listVpcRouteTable(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_route_table.listVpcRouteTable", "connection_error", err)
 		return nil, err
@@ -168,7 +163,7 @@ func listVpcRouteTable(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 			return nil, err
 		}
 		for _, i := range response.RouterTableList.RouterTableListType {
-			d.StreamListItem(ctx, routeTableRowData{i, region})
+			d.StreamListItem(ctx, i)
 			count++
 		}
 		if count >= response.TotalCount {
@@ -183,10 +178,9 @@ func listVpcRouteTable(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 
 func getVpcRouteTable(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getVpcRouteTable")
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_route_table.listVpcRouteTable", "connection_error", err)
 		return nil, err
@@ -204,7 +198,7 @@ func getVpcRouteTable(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	}
 
 	if response.RouterTableList.RouterTableListType != nil && len(response.RouterTableList.RouterTableListType) > 0 {
-		return routeTableRowData{response.RouterTableList.RouterTableListType[0], region}, nil
+		return response.RouterTableList.RouterTableListType[0], nil
 	}
 
 	return nil, nil
@@ -212,11 +206,10 @@ func getVpcRouteTable(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 
 func getVpcRouteTableEntryList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getVpcRouteTableEntryList")
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-	data := h.Item.(routeTableRowData)
+	data := h.Item.(vpc.RouterTableListType)
 
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_route_table.getVpcRouteTableEntryList", "connection_error", err)
 		return nil, err
@@ -236,25 +229,34 @@ func getVpcRouteTableEntryList(ctx context.Context, d *plugin.QueryData, h *plug
 
 func getVpcRouteTableAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getVpcRouteTableAka")
-	data := h.Item.(routeTableRowData)
+	data := h.Item.(vpc.RouterTableListType)
+	region := d.KeyColumnQualString(matrixKeyRegion)
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"acs:vpc:" + data.Region + ":" + accountID + ":route-table/" + data.RouteTableId}
+	akas := []string{"acs:vpc:" + region + ":" + accountID + ":route-table/" + data.RouteTableId}
 
 	return akas, nil
+}
+
+func getVpcRouteTableRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getVpcRouteTableRegion")
+	region := d.KeyColumnQualString(matrixKeyRegion)
+
+	return region, nil
 }
 
 //// TRANSFORM FUNCTIONS
 
 func vpcRouteTableTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	data := d.HydrateItem.(routeTableRowData)
+	data := d.HydrateItem.(vpc.RouterTableListType)
 
 	// Build resource title
 	title := data.RouteTableId

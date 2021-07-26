@@ -78,7 +78,7 @@ func tableAlicloudEcsZone(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("DedicatedHostGenerations.DedicatedHostGeneration"),
 				Description: "The generation numbers of dedicated hosts. The data type of this parameter is List.",
 			},
-			// steampipe standard columns
+			// Steampipe standard columns
 			{
 				Name:        "title",
 				Type:        proto.ColumnType_STRING,
@@ -93,7 +93,7 @@ func tableAlicloudEcsZone(ctx context.Context) *plugin.Table {
 				Description: ColumnDescriptionAkas,
 			},
 
-			// alicloud common columns
+			// Alicloud common columns
 			{
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
@@ -116,7 +116,7 @@ func listEcsZones(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 	region := h.Item.(ecs.Region)
 
 	// Create service connection
-	client, err := ECSService(ctx, d, region.RegionId)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs.listEcsZones", "connection_error", err)
 		return nil, err
@@ -134,7 +134,7 @@ func listEcsZones(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 		return nil, err
 	}
 	for _, i := range response.Zones.Zone {
-		d.StreamLeafListItem(ctx, zoneInfo{i, region.RegionId})
+		d.StreamListItem(ctx, zoneInfo{i, region.RegionId})
 	}
 	return nil, nil
 }
@@ -144,7 +144,8 @@ func getZoneAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 	data := h.Item.(zoneInfo)
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}

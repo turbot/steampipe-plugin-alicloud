@@ -162,10 +162,8 @@ func tableAlicloudVpcVSwitch(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listVSwitch(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("listVSwitch", "connection_error", err)
 		return nil, err
@@ -206,10 +204,8 @@ func listVSwitch(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 //// HYDRATE FUNCTIONS
 
 func getVSwitchAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("getVSwitchAttributes", "connection_error", err)
 		return nil, err

@@ -165,10 +165,8 @@ func tableAlicloudCsKubernetesClusterNode(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listCsKubernetesClusterNodes(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := GetDefaultRegion(d.Connection)
-
 	// Create service connection
-	client, err := ContainerService(ctx, d, region)
+	client, err := ContainerService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("listCsKubernetesClusterNodes", "connection_error", err)
 		return nil, err
@@ -193,10 +191,8 @@ func listCsKubernetesClusterNodes(ctx context.Context, d *plugin.QueryData, h *p
 //// HYDRATE FUNCTIONS
 
 func getCsKubernetesClusterNode(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := GetDefaultRegion(d.Connection)
-
 	// Create service connection
-	client, err := ContainerService(ctx, d, region)
+	client, err := ContainerService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("getCsKubernetesClusterNode", "connection_error", err)
 		return nil, err
@@ -235,7 +231,8 @@ func getCsKubernetesClusterNodeAka(ctx context.Context, d *plugin.QueryData, h *
 	nodeName := h.Item.(cs.Node).NodeName
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}

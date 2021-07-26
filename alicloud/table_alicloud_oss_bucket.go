@@ -146,8 +146,7 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listBucket(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := GetDefaultRegion(d.Connection)
-	client, err := OssService(ctx, d, region)
+	client, err := OssService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("listBucket", "connection_error", err)
 		return nil, err
@@ -178,7 +177,8 @@ func listBucket(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 func getBucketTagging(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
 	bucket := h.Item.(oss.BucketProperties)
-	client, err := OssService(ctx, d, removeSuffixFromLocation(bucket.Location))
+
+	client, err := OssService(ctx, d)
 	if err != nil {
 		logger.Error("GetBucketTagging", "connection_error", err)
 		return nil, err
@@ -195,7 +195,8 @@ func getBucketTagging(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 func getBucketPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
 	bucket := h.Item.(oss.BucketProperties)
-	client, err := OssService(ctx, d, removeSuffixFromLocation(bucket.Location))
+
+	client, err := OssService(ctx, d)
 	if err != nil {
 		logger.Error("GetBucketPolicy", "connection_error", err)
 		return nil, err
@@ -217,7 +218,8 @@ func getBucketPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 func getBucketLogging(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	logger := plugin.Logger(ctx)
 	bucket := h.Item.(oss.BucketProperties)
-	client, err := OssService(ctx, d, removeSuffixFromLocation(bucket.Location))
+
+	client, err := OssService(ctx, d)
 	if err != nil {
 		logger.Error("getBucketLogging", "connection_error", err)
 		return nil, err
@@ -236,7 +238,7 @@ func getBucketInfo(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	logger := plugin.Logger(ctx)
 	bucket := h.Item.(oss.BucketProperties)
 
-	client, err := OssService(ctx, d, removeSuffixFromLocation(bucket.Location))
+	client, err := OssService(ctx, d)
 	if err != nil {
 		logger.Error("getBucketLogging", "connection_error", err)
 		return nil, err
@@ -254,7 +256,7 @@ func getBucketLifecycle(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	plugin.Logger(ctx).Trace("getBucketLifecycle")
 
 	bucket := h.Item.(oss.BucketProperties)
-	client, err := OssService(ctx, d, removeSuffixFromLocation(bucket.Location))
+	client, err := OssService(ctx, d)
 	if err != nil {
 		return nil, err
 	}

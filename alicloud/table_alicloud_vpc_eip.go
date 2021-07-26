@@ -206,10 +206,8 @@ func tableAlicloudVpcEip(ctx context.Context) *plugin.Table {
 }
 
 func listVpcEip(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_eip.listEip", "connection_error", err)
 		return nil, err
@@ -240,10 +238,8 @@ func listVpcEip(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 }
 
 func getEip(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_eip.getEipAttributes", "connection_error", err)
 		return nil, err
@@ -276,7 +272,8 @@ func getVpcEipArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 	data := h.Item.(vpc.EipAddress)
 
 	// Get account details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}

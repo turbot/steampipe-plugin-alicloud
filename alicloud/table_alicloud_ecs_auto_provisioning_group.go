@@ -127,7 +127,7 @@ func tableAlicloudEcsAutoProvisioningGroup(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_JSON,
 			},
 
-			// steampipe standard columns
+			// Steampipe standard columns
 			{
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
@@ -142,7 +142,7 @@ func tableAlicloudEcsAutoProvisioningGroup(ctx context.Context) *plugin.Table {
 				Transform:   transform.From(ecsAutosProvisioningGroupTitle),
 			},
 
-			// alicloud standard columns
+			// Alicloud standard columns
 			{
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
@@ -163,10 +163,8 @@ func tableAlicloudEcsAutoProvisioningGroup(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listEcsAutosProvisioningGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_auto_provisioning_group.listEcsAutosProvisioningGroups", "connection_error", err)
 		return nil, err
@@ -198,11 +196,10 @@ func listEcsAutosProvisioningGroups(ctx context.Context, d *plugin.QueryData, _ 
 //// HYDRATE FUNCTIONS
 
 func getEcsAutosProvisioningGroup(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 	plugin.Logger(ctx).Trace("getEcsAutosProvisioningGroup")
 
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_auto_provisioning_group.getEcsAutosProvisioningGroup", "connection_error", err)
 		return nil, err
@@ -227,12 +224,11 @@ func getEcsAutosProvisioningGroup(ctx context.Context, d *plugin.QueryData, h *p
 }
 
 func getEcsAutosProvisioningGroupInstances(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 	plugin.Logger(ctx).Trace("getEcsAutosProvisioningGroupInstances")
 	data := h.Item.(ecs.AutoProvisioningGroup)
 
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_auto_provisioning_group.getEcsAutosProvisioningGroupInstances", "connection_error", err)
 		return nil, err
@@ -256,7 +252,8 @@ func getEcsAutosProvisioningGroupAka(ctx context.Context, d *plugin.QueryData, h
 	data := h.Item.(ecs.AutoProvisioningGroup)
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}

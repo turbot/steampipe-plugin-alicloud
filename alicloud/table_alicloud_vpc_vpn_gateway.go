@@ -11,11 +11,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 )
 
-type vpnGatewayInfo = struct {
-	vpc.VpnGateway
-	Region string
-}
-
 //// TABLE DEFINITION
 
 func tableAlicloudVpcVpnGateway(ctx context.Context) *plugin.Table {
@@ -164,6 +159,8 @@ func tableAlicloudVpcVpnGateway(ctx context.Context) *plugin.Table {
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
+				Hydrate:     getVpnGatewayRegion,
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "account_id",
@@ -179,10 +176,8 @@ func tableAlicloudVpcVpnGateway(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listVpcVpnGateways(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_vpn_gateway.listVpcVpnGateways", "connection_error", err)
 		return nil, err
@@ -200,7 +195,7 @@ func listVpcVpnGateways(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 			return nil, err
 		}
 		for _, i := range response.VpnGateways.VpnGateway {
-			d.StreamListItem(ctx, vpnGatewayInfo{i, region})
+			d.StreamListItem(ctx, i)
 			count++
 		}
 		if count >= response.TotalCount {
@@ -214,10 +209,8 @@ func listVpcVpnGateways(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 //// HYDRATE FUNCTIONS
 
 func getVpcVpnGateway(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_vpn_gateway.getVpcVpnGateway", "connection_error", err)
 		return nil, err
@@ -235,32 +228,41 @@ func getVpcVpnGateway(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 	}
 
 	if response.VpnGateways.VpnGateway != nil && len(response.VpnGateways.VpnGateway) > 0 {
-		return vpnGatewayInfo{response.VpnGateways.VpnGateway[0], region}, nil
+		return response.VpnGateways.VpnGateway[0], nil
 	}
 	return nil, nil
 }
 
 func getVpcVpnGatewayAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getVpcVpnGatewayAka")
-	data := h.Item.(vpnGatewayInfo)
+	data := h.Item.(vpc.VpnGateway)
+	region := d.KeyColumnQualString(matrixKeyRegion)
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"acs:vpc:" + data.Region + ":" + accountID + ":vpngateway/" + data.VpnGatewayId}
+	akas := []string{"acs:vpc:" + region + ":" + accountID + ":vpngateway/" + data.VpnGatewayId}
 
 	return akas, nil
+}
+
+func getVpnGatewayRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getVpnGatewayRegion")
+	region := d.KeyColumnQualString(matrixKeyRegion)
+
+	return region, nil
 }
 
 //// TRANSFORM FUNCTIONS
 
 func vpcVpnGatewayTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	data := d.HydrateItem.(vpnGatewayInfo)
+	data := d.HydrateItem.(vpc.VpnGateway)
 
 	// Build resource title
 	title := data.VpnGatewayId

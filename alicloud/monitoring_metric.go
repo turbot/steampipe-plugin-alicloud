@@ -112,10 +112,8 @@ func getCMPeriodForGranularity(granularity string) string {
 }
 
 func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularity string, namespace string, metricName string, dimensionName string, dimensionValue string) (*cms.DescribeMetricListResponse, error) {
-	region := GetDefaultRegion(d.Connection)
-
 	// Create service connection
-	client, err := CmsService(ctx, d, region)
+	client, err := CmsService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("listCMMetricStatistics", "connection_error", err)
 		return nil, err

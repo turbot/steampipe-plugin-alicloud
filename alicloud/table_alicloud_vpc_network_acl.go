@@ -127,10 +127,8 @@ func tableAlicloudVpcNetworkACL(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listNetworkACLs(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_network_acl.listNetworkACLs", "connection_error", err)
 		return nil, err
@@ -174,10 +172,9 @@ func listNetworkACLs(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 
 func getNetworkACL(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getNetworkACL")
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_network_acl.getNetworkACL", "connection_error", err)
 		return nil, err
@@ -201,7 +198,8 @@ func getNetworkACLAka(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}

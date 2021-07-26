@@ -117,7 +117,7 @@ func tableAlicloudKmsSecret(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("Tags.Tag").Transform(modifyKmsSourceTags),
 			},
 
-			// steampipe standard columns
+			// Steampipe standard columns
 			{
 				Name:        "tags",
 				Description: ColumnDescriptionTags,
@@ -139,7 +139,7 @@ func tableAlicloudKmsSecret(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("SecretName"),
 			},
 
-			// alicloud standard columns
+			// Alicloud standard columns
 			{
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
@@ -161,10 +161,8 @@ func tableAlicloudKmsSecret(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listKmsSecret(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := KMSService(ctx, d, region)
+	client, err := KMSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_kms_secret.listKmsSecret", "connection_error", err)
 		return nil, err
@@ -207,10 +205,9 @@ func listKmsSecret(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 
 func getKmsSecret(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getKmsSecret")
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
-	client, err := KMSService(ctx, d, region)
+	client, err := KMSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_kms_secret.getKmsSecret", "connection_error", err)
 		return nil, err
@@ -240,10 +237,9 @@ func getKmsSecret(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 
 func listKmsSecretVersionIds(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("listKmsSecretVersionIds")
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
-	client, err := KMSService(ctx, d, region)
+	client, err := KMSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_kms_secret.getKmsSecret", "connection_error", err)
 		return nil, err
