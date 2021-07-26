@@ -200,7 +200,7 @@ func getActionTrail(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 
 func getActionTrailAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getActionTrailAka")
-	data := h.Item.(actiontrail.TrailListItem)
+	data := h.Item.(actiontrail.Trail)
 
 	// Get project details
 	commonData, err := getCommonColumns(ctx, d, h)

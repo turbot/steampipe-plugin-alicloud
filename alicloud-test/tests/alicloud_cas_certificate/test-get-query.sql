@@ -1,3 +1,3 @@
-select name, org_name, issuer, buy_in_aliyun, common, cert, key
+select cert_name, issuer, common_name
 from alicloud_cas_certificate
-where id = '{{ output.certificate_id.value }}';
+where cert_name = '{{ resourceName }}';

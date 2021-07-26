@@ -1,6 +1,6 @@
 [
 	{
-		"name": "{{ resourceName }}",
-		"org_name": "Turbot HQ Pvt. Ltd."
+		"cert_name": "{{ resourceName }}",
+		"issuer": "Turbot HQ Pvt. Ltd."
 	}
 ]

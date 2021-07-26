@@ -13,7 +13,9 @@ variable "alicloud_region" {
 }
 
 provider "alicloud" {
-  region = var.alicloud_region
+  region     = var.alicloud_region
+  access_key = "LTAI5tQyR5XwQXdaXx8KcUSV"
+  secret_key = "QYIPk72CBV8zkw7KI9UTLNbIFoVK6v"
 }
 
 data "alicloud_caller_identity" "current" {}
