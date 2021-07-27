@@ -28,13 +28,12 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 				Name:        "name",
 				Description: "The name of the security group.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("SecurityGroup.SecurityGroupName"),
+				Transform:   transform.FromField("SecurityGroupName"),
 			},
 			{
 				Name:        "security_group_id",
 				Description: "The ID of the security group.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("SecurityGroup.SecurityGroupId"),
 			},
 			{
 				Name:        "arn",
@@ -47,25 +46,22 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 				Name:        "type",
 				Description: "The type of the security group. Possible values are: normal, and enterprise.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("SecurityGroup.SecurityGroupType"),
+				Transform:   transform.FromField("SecurityGroupType"),
 			},
 			{
 				Name:        "vpc_id",
 				Description: "he ID of the VPC to which the security group belongs.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("SecurityGroup.VpcId"),
 			},
 			{
 				Name:        "creation_time",
 				Description: "The time when the security group was created.",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Transform:   transform.FromField("SecurityGroup.CreationTime"),
 			},
 			{
 				Name:        "description",
 				Description: "The description of the security group.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("SecurityGroup.Description"),
 			},
 			{
 				Name:        "inner_access_policy",
@@ -77,19 +73,17 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 				Name:        "resource_group_id",
 				Description: "The ID of the resource group to which the security group belongs.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("SecurityGroup.ResourceGroupId"),
 			},
 			{
 				Name:        "service_id",
 				Description: "The ID of the distributor to which the security group belongs.",
 				Type:        proto.ColumnType_INT,
-				Transform:   transform.FromField("SecurityGroup.ServiceID"),
+				Transform:   transform.FromField("ServiceID"),
 			},
 			{
 				Name:        "service_managed",
 				Description: "Indicates whether the user is an Alibaba Cloud service or a distributor.",
 				Type:        proto.ColumnType_BOOL,
-				Transform:   transform.FromField("SecurityGroup.ServiceManaged"),
 			},
 			{
 				Name:        "permissions",
@@ -102,7 +96,7 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 				Name:        "tags_src",
 				Description: "A list of tags attached with the security group.",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("SecurityGroup.Tags.Tag").Transform(modifyEcsSourceTags),
+				Transform:   transform.FromField("Tags.Tag").Transform(modifyEcsSourceTags),
 			},
 
 			// Steampipe standard columns
@@ -110,7 +104,7 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 				Name:        "tags",
 				Description: ColumnDescriptionTags,
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("SecurityGroup.Tags.Tag").Transform(ecsTagsToMap),
+				Transform:   transform.FromField("Tags.Tag").Transform(ecsTagsToMap),
 			},
 			{
 				Name:        "title",
