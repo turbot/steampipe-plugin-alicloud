@@ -12,22 +12,13 @@ type alicloudCommonColumnData struct {
 	AccountID string
 }
 
-func getCommonColumns(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func getCommonColumns(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	cacheKey := "commonColumnData"
 	var commonColumnData *alicloudCommonColumnData
 	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
 		commonColumnData = cachedData.(*alicloudCommonColumnData)
 	} else {
-		// Create service connection
-		client, err := StsService(ctx, d)
-		if err != nil {
-			return nil, err
-		}
-
-		request := sts.CreateGetCallerIdentityRequest()
-		request.Scheme = "https"
-
-		callerIdentity, err := client.GetCallerIdentity(request)
+		callerIdentity, err := getCallerIdentity(ctx, d, h)
 		if err != nil {
 			return nil, err
 		}
@@ -43,4 +34,33 @@ func getCommonColumns(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 	plugin.Logger(ctx).Trace("getCommonColumns: ", "commonColumnData", commonColumnData)
 
 	return commonColumnData, nil
+}
+
+func getCallerIdentity(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (*sts.GetCallerIdentityResponse, error) {
+	cacheKey := "GetCallerIdentity"
+
+	// if found in cache, return the result
+	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
+		return cachedData.(*sts.GetCallerIdentityResponse), nil
+	}
+
+	// Create service connection
+	client, err := StsService(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+
+	request := sts.CreateGetCallerIdentityRequest()
+	request.Scheme = "https"
+
+	callerIdentity, err := client.GetCallerIdentity(request)
+	if err != nil {
+		// let the cache know that we have failed to fetch this item
+		return nil, err
+	}
+
+	// save to extension cache
+	d.ConnectionManager.Cache.Set(cacheKey, callerIdentity)
+
+	return callerIdentity, nil
 }
