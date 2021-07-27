@@ -12,11 +12,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 )
 
-type imageInfo = struct {
-	Image  ecs.Image
-	Region string
-}
-
 //// TABLE DEFINITION
 
 func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
@@ -36,13 +31,12 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 				Name:        "name",
 				Description: "A friendly name of the resource.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Image.ImageName"),
+				Transform:   transform.FromField("ImageName"),
 			},
 			{
 				Name:        "image_id",
 				Description: "The ID of the image that the instance is running.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Image.ImageId"),
 			},
 			{
 				Name:        "arn",
@@ -55,55 +49,46 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 				Name:        "size",
 				Description: "The size of the image (in GiB).",
 				Type:        proto.ColumnType_INT,
-				Transform:   transform.FromField("Image.Size"),
 			},
 			{
 				Name:        "status",
 				Description: "The status of the image.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Image.Status"),
 			},
 			{
 				Name:        "image_owner_alias",
 				Type:        proto.ColumnType_STRING,
 				Description: "The alias of the image owner. Possible values are: system, self, others, marketplace.",
-				Transform:   transform.FromField("Image.ImageOwnerAlias"),
 			},
 			{
 				Name:        "architecture",
 				Description: "The image architecture. Possible values are: 'i386', and 'x86_64'.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Image.Architecture"),
 			},
 			{
 				Name:        "creation_time",
 				Description: "The time when the image was created.",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Transform:   transform.FromField("Image.CreationTime"),
 			},
 			{
 				Name:        "description",
 				Description: "A user-defined, human readable description for the image.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Image.Description"),
 			},
 			{
 				Name:        "image_family",
 				Description: "The name of the image family.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Image.ImageFamily"),
 			},
 			{
 				Name:        "image_version",
 				Description: "The version of the image.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Image.ImageVersion"),
 			},
 			{
 				Name:        "is_copied",
 				Description: "Indicates whether the image is a copy of another image.",
 				Type:        proto.ColumnType_BOOL,
-				Transform:   transform.FromField("Image.IsCopied"),
 			},
 			{
 				Name:        "is_self_shared",
@@ -115,73 +100,67 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 				Name:        "is_subscribed",
 				Description: "Indicates whether you have subscribed to the image that corresponds to the specified product code.",
 				Type:        proto.ColumnType_BOOL,
-				Transform:   transform.FromField("Image.IsSubscribed"),
 			},
 			{
 				Name:        "is_support_cloud_init",
 				Description: "Indicates whether the image supports cloud-init.",
 				Type:        proto.ColumnType_BOOL,
-				Transform:   transform.FromField("Image.IsSupportCloudinit"),
+				Transform:   transform.FromField("IsSupportCloudinit"),
 			},
 			{
 				Name:        "is_support_io_optimized",
 				Description: "Indicates whether the image can be used on I/O optimized instances.",
 				Type:        proto.ColumnType_BOOL,
-				Transform:   transform.FromField("Image.IsSupportIoOptimized"),
+				Transform:   transform.FromField("IsSupportIoOptimized"),
 			},
 			{
 				Name:        "os_name",
 				Description: "The Chinese name of the operating system.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Image.OSName"),
+				Transform:   transform.FromField("OSName"),
 			},
 			{
 				Name:        "os_name_en",
 				Description: "The English name of the operating system.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Image.OSNameEn"),
+				Transform:   transform.FromField("OSNameEn"),
 			},
 			{
 				Name:        "os_type",
 				Description: "The type of the operating system. Possible values are: windows,and linux",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Image.OSType"),
+				Transform:   transform.FromField("OSType"),
 			},
 			{
 				Name:        "platform",
 				Description: "The platform of the operating system.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Image.Platform"),
 			},
 			{
 				Name:        "product_code",
 				Description: "The product code of the Alibaba Cloud Marketplace image.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Image.ProductCode"),
 			},
 			{
 				Name:        "progress",
 				Description: "The image creation progress, in percent(%).",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Image.Progress"),
 			},
 			{
 				Name:        "resource_group_id",
 				Description: "The ID of the resource group to which the image belongs.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Image.ResourceGroupId"),
 			},
 			{
 				Name:        "usage",
 				Description: "Indicates whether the image has been used to create ECS instances.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Image.Usage"),
 			},
 			{
 				Name:        "disk_device_mappings",
 				Description: "The mappings between disks and snapshots under the image.",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("Image.DiskDeviceMappings.DiskDeviceMapping"),
+				Transform:   transform.FromField("DiskDeviceMappings.DiskDeviceMapping"),
 			},
 			{
 				Name:        "share_permissions",
@@ -194,7 +173,7 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 				Name:        "tags_src",
 				Description: "A list of tags attached with the image.",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("Image.Tags.Tag").Transform(modifyEcsSourceTags),
+				Transform:   transform.FromField("Tags.Tag").Transform(modifyEcsSourceTags),
 			},
 
 			// Steampipe standard columns
@@ -202,7 +181,7 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 				Name:        "tags",
 				Description: ColumnDescriptionTags,
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("Image.Tags.Tag").Transform(ecsTagsToMap),
+				Transform:   transform.FromField("Tags.Tag").Transform(ecsTagsToMap),
 			},
 			{
 				Name:        "akas",
@@ -215,8 +194,8 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 				Name:        "title",
 				Description: ColumnDescriptionTitle,
 				Type:        proto.ColumnType_STRING,
-				Default:     transform.FromField("Image.ImageId"),
-				Transform:   transform.FromField("Image.ImageName"),
+				Default:     transform.FromField("ImageId"),
+				Transform:   transform.FromField("ImageName"),
 			},
 
 			// Alicloud standard columns
@@ -224,6 +203,8 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
+				Hydrate:     getEcsImageRegion,
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "account_id",
@@ -259,7 +240,7 @@ func listEcsImages(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 		}
 		for _, image := range response.Images.Image {
 			plugin.Logger(ctx).Warn("listEcsDisk", "item", image)
-			d.StreamListItem(ctx, imageInfo{image, response.RegionId})
+			d.StreamListItem(ctx, image)
 			count++
 		}
 		if count >= response.TotalCount {
@@ -283,8 +264,8 @@ func getEcsImage(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 
 	var id string
 	if h.Item != nil {
-		data := h.Item.(imageInfo)
-		id = data.Image.ImageId
+		data := h.Item.(ecs.Image)
+		id = data.ImageId
 	} else {
 		id = d.KeyColumnQuals["image_id"].GetStringValue()
 	}
@@ -300,7 +281,7 @@ func getEcsImage(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 	}
 
 	if response.Images.Image != nil && len(response.Images.Image) > 0 {
-		return imageInfo{response.Images.Image[0], response.RegionId}, nil
+		return response.Images.Image[0], nil
 	}
 
 	return nil, nil
@@ -309,14 +290,14 @@ func getEcsImage(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 func getEcsImageSharePermission(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsImageSharePermission")
 
-	data := h.Item.(imageInfo)
+	data := h.Item.(ecs.Image)
 
 	// This operation can only be performed on a custom image
-	if data.Image.ImageOwnerAlias != "self" {
+	if data.ImageOwnerAlias != "self" {
 		return nil, nil
 	}
 
-	id := data.Image.ImageId
+	id := data.ImageId
 
 	// Create service connection
 	client, err := ECSService(ctx, d)
@@ -365,7 +346,8 @@ func getEcsImageSharePermission(ctx context.Context, d *plugin.QueryData, h *plu
 func getEcsImageARN(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsImageARN")
 
-	data := h.Item.(imageInfo)
+	data := h.Item.(ecs.Image)
+	region := d.KeyColumnQualString(matrixKeyRegion)
 
 	// Get project details
 	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
@@ -376,7 +358,13 @@ func getEcsImageARN(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	arn := "arn:acs:ecs:" + data.Region + ":" + accountID + ":image/" + data.Image.ImageId
+	arn := "arn:acs:ecs:" + region + ":" + accountID + ":image/" + data.ImageId
 
 	return arn, nil
+}
+
+func getEcsImageRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := d.KeyColumnQualString(matrixKeyRegion)
+
+	return region, nil
 }
