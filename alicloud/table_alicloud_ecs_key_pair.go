@@ -31,32 +31,29 @@ func tableAlicloudEcskeyPair(ctx context.Context) *plugin.Table {
 				Name:        "name",
 				Description: "The name of the key pair.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("KeyPair.KeyPairName"),
+				Transform:   transform.FromField("KeyPairName"),
 			},
 			{
 				Name:        "key_pair_finger_print",
 				Description: "The fingerprint of the key pair.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("KeyPair.KeyPairFingerPrint"),
 			},
 			{
 				Name:        "creation_time",
 				Description: "The time when the key pair was created.",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Transform:   transform.FromField("KeyPair.CreationTime"),
 			},
 			{
 				Name:        "resource_group_id",
 				Description: "The ID of the resource group to which the key pair belongs.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("KeyPair.ResourceGroupId"),
 			},
 
 			{
 				Name:        "tags_src",
 				Description: "A list of tags attached with the resource.",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("KeyPair.Tags.Tag").Transform(modifyEcsSourceTags),
+				Transform:   transform.FromField("Tags.Tag").Transform(modifyEcsSourceTags),
 			},
 
 			// Steampipe standard columns
@@ -64,13 +61,13 @@ func tableAlicloudEcskeyPair(ctx context.Context) *plugin.Table {
 				Name:        "tags",
 				Description: ColumnDescriptionTags,
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("KeyPair.Tags.Tag").Transform(ecsTagsToMap),
+				Transform:   transform.FromField("Tags.Tag").Transform(ecsTagsToMap),
 			},
 			{
 				Name:        "title",
 				Description: ColumnDescriptionTitle,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("KeyPair.KeyPairName"),
+				Transform:   transform.FromField("KeyPairName"),
 			},
 			{
 				Name:        "akas",
