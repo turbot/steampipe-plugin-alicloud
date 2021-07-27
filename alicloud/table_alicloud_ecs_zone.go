@@ -113,10 +113,10 @@ func tableAlicloudEcsZone(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listEcsZones(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := h.Item.(ecs.Region)
+	region := h.Item.(ecs.Region).RegionId
 
 	// Create service connection
-	client, err := ECSService(ctx, d)
+	client, err := ECSRegionService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs.listEcsZones", "connection_error", err)
 		return nil, err
@@ -124,7 +124,7 @@ func listEcsZones(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 
 	request := ecs.CreateDescribeZonesRequest()
 	request.Scheme = "https"
-	request.RegionId = region.RegionId
+	request.RegionId = region
 	request.AcceptLanguage = "en-US"
 
 	response, err := client.DescribeZones(request)
@@ -134,7 +134,7 @@ func listEcsZones(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 		return nil, err
 	}
 	for _, i := range response.Zones.Zone {
-		d.StreamListItem(ctx, zoneInfo{i, region.RegionId})
+		d.StreamListItem(ctx, zoneInfo{i, region})
 	}
 	return nil, nil
 }

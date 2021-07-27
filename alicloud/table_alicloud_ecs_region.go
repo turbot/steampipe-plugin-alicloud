@@ -72,8 +72,10 @@ func tableAlicloudEcsRegion(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listEcsRegions(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	region := GetDefaultRegion(d.Connection)
+
 	// Create service connection
-	client, err := ECSService(ctx, d)
+	client, err := ECSRegionService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs.listEcsRegions", "connection_error", err)
 		return nil, err
