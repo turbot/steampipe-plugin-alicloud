@@ -1,7 +1,6 @@
 select
-  db_instance_ip_array_name,
-  db_instance_ip_array_attribute,
-  security_ip_type
+  arn,
+  port
 from
   alicloud_rds_instance
 where

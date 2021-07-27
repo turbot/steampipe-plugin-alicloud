@@ -83,7 +83,7 @@ func CasService(ctx context.Context, d *plugin.QueryData, region string) (*cas.C
 
 // CmsService returns the service connection for Alicloud CMS service
 func CmsService(ctx context.Context, d *plugin.QueryData) (*cms.Client, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := GetDefaultRegion(d.Connection)
 
 	if region == "" {
 		return nil, fmt.Errorf("region must be passed CmsService")
@@ -492,7 +492,7 @@ func ActionTrailService(ctx context.Context, d *plugin.QueryData) (*actiontrail.
 
 // ContainerService returns the service connection for Alicloud Container service
 func ContainerService(ctx context.Context, d *plugin.QueryData) (*cs.Client, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := GetDefaultRegion(d.Connection)
 
 	if region == "" {
 		return nil, fmt.Errorf("region must be passed ContainerService")

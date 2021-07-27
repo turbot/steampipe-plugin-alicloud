@@ -341,7 +341,7 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listCsKubernetesClusters(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := GetDefaultRegion(d.Connection)
 
 	// Create service connection
 	client, err := ContainerService(ctx, d)

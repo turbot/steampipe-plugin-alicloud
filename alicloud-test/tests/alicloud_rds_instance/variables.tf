@@ -1,4 +1,3 @@
-
 variable "resource_name" {
   type        = string
   default     = "tf-testaccdbinstance"
@@ -11,11 +10,9 @@ variable "alicloud_region" {
   description = "Alicloud region used for the test."
 }
 
-
 variable "creation" {
   default = "Rds"
 }
-
 
 provider "alicloud" {
   region = var.alicloud_region
@@ -28,6 +25,7 @@ data "null_data_source" "resource" {
     scope = "acs:::${data.alicloud_caller_identity.current.account_id}"
   }
 }
+
 data "alicloud_zones" "resource" {
   available_resource_creation = var.creation
 }
@@ -46,27 +44,26 @@ resource "alicloud_vswitch" "named_test_resource" {
 }
 
 resource "alicloud_db_instance" "named_test_resource" {
-  engine                   = "MySQL"
-  engine_version           = "5.5"
-  instance_type            = "rds.mysql.t1.small"
-  instance_storage         = "5"
-  db_instance_storage_type = "local_ssd"
-  instance_charge_type     = "Postpaid"
-  instance_name            = var.resource_name
-  monitoring_period        = "60"
+  engine               = "MySQL"
+  engine_version       = "5.7"
+  instance_type        = "rds.mysql.s2.large"
+  instance_storage     = "30"
+  vswitch_id           = alicloud_vswitch.named_test_resource.id
+  instance_charge_type = "Postpaid"
+  instance_name        = var.resource_name
+  monitoring_period    = "60"
 }
-
 
 output "db_instance_id" {
-  value = alicloud_db_instance.named_test_resource.instance_name
+  value = alicloud_db_instance.named_test_resource.id
 }
 
-output "monitoring_period" {
-  value = alicloud_db_instance.named_test_resource.monitoring_period
+output "port" {
+  value = alicloud_db_instance.named_test_resource.port
 }
 
-output "instance_charge_type" {
-  value = alicloud_db_instance.named_test_resource.instance_charge_type
+output "zone_id" {
+  value = alicloud_db_instance.named_test_resource.zone_id
 }
 
 output "resource_name" {
@@ -74,5 +71,5 @@ output "resource_name" {
 }
 
 output "resource_aka" {
-  value = "acs:rds::${data.alicloud_caller_identity.current.account_id}:instance/${var.resource_name}"
+  value = "arn:acs:rds:${var.alicloud_region}:${data.alicloud_caller_identity.current.account_id}:instance/${alicloud_db_instance.named_test_resource.id}"
 }

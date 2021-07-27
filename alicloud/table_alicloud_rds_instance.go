@@ -447,6 +447,20 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Description: "The availability status of the instance. Unit: %.",
 			},
 			{
+				Name:        "ssl_status",
+				Type:        proto.ColumnType_STRING,
+				Description: "The SSL encryption status of the Instance",
+				Hydrate:     getSSLDetails,
+				Transform:   transform.FromValue(),
+			},
+			{
+				Name:        "tde_status",
+				Type:        proto.ColumnType_STRING,
+				Description: "The TDE status at the instance level. Valid values: Enable | Disable.",
+				Hydrate:     getTDEDetails,
+				Transform:   transform.FromField("TDEStatus"),
+			},
+			{
 				Name:        "security_ips",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getRdsInstanceIPArrayList,
@@ -459,20 +473,6 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Hydrate:     getRdsInstanceIPArrayList,
 				Transform:   transform.FromField("Items.DBInstanceIPArray"),
 				Description: "An array that consists of IP details.",
-			},
-			{
-				Name:        "tde_status",
-				Type:        proto.ColumnType_STRING,
-				Description: "The TDE status at the instance level. Valid values: Enable | Disable.",
-				Hydrate:     getTDEDetails,
-				Transform:   transform.FromField("TDEStatus"),
-			},
-			{
-				Name:        "ssl_status",
-				Type:        proto.ColumnType_STRING,
-				Description: "The SSL encryption status of the Instance",
-				Hydrate:     getSSLDetails,
-				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "parameters",
