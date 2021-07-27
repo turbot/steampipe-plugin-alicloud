@@ -314,9 +314,7 @@ func VpcService(ctx context.Context, d *plugin.QueryData) (*vpc.Client, error) {
 }
 
 // OssService returns the service connection for Alicloud OSS service
-func OssService(ctx context.Context, d *plugin.QueryData) (*oss.Client, error) {
-	region := GetDefaultRegion(d.Connection)
-
+func OssService(ctx context.Context, d *plugin.QueryData, region string) (*oss.Client, error) {
 	if region == "" {
 		return nil, fmt.Errorf("region must be passed OssService")
 	}
