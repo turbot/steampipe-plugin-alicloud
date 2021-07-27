@@ -147,7 +147,7 @@ func ECSRegionService(ctx context.Context, d *plugin.QueryData, region string) (
 		return nil, fmt.Errorf("region must be passed ECSRegionService")
 	}
 	// have we already created and cached the service?
-	serviceCacheKey := fmt.Sprintf("ecs-%s", region)
+	serviceCacheKey := fmt.Sprintf("ecsregion-%s", region)
 	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
 		return cachedData.(*ecs.Client), nil
 	}
@@ -525,7 +525,7 @@ func SecurityCenterService(ctx context.Context, d *plugin.QueryData, region stri
 	}
 
 	// have we already created and cached the service?
-	serviceCacheKey := fmt.Sprintf("securitycenter-%s", region)
+	serviceCacheKey := fmt.Sprintf("sas-%s", region)
 	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
 		return cachedData.(*sas.Client), nil
 	}
