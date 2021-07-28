@@ -56,10 +56,8 @@ func modifyEcsSourceTags(_ context.Context, d *transform.TransformData) (interfa
 	}
 	var sourceTags []resourceTags
 
-	if tags != nil {
-		for _, i := range tags {
-			sourceTags = append(sourceTags, resourceTags{i.TagKey, i.TagValue})
-		}
+	for _, i := range tags {
+		sourceTags = append(sourceTags, resourceTags{i.TagKey, i.TagValue})
 	}
 
 	return sourceTags, nil
@@ -87,7 +85,7 @@ func ecsTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, e
 func vpcTurbotTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	tags := d.Value.([]vpc.Tag)
 
-	if tags == nil || len(tags) == 0 {
+	if len(tags) == 0 {
 		return nil, nil
 	}
 
@@ -107,10 +105,8 @@ func modifyEssSourceTags(_ context.Context, d *transform.TransformData) (interfa
 	}
 	var sourceTags []resourceTags
 
-	if tags != nil {
-		for _, i := range tags {
-			sourceTags = append(sourceTags, resourceTags{i.TagKey, i.TagValue})
-		}
+	for _, i := range tags {
+		sourceTags = append(sourceTags, resourceTags{i.TagKey, i.TagValue})
 	}
 
 	return sourceTags, nil
@@ -119,7 +115,7 @@ func modifyEssSourceTags(_ context.Context, d *transform.TransformData) (interfa
 func essTurbotTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	tags := d.Value.([]ess.TagResource)
 
-	if tags == nil || len(tags) == 0 {
+	if len(tags) == 0 {
 		return nil, nil
 	}
 
@@ -144,10 +140,8 @@ func modifyKmsSourceTags(_ context.Context, d *transform.TransformData) (interfa
 	}
 	var sourceTags []resourceTags
 
-	if tags != nil {
-		for _, i := range tags {
-			sourceTags = append(sourceTags, resourceTags{i.TagKey, i.TagValue})
-		}
+	for _, i := range tags {
+		sourceTags = append(sourceTags, resourceTags{i.TagKey, i.TagValue})
 	}
 
 	return sourceTags, nil
@@ -156,7 +150,7 @@ func modifyKmsSourceTags(_ context.Context, d *transform.TransformData) (interfa
 func kmsTurbotTags(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	tags := d.Value.([]kms.Tag)
 
-	if tags == nil || len(tags) == 0 {
+	if len(tags) == 0 {
 		return nil, nil
 	}
 

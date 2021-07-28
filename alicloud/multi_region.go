@@ -15,7 +15,7 @@ func BuildRegionList(_ context.Context, connection *plugin.Connection) []map[str
 	// retrieve regions from connection config
 	alicloudConfig := GetConfig(connection)
 
-	if &alicloudConfig != nil && alicloudConfig.Regions != nil {
+	if alicloudConfig.Regions != nil {
 		regions := GetConfig(connection).Regions
 
 		if len(getInvalidRegions(regions)) > 0 {

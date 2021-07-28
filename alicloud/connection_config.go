@@ -6,11 +6,9 @@ import (
 )
 
 type alicloudConfig struct {
-	Regions []string `cty:"regions"`
-	// Profile      *string  `cty:"profile"`
-	AccessKey *string `cty:"access_key"`
-	SecretKey *string `cty:"secret_key"`
-	// SessionToken *string  `cty:"session_token"`
+	Regions   []string `cty:"regions"`
+	AccessKey *string  `cty:"access_key"`
+	SecretKey *string  `cty:"secret_key"`
 }
 
 var ConfigSchema = map[string]*schema.Attribute{
@@ -18,18 +16,12 @@ var ConfigSchema = map[string]*schema.Attribute{
 		Type: schema.TypeList,
 		Elem: &schema.Attribute{Type: schema.TypeString},
 	},
-	// "profile": {
-	// 	Type: schema.TypeString,
-	// },
 	"access_key": {
 		Type: schema.TypeString,
 	},
 	"secret_key": {
 		Type: schema.TypeString,
 	},
-	// "session_token": {
-	// 	Type: schema.TypeString,
-	// },
 }
 
 func ConfigInstance() interface{} {

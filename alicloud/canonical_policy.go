@@ -283,20 +283,6 @@ func canonicalPolicy(src string) (interface{}, error) {
 
 //// UTILITY FUNCTIONS
 
-// toSliceOfThings converts a string or array value to an array of values
-func toSliceOfThings(scalarOrSlice interface{}) []interface{} {
-
-	if reflect.TypeOf(scalarOrSlice).Kind() == reflect.Slice {
-		return scalarOrSlice.([]interface{})
-	}
-
-	newSlice := make([]interface{}, 0)
-	newSlice = append(newSlice, scalarOrSlice)
-
-	return newSlice
-
-}
-
 // toSliceOfStrings converts a string or array value to an array of strings
 func toSliceOfStrings(scalarOrSlice interface{}) ([]string, error) {
 	newSlice := make([]string, 0)
@@ -318,7 +304,7 @@ func uniqueStrings(arr []string) []string {
 	result := []string{}
 	for e := range arr {
 		// check if already the mapped (if true)
-		if occured[arr[e]] != true {
+		if !occured[arr[e]] {
 			occured[arr[e]] = true
 
 			// Append to result slice.
@@ -330,23 +316,6 @@ func uniqueStrings(arr []string) []string {
 }
 
 //// TRANSFORM FUNCTIONS
-
-// unescape a string.  Often (but not always), a policy doc is an escaped string,
-// and it must be unescaped beofre converting to canonical form
-func unescape(ctx context.Context, d *transform.TransformData) (interface{}, error) {
-	logger := plugin.Logger(ctx)
-	logger.Trace("unescape")
-
-	// get the value of policy safely
-	inputStr := types.SafeString(d.Value)
-
-	data, err := url.QueryUnescape(inputStr)
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
-}
 
 // policyToCanonical converts a (unescaped) RAM policy to a standardized form
 func policyToCanonical(ctx context.Context, d *transform.TransformData) (interface{}, error) {

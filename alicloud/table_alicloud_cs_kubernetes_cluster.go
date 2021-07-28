@@ -363,7 +363,11 @@ func listCsKubernetesClusters(ctx context.Context, d *plugin.QueryData, _ *plugi
 			return nil, err
 		}
 		var result map[string]interface{}
-		json.Unmarshal([]byte(response.GetHttpContentString()), &result)
+		err = json.Unmarshal([]byte(response.GetHttpContentString()), &result)
+		if err != nil {
+			plugin.Logger(ctx).Error("listCsKubernetesClusters", "json.unmarshal", err)
+			return nil, err
+		}
 		clusters := result["clusters"].([]interface{})
 		pageInfo := result["page_info"].(map[string]interface{})
 		TotalCount := pageInfo["total_count"].(float64)
@@ -413,7 +417,12 @@ func getCsKubernetesCluster(ctx context.Context, d *plugin.QueryData, h *plugin.
 
 	if len(response.GetHttpContentString()) > 0 {
 		var cluster map[string]interface{}
-		json.Unmarshal([]byte(response.GetHttpContentString()), &cluster)
+		err = json.Unmarshal([]byte(response.GetHttpContentString()), &cluster)
+		if err != nil {
+			plugin.Logger(ctx).Error("getCsKubernetesCluster", "json_unmarshal", err)
+			return nil, err
+		}
+
 		return cluster, nil
 	}
 

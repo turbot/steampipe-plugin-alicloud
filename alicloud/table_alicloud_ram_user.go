@@ -349,7 +349,7 @@ func getCsUserPermissions(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 func userMfaStatus(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	data := d.HydrateItem.([]ram.VirtualMFADeviceInListVirtualMFADevices)
 
-	if data != nil && len(data) > 0 {
+	if len(data) > 0 {
 		return true, nil
 	}
 

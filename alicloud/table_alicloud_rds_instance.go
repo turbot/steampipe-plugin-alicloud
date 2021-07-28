@@ -770,16 +770,13 @@ func getRdsTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 
 func getRdsInstanceARN(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	var region, instanceID string
-	switch h.Item.(type) {
+	switch item := h.Item.(type) {
 	case rds.DBInstance:
-		instance := h.Item.(rds.DBInstance)
-		region = instance.RegionId
-		instanceID = instance.DBInstanceId
-		break
+		region = item.RegionId
+		instanceID = item.DBInstanceId
 	case rds.DBInstanceAttribute:
-		instance := h.Item.(rds.DBInstanceAttribute)
-		region = instance.RegionId
-		instanceID = instance.DBInstanceId
+		region = item.RegionId
+		instanceID = item.DBInstanceId
 	}
 	// Get project details
 	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
@@ -841,7 +838,7 @@ func getSqlCollectorRetention(ctx context.Context, d *plugin.QueryData, h *plugi
 func getSecurityIps(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	IpArray := d.Value.([]rds.DBInstanceIPArray)
 
-	if IpArray == nil || len(IpArray) == 0 {
+	if len(IpArray) == 0 {
 		return nil, nil
 	}
 	var IpList []string
@@ -882,11 +879,11 @@ func rdsInstanceTags(_ context.Context, d *transform.TransformData) (interface{}
 }
 
 func databaseID(item interface{}) string {
-	switch item.(type) {
+	switch item := item.(type) {
 	case rds.DBInstance:
-		return item.(rds.DBInstance).DBInstanceId
+		return item.DBInstanceId
 	case rds.DBInstanceAttribute:
-		return item.(rds.DBInstanceAttribute).DBInstanceId
+		return item.DBInstanceId
 	}
 	return ""
 }
