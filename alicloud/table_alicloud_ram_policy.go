@@ -222,11 +222,11 @@ func getPolicyAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 }
 
 func policyName(item interface{}) string {
-	switch item.(type) {
+	switch item := item.(type) {
 	case ram.PolicyInListPolicies:
-		return item.(ram.PolicyInListPolicies).PolicyName
+		return item.PolicyName
 	case *ram.GetPolicyResponse:
-		return item.(*ram.GetPolicyResponse).Policy.PolicyName
+		return item.Policy.PolicyName
 	}
 	return ""
 }

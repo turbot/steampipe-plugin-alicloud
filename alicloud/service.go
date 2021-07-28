@@ -349,7 +349,7 @@ func GetDefaultRegion(connection *plugin.Connection) string {
 	var regions []string
 	var region string
 
-	if &alicloudConfig != nil && alicloudConfig.Regions != nil {
+	if alicloudConfig.Regions != nil {
 		regions = alicloudConfig.Regions
 	}
 
@@ -399,29 +399,27 @@ func getEnv(_ context.Context, d *plugin.QueryData) (secretKey string, accessKey
 	// get alicloud config info
 	alicloudConfig := GetConfig(d.Connection)
 
-	if &alicloudConfig != nil {
-		if alicloudConfig.AccessKey != nil {
-			accessKey = *alicloudConfig.AccessKey
-		} else {
-			var ok bool
-			if accessKey, ok = os.LookupEnv("ALIBABACLOUD_ACCESS_KEY_ID"); !ok {
-				if accessKey, ok = os.LookupEnv("ALICLOUD_ACCESS_KEY_ID"); !ok {
-					if accessKey, ok = os.LookupEnv("ALICLOUD_ACCESS_KEY"); !ok {
-						panic("\n'access_key' must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe.")
-					}
+	if alicloudConfig.AccessKey != nil {
+		accessKey = *alicloudConfig.AccessKey
+	} else {
+		var ok bool
+		if accessKey, ok = os.LookupEnv("ALIBABACLOUD_ACCESS_KEY_ID"); !ok {
+			if accessKey, ok = os.LookupEnv("ALICLOUD_ACCESS_KEY_ID"); !ok {
+				if accessKey, ok = os.LookupEnv("ALICLOUD_ACCESS_KEY"); !ok {
+					panic("\n'access_key' must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe.")
 				}
 			}
 		}
+	}
 
-		if alicloudConfig.SecretKey != nil {
-			secretKey = *alicloudConfig.SecretKey
-		} else {
-			var ok bool
-			if secretKey, ok = os.LookupEnv("ALIBABACLOUD_ACCESS_KEY_SECRET"); !ok {
-				if secretKey, ok = os.LookupEnv("ALICLOUD_ACCESS_KEY_SECRET"); !ok {
-					if secretKey, ok = os.LookupEnv("ALICLOUD_SECRET_KEY"); !ok {
-						panic("\n'secret_key' must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe.")
-					}
+	if alicloudConfig.SecretKey != nil {
+		secretKey = *alicloudConfig.SecretKey
+	} else {
+		var ok bool
+		if secretKey, ok = os.LookupEnv("ALIBABACLOUD_ACCESS_KEY_SECRET"); !ok {
+			if secretKey, ok = os.LookupEnv("ALICLOUD_ACCESS_KEY_SECRET"); !ok {
+				if secretKey, ok = os.LookupEnv("ALICLOUD_SECRET_KEY"); !ok {
+					panic("\n'secret_key' must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe.")
 				}
 			}
 		}

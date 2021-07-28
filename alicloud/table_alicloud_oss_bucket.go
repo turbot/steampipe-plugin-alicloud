@@ -290,10 +290,8 @@ func ossBucketTagsSrc(_ context.Context, d *transform.TransformData) (interface{
 	tags := d.Value.([]oss.Tag)
 	var turbotTagsMap []map[string]string
 
-	if tags != nil {
-		for _, i := range tags {
-			turbotTagsMap = append(turbotTagsMap, map[string]string{"Key": i.Key, "Value": i.Value})
-		}
+	for _, i := range tags {
+		turbotTagsMap = append(turbotTagsMap, map[string]string{"Key": i.Key, "Value": i.Value})
 	}
 
 	return turbotTagsMap, nil
@@ -319,9 +317,9 @@ func bucketARN(ctx context.Context, d *transform.TransformData) (interface{}, er
 func bucketRegion(ctx context.Context, d *transform.TransformData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("bucketRegion")
 	bucket := d.HydrateItem.(oss.BucketProperties)
-	return strings.TrimLeft(bucket.Location, "oss-"), nil
+	return strings.TrimPrefix(bucket.Location, "oss-"), nil
 }
 
 func removeSuffixFromLocation(location string) string {
-	return strings.TrimLeft(location, "oss-")
+	return strings.TrimPrefix(location, "oss-")
 }
