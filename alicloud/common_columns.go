@@ -12,6 +12,7 @@ type alicloudCommonColumnData struct {
 	AccountID string
 }
 
+// getCommonColumns:: helps to avoid multiple sts.GetCallerIdentity API calls in parallel where using it directly in column definitions
 func getCommonColumns(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	getCallerIdentityCached := plugin.HydrateFunc(getCallerIdentity).WithCache()
 	getCallerIdentityData, err := getCallerIdentityCached(ctx, d, h)
