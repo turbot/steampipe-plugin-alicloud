@@ -136,7 +136,7 @@ func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularit
 		return nil, err
 	}
 
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
+	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
 		var err error
 		stats, err = client.DescribeMetricList(request)
 		if err != nil {

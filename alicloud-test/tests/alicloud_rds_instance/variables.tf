@@ -32,15 +32,15 @@ data "alicloud_zones" "resource" {
 
 
 resource "alicloud_vpc" "named_test_resource" {
-  name       = var.resource_name
+  vpc_name   = var.resource_name
   cidr_block = "172.16.0.0/16"
 }
 
 resource "alicloud_vswitch" "named_test_resource" {
-  vpc_id            = alicloud_vpc.named_test_resource.id
-  availability_zone = data.alicloud_zones.resource.zones[0].id
-  cidr_block        = "172.16.0.0/24"
-  name              = var.resource_name
+  vpc_id       = alicloud_vpc.named_test_resource.id
+  zone_id      = data.alicloud_zones.resource.zones[0].id
+  cidr_block   = "172.16.0.0/24"
+  vswitch_name = var.resource_name
 }
 
 resource "alicloud_db_instance" "named_test_resource" {

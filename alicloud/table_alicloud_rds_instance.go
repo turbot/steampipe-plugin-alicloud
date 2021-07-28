@@ -613,7 +613,7 @@ func getRdsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 		return nil, err
 	}
 
-	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
+	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
 		var err error
 		response, err = client.DescribeDBInstanceAttribute(request)
 		if err != nil {
@@ -731,7 +731,6 @@ func getSSLDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 		return "Enabled", nil
 	}
 	return "Disabled", nil
-
 }
 
 func getRdsInstanceParameters(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
@@ -755,7 +754,6 @@ func getRdsInstanceParameters(ctx context.Context, d *plugin.QueryData, h *plugi
 		return nil, err
 	}
 	return response, nil
-
 }
 
 func getRdsTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
