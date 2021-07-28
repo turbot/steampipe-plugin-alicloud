@@ -1,3 +1,3 @@
-select instance_storage, instance_charge_type, monitoring_period
+select db_instance_storage, zone_id
 from alicloud_rds_instance
 where akas::text = '["{{ output.resource_aka.value }}"]';

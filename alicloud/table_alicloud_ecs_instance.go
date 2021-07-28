@@ -425,7 +425,7 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("Tags.Tag").Transform(modifyEcsSourceTags),
 			},
 
-			// steampipe standard columns
+			// Steampipe standard columns
 			{
 				Name:        "tags",
 				Description: ColumnDescriptionTags,
@@ -446,7 +446,7 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("InstanceName"),
 			},
 
-			// alicloud standard columns
+			// Alicloud standard columns
 			{
 				Name:        "zone",
 				Description: "The zone in which the instance resides.",
@@ -473,10 +473,8 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listEcsInstance(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_instance.listEcsInstance", "connection_error", err)
 		return nil, err
@@ -508,11 +506,10 @@ func listEcsInstance(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 //// HYDRATE FUNCTIONS
 
 func getEcsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 	plugin.Logger(ctx).Trace("getEcsInstance")
 
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_instance.getEcsInstance", "connection_error", err)
 		return nil, err
@@ -555,7 +552,8 @@ func getEcsInstanceARN(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	instance := h.Item.(ecs.Instance)
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}

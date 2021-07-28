@@ -12,11 +12,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
-type snapshotInfo = struct {
-	Snapshot ecs.Snapshot
-	Region   string
-}
-
 //// TABLE DEFINITION
 
 func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
@@ -36,13 +31,12 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 				Name:        "name",
 				Description: "A friendly name for the resource.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Snapshot.SnapshotName"),
+				Transform:   transform.FromField("SnapshotName"),
 			},
 			{
 				Name:        "snapshot_id",
 				Description: "An unique identifier for the resource.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Snapshot.SnapshotId"),
 			},
 			{
 				Name:        "arn",
@@ -55,129 +49,113 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 				Name:        "type",
 				Description: "The type of the snapshot. Default value: all. Possible values are: auto, user, and all.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Snapshot.SnapshotType"),
+				Transform:   transform.FromField("SnapshotType"),
 			},
 			{
 				Name:        "serial_number",
 				Description: "The serial number of the snapshot.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Snapshot.SnapshotSN"),
+				Transform:   transform.FromField("SnapshotSN"),
 			},
 			{
 				Name:        "status",
 				Description: "Specifies the current state of the resource.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Snapshot.Status"),
 			},
 			{
 				Name:        "creation_time",
 				Description: "The time when the snapshot was created.",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Transform:   transform.FromField("Snapshot.CreationTime"),
 			},
 			{
 				Name:        "description",
 				Description: "A user provided, human readable description for this resource.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Snapshot.Description"),
 			},
 			{
 				Name:        "encrypted",
 				Description: "Indicates whether the snapshot was encrypted.",
 				Type:        proto.ColumnType_BOOL,
-				Transform:   transform.FromField("Snapshot.Encrypted"),
 			},
 			{
 				Name:        "instant_access",
 				Description: "Indicates whether the instant access feature is enabled.",
 				Type:        proto.ColumnType_BOOL,
-				Transform:   transform.FromField("Snapshot.InstantAccess"),
 			},
 			{
 				Name:        "instant_access_retention_days",
 				Description: "Indicates the retention period of the instant access feature. After the retention per iod ends, the snapshot is automatically released.",
 				Type:        proto.ColumnType_INT,
-				Transform:   transform.FromField("Snapshot.InstantAccessRetentionDays"),
 			},
 			{
 				Name:        "kms_key_id",
 				Description: "The ID of the KMS key used by the data disk.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Snapshot.KMSKeyId"),
+				Transform:   transform.FromField("KMSKeyId"),
 			},
 			{
 				Name:        "last_modified_time",
 				Description: "The time when the snapshot was last changed.",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Transform:   transform.FromField("Snapshot.LastModifiedTime"),
 			},
 			{
 				Name:        "product_code",
 				Description: "The product code of the Alibaba Cloud Marketplace image.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Snapshot.ProductCode"),
 			},
 			{
 				Name:        "progress",
 				Description: "The progress of the snapshot creation task. Unit: percent (%).",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Snapshot.Progress"),
 			},
 			{
 				Name:        "remain_time",
 				Description: "The remaining time required to create the snapshot (in seconds).",
 				Type:        proto.ColumnType_INT,
-				Transform:   transform.FromField("Snapshot.RemainTime"),
 			},
 			{
 				Name:        "resource_group_id",
 				Description: "The ID of the resource group to which the snapshot belongs.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Snapshot.ResourceGroupId"),
 			},
 			{
 				Name:        "retention_days",
 				Description: "The number of days that an automatic snapshot can be retained.",
 				Type:        proto.ColumnType_INT,
-				Transform:   transform.FromField("Snapshot.RetentionDays"),
 			},
 			{
 				Name:        "source_disk_id",
 				Description: "The ID of the source disk. This parameter is retained even after the source disk of the snapshot is released.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Snapshot.SourceDiskId"),
 			},
 			{
 				Name:        "source_disk_size",
 				Description: "The capacity of the source disk (in GiB).",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Snapshot.SourceDiskSize"),
 			},
 			{
 				Name:        "source_disk_type",
 				Description: "The category of the source disk.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Snapshot.SourceDiskType"),
 			},
 			{
 				Name:        "usage",
 				Description: "Indicates whether the snapshot has been used to create images or disks.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("Snapshot.Usage"),
 			},
 			{
 				Name:        "tags_src",
 				Description: "A list of tags attached with the resource.",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("Snapshot.Tags.Tag").Transform(modifyEcsSourceTags),
+				Transform:   transform.FromField("Tags.Tag").Transform(modifyEcsSourceTags),
 			},
 
-			// steampipe standard columns
+			// Steampipe standard columns
 			{
 				Name:        "tags",
 				Description: ColumnDescriptionTags,
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("Snapshot.Tags.Tag").Transform(ecsTagsToMap),
+				Transform:   transform.FromField("Tags.Tag").Transform(ecsTagsToMap),
 			},
 			{
 				Name:        "akas",
@@ -190,15 +168,17 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 				Name:        "title",
 				Description: ColumnDescriptionTitle,
 				Type:        proto.ColumnType_STRING,
-				Default:     transform.FromField("Snapshot.SnapshotName"),
-				Transform:   transform.FromField("Snapshot.SnapshotId"),
+				Default:     transform.FromField("SnapshotName"),
+				Transform:   transform.FromField("SnapshotId"),
 			},
 
-			// alibaba standard columns
+			// Alibaba standard columns
 			{
 				Name:        "region",
 				Description: "The region ID where the resource is located.",
 				Type:        proto.ColumnType_STRING,
+				Hydrate:     getSnapshotRegion,
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "account_id",
@@ -215,10 +195,7 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 
 func listEcsSnapshot(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service connection
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
-	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_snapshot.listEcsSnapshot", "connection_error", err)
@@ -238,7 +215,7 @@ func listEcsSnapshot(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 		}
 		for _, snapshot := range response.Snapshots.Snapshot {
 			plugin.Logger(ctx).Warn("listEcsSnapshot", "item", snapshot)
-			d.StreamListItem(ctx, snapshotInfo{snapshot, region})
+			d.StreamListItem(ctx, snapshot)
 			count++
 		}
 		if count >= response.TotalCount {
@@ -254,10 +231,8 @@ func listEcsSnapshot(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 func getEcsSnapshot(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsSnapshot")
 
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_snapshot.getEcsSnapshot", "connection_error", err)
 		return nil, err
@@ -282,7 +257,7 @@ func getEcsSnapshot(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 	}
 
 	if response.Snapshots.Snapshot != nil && len(response.Snapshots.Snapshot) > 0 {
-		return snapshotInfo{response.Snapshots.Snapshot[0], region}, nil
+		return response.Snapshots.Snapshot[0], nil
 	}
 
 	return nil, nil
@@ -290,7 +265,8 @@ func getEcsSnapshot(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 
 func getEcsSnapshotArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsSnapshotArn")
-	data := h.Item.(snapshotInfo)
+	data := h.Item.(ecs.Snapshot)
+	region := d.KeyColumnQualString(matrixKeyRegion)
 
 	// Get account details
 	commonData, err := getCommonColumns(ctx, d, h)
@@ -300,7 +276,13 @@ func getEcsSnapshotArn(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	arn := "arn:acs:ecs:" + data.Region + ":" + accountID + ":snapshot/" + data.Snapshot.SnapshotId
+	arn := "arn:acs:ecs:" + region + ":" + accountID + ":snapshot/" + data.SnapshotId
 
 	return arn, nil
+}
+
+func getSnapshotRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := d.KeyColumnQualString(matrixKeyRegion)
+
+	return region, nil
 }

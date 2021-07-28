@@ -133,10 +133,8 @@ func tableAlicloudCmsMonitorHost(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listCmsMonitorHosts(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := GetDefaultRegion(d.Connection)
-
 	// Create service connection
-	client, err := CmsService(ctx, d, region)
+	client, err := CmsService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("listCmsMonitorHosts", "connection_error", err)
 		return nil, err
@@ -170,10 +168,8 @@ func listCmsMonitorHosts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 
 func getCmsMonitorHost(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getCmsMonitorHost")
-	region := GetDefaultRegion(d.Connection)
-
 	// Create service connection
-	client, err := CmsService(ctx, d, region)
+	client, err := CmsService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("getCmsMonitorHost", "connection_error", err)
 		return nil, err
@@ -203,10 +199,9 @@ func getCmsMonitorHost(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 
 func getCmsMonitoringAgentStatus(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getCmsMonitoringAgentStatus")
-	region := GetDefaultRegion(d.Connection)
 
 	// Create service connection
-	client, err := CmsService(ctx, d, region)
+	client, err := CmsService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("getCmsMonitoringAgentStatus", "connection_error", err)
 		return nil, err
@@ -233,7 +228,8 @@ func getCmsMonitoringHostAka(ctx context.Context, d *plugin.QueryData, h *plugin
 	data := h.Item.(cms.Host)
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}

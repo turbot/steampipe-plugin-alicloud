@@ -11,11 +11,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 )
 
-type vpnConnectionInfo = struct {
-	VpnConnection vpc.VpnConnection
-	Region        string
-}
-
 //// TABLE DEFINITION
 
 func tableAlicloudVpcVpnConnection(ctx context.Context) *plugin.Table {
@@ -142,6 +137,8 @@ func tableAlicloudVpcVpnConnection(ctx context.Context) *plugin.Table {
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
+				Hydrate:     getVpnConnectionRegion,
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "account_id",
@@ -157,10 +154,8 @@ func tableAlicloudVpcVpnConnection(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listVpcVpnConnections(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_vpn_connection.listVpcVpnConnections", "connection_error", err)
 		return nil, err
@@ -178,7 +173,7 @@ func listVpcVpnConnections(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 			return nil, err
 		}
 		for _, vpnConnection := range response.VpnConnections.VpnConnection {
-			d.StreamListItem(ctx, vpnConnectionInfo{vpnConnection, region})
+			d.StreamListItem(ctx, vpnConnection)
 			count++
 		}
 		if count >= response.TotalCount {
@@ -193,10 +188,9 @@ func listVpcVpnConnections(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 
 func getVpcVpnConnection(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getVpcVpnConnection")
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_vpn_connection.getVpcVpnConnection", "connection_error", err)
 		return nil, err
@@ -204,8 +198,8 @@ func getVpcVpnConnection(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 
 	var id string
 	if h.Item != nil {
-		data := h.Item.(vpnConnectionInfo)
-		id = data.VpnConnection.VpnConnectionId
+		data := h.Item.(vpc.VpnConnection)
+		id = data.VpnConnectionId
 	} else {
 		id = d.KeyColumnQuals["vpn_connection_id"].GetStringValue()
 	}
@@ -220,7 +214,7 @@ func getVpcVpnConnection(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	}
 
 	if response.VpnConnections.VpnConnection != nil && len(response.VpnConnections.VpnConnection) > 0 {
-		return vpnConnectionInfo{response.VpnConnections.VpnConnection[0], region}, nil
+		return response.VpnConnections.VpnConnection[0], nil
 	}
 
 	return nil, nil
@@ -228,31 +222,40 @@ func getVpcVpnConnection(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 
 func getVpnConnectionAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getVpnConnectionAka")
-	data := h.Item.(vpnConnectionInfo)
+	data := h.Item.(vpc.VpnConnection)
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"arn:acs:vpc:" + data.Region + ":" + accountID + ":vpnconnection/" + data.VpnConnection.VpnConnectionId}
+	akas := []string{"arn:acs:vpc:" + region + ":" + accountID + ":vpnconnection/" + data.VpnConnectionId}
 
 	return akas, nil
+}
+
+func getVpnConnectionRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getVpnConnectionRegion")
+	region := d.KeyColumnQualString(matrixKeyRegion)
+
+	return region, nil
 }
 
 //// TRANSFORM FUNCTIONS
 
 func vpnConnectionTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	data := d.HydrateItem.(vpnConnectionInfo)
+	data := d.HydrateItem.(vpc.VpnConnection)
 
 	// Build resource title
-	title := data.VpnConnection.VpnConnectionId
+	title := data.VpnConnectionId
 
-	if len(data.VpnConnection.Name) > 0 {
-		title = data.VpnConnection.Name
+	if len(data.Name) > 0 {
+		title = data.Name
 	}
 
 	return title, nil

@@ -24,7 +24,9 @@ import (
 )
 
 // AutoscalingService returns the service connection for Alicloud Autoscaling service
-func AutoscalingService(ctx context.Context, d *plugin.QueryData, region string) (*ess.Client, error) {
+func AutoscalingService(ctx context.Context, d *plugin.QueryData) (*ess.Client, error) {
+	region := d.KeyColumnQualString(matrixKeyRegion)
+
 	if region == "" {
 		return nil, fmt.Errorf("region must be passed AutoscalingService")
 	}
@@ -54,7 +56,7 @@ func AutoscalingService(ctx context.Context, d *plugin.QueryData, region string)
 // CasService returns the service connection for Alicloud SSL service
 func CasService(ctx context.Context, d *plugin.QueryData, region string) (*cas.Client, error) {
 	if region == "" {
-		return nil, fmt.Errorf("region must be passed RDSService")
+		return nil, fmt.Errorf("region must be passed CasService")
 	}
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("cas-%s", region)
@@ -80,7 +82,9 @@ func CasService(ctx context.Context, d *plugin.QueryData, region string) (*cas.C
 }
 
 // CmsService returns the service connection for Alicloud CMS service
-func CmsService(ctx context.Context, d *plugin.QueryData, region string) (*cms.Client, error) {
+func CmsService(ctx context.Context, d *plugin.QueryData) (*cms.Client, error) {
+	region := GetDefaultRegion(d.Connection)
+
 	if region == "" {
 		return nil, fmt.Errorf("region must be passed CmsService")
 	}
@@ -108,12 +112,42 @@ func CmsService(ctx context.Context, d *plugin.QueryData, region string) (*cms.C
 }
 
 // ECSService returns the service connection for Alicloud ECS service
-func ECSService(ctx context.Context, d *plugin.QueryData, region string) (*ecs.Client, error) {
+func ECSService(ctx context.Context, d *plugin.QueryData) (*ecs.Client, error) {
+	region := d.KeyColumnQualString(matrixKeyRegion)
+
 	if region == "" {
 		return nil, fmt.Errorf("region must be passed ECSService")
 	}
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("ecs-%s", region)
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(*ecs.Client), nil
+	}
+
+	ak, secret, err := getEnv(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+
+	// so it was not in cache - create service
+	svc, err := ecs.NewClientWithAccessKey(region, ak, secret)
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the service connection
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+	return svc, nil
+}
+
+// ECSRegionService returns the service connection for Alicloud ECS Region service
+func ECSRegionService(ctx context.Context, d *plugin.QueryData, region string) (*ecs.Client, error) {
+	if region == "" {
+		return nil, fmt.Errorf("region must be passed ECSRegionService")
+	}
+	// have we already created and cached the service?
+	serviceCacheKey := fmt.Sprintf("ecsregion-%s", region)
 	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
 		return cachedData.(*ecs.Client), nil
 	}
@@ -167,7 +201,9 @@ func IMSService(ctx context.Context, d *plugin.QueryData) (*ims.Client, error) {
 }
 
 // KMSService returns the service connection for Alicloud KMS service
-func KMSService(ctx context.Context, d *plugin.QueryData, region string) (*kms.Client, error) {
+func KMSService(ctx context.Context, d *plugin.QueryData) (*kms.Client, error) {
+	region := d.KeyColumnQualString(matrixKeyRegion)
+
 	if region == "" {
 		return nil, fmt.Errorf("region must be passed KMSService")
 	}
@@ -197,6 +233,7 @@ func KMSService(ctx context.Context, d *plugin.QueryData, region string) (*kms.C
 // RAMService returns the service connection for Alicloud RAM service
 func RAMService(ctx context.Context, d *plugin.QueryData) (*ram.Client, error) {
 	region := GetDefaultRegion(d.Connection)
+
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("ram-%s", region)
 	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
@@ -247,9 +284,11 @@ func StsService(ctx context.Context, d *plugin.QueryData) (*sts.Client, error) {
 }
 
 // VpcService returns the service connection for Alicloud VPC service
-func VpcService(ctx context.Context, d *plugin.QueryData, region string) (*vpc.Client, error) {
+func VpcService(ctx context.Context, d *plugin.QueryData) (*vpc.Client, error) {
+	region := d.KeyColumnQualString(matrixKeyRegion)
+
 	if region == "" {
-		return nil, fmt.Errorf("region must be passed ECSService")
+		return nil, fmt.Errorf("region must be passed VpcService")
 	}
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("vpc-%s", region)
@@ -274,7 +313,7 @@ func VpcService(ctx context.Context, d *plugin.QueryData, region string) (*vpc.C
 	return svc, nil
 }
 
-// OssService returns the service connection for Alicloud VPC service
+// OssService returns the service connection for Alicloud OSS service
 func OssService(ctx context.Context, d *plugin.QueryData, region string) (*oss.Client, error) {
 	if region == "" {
 		return nil, fmt.Errorf("region must be passed OssService")
@@ -397,7 +436,7 @@ func RDSService(ctx context.Context, d *plugin.QueryData, region string) (*rds.C
 		return nil, fmt.Errorf("region must be passed RDSService")
 	}
 	// have we already created and cached the service?
-	serviceCacheKey := fmt.Sprintf("vpc-%s", region)
+	serviceCacheKey := fmt.Sprintf("rds-%s", region)
 	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
 		return cachedData.(*rds.Client), nil
 	}
@@ -420,7 +459,9 @@ func RDSService(ctx context.Context, d *plugin.QueryData, region string) (*rds.C
 }
 
 // ActionTrailService returns the service connection for Alicloud ActionTrail service
-func ActionTrailService(ctx context.Context, d *plugin.QueryData, region string) (*actiontrail.Client, error) {
+func ActionTrailService(ctx context.Context, d *plugin.QueryData) (*actiontrail.Client, error) {
+	region := d.KeyColumnQualString(matrixKeyRegion)
+
 	if region == "" {
 		return nil, fmt.Errorf("region must be passed ActionTrailService")
 	}
@@ -448,7 +489,9 @@ func ActionTrailService(ctx context.Context, d *plugin.QueryData, region string)
 }
 
 // ContainerService returns the service connection for Alicloud Container service
-func ContainerService(ctx context.Context, d *plugin.QueryData, region string) (*cs.Client, error) {
+func ContainerService(ctx context.Context, d *plugin.QueryData) (*cs.Client, error) {
+	region := GetDefaultRegion(d.Connection)
+
 	if region == "" {
 		return nil, fmt.Errorf("region must be passed ContainerService")
 	}
@@ -482,7 +525,7 @@ func SecurityCenterService(ctx context.Context, d *plugin.QueryData, region stri
 	}
 
 	// have we already created and cached the service?
-	serviceCacheKey := fmt.Sprintf("cs-%s", region)
+	serviceCacheKey := fmt.Sprintf("sas-%s", region)
 	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
 		return cachedData.(*sas.Client), nil
 	}

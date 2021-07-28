@@ -12,11 +12,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
-type keypairInfo = struct {
-	KeyPair ecs.KeyPair
-	Region  string
-}
-
 //// TABLE DEFINITION
 
 func tableAlicloudEcskeyPair(ctx context.Context) *plugin.Table {
@@ -36,46 +31,43 @@ func tableAlicloudEcskeyPair(ctx context.Context) *plugin.Table {
 				Name:        "name",
 				Description: "The name of the key pair.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("KeyPair.KeyPairName"),
+				Transform:   transform.FromField("KeyPairName"),
 			},
 			{
 				Name:        "key_pair_finger_print",
 				Description: "The fingerprint of the key pair.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("KeyPair.KeyPairFingerPrint"),
 			},
 			{
 				Name:        "creation_time",
 				Description: "The time when the key pair was created.",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Transform:   transform.FromField("KeyPair.CreationTime"),
 			},
 			{
 				Name:        "resource_group_id",
 				Description: "The ID of the resource group to which the key pair belongs.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("KeyPair.ResourceGroupId"),
 			},
 
 			{
 				Name:        "tags_src",
 				Description: "A list of tags attached with the resource.",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("KeyPair.Tags.Tag").Transform(modifyEcsSourceTags),
+				Transform:   transform.FromField("Tags.Tag").Transform(modifyEcsSourceTags),
 			},
 
-			// steampipe standard columns
+			// Steampipe standard columns
 			{
 				Name:        "tags",
 				Description: ColumnDescriptionTags,
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("KeyPair.Tags.Tag").Transform(ecsTagsToMap),
+				Transform:   transform.FromField("Tags.Tag").Transform(ecsTagsToMap),
 			},
 			{
 				Name:        "title",
 				Description: ColumnDescriptionTitle,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("KeyPair.KeyPairName"),
+				Transform:   transform.FromField("KeyPairName"),
 			},
 			{
 				Name:        "akas",
@@ -84,11 +76,13 @@ func tableAlicloudEcskeyPair(ctx context.Context) *plugin.Table {
 				Hydrate:     getEcsKeypairAka,
 				Transform:   transform.FromValue(),
 			},
-			// alibaba standard columns
+			// Alibaba standard columns
 			{
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
+				Hydrate:     getKeyPairRegion,
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "account_id",
@@ -105,10 +99,7 @@ func tableAlicloudEcskeyPair(ctx context.Context) *plugin.Table {
 
 func listEcsKeypair(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service connection
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
-	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_keypair.listEcsKeypair", "connection_error", err)
@@ -127,7 +118,7 @@ func listEcsKeypair(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 		}
 		for _, keypair := range response.KeyPairs.KeyPair {
 			plugin.Logger(ctx).Warn("listEcsKeypair", "item", keypair)
-			d.StreamListItem(ctx, keypairInfo{keypair, region})
+			d.StreamListItem(ctx, keypair)
 			count++
 		}
 		if count >= response.TotalCount {
@@ -143,10 +134,8 @@ func listEcsKeypair(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 func getEcsKeypair(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsSnapshot")
 
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := ECSService(ctx, d, region)
+	client, err := ECSService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_keypair.getEcsKeypair", "connection_error", err)
 		return nil, err
@@ -171,7 +160,7 @@ func getEcsKeypair(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	}
 
 	if response.KeyPairs.KeyPair != nil && len(response.KeyPairs.KeyPair) > 0 {
-		return keypairInfo{response.KeyPairs.KeyPair[0], region}, nil
+		return response.KeyPairs.KeyPair[0], nil
 	}
 
 	return nil, nil
@@ -179,17 +168,25 @@ func getEcsKeypair(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 
 func getEcsKeypairAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsKeypairAka")
-	data := h.Item.(keypairInfo)
+	data := h.Item.(ecs.KeyPair)
+	region := d.KeyColumnQualString(matrixKeyRegion)
 
 	// Get account details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"acs:ecs:" + data.Region + ":" + accountID + ":keypair/" + data.KeyPair.KeyPairName}
+	akas := []string{"acs:ecs:" + region + ":" + accountID + ":keypair/" + data.KeyPairName}
 
 	return akas, nil
+}
+
+func getKeyPairRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := d.KeyColumnQualString(matrixKeyRegion)
+
+	return region, nil
 }

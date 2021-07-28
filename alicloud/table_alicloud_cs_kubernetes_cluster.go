@@ -344,7 +344,7 @@ func listCsKubernetesClusters(ctx context.Context, d *plugin.QueryData, _ *plugi
 	region := GetDefaultRegion(d.Connection)
 
 	// Create service connection
-	client, err := ContainerService(ctx, d, region)
+	client, err := ContainerService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("listCsKubernetesClusters", "connection_error", err)
 		return nil, err
@@ -384,16 +384,15 @@ func listCsKubernetesClusters(ctx context.Context, d *plugin.QueryData, _ *plugi
 //// HYDRATE FUNCTIONS
 
 func getCsKubernetesCluster(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	matrixRegion := GetDefaultRegion(d.Connection)
 	plugin.Logger(ctx).Trace("getCsKubernetesCluster")
 
 	// Create service connection
-	client, err := ContainerService(ctx, d, matrixRegion)
+	client, err := ContainerService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("getCsKubernetesCluster", "connection_error", err)
 		return nil, err
 	}
-	
+
 	var id string
 	if h.Item != nil {
 		clusterData := h.Item.(map[string]interface{})
@@ -422,11 +421,10 @@ func getCsKubernetesCluster(ctx context.Context, d *plugin.QueryData, h *plugin.
 }
 
 func getCsKubernetesClusterLog(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := GetDefaultRegion(d.Connection)
 	plugin.Logger(ctx).Trace("getCsKubernetesClusterLog")
 
 	// Create service connection
-	client, err := ContainerService(ctx, d, region)
+	client, err := ContainerService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("getCsKubernetesClusterLog", "connection_error", err)
 		return nil, err
@@ -452,12 +450,11 @@ func getCsKubernetesClusterLog(ctx context.Context, d *plugin.QueryData, h *plug
 }
 
 func getCsKubernetesClusterNamespace(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := GetDefaultRegion(d.Connection)
 	plugin.Logger(ctx).Trace("getCsKubernetesClusterNamespace")
 
 	id := h.Item.(map[string]interface{})["cluster_id"].(string)
 
-	client, err := ContainerService(ctx, d, region)
+	client, err := ContainerService(ctx, d)
 	if err != nil {
 		return nil, nil
 	}
@@ -482,7 +479,8 @@ func getCsKubernetesClusterARN(ctx context.Context, d *plugin.QueryData, h *plug
 	data := h.Item.(map[string]interface{})
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}

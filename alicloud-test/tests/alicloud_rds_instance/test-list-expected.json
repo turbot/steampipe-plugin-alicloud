@@ -1,7 +1,6 @@
 [
 	{
-		"monitoring_period": "{{ output.monitoring_period.value }}",
-		"instance_storage": "30",
-		"instance_charge_type": "{{ output.instance_charge_type.value }}"
+		"db_instance_storage": 30,
+		"zone_id": "{{ output.zone_id.value }}"
 	}
 ]

@@ -150,7 +150,7 @@ func tableAlicloudUserCertificate(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listUserCertificate(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	region := d.KeyColumnQualString(matrixKeyRegion)
 
 	// API does not return any error, if the request is made from an unsupported region
 	// If the request is made from an unsupported region, it lists all the certificates
@@ -197,7 +197,7 @@ func listUserCertificate(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 
 func getUserCertificate(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getUserCertificate")
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	region := d.KeyColumnQualString(matrixKeyRegion)
 
 	// API does not return any error, if the request is made from an unsupported region
 	// If the request is made from an unsupported region, it lists all the certificates
@@ -236,11 +236,12 @@ func getUserCertificate(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 
 func getUserCertificateAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getUserCertificateAka")
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	region := d.KeyColumnQualString(matrixKeyRegion)
 	data := casCertificate(h.Item)
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}
@@ -254,7 +255,7 @@ func getUserCertificateAka(ctx context.Context, d *plugin.QueryData, h *plugin.H
 
 func getUserCertificateRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getUserCertificateRegion")
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	region := d.KeyColumnQualString(matrixKeyRegion)
 	return region, nil
 }
 

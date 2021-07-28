@@ -11,11 +11,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
-type customerGatewayInfo = struct {
-	vpc.CustomerGateway
-	Region string
-}
-
 //// TABLE DEFINITION
 
 func tableAlicloudVpcVpnCustomerGateway(ctx context.Context) *plugin.Table {
@@ -63,7 +58,7 @@ func tableAlicloudVpcVpnCustomerGateway(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_IPADDR,
 			},
 
-			// steampipe standard columns
+			// Steampipe standard columns
 			{
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
@@ -78,11 +73,13 @@ func tableAlicloudVpcVpnCustomerGateway(ctx context.Context) *plugin.Table {
 				Transform:   transform.From(vpcCustomerGatewayTitle),
 			},
 
-			// alicloud standard columns
+			// Alicloud standard columns
 			{
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
+				Hydrate:     getVpnCustomerGatewayRegion,
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "account_id",
@@ -98,10 +95,8 @@ func tableAlicloudVpcVpnCustomerGateway(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listVpcCustomerGateways(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_vpn_customer_gateway.listVpcCustomerGateways", "connection_error", err)
 		return nil, err
@@ -119,7 +114,7 @@ func listVpcCustomerGateways(ctx context.Context, d *plugin.QueryData, _ *plugin
 			return nil, err
 		}
 		for _, i := range response.CustomerGateways.CustomerGateway {
-			d.StreamListItem(ctx, customerGatewayInfo{i, region})
+			d.StreamListItem(ctx, i)
 			count++
 		}
 		if count >= response.TotalCount {
@@ -133,10 +128,8 @@ func listVpcCustomerGateways(ctx context.Context, d *plugin.QueryData, _ *plugin
 //// HYDRATE FUNCTIONS
 
 func getVpcCustomerGateway(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := VpcService(ctx, d, region)
+	client, err := VpcService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_vpc_vpn_customer_gateway.getVpcCustomerGateway", "connection_error", err)
 		return nil, err
@@ -154,7 +147,7 @@ func getVpcCustomerGateway(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 	}
 
 	if response.CustomerGateways.CustomerGateway != nil && len(response.CustomerGateways.CustomerGateway) > 0 {
-		return customerGatewayInfo{response.CustomerGateways.CustomerGateway[0], region}, nil
+		return response.CustomerGateways.CustomerGateway[0], nil
 	}
 
 	return nil, nil
@@ -162,25 +155,34 @@ func getVpcCustomerGateway(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 
 func getVpcCustomerGatewayAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getVpcCustomerGatewayAka")
-	data := h.Item.(customerGatewayInfo)
+	data := h.Item.(vpc.CustomerGateway)
+	region := d.KeyColumnQualString(matrixKeyRegion)
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	akas := []string{"acs:vpc:" + data.Region + ":" + accountID + ":customergateway/" + data.CustomerGatewayId}
+	akas := []string{"acs:vpc:" + region + ":" + accountID + ":customergateway/" + data.CustomerGatewayId}
 
 	return akas, nil
+}
+
+func getVpnCustomerGatewayRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	plugin.Logger(ctx).Trace("getVpnCustomerGatewayRegion")
+	region := d.KeyColumnQualString(matrixKeyRegion)
+
+	return region, nil
 }
 
 //// TRANSFORM FUNCTIONS
 
 func vpcCustomerGatewayTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	data := d.HydrateItem.(customerGatewayInfo)
+	data := d.HydrateItem.(vpc.CustomerGateway)
 
 	// Build resource title
 	title := data.CustomerGatewayId

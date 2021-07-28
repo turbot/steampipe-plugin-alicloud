@@ -291,10 +291,8 @@ func tableAlicloudEcsAutoscalingGroup(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listEcsAutoscalingGroup(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
-
 	// Create service connection
-	client, err := AutoscalingService(ctx, d, region)
+	client, err := AutoscalingService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_autoscaling_group.listEcsAutoscalingGroup", "connection_error", err)
 		return nil, err
@@ -327,11 +325,10 @@ func listEcsAutoscalingGroup(ctx context.Context, d *plugin.QueryData, _ *plugin
 //// HYDRATE FUNCTIONS
 
 func getEcsAutoscalingGroup(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 	plugin.Logger(ctx).Trace("getEcsAutoscalingGroup")
 
 	// Create service connection
-	client, err := AutoscalingService(ctx, d, region)
+	client, err := AutoscalingService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_autoscaling_group.getEcsAutoscalingGroup", "connection_error", err)
 		return nil, err
@@ -363,12 +360,11 @@ func getEcsAutoscalingGroup(ctx context.Context, d *plugin.QueryData, h *plugin.
 }
 
 func getEcsAutoscalingGroupConfigurations(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 	plugin.Logger(ctx).Trace("getEcsAutoscalingGroupConfigurations")
 	data := h.Item.(ess.ScalingGroup)
 
 	// Create service connection
-	client, err := AutoscalingService(ctx, d, region)
+	client, err := AutoscalingService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_autoscaling_group.getEcsAutoscalingGroupConfigurations", "connection_error", err)
 		return nil, err
@@ -392,12 +388,11 @@ func getEcsAutoscalingGroupConfigurations(ctx context.Context, d *plugin.QueryDa
 }
 
 func getEcsAutoscalingGroupScalingInstances(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 	plugin.Logger(ctx).Trace("getEcsAutoscalingGroupScalingInstances")
 	data := h.Item.(ess.ScalingGroup)
 
 	// Create service connection
-	client, err := AutoscalingService(ctx, d, region)
+	client, err := AutoscalingService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_autoscaling_group.getEcsAutoscalingGroupScalingInstances", "connection_error", err)
 		return nil, err
@@ -421,12 +416,11 @@ func getEcsAutoscalingGroupScalingInstances(ctx context.Context, d *plugin.Query
 }
 
 func getEcsAutoscalingGroupTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
 	plugin.Logger(ctx).Trace("getEcsAutoscalingGroupTags")
 	data := h.Item.(ess.ScalingGroup)
 
 	// Create service connection
-	client, err := AutoscalingService(ctx, d, region)
+	client, err := AutoscalingService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ecs_autoscaling_group.getEcsAutoscalingGroupTags", "connection_error", err)
 		return nil, err
@@ -451,7 +445,8 @@ func getEcsAutoscalingGroupAka(ctx context.Context, d *plugin.QueryData, h *plug
 	data := h.Item.(ess.ScalingGroup)
 
 	// Get project details
-	commonData, err := getCommonColumns(ctx, d, h)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}

@@ -12,35 +12,47 @@ type alicloudCommonColumnData struct {
 	AccountID string
 }
 
-func getCommonColumns(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	cacheKey := "commonColumnData"
-	var commonColumnData *alicloudCommonColumnData
-	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
-		commonColumnData = cachedData.(*alicloudCommonColumnData)
-	} else {
-		// Create service connection
-		client, err := StsService(ctx, d)
-		if err != nil {
-			return nil, err
-		}
-
-		request := sts.CreateGetCallerIdentityRequest()
-		request.Scheme = "https"
-
-		callerIdentity, err := client.GetCallerIdentity(request)
-		if err != nil {
-			return nil, err
-		}
-
-		commonColumnData = &alicloudCommonColumnData{
-			AccountID: callerIdentity.AccountId,
-		}
-
-		// save to extension cache
-		d.ConnectionManager.Cache.Set(cacheKey, commonColumnData)
+// getCommonColumns:: helps to avoid multiple sts.GetCallerIdentity API calls in parallel where using it directly in column definitions
+func getCommonColumns(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	getCallerIdentityCached := plugin.HydrateFunc(getCallerIdentity).WithCache()
+	getCallerIdentityData, err := getCallerIdentityCached(ctx, d, h)
+	if err != nil {
+		return nil, err
 	}
 
-	plugin.Logger(ctx).Trace("getCommonColumns: ", "commonColumnData", commonColumnData)
+	callerIdentity := getCallerIdentityData.(*sts.GetCallerIdentityResponse)
+	commonColumnData := &alicloudCommonColumnData{
+		AccountID: callerIdentity.AccountId,
+	}
 
 	return commonColumnData, nil
+}
+
+func getCallerIdentity(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+	cacheKey := "GetCallerIdentity"
+
+	// if found in cache, return the result
+	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
+		return cachedData.(*sts.GetCallerIdentityResponse), nil
+	}
+
+	// Create service connection
+	client, err := StsService(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+
+	request := sts.CreateGetCallerIdentityRequest()
+	request.Scheme = "https"
+
+	callerIdentity, err := client.GetCallerIdentity(request)
+	if err != nil {
+		// let the cache know that we have failed to fetch this item
+		return nil, err
+	}
+
+	// save to extension cache
+	d.ConnectionManager.Cache.Set(cacheKey, callerIdentity)
+
+	return callerIdentity, nil
 }
