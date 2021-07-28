@@ -13,30 +13,21 @@ type alicloudCommonColumnData struct {
 }
 
 func getCommonColumns(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	cacheKey := "commonColumnData"
-	var commonColumnData *alicloudCommonColumnData
-	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
-		commonColumnData = cachedData.(*alicloudCommonColumnData)
-	} else {
-		callerIdentity, err := getCallerIdentity(ctx, d, h)
-		if err != nil {
-			return nil, err
-		}
-
-		commonColumnData = &alicloudCommonColumnData{
-			AccountID: callerIdentity.AccountId,
-		}
-
-		// save to extension cache
-		d.ConnectionManager.Cache.Set(cacheKey, commonColumnData)
+	getCallerIdentityCached := plugin.HydrateFunc(getCallerIdentity).WithCache()
+	getCallerIdentityData, err := getCallerIdentityCached(ctx, d, h)
+	if err != nil {
+		return nil, err
 	}
 
-	plugin.Logger(ctx).Trace("getCommonColumns: ", "commonColumnData", commonColumnData)
+	callerIdentity := getCallerIdentityData.(*sts.GetCallerIdentityResponse)
+	commonColumnData := &alicloudCommonColumnData{
+		AccountID: callerIdentity.AccountId,
+	}
 
 	return commonColumnData, nil
 }
 
-func getCallerIdentity(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (*sts.GetCallerIdentityResponse, error) {
+func getCallerIdentity(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	cacheKey := "GetCallerIdentity"
 
 	// if found in cache, return the result
