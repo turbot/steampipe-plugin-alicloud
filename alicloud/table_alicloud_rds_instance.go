@@ -2,10 +2,12 @@ package alicloud
 
 import (
 	"context"
+	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
+	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -600,13 +602,28 @@ func getRdsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 	request := rds.CreateDescribeDBInstanceAttributeRequest()
 	request.Scheme = "https"
 	request.DBInstanceId = id
-	response, err := client.DescribeDBInstanceAttribute(request)
-	if serverErr, ok := err.(*errors.ServerError); ok {
-		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" {
-			plugin.Logger(ctx).Warn("alicloud_rds_instance.getRdsInstance", "not_found_error", serverErr, "request", request)
-			return nil, nil
+	var response *rds.DescribeDBInstanceAttributeResponse
+
+	b, err := retry.NewFibonacci(100 * time.Millisecond)
+	if err != nil {
+		return nil, err
+	}
+
+	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
+		var err error
+		response, err = client.DescribeDBInstanceAttribute(request)
+		if err != nil {
+			if serverErr, ok := err.(*errors.ServerError); ok {
+				if serverErr.ErrorCode() == "Throttling" {
+					return retry.RetryableError(err)
+				}
+				return err
+			}
 		}
-		plugin.Logger(ctx).Error("getRdsInstance", "query_error", err, "request", request)
+		return nil
+	})
+
+	if err != nil {
 		return nil, err
 	}
 
@@ -667,7 +684,7 @@ func getTDEDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	request.DBInstanceId = id
 	response, err := client.DescribeDBInstanceTDE(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
-		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" || serverErr.ErrorCode() == "InstanceEngineType.NotSupport" {
+		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" || serverErr.ErrorCode() == "InstanceEngineType.NotSupport" || serverErr.ErrorCode() == "InvaildEngineInRegion.ValueNotSupported" {
 			plugin.Logger(ctx).Warn("alicloud_rds_instance.getTDEDetails", "error", serverErr, "request", request)
 			return nil, nil
 		}
