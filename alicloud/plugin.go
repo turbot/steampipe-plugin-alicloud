@@ -54,6 +54,8 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_rds_instance":                              tableAlicloudRdsInstance(ctx),
 			"alicloud_rds_instance_metric_connections":           tableAlicloudRdsInstanceMetricConnections(ctx),
 			"alicloud_rds_instance_metric_connections_daily":     tableAlicloudRdsInstanceMetricConnectionsDaily(ctx),
+			"alicloud_rds_instance_metric_cpu_utilization":       tableAlicloudRdsInstanceMetricCpuUtilization(ctx),
+			"alicloud_rds_instance_metric_cpu_utilization_daily": tableAlicloudRdsInstanceMetricCpuUtilizationDaily(ctx),
 			"alicloud_security_center_field_statistics":          tableAlicloudSecurityCenterFieldStatistics(ctx),
 			"alicloud_security_center_version":                   tableAlicloudSecurityCenterVersion(ctx),
 			"alicloud_vpc":                                       tableAlicloudVpc(ctx),
