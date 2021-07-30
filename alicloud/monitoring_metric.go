@@ -7,7 +7,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
+	"github.com/sethvargo/go-retry"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 )
@@ -127,8 +129,27 @@ func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularit
 	request.Namespace = namespace
 	request.Period = getCMPeriodForGranularity(granularity)
 	request.Dimensions = metricDimension
+	var stats *cms.DescribeMetricListResponse
 
-	stats, err := client.DescribeMetricList(request)
+	b, err := retry.NewFibonacci(100 * time.Millisecond)
+	if err != nil {
+		return nil, err
+	}
+
+	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
+		var err error
+		stats, err = client.DescribeMetricList(request)
+		if err != nil {
+			if serverErr, ok := err.(*errors.ServerError); ok {
+				if serverErr.ErrorCode() == "Throttling" {
+					return retry.RetryableError(err)
+				}
+				return err
+			}
+		}
+		return nil
+	})
+
 	if err != nil {
 		return nil, err
 	}

@@ -2,10 +2,12 @@ package alicloud
 
 import (
 	"context"
+	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
+	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -22,7 +24,7 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 			Hydrate: listRdsInstances,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.SingleColumn("db_instance_id"),
+			KeyColumns:        plugin.AllColumns([]string{"db_instance_id", "region"}),
 			ShouldIgnoreError: isNotFoundError([]string{"InvalidDBInstanceId.NotFound"}),
 			Hydrate:           getRdsInstance,
 		},
@@ -581,10 +583,10 @@ func listRdsInstances(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 //// HYDRATE FUNCTIONS
 
 func getRdsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	regionMatrix := d.KeyColumnQualString(matrixKeyRegion)
 
 	// Create service connection
-	client, err := RDSService(ctx, d, region)
+	client, err := RDSService(ctx, d, regionMatrix)
 	if err != nil {
 		plugin.Logger(ctx).Error("getRdsInstance", "connection_error", err)
 		return nil, err
@@ -595,18 +597,37 @@ func getRdsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 		id = databaseID(h.Item)
 	} else {
 		id = d.KeyColumnQuals["db_instance_id"].GetStringValue()
+		region := d.KeyColumnQuals["region"].GetStringValue()
+		if region != regionMatrix {
+			return nil, nil
+		}
 	}
 
 	request := rds.CreateDescribeDBInstanceAttributeRequest()
 	request.Scheme = "https"
 	request.DBInstanceId = id
-	response, err := client.DescribeDBInstanceAttribute(request)
-	if serverErr, ok := err.(*errors.ServerError); ok {
-		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" {
-			plugin.Logger(ctx).Warn("alicloud_rds_instance.getRdsInstance", "not_found_error", serverErr, "request", request)
-			return nil, nil
+	var response *rds.DescribeDBInstanceAttributeResponse
+
+	b, err := retry.NewFibonacci(100 * time.Millisecond)
+	if err != nil {
+		return nil, err
+	}
+
+	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
+		var err error
+		response, err = client.DescribeDBInstanceAttribute(request)
+		if err != nil {
+			if serverErr, ok := err.(*errors.ServerError); ok {
+				if serverErr.ErrorCode() == "Throttling" {
+					return retry.RetryableError(err)
+				}
+				return err
+			}
 		}
-		plugin.Logger(ctx).Error("getRdsInstance", "query_error", err, "request", request)
+		return nil
+	})
+
+	if err != nil {
 		return nil, err
 	}
 
@@ -667,7 +688,7 @@ func getTDEDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	request.DBInstanceId = id
 	response, err := client.DescribeDBInstanceTDE(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
-		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" || serverErr.ErrorCode() == "InstanceEngineType.NotSupport" {
+		if serverErr.ErrorCode() == "InvalidDBInstanceId.NotFound" || serverErr.ErrorCode() == "InstanceEngineType.NotSupport" || serverErr.ErrorCode() == "InvaildEngineInRegion.ValueNotSupported" {
 			plugin.Logger(ctx).Warn("alicloud_rds_instance.getTDEDetails", "error", serverErr, "request", request)
 			return nil, nil
 		}
@@ -710,7 +731,6 @@ func getSSLDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 		return "Enabled", nil
 	}
 	return "Disabled", nil
-
 }
 
 func getRdsInstanceParameters(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
@@ -734,7 +754,6 @@ func getRdsInstanceParameters(ctx context.Context, d *plugin.QueryData, h *plugi
 		return nil, err
 	}
 	return response, nil
-
 }
 
 func getRdsTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
