@@ -24,7 +24,7 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 			Hydrate: listRdsInstances,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"db_instance_id", "region"}),
+			KeyColumns:        plugin.SingleColumn("db_instance_id"),
 			ShouldIgnoreError: isNotFoundError([]string{"InvalidDBInstanceId.NotFound"}),
 			Hydrate:           getRdsInstance,
 		},
@@ -583,10 +583,10 @@ func listRdsInstances(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 //// HYDRATE FUNCTIONS
 
 func getRdsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	regionMatrix := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.KeyColumnQualString(matrixKeyRegion)
 
 	// Create service connection
-	client, err := RDSService(ctx, d, regionMatrix)
+	client, err := RDSService(ctx, d, region)
 	if err != nil {
 		plugin.Logger(ctx).Error("getRdsInstance", "connection_error", err)
 		return nil, err
@@ -597,10 +597,6 @@ func getRdsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 		id = databaseID(h.Item)
 	} else {
 		id = d.KeyColumnQuals["db_instance_id"].GetStringValue()
-		region := d.KeyColumnQuals["region"].GetStringValue()
-		if region != regionMatrix {
-			return nil, nil
-		}
 	}
 
 	request := rds.CreateDescribeDBInstanceAttributeRequest()
@@ -632,7 +628,9 @@ func getRdsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 	}
 
 	if response.Items.DBInstanceAttribute != nil && len(response.Items.DBInstanceAttribute) > 0 {
-		return response.Items.DBInstanceAttribute[0], nil
+		if response.Items.DBInstanceAttribute[0].RegionId == region {
+			return response.Items.DBInstanceAttribute[0], nil
+		}
 	}
 
 	return nil, nil
