@@ -157,7 +157,8 @@ func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularit
 	var results []map[string]interface{}
 	err = json.Unmarshal([]byte(stats.Datapoints), &results)
 	if err != nil {
-		return nil, err
+		plugin.Logger(ctx).Error("Invalid JSON response", err)
+		return nil, nil
 	}
 	for _, pointValue := range results {
 		d.StreamListItem(ctx, &CMMetricRow{
