@@ -156,14 +156,15 @@ func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularit
 
 	var results []map[string]interface{}
 	
+	// As some point of the time we are getting the error in response not in the error part.
+	// Response in stats variable: "%!v(PANIC=String method: runtime error: invalid memory address or nil pointer dereference)"
 	if stats.Datapoints == "" {
 		return nil, nil
 	}
 
 	err = json.Unmarshal([]byte(stats.Datapoints), &results)
 	if err != nil {
-		plugin.Logger(ctx).Error("Invalid JSON response", err)
-		return nil, nil
+		return nil, err
 	}
 	for _, pointValue := range results {
 		d.StreamListItem(ctx, &CMMetricRow{
