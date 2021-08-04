@@ -1,3 +1,20 @@
+## v0.1.0 [2021-08-04]
+
+_What's new?_
+
+- New tables added
+  - [alicloud_rds_instance_metric_cpu_utilization](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_rds_instance_metric_cpu_utilization) ([#214](https://github.com/turbot/steampipe-plugin-alicloud/pull/214))
+  - [alicloud_rds_instance_metric_cpu_utilization_daily](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_rds_instance_metric_cpu_utilization_daily) ([#214](https://github.com/turbot/steampipe-plugin-alicloud/pull/214))
+
+_Enhancements_
+
+- Updated: Add retry mechanism for throttling in `aws_rds_instance` table ([#220](https://github.com/turbot/steampipe-plugin-alicloud/pull/220))
+- Updated: Improve caching when getting common columns in all tables ([#215](https://github.com/turbot/steampipe-plugin-alicloud/pull/215))
+
+_Bug fixes_
+
+- Fixed: Add retry mechanism when getting intermittent API runtime error responses in metric statistic tables ([#225](https://github.com/turbot/steampipe-plugin-alicloud/pull/225))
+
 ## v0.0.14 [2021-07-22]
 
 _What's new?_
