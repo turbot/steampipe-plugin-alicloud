@@ -8,7 +8,7 @@ _What's new?_
 
 _Enhancements_
 
-- Updated: Add retry mechanism for throttling in `aws_rds_instance` table ([#220](https://github.com/turbot/steampipe-plugin-alicloud/pull/220))
+- Updated: Add retry mechanism for throttling in `alicloud_rds_instance` table ([#220](https://github.com/turbot/steampipe-plugin-alicloud/pull/220))
 - Updated: Improve caching when getting common columns in all tables ([#215](https://github.com/turbot/steampipe-plugin-alicloud/pull/215))
 
 _Bug fixes_
