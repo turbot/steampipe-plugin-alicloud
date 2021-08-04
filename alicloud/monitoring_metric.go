@@ -3,6 +3,7 @@ package alicloud
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"math"
 	"strings"
 	"time"
@@ -113,6 +114,10 @@ func getCMPeriodForGranularity(granularity string) string {
 	return "300"
 }
 
+func getCustomError(errorMessage string) error {
+	return errors.NewServerError(500, errorMessage, "")
+}
+
 func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularity string, namespace string, metricName string, dimensionName string, dimensionValue string) (*cms.DescribeMetricListResponse, error) {
 	// Create service connection
 	client, err := CmsService(ctx, d)
@@ -139,13 +144,23 @@ func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularit
 	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
 		var err error
 		stats, err = client.DescribeMetricList(request)
-		if err != nil {
+		if err != nil || stats.Datapoints == "" {
+			// Common server error retry
 			if serverErr, ok := err.(*errors.ServerError); ok {
 				if serverErr.ErrorCode() == "Throttling" {
 					return retry.RetryableError(err)
 				}
 				return err
 			}
+			/**
+			* At some point of the time we are getting the error as success response(%!v(PANIC=String method: runtime error: invalid memory address or nil pointer dereference)") which is not expected.
+			* If we will retry the api call then we will able to get the data.
+			**/
+			if stats.Datapoints == "" && !stats.Success {
+				err = getCustomError(fmt.Sprint(stats))
+				return retry.RetryableError(err)
+			}
+
 		}
 		return nil
 	})
@@ -155,7 +170,7 @@ func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularit
 	}
 
 	var results []map[string]interface{}
-	
+
 	// As some point of the time we are getting the error in response not in the error part.
 	// Response in stats variable: "%!v(PANIC=String method: runtime error: invalid memory address or nil pointer dereference)"
 	if stats.Datapoints == "" {
