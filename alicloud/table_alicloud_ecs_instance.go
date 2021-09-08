@@ -17,12 +17,30 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ecs_instance",
 		Description: "Alicloud Elastic Compute Instance",
-		List: &plugin.ListConfig{
-			Hydrate: listEcsInstance,
-		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("instance_id"),
 			Hydrate:    getEcsInstance,
+		},
+		List: &plugin.ListConfig{
+			Hydrate: listEcsInstance,
+			KeyColumns: plugin.KeyColumnSlice{
+				// String columns
+				{Name: "image_id", Require: plugin.Optional},
+				{Name: "resource_group_id", Require: plugin.Optional},
+				{Name: "vpc_id", Require: plugin.Optional},
+				{Name: "zone", Require: plugin.Optional},
+				{Name: "billing_method", Require: plugin.Optional},
+				{Name: "family", Require: plugin.Optional},
+				{Name: "instance_network_type", Require: plugin.Optional},
+				{Name: "instance_type", Require: plugin.Optional},
+				{Name: "internet_charge_type", Require: plugin.Optional},
+				{Name: "name", Require: plugin.Optional},
+				{Name: "status", Require: plugin.Optional},
+
+				// Boolean columns
+				{Name: "device_available", Require: plugin.Optional, Operators: []string{"<>", "="}},
+				{Name: "io_optimized", Require: plugin.Optional, Operators: []string{"<>", "="}},
+			},
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -48,6 +66,12 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 				Name:        "instance_type",
 				Description: "The type of the instance.",
 				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "vpc_id",
+				Description: "The type of the instance.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("VpcAttributes.VpcId"),
 			},
 			{
 				Name:        "status",
@@ -483,6 +507,48 @@ func listEcsInstance(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 	request.Scheme = "https"
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
+	request.RegionId = d.KeyColumnQualString(matrixKeyRegion)
+	quals := d.Quals
+
+	if value, ok := GetBoolQualValue(quals, "device_available"); ok {
+		request.DeviceAvailable = requests.NewBoolean(*value)
+	}
+	if value, ok := GetBoolQualValue(quals, "io_optimized"); ok {
+		request.IoOptimized = requests.NewBoolean(*value)
+	}
+	if value, ok := GetStringQualValue(quals, "image_id"); ok {
+		request.ImageId = *value
+	}
+	if value, ok := GetStringQualValue(quals, "resource_group_id"); ok {
+		request.ResourceGroupId = *value
+	}
+	if value, ok := GetStringQualValue(quals, "vpc_id"); ok {
+		request.VpcId = *value
+	}
+	if value, ok := GetStringQualValue(quals, "zone"); ok {
+		request.ZoneId = *value
+	}
+	if value, ok := GetStringQualValue(quals, "billing_method"); ok {
+		request.InstanceChargeType = *value
+	}
+	if value, ok := GetStringQualValue(quals, "family"); ok {
+		request.InstanceTypeFamily = *value
+	}
+	if value, ok := GetStringQualValue(quals, "instance_network_type"); ok {
+		request.InstanceNetworkType = *value
+	}
+	if value, ok := GetStringQualValue(quals, "instance_type"); ok {
+		request.InstanceType = *value
+	}
+	if value, ok := GetStringQualValue(quals, "internet_charge_type"); ok {
+		request.InternetChargeType = *value
+	}
+	if value, ok := GetStringQualValue(quals, "name"); ok {
+		request.InstanceName = *value
+	}
+	if value, ok := GetStringQualValue(quals, "status"); ok {
+		request.Status = *value
+	}
 
 	count := 0
 	for {

@@ -10,6 +10,8 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/kms"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 
+	"github.com/turbot/go-kit/types"
+	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
@@ -159,4 +161,56 @@ func kmsTurbotTags(_ context.Context, d *transform.TransformData) (interface{}, 
 		turbotTags[i.TagKey] = i.TagValue
 	}
 	return turbotTags, nil
+}
+
+func GetBoolQualValue(quals plugin.KeyColumnQualMap, columnName string) (value *bool, exists bool) {
+	exists = false
+	if quals[columnName] == nil {
+		return nil, exists
+	}
+
+	if quals[columnName].Quals == nil {
+		return nil, exists
+	}
+
+	for _, qual := range quals[columnName].Quals {
+		if qual.Value != nil {
+			value := qual.Value
+			boolValue := value.GetBoolValue()
+			switch qual.Operator {
+			case "<>":
+				return types.Bool(!boolValue), true
+			case "=":
+				return types.Bool(boolValue), true
+			}
+			break
+		}
+	}
+	return nil, exists
+}
+
+func GetStringQualValue(quals plugin.KeyColumnQualMap, columnName string) (value *string, exists bool) {
+	exists = false
+	if quals[columnName] == nil {
+		return nil, exists
+	}
+
+	if quals[columnName].Quals == nil {
+		return nil, exists
+	}
+
+	for _, qual := range quals[columnName].Quals {
+		if qual.Value != nil {
+			value := qual.Value
+			// In case of IN caluse the qual value is usally of format vpcid = '[id1 id2]'
+			// which can lead to generation of wrong filter
+			if value.GetListValue() != nil {
+				// Cannot assign array values
+				return nil, exists
+			} else {
+				return types.String(value.GetStringValue()), true
+			}
+		}
+	}
+	return nil, exists
 }
