@@ -8,6 +8,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
 	"github.com/sethvargo/go-retry"
 
+	"github.com/turbot/go-kit/helpers"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
@@ -20,13 +21,16 @@ func tableAlicloudRamPolicy(_ context.Context) *plugin.Table {
 		Name:             "alicloud_ram_policy",
 		Description:      "Alibaba Cloud RAM Policy",
 		DefaultTransform: transform.FromCamel(),
-		List: &plugin.ListConfig{
-			Hydrate: listRAMPolicies,
-		},
 		Get: &plugin.GetConfig{
 			KeyColumns:        plugin.AllColumns([]string{"policy_name", "policy_type"}),
 			ShouldIgnoreError: isNotFoundError([]string{"InvalidParameter.PolicyType", "EntityNotExist.Policy", "MissingParameter"}),
 			Hydrate:           getRAMPolicy,
+		},
+		List: &plugin.ListConfig{
+			Hydrate: listRAMPolicies,
+			KeyColumns: plugin.KeyColumnSlice{
+				{Name: "policy_type", Require: plugin.Optional},
+			},
 		},
 		Columns: []*plugin.Column{
 			{
@@ -131,6 +135,20 @@ func listRAMPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 	request := ram.CreateListPoliciesRequest()
 	request.Scheme = "https"
 
+	if value, ok := GetStringQualValue(d.Quals, "policy_type"); ok {
+		request.PolicyType = *value
+
+		// select policy_name, policy_type from alicloud.alicloud_ram_policy where policy_type = 'Custom1'
+		// Error: SDK.ServerError
+		// ErrorCode: InvalidParameter.PolicyType
+		// Recommend: https://error-center.aliyun.com/status/search?Keyword=InvalidParameter.PolicyType&source=PopGw
+		// RequestId: CDEC89EC-0181-5892-8239-0D4DD3509F8E
+		// Message: PolicyType must be Custom/System but meet:Custom1
+		if !helpers.StringSliceContains([]string{"Custom", "System"}, *value) {
+			return nil, nil
+		}
+	}
+
 	for {
 		response, err := client.ListPolicies(request)
 		if err != nil {
@@ -138,8 +156,11 @@ func listRAMPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 			return nil, err
 		}
 		for _, policy := range response.Policies.Policy {
-			plugin.Logger(ctx).Warn("alicloud_ram.listRAMPolicies", "item", policy)
 			d.StreamListItem(ctx, policy)
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if plugin.IsCancelled(ctx) {
+				return nil, nil
+			}
 		}
 		if !response.IsTruncated {
 			break

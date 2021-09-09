@@ -559,6 +559,10 @@ func listEcsInstance(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 		}
 		for _, instance := range response.Instances.Instance {
 			d.StreamListItem(ctx, instance)
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if plugin.IsCancelled(ctx) {
+				return nil, nil
+			}
 			count++
 		}
 		if count >= response.TotalCount {
