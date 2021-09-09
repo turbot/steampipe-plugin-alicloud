@@ -5,6 +5,7 @@ import (
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/kms"
+	"github.com/turbot/go-kit/helpers"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
@@ -16,13 +17,19 @@ func tableAlicloudKmsKey(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_kms_key",
 		Description: "Alicloud KMS Key",
-		List: &plugin.ListConfig{
-			Hydrate: listKmsKey,
-		},
 		Get: &plugin.GetConfig{
 			KeyColumns:        plugin.SingleColumn("key_id"),
 			Hydrate:           getKmsKey,
 			ShouldIgnoreError: isNotFoundError([]string{"EntityNotExist.Key", "Forbidden.KeyNotFound"}),
+		},
+		List: &plugin.ListConfig{
+			Hydrate: listKmsKey,
+			KeyColumns: plugin.KeyColumnSlice{
+				{Name: "key_state", Require: plugin.Optional},
+				{Name: "key_usage", Require: plugin.Optional},
+				{Name: "key_spec", Require: plugin.Optional},
+				{Name: "protection_level", Require: plugin.Optional},
+			},
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -183,6 +190,40 @@ func listKmsKey(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 	request.Scheme = "https"
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
+
+	// https://partners-intl.aliyun.com/help/doc-detail/28951.htm
+	var queryFilters QueryFilters
+	if value, ok := GetStringQualValueList(d.Quals, "key_state"); ok {
+		if !(len(helpers.StringSliceDiff(value, []string{"Enabled", "Disabled", "PendingDeletion", "PendingImport"})) > 0) {
+			queryFilters = append(queryFilters, QueryFilterItem{Key: "KeyState", Values: value})
+		}
+	}
+	if value, ok := GetStringQualValueList(d.Quals, "key_usage"); ok {
+		if !(len(helpers.StringSliceDiff(value, []string{"ENCRYPT/DECRYPT", "SIGN/VERIFY"})) > 0) {
+			queryFilters = append(queryFilters, QueryFilterItem{Key: "KeyUsage", Values: value})
+		}
+	}
+	if value, ok := GetStringQualValueList(d.Quals, "key_spec"); ok {
+		if !(len(helpers.StringSliceDiff(value, []string{"Aliyun_AES_256", "Aliyun_SM4", "RSA_2048", "EC_P256", "EC_P256K", "EC_SM2"})) > 0) {
+			queryFilters = append(queryFilters, QueryFilterItem{Key: "KeySpec", Values: value})
+		}
+	}
+	if value, ok := GetStringQualValueList(d.Quals, "protection_level"); ok {
+		if !(len(helpers.StringSliceDiff(value, []string{"SOFTWARE", "HSM"})) > 0) {
+			queryFilters = append(queryFilters, QueryFilterItem{Key: "ProtectionLevel", Values: value})
+		}
+	}
+
+	if len(queryFilters) > 0 {
+		filter, err := queryFilters.String()
+		if err != nil {
+			plugin.Logger(ctx).Error("alicloud_kms_key.listKmsKey", "filter_string_error", err)
+			return nil, err
+		}
+		request.Filters = filter
+	}
+
+	plugin.Logger(ctx).Info("alicloud_kms_key.listKmsKey", "filter", request.Filters)
 
 	count := 0
 	for {
