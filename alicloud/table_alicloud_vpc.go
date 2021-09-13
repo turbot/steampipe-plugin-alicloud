@@ -3,9 +3,13 @@ package alicloud
 import (
 	"context"
 	"strconv"
+	"strings"
+	"time"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
+	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -20,10 +24,11 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 		Description: "A virtual private cloud service that provides an isolated cloud network to operate resources in a secure environment.",
 		List: &plugin.ListConfig{
 			Hydrate: listVpcs,
-		},
-		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("vpc_id"),
-			Hydrate:    getVpc,
+			KeyColumns: plugin.KeyColumnSlice{
+				{Name: "vpc_id", Require: plugin.Optional},
+				{Name: "name", Require: plugin.Optional},
+				{Name: "is_default", Require: plugin.Optional, Operators: []string{"<>", "="}},
+			},
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -222,17 +227,39 @@ func listVpcs(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (
 		plugin.Logger(ctx).Error("alicloud_vpc.listVpc", "connection_error", err)
 		return nil, err
 	}
+
+	// https://partners-intl.aliyun.com/help/doc-detail/35739.html?spm=a3c0i.10721930.0.0.195c3d98YEGWuy
 	request := vpc.CreateDescribeVpcsRequest()
 	request.Scheme = "https"
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
 
-	quals := d.KeyColumnQuals
-	if quals["is_default"] != nil {
-		request.IsDefault = requests.NewBoolean(quals["is_default"].GetBoolValue())
+	quals := d.Quals
+	if value, ok := GetStringQualValueList(quals, "vpc_id"); ok {
+		request.VpcId = strings.Join(value, ",")
 	}
-	if quals["vpc_id"] != nil {
-		request.VpcId = quals["vpc_id"].GetStringValue()
+	if value, ok := GetStringQualValue(quals, "resource_group_id"); ok {
+		request.ResourceGroupId = *value
+	}
+	if value, ok := GetStringQualValue(quals, "name"); ok {
+		request.VpcName = *value
+	}
+	if value, ok := GetBoolQualValue(quals, "is_default"); ok {
+		request.IsDefault = requests.NewBoolean(*value)
+	}
+
+	// If the request no of items is less than the paging max limit
+	// update limit to requested no of results.
+	limit := d.QueryContext.Limit
+	if d.QueryContext.Limit != nil {
+		pageSize, err := request.PageSize.GetValue64()
+		if err != nil {
+			plugin.Logger(ctx).Error("alicloud_ecs_instance.listEcsInstance", "page_size_error", err)
+			return nil, err
+		}
+		if *limit < pageSize {
+			request.PageSize = requests.NewInteger(int(*limit))
+		}
 	}
 
 	count := 0
@@ -243,8 +270,11 @@ func listVpcs(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (
 			return nil, err
 		}
 		for _, i := range response.Vpcs.Vpc {
-			plugin.Logger(ctx).Warn("alicloud_vpc.listVpc", "tags", i.Tags, "item", i)
 			d.StreamListItem(ctx, i)
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if plugin.IsCancelled(ctx) {
+				return nil, nil
+			}
 			count++
 		}
 		if count >= response.TotalCount {
@@ -257,38 +287,6 @@ func listVpcs(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (
 
 //// HYDRATE FUNCTIONS
 
-func getVpc(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	// Create service connection
-	client, err := VpcService(ctx, d)
-	if err != nil {
-		plugin.Logger(ctx).Error("getVpcAttributes", "connection_error", err)
-		return nil, err
-	}
-
-	var id string
-	if h.Item != nil {
-		vpc := h.Item.(vpc.Vpc)
-		id = vpc.VpcId
-	} else {
-		id = d.KeyColumnQuals["vpc_id"].GetStringValue()
-	}
-
-	request := vpc.CreateDescribeVpcsRequest()
-	request.Scheme = "https"
-	request.VpcId = id
-	response, err := client.DescribeVpcs(request)
-	if err != nil {
-		plugin.Logger(ctx).Error("getVpc", "query_error", err, "request", request)
-		return nil, err
-	}
-
-	if response.Vpcs.Vpc != nil && len(response.Vpcs.Vpc) > 0 {
-		return response.Vpcs.Vpc[0], nil
-	}
-
-	return nil, nil
-}
-
 func getVpcAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	// Create service connection
 	client, err := VpcService(ctx, d)
@@ -300,9 +298,31 @@ func getVpcAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	request.Scheme = "https"
 	i := h.Item.(vpc.Vpc)
 	request.VpcId = i.VpcId
-	response, err := client.DescribeVpcAttribute(request)
+
+	var response *vpc.DescribeVpcAttributeResponse
+
+	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
-		plugin.Logger(ctx).Error("getVpcAttributes", "query_error", err, "request", request)
+		return nil, err
+	}
+
+	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
+		var err error
+		response, err = client.DescribeVpcAttribute(request)
+		if err != nil {
+			if serverErr, ok := err.(*errors.ServerError); ok {
+				if serverErr.ErrorCode() == "Throttling" {
+					return retry.RetryableError(err)
+				}
+				plugin.Logger(ctx).Error("alicloud_vpc.getVpcAttributes", "query_error", err, "request", request)
+				return err
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		plugin.Logger(ctx).Error("getVpcAttributes", "retry_query_error", err, "request", request)
 		return nil, err
 	}
 	return response, nil
