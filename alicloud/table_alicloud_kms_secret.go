@@ -3,9 +3,12 @@ package alicloud
 import (
 	"context"
 	"strings"
+	"time"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/kms"
+	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -214,6 +217,7 @@ func getKmsSecret(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 	}
 
 	var name string
+	var response *kms.DescribeSecretResponse
 	if h.Item != nil {
 		data := h.Item.(*kms.DescribeSecretResponse)
 		name = data.SecretName
@@ -226,9 +230,28 @@ func getKmsSecret(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 	request.SecretName = name
 	request.FetchTags = "true"
 
-	response, err := client.DescribeSecret(request)
+	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_kms_secret.getKmsSecret", "query_error", err, "request", request)
+		return nil, err
+	}
+
+	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
+		var err error
+		response, err = client.DescribeSecret(request)
+		if err != nil {
+			if serverErr, ok := err.(*errors.ServerError); ok {
+				if serverErr.ErrorCode() == "Throttling" {
+					return retry.RetryableError(err)
+				}
+				plugin.Logger(ctx).Error("alicloud_kms_key.getKmsSecret", "query_error", err, "request", request)
+				return err
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_kms_secret.getKmsSecret", "query_retry_error", err, "request", request)
 		return nil, err
 	}
 
@@ -245,15 +268,35 @@ func listKmsSecretVersionIds(ctx context.Context, d *plugin.QueryData, h *plugin
 		return nil, err
 	}
 	secretData := h.Item.(*kms.DescribeSecretResponse)
+	var response *kms.ListSecretVersionIdsResponse
 
 	request := kms.CreateListSecretVersionIdsRequest()
 	request.Scheme = "https"
 	request.SecretName = secretData.SecretName
 	request.IncludeDeprecated = "true"
 
-	response, err := client.ListSecretVersionIds(request)
+	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
-		plugin.Logger(ctx).Error("listKmsSecretVersionIds", "query_error", err, "request", request)
+		return nil, err
+	}
+
+	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
+		var err error
+		response, err = client.ListSecretVersionIds(request)
+		if err != nil {
+			if serverErr, ok := err.(*errors.ServerError); ok {
+				if serverErr.ErrorCode() == "Throttling" {
+					return retry.RetryableError(err)
+				}
+				plugin.Logger(ctx).Error("alicloud_kms_key.listKmsSecretVersionIds", "query_error", err, "request", request)
+				return err
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_kms_key.listKmsSecretVersionIds", "retry_query_error", err, "request", request)
 		return nil, err
 	}
 

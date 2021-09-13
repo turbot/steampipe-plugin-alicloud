@@ -2,9 +2,12 @@ package alicloud
 
 import (
 	"context"
+	"time"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/kms"
+	"github.com/sethvargo/go-retry"
 	"github.com/turbot/go-kit/helpers"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
@@ -275,6 +278,7 @@ func getKmsKey(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) 
 	}
 
 	var id string
+	var response *kms.DescribeKeyResponse
 	if h.Item != nil {
 		data := h.Item.(kms.KeyMetadata)
 		id = data.KeyId
@@ -286,9 +290,28 @@ func getKmsKey(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) 
 	request.Scheme = "https"
 	request.KeyId = id
 
-	response, err := client.DescribeKey(request)
+	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_kms_key.getKmsKey", "query_error", err, "request", request)
+		return nil, err
+	}
+
+	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
+		var err error
+		response, err = client.DescribeKey(request)
+		if err != nil {
+			if serverErr, ok := err.(*errors.ServerError); ok {
+				if serverErr.ErrorCode() == "Throttling" {
+					return retry.RetryableError(err)
+				}
+				plugin.Logger(ctx).Error("alicloud_kms_key.getKmsKey", "query_error", err, "request", request)
+				return err
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_kms_key.getKmsKey", "query_retry_error", err, "request", request)
 		return nil, err
 	}
 
@@ -310,10 +333,30 @@ func getKeyAlias(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 	request := kms.CreateListAliasesByKeyIdRequest()
 	request.Scheme = "https"
 	request.KeyId = data.KeyId
+	var response *kms.ListAliasesByKeyIdResponse
 
-	response, err := client.ListAliasesByKeyId(request)
+	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_kms_key.getKeyAlias", "query_error", err, "request", request)
+		return nil, err
+	}
+
+	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
+		var err error
+		response, err = client.ListAliasesByKeyId(request)
+		if err != nil {
+			if serverErr, ok := err.(*errors.ServerError); ok {
+				if serverErr.ErrorCode() == "Throttling" {
+					return retry.RetryableError(err)
+				}
+				plugin.Logger(ctx).Error("alicloud_kms_key.getKeyAlias", "query_error", err, "request", request)
+				return err
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_kms_key.getKeyAlias", "query_retry_error", err, "request", request)
 		return nil, err
 	}
 
@@ -335,14 +378,34 @@ func getKeyTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	}
 
 	data := h.Item.(kms.KeyMetadata)
+	var response *kms.ListResourceTagsResponse
 
 	request := kms.CreateListResourceTagsRequest()
 	request.Scheme = "https"
 	request.KeyId = data.KeyId
 
-	response, err := client.ListResourceTags(request)
+	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_kms_key.getKeyTags", "query_error", err, "request", request)
+		return nil, err
+	}
+
+	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
+		var err error
+		response, err = client.ListResourceTags(request)
+		if err != nil {
+			if serverErr, ok := err.(*errors.ServerError); ok {
+				if serverErr.ErrorCode() == "Throttling" {
+					return retry.RetryableError(err)
+				}
+				plugin.Logger(ctx).Error("alicloud_kms_key.getKeyTags", "query_error", err, "request", request)
+				return err
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_kms_key.getKeyTags", "query_retry_error", err, "request", request)
 		return nil, err
 	}
 
