@@ -188,7 +188,7 @@ func listKmsKey(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 
 	request := kms.CreateListKeysRequest()
 	request.Scheme = "https"
-	request.PageSize = requests.NewInteger(50)
+	request.PageSize = requests.NewInteger(100)
 	request.PageNumber = requests.NewInteger(1)
 
 	// https://partners-intl.aliyun.com/help/doc-detail/28951.htm
@@ -225,6 +225,20 @@ func listKmsKey(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 
 	plugin.Logger(ctx).Info("alicloud_kms_key.listKmsKey", "filter", request.Filters)
 
+	// If the request no of items is less than the paging max limit
+	// update limit to requested no of results.
+	limit := d.QueryContext.Limit
+	if d.QueryContext.Limit != nil {
+		pageSize, err := request.PageSize.GetValue64()
+		if err != nil {
+			plugin.Logger(ctx).Error("alicloud_ecs_instance.listEcsInstance", "page_size_error", err)
+			return nil, err
+		}
+		if *limit < pageSize {
+			request.PageSize = requests.NewInteger(int(*limit))
+		}
+	}
+
 	count := 0
 	for {
 		response, err := client.ListKeys(request)
@@ -233,13 +247,11 @@ func listKmsKey(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 			return nil, err
 		}
 		for _, i := range response.Keys.Key {
-			plugin.Logger(ctx).Warn("listKmsKey", "item", i)
-			d.StreamListItem(ctx,
-				kms.KeyMetadata{
-					Arn:   i.KeyArn,
-					KeyId: i.KeyId,
-				},
-			)
+			d.StreamListItem(ctx, kms.KeyMetadata{Arn: i.KeyArn, KeyId: i.KeyId})
+			// Context can be cancelled due to manual cancellation or the limit has been hit
+			if plugin.IsCancelled(ctx) {
+				return nil, nil
+			}
 			count++
 		}
 		if count >= response.TotalCount {

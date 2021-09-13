@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
 	"github.com/sethvargo/go-retry"
 
@@ -134,22 +135,34 @@ func listRAMPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 	}
 	request := ram.CreateListPoliciesRequest()
 	request.Scheme = "https"
+	request.MaxItems = requests.NewInteger(1000)
 
 	if value, ok := GetStringQualValue(d.Quals, "policy_type"); ok {
 		request.PolicyType = *value
 
 		// select policy_name, policy_type from alicloud.alicloud_ram_policy where policy_type = 'Custom1'
-		// Error: SDK.ServerError
-		// ErrorCode: InvalidParameter.PolicyType
-		// Recommend: https://error-center.aliyun.com/status/search?Keyword=InvalidParameter.PolicyType&source=PopGw
-		// RequestId: CDEC89EC-0181-5892-8239-0D4DD3509F8E
 		// Message: PolicyType must be Custom/System but meet:Custom1
 		if !helpers.StringSliceContains([]string{"Custom", "System"}, *value) {
 			return nil, nil
 		}
 	}
 
+	// If the request no of items is less than the paging max limit
+	// update limit to requested no of results.
+	limit := d.QueryContext.Limit
+	if d.QueryContext.Limit != nil {
+		pageSize, err := request.MaxItems.GetValue64()
+		if err != nil {
+			plugin.Logger(ctx).Error("alicloud_ecs_instance.listEcsInstance", "page_size_error", err)
+			return nil, err
+		}
+		if *limit < pageSize {
+			request.MaxItems = requests.NewInteger(int(*limit))
+		}
+	}
+
 	for {
+		// https://partners-intl.aliyun.com/help/doc-detail/28719.htm?spm=a2c63.p38356.b99.249.37d17aa2AscMLc
 		response, err := client.ListPolicies(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("listRAMPolicies", "query_error", err, "request", request)
