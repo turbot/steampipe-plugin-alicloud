@@ -194,6 +194,11 @@ func listKmsSecret(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 					Tag: i.Tags.Tag,
 				},
 			})
+			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
+			// if there is a limit, it will return the number of rows required to reach this limit
+			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 			count++
 		}
 		if count >= response.TotalCount {
