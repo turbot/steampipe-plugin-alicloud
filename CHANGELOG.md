@@ -1,3 +1,9 @@
+## v0.1.1 [2021-09-13]
+
+_Enhancements_
+
+- Recompiled plugin with [steampipe-plugin-sdk v1.5.1](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v151--2021-09-13) ([#230](https://github.com/turbot/steampipe-plugin-alicloud/pull/230))
+
 ## v0.1.0 [2021-08-04]
 
 _What's new?_
