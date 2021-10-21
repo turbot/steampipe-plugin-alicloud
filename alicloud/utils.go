@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -10,6 +11,8 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/kms"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 
+	"github.com/turbot/go-kit/types"
+	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
 )
 
@@ -159,4 +162,110 @@ func kmsTurbotTags(_ context.Context, d *transform.TransformData) (interface{}, 
 		turbotTags[i.TagKey] = i.TagValue
 	}
 	return turbotTags, nil
+}
+
+func GetBoolQualValue(quals plugin.KeyColumnQualMap, columnName string) (value *bool, exists bool) {
+	exists = false
+	if quals[columnName] == nil {
+		return nil, exists
+	}
+
+	if quals[columnName].Quals == nil {
+		return nil, exists
+	}
+
+	for _, qual := range quals[columnName].Quals {
+		if qual.Value != nil {
+			value := qual.Value
+			boolValue := value.GetBoolValue()
+			switch qual.Operator {
+			case "<>":
+				return types.Bool(!boolValue), true
+			case "=":
+				return types.Bool(boolValue), true
+			}
+			break
+		}
+	}
+	return nil, exists
+}
+
+// GetStringQualValue :: Can be used to get equal value
+func GetStringQualValue(quals plugin.KeyColumnQualMap, columnName string) (value *string, exists bool) {
+	exists = false
+	if quals[columnName] == nil {
+		return nil, exists
+	}
+
+	if quals[columnName].Quals == nil {
+		return nil, exists
+	}
+
+	for _, qual := range quals[columnName].Quals {
+		if qual.Operator != "=" {
+			return nil, exists
+		}
+		if qual.Value != nil {
+			value := qual.Value
+			// In case of IN caluse the qual value is usally of format vpcid = '[id1 id2]'
+			// which can lead to generation of wrong filter
+			if value.GetListValue() != nil {
+				// Cannot assign array values
+				return nil, exists
+			} else {
+				return types.String(value.GetStringValue()), true
+			}
+		}
+	}
+	return nil, exists
+}
+
+// GetStringQualValueList :: Can be used to get equal value as a list of strings
+// supports only equal operator
+func GetStringQualValueList(quals plugin.KeyColumnQualMap, columnName string) (values []string, exists bool) {
+	exists = false
+	if quals[columnName] == nil {
+		return nil, exists
+	}
+
+	if quals[columnName].Quals == nil {
+		return nil, exists
+	}
+
+	for _, qual := range quals[columnName].Quals {
+		if qual.Operator != "=" {
+			return nil, exists
+		}
+		if qual.Value != nil {
+			value := qual.Value
+			if value.GetListValue() != nil {
+				for _, q := range value.GetListValue().Values {
+					values = append(values, q.GetStringValue())
+				}
+				return values, true
+			} else {
+				values = append(values, value.GetStringValue())
+				return values, true
+			}
+		}
+	}
+	return values, exists
+}
+
+type QueryFilterItem struct {
+	Key    string
+	Values []string
+}
+
+// QueryFilters is an array of filters items
+type QueryFilters []QueryFilterItem
+
+// To get the stringified value of QueryFilters
+func (filters *QueryFilters) String() (string, error) {
+	data, err := json.Marshal(filters)
+	if err != nil {
+		return "", fmt.Errorf("error marshalling filters: %v", err)
+	}
+
+	return string(data), nil
 }

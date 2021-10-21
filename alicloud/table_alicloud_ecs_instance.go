@@ -17,12 +17,30 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_ecs_instance",
 		Description: "Alicloud Elastic Compute Instance",
-		List: &plugin.ListConfig{
-			Hydrate: listEcsInstance,
-		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("instance_id"),
 			Hydrate:    getEcsInstance,
+		},
+		List: &plugin.ListConfig{
+			Hydrate: listEcsInstance,
+			KeyColumns: plugin.KeyColumnSlice{
+				// String columns
+				{Name: "image_id", Require: plugin.Optional},
+				{Name: "resource_group_id", Require: plugin.Optional},
+				{Name: "vpc_id", Require: plugin.Optional},
+				{Name: "zone", Require: plugin.Optional},
+				{Name: "billing_method", Require: plugin.Optional},
+				{Name: "family", Require: plugin.Optional},
+				{Name: "instance_network_type", Require: plugin.Optional},
+				{Name: "instance_type", Require: plugin.Optional},
+				{Name: "internet_charge_type", Require: plugin.Optional},
+				{Name: "name", Require: plugin.Optional},
+				{Name: "status", Require: plugin.Optional},
+
+				// Boolean columns
+				{Name: "device_available", Require: plugin.Optional, Operators: []string{"<>", "="}},
+				{Name: "io_optimized", Require: plugin.Optional, Operators: []string{"<>", "="}},
+			},
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -48,6 +66,12 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 				Name:        "instance_type",
 				Description: "The type of the instance.",
 				Type:        proto.ColumnType_STRING,
+			},
+			{
+				Name:        "vpc_id",
+				Description: "The type of the instance.",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.FromField("VpcAttributes.VpcId"),
 			},
 			{
 				Name:        "status",
@@ -481,11 +505,68 @@ func listEcsInstance(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 	}
 	request := ecs.CreateDescribeInstancesRequest()
 	request.Scheme = "https"
-	request.PageSize = requests.NewInteger(50)
+	request.PageSize = requests.NewInteger(100)
 	request.PageNumber = requests.NewInteger(1)
+	request.RegionId = d.KeyColumnQualString(matrixKeyRegion)
+	quals := d.Quals
+
+	if value, ok := GetBoolQualValue(quals, "device_available"); ok {
+		request.DeviceAvailable = requests.NewBoolean(*value)
+	}
+	if value, ok := GetBoolQualValue(quals, "io_optimized"); ok {
+		request.IoOptimized = requests.NewBoolean(*value)
+	}
+	if value, ok := GetStringQualValue(quals, "image_id"); ok {
+		request.ImageId = *value
+	}
+	if value, ok := GetStringQualValue(quals, "resource_group_id"); ok {
+		request.ResourceGroupId = *value
+	}
+	if value, ok := GetStringQualValue(quals, "vpc_id"); ok {
+		request.VpcId = *value
+	}
+	if value, ok := GetStringQualValue(quals, "zone"); ok {
+		request.ZoneId = *value
+	}
+	if value, ok := GetStringQualValue(quals, "billing_method"); ok {
+		request.InstanceChargeType = *value
+	}
+	if value, ok := GetStringQualValue(quals, "family"); ok {
+		request.InstanceTypeFamily = *value
+	}
+	if value, ok := GetStringQualValue(quals, "instance_network_type"); ok {
+		request.InstanceNetworkType = *value
+	}
+	if value, ok := GetStringQualValue(quals, "instance_type"); ok {
+		request.InstanceType = *value
+	}
+	if value, ok := GetStringQualValue(quals, "internet_charge_type"); ok {
+		request.InternetChargeType = *value
+	}
+	if value, ok := GetStringQualValue(quals, "name"); ok {
+		request.InstanceName = *value
+	}
+	if value, ok := GetStringQualValue(quals, "status"); ok {
+		request.Status = *value
+	}
+
+	// If the request no of items is less than the paging max limit
+	// update limit to requested no of results.
+	limit := d.QueryContext.Limit
+	if d.QueryContext.Limit != nil {
+		pageSize, err := request.PageSize.GetValue64()
+		if err != nil {
+			plugin.Logger(ctx).Error("alicloud_ecs_instance.listEcsInstance", "page_size_error", err)
+			return nil, err
+		}
+		if *limit < pageSize {
+			request.PageSize = requests.NewInteger(int(*limit))
+		}
+	}
 
 	count := 0
 	for {
+		// https://partners-intl.aliyun.com/help/doc-detail/25506.htm?spm=a2c63.p38356.a3.13.24665a4cJb014m#t9865.html
 		response, err := client.DescribeInstances(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_ecs_instance.listEcsInstance", "query_error", err, "request", request)
@@ -493,6 +574,11 @@ func listEcsInstance(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 		}
 		for _, instance := range response.Instances.Instance {
 			d.StreamListItem(ctx, instance)
+			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
+			// if there is a limit, it will return the number of rows required to reach this limit
+			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 			count++
 		}
 		if count >= response.TotalCount {

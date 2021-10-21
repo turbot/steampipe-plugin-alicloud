@@ -5,9 +5,11 @@ import (
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
 	"github.com/sethvargo/go-retry"
 
+	"github.com/turbot/go-kit/helpers"
 	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
@@ -20,13 +22,16 @@ func tableAlicloudRamPolicy(_ context.Context) *plugin.Table {
 		Name:             "alicloud_ram_policy",
 		Description:      "Alibaba Cloud RAM Policy",
 		DefaultTransform: transform.FromCamel(),
-		List: &plugin.ListConfig{
-			Hydrate: listRAMPolicies,
-		},
 		Get: &plugin.GetConfig{
 			KeyColumns:        plugin.AllColumns([]string{"policy_name", "policy_type"}),
 			ShouldIgnoreError: isNotFoundError([]string{"InvalidParameter.PolicyType", "EntityNotExist.Policy", "MissingParameter"}),
 			Hydrate:           getRAMPolicy,
+		},
+		List: &plugin.ListConfig{
+			Hydrate: listRAMPolicies,
+			KeyColumns: plugin.KeyColumnSlice{
+				{Name: "policy_type", Require: plugin.Optional},
+			},
 		},
 		Columns: []*plugin.Column{
 			{
@@ -130,16 +135,46 @@ func listRAMPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 	}
 	request := ram.CreateListPoliciesRequest()
 	request.Scheme = "https"
+	request.MaxItems = requests.NewInteger(1000)
+
+	if value, ok := GetStringQualValue(d.Quals, "policy_type"); ok {
+		request.PolicyType = *value
+
+		// select policy_name, policy_type from alicloud.alicloud_ram_policy where policy_type = 'Custom1'
+		// Message: PolicyType must be Custom/System but meet:Custom1
+		if !helpers.StringSliceContains([]string{"Custom", "System"}, *value) {
+			return nil, nil
+		}
+	}
+
+	// If the request no of items is less than the paging max limit
+	// update limit to requested no of results.
+	limit := d.QueryContext.Limit
+	if d.QueryContext.Limit != nil {
+		pageSize, err := request.MaxItems.GetValue64()
+		if err != nil {
+			plugin.Logger(ctx).Error("alicloud_ecs_instance.listEcsInstance", "page_size_error", err)
+			return nil, err
+		}
+		if *limit < pageSize {
+			request.MaxItems = requests.NewInteger(int(*limit))
+		}
+	}
 
 	for {
+		// https://partners-intl.aliyun.com/help/doc-detail/28719.htm?spm=a2c63.p38356.b99.249.37d17aa2AscMLc
 		response, err := client.ListPolicies(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("listRAMPolicies", "query_error", err, "request", request)
 			return nil, err
 		}
 		for _, policy := range response.Policies.Policy {
-			plugin.Logger(ctx).Warn("alicloud_ram.listRAMPolicies", "item", policy)
 			d.StreamListItem(ctx, policy)
+			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
+			// if there is a limit, it will return the number of rows required to reach this limit
+			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 		}
 		if !response.IsTruncated {
 			break

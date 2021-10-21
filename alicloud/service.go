@@ -382,7 +382,7 @@ func GetDefaultRegion(connection *plugin.Connection) string {
 
 func getEnv(_ context.Context, d *plugin.QueryData) (secretKey string, accessKey string, err error) {
 
-	// https://gitea.com/aliyun/aliyun-cli/src/branch/master/CHANGELOG.md#3-0-40
+	// https://github.com/aliyun/aliyun-cli/blob/master/CHANGELOG.md#3040
 	// The CLI order of preference is:
 	// 1. ALIBABACLOUD_ACCESS_KEY_ID / ALIBABACLOUD_ACCESS_KEY_SECRET / ALIBABACLOUD_REGION_ID
 	// 2. ALICLOUD_ACCESS_KEY_ID / ALICLOUD_ACCESS_KEY_SECRET / ALICLOUD_REGION_ID
