@@ -1,3 +1,10 @@
+## v0.2.0 [2021-10-26]
+
+_Enhancements_
+
+- Updated: Add new optional key quals, filter support, context cancellation handling, and limit support for `alicloud_ecs_instance`, `alicloud_kms_key`, `alicloud_ram_policy`, and `alicloud_vpc` tables ([#228](https://github.com/turbot/steampipe-plugin-alicloud/pull/228))
+- Recompiled plugin with [steampipe-plugin-sdk v1.7.0](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v170--2021-10-18)
+
 ## v0.1.1 [2021-09-13]
 
 _Enhancements_
