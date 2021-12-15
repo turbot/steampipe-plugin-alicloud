@@ -332,8 +332,6 @@ func getCsUserPermissions(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 	request.Version = "2015-12-15"
 	request.PathPattern = "/permissions/users/" + data.UserId
 	request.Headers["Content-Type"] = "application/json"
-	body := `{}`
-	request.Content = []byte(body)
 
 	response, err := client.ProcessCommonRequest(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
