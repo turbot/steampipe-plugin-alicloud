@@ -1,3 +1,9 @@
+## v0.3.1 [2021-12-15]
+
+_Bug fixes_
+
+- Fixed the `ContentMD5NotMatched` error response in the `alicloud_ram_user` table ([#240](https://github.com/turbot/steampipe-plugin-alicloud/pull/240))
+
 ## v0.3.0 [2021-11-23]
 
 _Enhancements_
