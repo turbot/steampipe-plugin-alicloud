@@ -8,9 +8,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cas"
 
 	"github.com/turbot/go-kit/helpers"
-	"github.com/turbot/steampipe-plugin-sdk/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v2/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v2/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v2/plugin/transform"
 )
 
 var supportedRegions = []string{"cn-hangzhou", "ap-south-1", "me-east-1", "eu-central-1", "ap-northeast-1", "ap-southeast-2"}
