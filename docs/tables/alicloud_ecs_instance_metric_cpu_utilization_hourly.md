@@ -1,6 +1,6 @@
 # Table: alicloud_ecs_instance_metric_cpu_utilization_hourly
 
-Alicloud Monitoring metrics provide data about the performance of your systems. The `alicloud_ecs_instance_metric_cpu_utilization_daily` table provides metric statistics at 1 hour intervals for the most recent 30 days.
+Alicloud Monitoring metrics provide data about the performance of your systems. The `alicloud_ecs_instance_metric_cpu_utilization_hourly` table provides metric statistics at 1 hour intervals for the most recent 30 days.
 
 Note: If the instance is not older than one hour then we will not get any metric statistics.
 
