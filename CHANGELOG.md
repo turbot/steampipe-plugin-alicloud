@@ -7,7 +7,7 @@ _What's new?_
 
 _Enhancements_
 
-- Recompiled `alicloud_ecs_instance_metric_cpu_utilization_hourly` table with [steampipe-plugin-sdk v2.1.1](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v211--2022-03-10) ([#245](https://github.com/turbot/steampipe-plugin-alicloud/pull/245))
+- Recompiled plugin with [steampipe-plugin-sdk v2.1.1](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v211--2022-03-10) ([#245](https://github.com/turbot/steampipe-plugin-alicloud/pull/245))
 
 ## v0.3.1 [2021-12-15]
 
