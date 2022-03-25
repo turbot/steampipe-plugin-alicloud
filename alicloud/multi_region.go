@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/turbot/go-kit/helpers"
-	"github.com/turbot/steampipe-plugin-sdk/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v2/plugin"
 )
 
 const matrixKeyRegion = "region"

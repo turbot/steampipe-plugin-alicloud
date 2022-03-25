@@ -10,7 +10,7 @@ require (
 	github.com/gocarina/gocsv v0.0.0-20201208093247-67c824bc04d4
 	github.com/sethvargo/go-retry v0.1.0
 	github.com/turbot/go-kit v0.3.0
-	github.com/turbot/steampipe-plugin-sdk v1.8.2
+	github.com/turbot/steampipe-plugin-sdk/v2 v2.1.1
 )
 
 require (
