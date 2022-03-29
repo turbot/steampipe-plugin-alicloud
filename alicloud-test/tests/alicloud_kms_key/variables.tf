@@ -51,10 +51,6 @@ output "resource_id" {
   value = alicloud_kms_key.named_test_resource.id
 }
 
-output "creation_time" {
-  value = formatdate("YYYY-MM-DD hh:mm:ss", alicloud_kms_key.named_test_resource.creation_date)
-}
-
 output "key_state" {
   value = alicloud_kms_key.named_test_resource.key_state
 }
