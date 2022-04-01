@@ -66,3 +66,16 @@ from
 group by
   region;
 ```
+## List keys that have deletion protection disabled
+
+```sql
+select
+  key_id,
+  key_state,
+  description,
+  creation_date
+from
+  alicloud_kms_key
+where
+  deletion_protection = 'Disabled';
+```
