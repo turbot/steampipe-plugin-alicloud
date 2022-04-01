@@ -66,6 +66,7 @@ from
 group by
   region;
 ```
+
 ## List keys that have deletion protection disabled
 
 ```sql
