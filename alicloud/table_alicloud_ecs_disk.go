@@ -273,6 +273,11 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("ZoneId"),
 			},
 			{
+				Name:        "attachments",
+				Description: "The attachment information of the cloud disk.",
+				Type:        proto.ColumnType_JSON,
+			},
+			{
 				Name:        "mount_instances",
 				Description: "The attaching information of the disk.",
 				Type:        proto.ColumnType_JSON,
