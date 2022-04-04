@@ -11,13 +11,13 @@ import (
 
 //// TABLE DEFINITION
 
-func tableAlicloudEcsInstanceMetricCpuUtilizationDaily(_ context.Context) *plugin.Table {
+func tableAlicloudEcsInstanceMetricCpuUtilizationHourly(_ context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "alicloud_ecs_instance_metric_cpu_utilization_daily",
-		Description: "Alicloud ECS Instance Cloud Monitor Metrics - CPU Utilization (Daily)",
+		Name:        "alicloud_ecs_instance_metric_cpu_utilization_hourly",
+		Description: "Alicloud ECS Instance Cloud Monitor Metrics - CPU Utilization (Hourly)",
 		List: &plugin.ListConfig{
 			ParentHydrate: listEcsInstance,
-			Hydrate:       listEcsInstanceMetricCpuUtilizationDaily,
+			Hydrate:       listEcsInstanceMetricCpuUtilizationHourly,
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: cmMetricColumns(
@@ -32,7 +32,7 @@ func tableAlicloudEcsInstanceMetricCpuUtilizationDaily(_ context.Context) *plugi
 	}
 }
 
-func listEcsInstanceMetricCpuUtilizationDaily(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func listEcsInstanceMetricCpuUtilizationHourly(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	data := h.Item.(ecs.Instance)
-	return listCMMetricStatistics(ctx, d, "DAILY", "acs_ecs_dashboard", "CPUUtilization", "instanceId", data.InstanceId)
+	return listCMMetricStatistics(ctx, d, "HOURLY", "acs_ecs_dashboard", "CPUUtilization", "instanceId", data.InstanceId)
 }

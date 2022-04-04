@@ -1,3 +1,14 @@
+## v0.4.0 [2022-03-25]
+
+_What's new?_
+
+- New tables added
+  - [alicloud_ecs_instance_metric_cpu_utilization_hourly](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_ecs_instance_metric_cpu_utilization_hourly) ([#244](https://github.com/turbot/steampipe-plugin-alicloud/pull/244))
+
+_Enhancements_
+
+- Recompiled plugin with [steampipe-plugin-sdk v2.1.1](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v211--2022-03-10) ([#245](https://github.com/turbot/steampipe-plugin-alicloud/pull/245))
+
 ## v0.3.1 [2021-12-15]
 
 _Bug fixes_
