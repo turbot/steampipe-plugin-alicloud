@@ -151,3 +151,23 @@ order by
   size desc
 limit 10;
 ```
+
+### List of disks having no attached running instances
+
+```sql
+select
+  i.instance_id as "Instance ID",
+  i.name as "Name",
+  i.arn as "Instance ARN",
+  i.status as "Instance State",
+  attachment ->> 'AttachedTime' as "Attachment Time"
+from
+  alicloud_ecs_disk as v,
+  jsonb_array_elements(attachments) as attachment,
+  alicloud_ecs_instance as i
+where
+  i.instance_id = attachment ->> 'InstanceId'
+  and i.status <> 'Running'
+order by
+  i.instance_id;
+```
