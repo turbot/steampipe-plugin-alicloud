@@ -101,6 +101,12 @@ func tableAlicloudKmsKey(ctx context.Context) *plugin.Table {
 				Hydrate:     getKmsKey,
 			},
 			{
+				Name:        "deletion_protection",
+				Description: "Indicates whether deletion protection is enabled.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getKmsKey,
+			},
+			{
 				Name:        "material_expire_time",
 				Description: "The time and date the key material for the CMK expires.",
 				Type:        proto.ColumnType_TIMESTAMP,
