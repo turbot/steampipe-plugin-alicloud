@@ -31,7 +31,6 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_ecs_disk_metric_read_iops_hourly":           tableAlicloudEcsDiskMetricReadIopsHourly(ctx),
 			"alicloud_ecs_disk_metric_write_iops":                 tableAlicloudEcsDiskMetricWriteIops(ctx),
 			"alicloud_ecs_disk_metric_write_iops_daily":           tableAlicloudEcsDiskMetricWriteIopsDaily(ctx),
-			"alicloud_ecs_disk_metric_write_iops_hourly":          tableAlicloudEcsDiskMetricWriteIopsHourly(ctx),
 			"alicloud_ecs_image":                                  tableAlicloudEcsImage(ctx),
 			"alicloud_ecs_instance":                               tableAlicloudEcsInstance(ctx),
 			"alicloud_ecs_instance_metric_cpu_utilization_daily":  tableAlicloudEcsInstanceMetricCpuUtilizationDaily(ctx),
