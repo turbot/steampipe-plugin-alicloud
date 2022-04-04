@@ -3,7 +3,6 @@
 		"account_id": "{{ output.account_id.value }}",
 		"akas": ["{{ output.resource_aka.value }}"],
 		"automatic_rotation": "{{ output.automatic_rotation.value }}",
-		"creation_date": "{{ output.creation_time.value }}",
 		"creator": "{{ output.account_id.value }}",
 		"description": "This is a test key used to validate the table outcome.",
 		"key_id": "{{ output.resource_id.value }}",

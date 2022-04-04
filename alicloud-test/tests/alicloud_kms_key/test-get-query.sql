@@ -5,7 +5,6 @@ select
   description,
   automatic_rotation,
   protection_level,
-  creation_date,
   key_usage,
   key_spec,
   origin,
