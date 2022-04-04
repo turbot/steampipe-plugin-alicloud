@@ -276,6 +276,7 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 				Name:        "attachments",
 				Description: "The attachment information of the cloud disk.",
 				Type:        proto.ColumnType_JSON,
+				Transform:   transform.FromField("Attachments.Attachment"),
 			},
 			{
 				Name:        "mount_instances",
