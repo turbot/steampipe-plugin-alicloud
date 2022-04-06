@@ -122,6 +122,13 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 				Hydrate:     getRAMUserGroups,
 				Transform:   transform.FromValue(),
 			},
+			{
+				Name:        "virtual_mfa_devices",
+				Description: "The list of MFA devices.",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getRAMUserMfaDevices,
+				Transform:   transform.FromValue(),
+			},
 
 			// Steampipe standard columns
 			{
