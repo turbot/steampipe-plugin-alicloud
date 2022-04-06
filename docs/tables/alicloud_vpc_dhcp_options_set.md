@@ -10,7 +10,7 @@ Dynamic Host Configuration Protocol (DHCP) is a network management protocol. DHC
 select
   name,
   dhcp_options_set_id,
-  associate_vpc_count
+  associate_vpc_count,
   status,
   description,
   domain_name,
