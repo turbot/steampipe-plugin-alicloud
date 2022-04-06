@@ -50,7 +50,7 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 				Name:        "arn",
 				Description: "The Alibaba Cloud Resource Name (ARN) of the RAM user.",
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getUserAkas,
+				Hydrate:     getUserArn,
 				Transform:   transform.FromValue(),
 			},
 			{
@@ -135,7 +135,7 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getUserAkas,
+				Hydrate:     getUserArn,
 				Transform:   transform.FromValue().Transform(ensureStringArray),
 			},
 			{
@@ -304,7 +304,7 @@ func getRAMUserMfaDevices(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 	return items, nil
 }
 
-func getUserAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getUserArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getUserAkas")
 	data := h.Item.(userInfo)
 
