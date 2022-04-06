@@ -132,7 +132,7 @@ func listVpcDhcpOptionsSets(ctx context.Context, d *plugin.QueryData, _ *plugin.
 	// Create service connection
 	client, err := VpcService(ctx, d)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc_dhcp_option.listVpcDhcpOptionsSets", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_vpc_dhcp_options_set.listVpcDhcpOptionsSets", "connection_error", err)
 		return nil, err
 	}
 
@@ -163,7 +163,7 @@ func listVpcDhcpOptionsSets(ctx context.Context, d *plugin.QueryData, _ *plugin.
 	for pageLeft {
 		response, err := client.ListDhcpOptionsSets(request)
 		if err != nil {
-			plugin.Logger(ctx).Error("alicloud_vpc_dhcp_option.listVpcDhcpOptionsSets", "query_error", err, "request", request)
+			plugin.Logger(ctx).Error("alicloud_vpc_dhcp_options_set.listVpcDhcpOptionsSets", "query_error", err, "request", request)
 			return nil, err
 		}
 
@@ -194,7 +194,7 @@ func getVpcDhcpOptionsSet(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 	// Create service connection
 	client, err := VpcService(ctx, d)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc_dhcp_option.getVpcDhcpOptionsSet", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_vpc_dhcp_options_set.getVpcDhcpOptionsSet", "connection_error", err)
 		return nil, err
 	}
 
@@ -211,7 +211,7 @@ func getVpcDhcpOptionsSet(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 
 	response, err := client.GetDhcpOptionsSet(request)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_vpc_dhcp_option.getVpcDhcpOptionsSet", "query_error", err, "request", request)
+		plugin.Logger(ctx).Error("alicloud_vpc_dhcp_options_set.getVpcDhcpOptionsSet", "query_error", err, "request", request)
 		return nil, nil
 	}
 	if response.DhcpOptionsSetId != "" {
