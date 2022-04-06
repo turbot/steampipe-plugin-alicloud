@@ -32,7 +32,7 @@ from
   jsonb_array_elements(associate_vpcs) as vpc;
 ```
 
-### Count number of vpc associate with dhcp options set
+### Count the number of VPCs associated with DHCP options set
 
 ```sql
 select
