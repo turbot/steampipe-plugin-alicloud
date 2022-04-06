@@ -38,7 +38,7 @@ func tableAlicloudVpcDhcpOptionsSet(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "dhcp_options_set_id",
-				Description: "The id of the DHCP option set.",
+				Description: "The ID of the DHCP option set.",
 				Type:        proto.ColumnType_STRING,
 			},
 			{
