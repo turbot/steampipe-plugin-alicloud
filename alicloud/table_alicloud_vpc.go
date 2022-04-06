@@ -148,7 +148,7 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 				Name:        "ipv6_cidr_blocks",
 				Type:        proto.ColumnType_JSON,
 				Transform:   transform.FromField("Ipv6CidrBlocks.Ipv6CidrBlock"),
-				Description: "The IPv6 CIDR block of the VPC.",
+				Description: "The IPv6 CIDR blocks of the VPC.",
 			},
 			{
 				Name:        "vswitch_ids",
