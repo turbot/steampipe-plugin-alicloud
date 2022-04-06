@@ -43,7 +43,7 @@ from
   alicloud_vpc_dhcp_options_set;
 ```
 
-### List dhcp option sets which are in use
+### List DHCP option sets that are in use
 
 ```sql
 select
