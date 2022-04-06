@@ -20,7 +20,7 @@ from
   alicloud_vpc_dhcp_options_set;
 ```
 
-### List vpcs that are associate to dhcp options set
+### List vpcs that are associate with dhcp options set
 
 ```sql
 select
