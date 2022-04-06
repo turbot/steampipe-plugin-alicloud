@@ -48,7 +48,7 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "arn",
-				Description: ColumnDescriptionAkas,
+				Description: "The Alibaba Cloud Resource Name (ARN) of the RAM user.",
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getUserAkas,
 				Transform:   transform.FromValue(),
