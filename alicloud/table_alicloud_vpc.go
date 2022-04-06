@@ -40,6 +40,12 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 				Description: "The name of the VPC.",
 			},
 			{
+				Name:        "arn",
+				Type:        proto.ColumnType_STRING,
+				Transform:   transform.From(vpcArn),
+				Description: "The Alibaba Cloud Resource Name (ARN) of the VPC.",
+			},
+			{
 				Name:        "vpc_id",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("VpcId"),
@@ -203,7 +209,7 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 			{
 				Name:        "akas",
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.From(vpcAkas),
+				Transform:   transform.From(vpcArn).Transform(ensureStringArray),
 				Description: ColumnDescriptionAkas,
 			},
 
@@ -337,9 +343,9 @@ func getVpcAttributes(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 
 //// TRANSFORM FUNCTIONS
 
-func vpcAkas(_ context.Context, d *transform.TransformData) (interface{}, error) {
+func vpcArn(_ context.Context, d *transform.TransformData) (interface{}, error) {
 	i := d.HydrateItem.(vpc.Vpc)
-	return []string{"acs:vpc:" + i.RegionId + ":" + strconv.FormatInt(i.OwnerId, 10) + ":vpc/" + i.VpcId}, nil
+	return "acs:vpc:" + i.RegionId + ":" + strconv.FormatInt(i.OwnerId, 10) + ":vpc/" + i.VpcId, nil
 }
 
 func vpcTitle(_ context.Context, d *transform.TransformData) (interface{}, error) {
