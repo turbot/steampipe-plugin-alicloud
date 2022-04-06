@@ -47,6 +47,13 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("UserName"),
 			},
 			{
+				Name:        "arn",
+				Description: ColumnDescriptionAkas,
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getUserAkas,
+				Transform:   transform.FromValue(),
+			},
+			{
 				Name:        "user_id",
 				Description: "The unique ID of the RAM user.",
 				Type:        proto.ColumnType_STRING,
@@ -129,7 +136,7 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getUserAkas,
-				Transform:   transform.FromValue(),
+				Transform:   transform.From(ensureStringArray),
 			},
 			{
 				Name:        "title",
@@ -310,7 +317,7 @@ func getUserAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	return []string{"acs:ram::" + accountID + ":user/" + data.UserName}, nil
+	return "acs:ram::" + accountID + ":user/" + data.UserName, nil
 }
 
 func getCsUserPermissions(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
@@ -352,4 +359,10 @@ func userMfaStatus(_ context.Context, d *transform.TransformData) (interface{}, 
 	}
 
 	return false, nil
+}
+
+func getRamUserArn(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	
+
+	return nil, nil
 }
