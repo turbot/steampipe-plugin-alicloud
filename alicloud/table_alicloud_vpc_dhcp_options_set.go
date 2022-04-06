@@ -48,7 +48,7 @@ func tableAlicloudVpcDhcpOptionsSet(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "associate_vpc_count",
-				Description: "The number of vpc associate with DHCP option set.",
+				Description: "The number of VPCs associated with DHCP option set.",
 				Type:        proto.ColumnType_INT,
 			},
 			{
