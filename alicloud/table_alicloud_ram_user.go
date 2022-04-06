@@ -136,7 +136,7 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getUserAkas,
-				Transform:   transform.From(ensureStringArray),
+				Transform:   transform.FromValue().Transform(ensureStringArray),
 			},
 			{
 				Name:        "title",
@@ -359,10 +359,4 @@ func userMfaStatus(_ context.Context, d *transform.TransformData) (interface{}, 
 	}
 
 	return false, nil
-}
-
-func getRamUserArn(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	
-
-	return nil, nil
 }
