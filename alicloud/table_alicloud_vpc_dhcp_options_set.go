@@ -189,7 +189,7 @@ func listVpcDhcpOptionsSets(ctx context.Context, d *plugin.QueryData, _ *plugin.
 //// HYDRATE FUNCTIONS
 
 func getVpcDhcpOptionsSet(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getVpcDhcpOption")
+	plugin.Logger(ctx).Trace("getVpcDhcpOptionsSet")
 
 	// Create service connection
 	client, err := VpcService(ctx, d)
