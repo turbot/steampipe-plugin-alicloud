@@ -47,7 +47,7 @@ func tableAlicloudRAMGroup(ctx context.Context) *plugin.Table {
 				Name:        "arn",
 				Description: "The Alibaba Cloud Resource Name (ARN) of the RAM user group.",
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getGroupAkas,
+				Hydrate:     getGroupArn,
 				Transform:   transform.FromValue(),
 			},
 			{
@@ -85,7 +85,7 @@ func tableAlicloudRAMGroup(ctx context.Context) *plugin.Table {
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getGroupAkas,
+				Hydrate:     getGroupArn,
 				Transform:   transform.FromValue().Transform(ensureStringArray),
 			},
 			{
@@ -226,7 +226,7 @@ func getRAMGroupPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	return response, nil
 }
 
-func getGroupAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getGroupArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getGroupAkas")
 	data := h.Item.(groupInfo)
 
