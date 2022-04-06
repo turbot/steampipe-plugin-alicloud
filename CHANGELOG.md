@@ -1,3 +1,19 @@
+## v0.5.0 [2022-04-06]
+
+_What's new?_
+
+- New tables added
+  - [alicloud_vpc_dhcp_options_set](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_vpc_dhcp_options_set) ([#259](https://github.com/turbot/steampipe-plugin-alicloud/pull/259))
+  - [alicloud_ecs_disk_metric_read_iops_hourly](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_ecs_disk_metric_read_iops_hourly) ([#253](https://github.com/turbot/steampipe-plugin-alicloud/pull/253))
+  - [alicloud_ecs_disk_metric_write_iops_hourly](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_ecs_disk_metric_write_iops_hourly) ([#254](https://github.com/turbot/steampipe-plugin-alicloud/pull/254))
+
+
+_Enhancements_
+
+- Added column `ipv6_cidr_blocks` to `alicloud_vpc` table ([#260](https://github.com/turbot/steampipe-plugin-alicloud/pull/260))
+- Added column `attachments` to `alicloud_ecs_disk` table ([#256](https://github.com/turbot/steampipe-plugin-alicloud/pull/256))
+- Added column `deletion_protection` to `alicloud_kms_key` table ([#248](https://github.com/turbot/steampipe-plugin-alicloud/pull/248))
+
 ## v0.4.0 [2022-03-25]
 
 _What's new?_
