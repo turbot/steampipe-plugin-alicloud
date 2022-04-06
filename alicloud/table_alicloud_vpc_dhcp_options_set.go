@@ -53,7 +53,7 @@ func tableAlicloudVpcDhcpOptionsSet(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "boot_file_name",
-				Description: "The number of vpc associate with DHCP option set.",
+				Description: "The boot file name of DHCP option set.",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("DhcpOptions.BootFileName"),
 			},
