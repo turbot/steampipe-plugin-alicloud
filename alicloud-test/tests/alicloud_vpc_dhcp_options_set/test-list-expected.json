@@ -1,0 +1,6 @@
+[
+	{
+	  "dhcp_options_set_id": "{{ output.dhcp_options_set_id.value }}",
+	  "name": "{{ resourceName }}"
+	}
+  ]
