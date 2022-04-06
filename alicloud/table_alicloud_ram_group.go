@@ -44,6 +44,13 @@ func tableAlicloudRAMGroup(ctx context.Context) *plugin.Table {
 			// TODO: Not avialable - {Name: "display_name", Type: proto.ColumnType_STRING, Description: "The display name of the RAM group."},
 			// Other columns
 			{
+				Name:        "arn",
+				Description: "The Alibaba Cloud Resource Name (ARN) of the RAM user group.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getGroupAkas,
+				Transform:   transform.FromValue(),
+			},
+			{
 				Name:        "comments",
 				Description: "The description of the RAM user group.",
 				Type:        proto.ColumnType_STRING,
@@ -79,7 +86,7 @@ func tableAlicloudRAMGroup(ctx context.Context) *plugin.Table {
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getGroupAkas,
-				Transform:   transform.FromValue(),
+				Transform:   transform.FromValue().Transform(ensureStringArray),
 			},
 			{
 				Name:        "title",
@@ -232,5 +239,5 @@ func getGroupAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	return []string{"acs:ram::" + accountID + ":group/" + data.GroupName}, nil
+	return "acs:ram::" + accountID + ":group/" + data.GroupName, nil
 }
