@@ -82,7 +82,7 @@ func tableAlicloudVpcDhcpOptionsSet(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "tftp_server_name",
-				Description: "The description for the DHCP option set.",
+				Description: "The tftp server name of the DHCP option set.",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("DhcpOptions.TFTPServerName"),
 			},
