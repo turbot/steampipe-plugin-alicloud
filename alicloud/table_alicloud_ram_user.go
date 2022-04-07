@@ -47,6 +47,13 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("UserName"),
 			},
 			{
+				Name:        "arn",
+				Description: "The Alibaba Cloud Resource Name (ARN) of the RAM user.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getUserArn,
+				Transform:   transform.FromValue(),
+			},
+			{
 				Name:        "user_id",
 				Description: "The unique ID of the RAM user.",
 				Type:        proto.ColumnType_STRING,
@@ -128,8 +135,8 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getUserAkas,
-				Transform:   transform.FromValue(),
+				Hydrate:     getUserArn,
+				Transform:   transform.FromValue().Transform(ensureStringArray),
 			},
 			{
 				Name:        "title",
@@ -297,7 +304,7 @@ func getRAMUserMfaDevices(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 	return items, nil
 }
 
-func getUserAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getUserArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getUserAkas")
 	data := h.Item.(userInfo)
 
@@ -310,7 +317,7 @@ func getUserAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	return []string{"acs:ram::" + accountID + ":user/" + data.UserName}, nil
+	return "acs:ram::" + accountID + ":user/" + data.UserName, nil
 }
 
 func getCsUserPermissions(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
