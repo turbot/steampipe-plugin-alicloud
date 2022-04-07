@@ -44,6 +44,13 @@ func tableAlicloudRAMGroup(ctx context.Context) *plugin.Table {
 			// TODO: Not avialable - {Name: "display_name", Type: proto.ColumnType_STRING, Description: "The display name of the RAM group."},
 			// Other columns
 			{
+				Name:        "arn",
+				Description: "The Alibaba Cloud Resource Name (ARN) of the RAM user group.",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getGroupArn,
+				Transform:   transform.FromValue(),
+			},
+			{
 				Name:        "comments",
 				Description: "The description of the RAM user group.",
 				Type:        proto.ColumnType_STRING,
@@ -78,8 +85,8 @@ func tableAlicloudRAMGroup(ctx context.Context) *plugin.Table {
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Hydrate:     getGroupAkas,
-				Transform:   transform.FromValue(),
+				Hydrate:     getGroupArn,
+				Transform:   transform.FromValue().Transform(ensureStringArray),
 			},
 			{
 				Name:        "title",
@@ -219,7 +226,7 @@ func getRAMGroupPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 	return response, nil
 }
 
-func getGroupAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+func getGroupArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getGroupAkas")
 	data := h.Item.(groupInfo)
 
@@ -232,5 +239,5 @@ func getGroupAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 	commonColumnData := commonData.(*alicloudCommonColumnData)
 	accountID := commonColumnData.AccountID
 
-	return []string{"acs:ram::" + accountID + ":group/" + data.GroupName}, nil
+	return "acs:ram::" + accountID + ":group/" + data.GroupName, nil
 }
