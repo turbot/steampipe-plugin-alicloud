@@ -1,3 +1,10 @@
+## v0.6.0 [2022-04-07]
+
+_Enhancements_
+
+- Added column `arn` to `alicloud_ram_user`, `alicloud_ram_group` and `alicloud_vpc` tables ([#267](https://github.com/turbot/steampipe-plugin-alicloud/pull/267)) ([#268](https://github.com/turbot/steampipe-plugin-alicloud/pull/268)) ([#269](https://github.com/turbot/steampipe-plugin-alicloud/pull/269))
+- Added column `virtual_mfa_devices` to `alicloud_ram_user` table ([#266](https://github.com/turbot/steampipe-plugin-alicloud/pull/266))
+
 ## v0.5.0 [2022-04-06]
 
 _What's new?_
@@ -6,7 +13,6 @@ _What's new?_
   - [alicloud_vpc_dhcp_options_set](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_vpc_dhcp_options_set) ([#259](https://github.com/turbot/steampipe-plugin-alicloud/pull/259))
   - [alicloud_ecs_disk_metric_read_iops_hourly](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_ecs_disk_metric_read_iops_hourly) ([#253](https://github.com/turbot/steampipe-plugin-alicloud/pull/253))
   - [alicloud_ecs_disk_metric_write_iops_hourly](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_ecs_disk_metric_write_iops_hourly) ([#254](https://github.com/turbot/steampipe-plugin-alicloud/pull/254))
-
 
 _Enhancements_
 
