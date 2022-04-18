@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
-	"github.com/turbot/steampipe-plugin-sdk/v2/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v2/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v2/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v3/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -17,7 +17,7 @@ func tableAlicloudEcsDiskMetricWriteIops(_ context.Context) *plugin.Table {
 		Description: "Alicloud ECS Disk Cloud Monitor Metrics - Write IOPS",
 		List: &plugin.ListConfig{
 			ParentHydrate: listEcsInstance,
-			Hydrate: listEcsDisksMetricWriteIops,
+			Hydrate:       listEcsDisksMetricWriteIops,
 		},
 		GetMatrixItem: BuildRegionList,
 		Columns: cmMetricColumns(
