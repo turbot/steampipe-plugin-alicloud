@@ -1,3 +1,15 @@
+## v0.7.0 [2022-04-27]
+
+_What's new?_
+
+- New tables added
+  - [alicloud_rds_instance_metric_cpu_utilization_hourly](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_rds_instance_metric_cpu_utilization_hourly) ([#272](https://github.com/turbot/steampipe-plugin-alicloud/pull/272))
+
+_Enhancements_
+
+- Recompiled plugin with [steampipe-plugin-sdk v3.1.0](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v310--2022-03-30) and Go version `1.18`. ([#274](https://github.com/turbot/steampipe-plugin-alicloud/pull/274))
+- Added support for native Linux ARM and Mac M1 builds. ([#275](https://github.com/turbot/steampipe-plugin-alicloud/pull/275))
+
 ## v0.6.0 [2022-04-07]
 
 _Enhancements_
