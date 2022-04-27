@@ -1,6 +1,6 @@
 module github.com/turbot/steampipe-plugin-alicloud
 
-go 1.17
+go 1.18
 
 require (
 	github.com/alibabacloud-go/ims-20190815 v1.0.0
