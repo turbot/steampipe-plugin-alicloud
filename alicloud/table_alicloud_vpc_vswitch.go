@@ -16,7 +16,7 @@ import (
 
 func tableAlicloudVpcVSwitch(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
-		Name:        "alicloud_vswitch",
+		Name:        "alicloud_vpc_vswitch",
 		Description: "VSwitches to divide the VPC network into one or more subnets.",
 		List: &plugin.ListConfig{
 			Hydrate: listVSwitch,
