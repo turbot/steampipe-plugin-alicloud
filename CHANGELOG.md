@@ -1,3 +1,13 @@
+## v0.8.0 [2022-07-14]
+
+_Bug fixes_
+
+- Fixed inconsistent table name in the `alicloud_vpc_vswitch` table which would cause intermittent caching issues. ([#281](https://github.com/turbot/steampipe-plugin-alicloud/pull/281))
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v3.3.2](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v332--2022-07-11) which includes several caching fixes. ([#280](https://github.com/turbot/steampipe-plugin-alicloud/pull/280))
+
 ## v0.7.1 [2022-05-24]
 
 _Bug fixes_
