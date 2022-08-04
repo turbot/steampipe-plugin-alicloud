@@ -2,7 +2,7 @@
 
 _What's new?_
 
-- Added support for `cn-beijing-finance-1`, `cn-shenzhen-finance-1` and `cn-shanghai-finance-1` regions. ([#284](https://github.com/turbot/steampipe-plugin-alicloud/pull/284)) (Thanks to [@jurajsucik](https://github.com/jurajsucik) for the contribution!)
+- Added support for `cn-beijing-finance-1`, `cn-shanghai-finance-1` and `cn-shenzhen-finance-1` regions. ([#284](https://github.com/turbot/steampipe-plugin-alicloud/pull/284)) (Thanks to [@jurajsucik](https://github.com/jurajsucik) for the contribution!)
 
 _Bug fixes_
 
