@@ -37,7 +37,7 @@ func BuildRegionList(_ context.Context, connection *plugin.Connection) []map[str
 
 func getInvalidRegions(regions []string) []string {
 	alicloudRegions := []string{
-		"cn-beijing", "cn-chengdu", "cn-guangzhou", "cn-hangzhou", "cn-heyuan", "cn-hongkong", "cn-huhehaote", "cn-qingdao", "cn-shanghai", "cn-shenzhen", "cn-wulanchabu", "cn-zhangjiakou", "ap-northeast-1", "ap-south-1", "ap-southeast-1", "ap-southeast-2", "ap-southeast-3", "ap-southeast-5", "eu-central-1", "eu-west-1", "me-east-1", "us-east-1", "us-west-1", "cn-shenzhen-finance-1", "cn-shanghai-finance-1", "cn-beijing-finance-1"}
+		"cn-beijing", "cn-beijing-finance-1", "cn-chengdu", "cn-guangzhou", "cn-hangzhou", "cn-heyuan", "cn-hongkong", "cn-huhehaote", "cn-qingdao", "cn-shanghai", "cn-shanghai-finance-1", "cn-shenzhen", "cn-shenzhen-finance-1", "cn-wulanchabu", "cn-zhangjiakou", "ap-northeast-1", "ap-south-1", "ap-southeast-1", "ap-southeast-2", "ap-southeast-3", "ap-southeast-5", "eu-central-1", "eu-west-1", "me-east-1", "us-east-1", "us-west-1"}
 
 	invalidRegions := []string{}
 	for _, region := range regions {
