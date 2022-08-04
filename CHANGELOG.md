@@ -1,3 +1,13 @@
+## v0.9.0 [2022-08-04]
+
+_What's new?_
+
+- Added support for `cn-beijing-finance-1`, `cn-shanghai-finance-1` and `cn-shenzhen-finance-1` regions. ([#284](https://github.com/turbot/steampipe-plugin-alicloud/pull/284)) (Thanks to [@jurajsucik](https://github.com/jurajsucik) for the contribution!)
+
+_Bug fixes_
+
+- Fixed `password_exist`, `password_active`, `mfa_active`, `user_last_logon`, `password_last_changed` and `password_next_rotation` columns in the `alicloud_ram_credential_report` table to return null instead of an error when the console login is disabled for a user. ([#284](https://github.com/turbot/steampipe-plugin-alicloud/pull/284)) (Thanks to [@jurajsucik](https://github.com/jurajsucik) for the contribution!)
+
 ## v0.8.0 [2022-07-14]
 
 _Bug fixes_
