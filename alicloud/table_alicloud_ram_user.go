@@ -224,10 +224,29 @@ func getRAMUser(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	request := ram.CreateGetUserRequest()
 	request.Scheme = "https"
 	request.UserName = name
+	var response *ram.GetUserResponse
 
-	response, err := client.GetUser(request)
+	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ram_user.getRAMUser", "query_error", err, "request", request)
+		return nil, err
+	}
+
+	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
+		var err error
+		response, err = client.GetUser(request)
+		if err != nil {
+			if serverErr, ok := err.(*errors.ServerError); ok {
+				if serverErr.ErrorCode() == "Throttling" {
+					return retry.RetryableError(err)
+				}
+				plugin.Logger(ctx).Error("alicloud_ram_user.getRAMUser", "query_error", err, "request", request)
+				return err
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
 		return nil, err
 	}
 
