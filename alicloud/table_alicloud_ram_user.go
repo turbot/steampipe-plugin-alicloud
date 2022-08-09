@@ -314,6 +314,10 @@ func getRAMUserPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		return nil
 	})
 
+	if err != nil {
+		return nil, err
+	}
+
 	return response, nil
 }
 
