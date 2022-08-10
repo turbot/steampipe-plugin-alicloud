@@ -2,10 +2,12 @@ package alicloud
 
 import (
 	"context"
+	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
+	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
@@ -222,10 +224,29 @@ func getRAMUser(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	request := ram.CreateGetUserRequest()
 	request.Scheme = "https"
 	request.UserName = name
+	var response *ram.GetUserResponse
 
-	response, err := client.GetUser(request)
+	b, err := retry.NewFibonacci(100 * time.Millisecond)
 	if err != nil {
-		plugin.Logger(ctx).Error("alicloud_ram_user.getRAMUser", "query_error", err, "request", request)
+		return nil, err
+	}
+
+	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
+		var err error
+		response, err = client.GetUser(request)
+		if err != nil {
+			if serverErr, ok := err.(*errors.ServerError); ok {
+				if serverErr.ErrorCode() == "Throttling" {
+					return retry.RetryableError(err)
+				}
+				plugin.Logger(ctx).Error("alicloud_ram_user.getRAMUser", "query_error", err, "request", request)
+				return err
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
 		return nil, err
 	}
 
@@ -271,11 +292,30 @@ func getRAMUserPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	request := ram.CreateListPoliciesForUserRequest()
 	request.Scheme = "https"
 	request.UserName = data.UserName
+	var response *ram.ListPoliciesForUserResponse
 
-	response, err := client.ListPoliciesForUser(request)
-	if serverErr, ok := err.(*errors.ServerError); ok {
-		plugin.Logger(ctx).Error("alicloud_ram_group.getRAMUserPolicies", "query_error", serverErr, "request", request)
-		return nil, serverErr
+	b, err := retry.NewFibonacci(100 * time.Millisecond)
+	if err != nil {
+		return nil, err
+	}
+
+	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
+		var err error
+		response, err = client.ListPoliciesForUser(request)
+		if err != nil {
+			if serverErr, ok := err.(*errors.ServerError); ok {
+				if serverErr.ErrorCode() == "Throttling" {
+					return retry.RetryableError(err)
+				}
+				plugin.Logger(ctx).Error("alicloud_ram_group.getRAMUserPolicies", "query_error", serverErr, "request", request)
+				return nil
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
 	}
 
 	return response, nil
