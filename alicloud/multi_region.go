@@ -5,18 +5,18 @@ import (
 	"strings"
 
 	"github.com/turbot/go-kit/helpers"
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
 )
 
 const matrixKeyRegion = "region"
 
 // BuildRegionList :: return a list of matrix items, one per region specified in the connection config
-func BuildRegionList(_ context.Context, connection *plugin.Connection) []map[string]interface{} {
+func BuildRegionList(_ context.Context, d *plugin.QueryData) []map[string]interface{} {
 	// retrieve regions from connection config
-	alicloudConfig := GetConfig(connection)
+	alicloudConfig := GetConfig(d.Connection)
 
 	if alicloudConfig.Regions != nil {
-		regions := GetConfig(connection).Regions
+		regions := GetConfig(d.Connection).Regions
 
 		if len(getInvalidRegions(regions)) > 0 {
 			panic("\n\nConnection config have invalid regions: " + strings.Join(getInvalidRegions(regions), ",") + ". Edit your connection configuration file and then restart Steampipe.")
@@ -31,7 +31,7 @@ func BuildRegionList(_ context.Context, connection *plugin.Connection) []map[str
 	}
 
 	return []map[string]interface{}{
-		{matrixKeyRegion: GetDefaultRegion(connection)},
+		{matrixKeyRegion: GetDefaultRegion(d.Connection)},
 	}
 }
 
