@@ -36,7 +36,7 @@ func tableAlicloudCsKubernetesClusterNode(ctx context.Context) *plugin.Table {
 				Name:        "cluster_id",
 				Description: "The ID of the cluster that the node pool belongs to.",
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.From(clusterIdFromInstanceName),
+				// Transform:   transform.From(clusterIdFromInstanceName),
 			},
 			{
 				Name:        "state",
@@ -162,6 +162,11 @@ func tableAlicloudCsKubernetesClusterNode(ctx context.Context) *plugin.Table {
 	}
 }
 
+type NodeInfo struct {
+	ClusterId string
+	cs.Node
+}
+
 //// LIST FUNCTION
 
 func listCsKubernetesClusterNodes(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
@@ -183,7 +188,10 @@ func listCsKubernetesClusterNodes(ctx context.Context, d *plugin.QueryData, h *p
 		return nil, err
 	}
 	for _, node := range response.Nodes {
-		d.StreamListItem(ctx, node)
+		d.StreamListItem(ctx, &NodeInfo{
+			ClusterId: clusterId,
+			Node: node,
+		})
 	}
 	return nil, nil
 }
@@ -218,7 +226,10 @@ func getCsKubernetesClusterNode(ctx context.Context, d *plugin.QueryData, h *plu
 
 	for _, item := range response.Nodes {
 		if item.InstanceId == instanceId {
-			return item, nil
+			return &NodeInfo{
+			ClusterId: clusterId,
+			Node: item,
+		}, nil
 		}
 	}
 
@@ -228,7 +239,7 @@ func getCsKubernetesClusterNode(ctx context.Context, d *plugin.QueryData, h *plu
 func getCsKubernetesClusterNodeAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getCsKubernetesClusterNodeAka")
 
-	nodeName := h.Item.(cs.Node).NodeName
+	nodeName := h.Item.(*NodeInfo).NodeName
 
 	// Get project details
 	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
@@ -246,14 +257,8 @@ func getCsKubernetesClusterNodeAka(ctx context.Context, d *plugin.QueryData, h *
 
 //// TRANSFORM FUNCTIONS
 
-func clusterIdFromInstanceName(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	instanceName := d.HydrateItem.(cs.Node).InstanceName
-
-	return strings.Split(instanceName, "-")[4], nil
-}
-
 func clusterNodeRegion(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	nodeName := d.HydrateItem.(cs.Node).NodeName
+	nodeName := d.HydrateItem.(*NodeInfo).NodeName
 
 	return strings.Split(nodeName, ".")[0], nil
 }
