@@ -56,6 +56,7 @@ resource "alicloud_cas_certificate" "named_test_resource" {
 
 output "private_key" {
   value = replace(tls_private_key.example.private_key_pem, "\n", "\\n")
+  sensitive = true
 }
 
 output "certificate_body" {
