@@ -3,9 +3,9 @@ package alicloud
 import (
 	"context"
 
-	"github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 )
@@ -20,7 +20,7 @@ func tableAlicloudVpcRouteEntry(ctx context.Context) *plugin.Table {
 			ParentHydrate: listVpcRouteTable,
 			Hydrate:       listVpcRouteEntries,
 		},
-		GetMatrixItem: BuildRegionList,
+		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
 			{
 				Name:        "name",
