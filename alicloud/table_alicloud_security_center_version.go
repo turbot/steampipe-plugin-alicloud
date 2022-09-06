@@ -7,9 +7,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sas"
 
 	"github.com/turbot/go-kit/helpers"
-	"github.com/turbot/steampipe-plugin-sdk/v3/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v3/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
 )
 
 type versionInfo struct {
@@ -26,7 +26,7 @@ func tableAlicloudSecurityCenterVersion(ctx context.Context) *plugin.Table {
 		List: &plugin.ListConfig{
 			Hydrate: listSecurityCenterVersions,
 		},
-		GetMatrixItem: BuildRegionList,
+		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
 			{
 				Name:        "instance_id",
