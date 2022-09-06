@@ -56,10 +56,6 @@ output "instance_id" {
   value = alicloud_cs_managed_kubernetes.named_test_resource[0].worker_nodes[0].id
 }
 
-output "instance_name" {
-  value = alicloud_cs_managed_kubernetes.named_test_resource[0].worker_nodes[0].name
-}
-
 output "ip_address" {
   value = alicloud_cs_managed_kubernetes.named_test_resource[0].worker_nodes[0].private_ip
 }

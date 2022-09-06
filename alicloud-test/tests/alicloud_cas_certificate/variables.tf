@@ -30,7 +30,6 @@ resource "tls_private_key" "example" {
 }
 
 resource "tls_self_signed_cert" "example" {
-  key_algorithm   = "RSA"
   private_key_pem = tls_private_key.example.private_key_pem
 
   subject {
@@ -56,6 +55,7 @@ resource "alicloud_cas_certificate" "named_test_resource" {
 
 output "private_key" {
   value = replace(tls_private_key.example.private_key_pem, "\n", "\\n")
+  sensitive = true
 }
 
 output "certificate_body" {
