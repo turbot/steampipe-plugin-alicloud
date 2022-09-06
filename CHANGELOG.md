@@ -7,7 +7,8 @@ _Dependencies_
 
 _Enhancements_
 
-- Added retry mechanism for `alicloud_ram_user` table to handle API throttling errors.  ([#287](https://github.com/turbot/steampipe-plugin-alicloud/pull/287))
+- Added retry mechanism for `alicloud_ram_user` table to handle API throttling errors.  ([#287](https://github.com/turbot/steampipe-plugin-alicloud/pull/287)) (Thanks to [@jurajsucik](https://github.com/jurajsucik) for the contribution!)
+
 
 _Bug fixes_
 
