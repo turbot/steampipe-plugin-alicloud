@@ -1,3 +1,18 @@
+## v0.10.0 [2022-09-06]
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v4.1.6](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v416-2022-09-02) which includes several caching and memory management improvements. ([#288](https://github.com/turbot/steampipe-plugin-alicloud/pull/288))
+- Recompiled plugin with Go version `1.19`. ([#288](https://github.com/turbot/steampipe-plugin-alicloud/pull/288))
+
+_Enhancements_
+
+- Added retry mechanism for `alicloud_ram_user` table to handle API throttling errors.  ([#287](https://github.com/turbot/steampipe-plugin-alicloud/pull/287))
+
+_Bug fixes_
+
+- Fixed the `alicloud_cs_kubernetes_cluster` table to correctly return the value for column `cluster_id` instead of returning `null`. ([#290](https://github.com/turbot/steampipe-plugin-alicloud/pull/290))
+
 ## v0.9.0 [2022-08-04]
 
 _What's new?_
