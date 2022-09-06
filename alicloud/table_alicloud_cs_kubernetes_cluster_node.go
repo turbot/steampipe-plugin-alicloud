@@ -36,7 +36,6 @@ func tableAlicloudCsKubernetesClusterNode(ctx context.Context) *plugin.Table {
 				Name:        "cluster_id",
 				Description: "The ID of the cluster that the node pool belongs to.",
 				Type:        proto.ColumnType_STRING,
-				// Transform:   transform.From(clusterIdFromInstanceName),
 			},
 			{
 				Name:        "state",
