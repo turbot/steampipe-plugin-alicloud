@@ -2,7 +2,7 @@
 
 _Dependencies_
 
-- Recompiled plugin with [steampipe-plugin-sdk v4.1.8](https://github.com/turbot/steampipe-plugin-aws/pull/1384) which increases the default open file limit. ([#294](https://github.com/turbot/steampipe-plugin-alicloud/pull/294))
+- Recompiled plugin with [steampipe-plugin-sdk v4.1.8](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v418-2022-09-08) which increases the default open file limit. ([#294](https://github.com/turbot/steampipe-plugin-alicloud/pull/294))
 
 ## v0.10.0 [2022-09-06]
 
