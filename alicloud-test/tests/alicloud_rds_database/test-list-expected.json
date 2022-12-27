@@ -1,0 +1,6 @@
+[
+	{
+		"db_instance_id": "{{ output.db_instance_id.value }}",
+		"db_name": "{{ resourceName }}"
+	}
+]
