@@ -7,9 +7,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 
+	"github.com/turbot/go-kit/helpers"
 	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
@@ -22,9 +24,8 @@ func tableAlicloudRdsBackup(ctx context.Context) *plugin.Table {
 		Name:        "alicloud_rds_backup",
 		Description: "ApsaraDB RDS Backup is a policy expression that defines when and how you want to back up your DB Instances.",
 		List: &plugin.ListConfig{
-			ParentHydrate:     listRdsInstances,
-			Hydrate:           listRdsBackups,
-			ShouldIgnoreError: isNotFoundError([]string{"InvalidBackupId.NotFound"}),
+			ParentHydrate: listRdsInstances,
+			Hydrate:       listRdsBackups,
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "backup_id", Require: plugin.Optional},
 				{Name: "db_instance_id", Require: plugin.Optional},
@@ -250,6 +251,12 @@ func listRdsBackups(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 	for {
 		response, err := client.DescribeBackups(request)
 		if err != nil {
+			// Not found eror code could not be captured in ignore config so need to handle it here.
+			if serverErr, ok := err.(*errors.ServerError); ok {
+				if helpers.StringSliceContains([]string{"InvalidBackupId.NotFound"}, serverErr.ErrorCode()) {
+					return nil, nil
+				}
+			}
 			plugin.Logger(ctx).Error("alicloud_rds_backup.listRdsBackups", "query_error", err, "request", request)
 			return nil, err
 		}

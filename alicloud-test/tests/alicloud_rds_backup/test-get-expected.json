@@ -1,7 +1,7 @@
 [
 	{
 		"backup_id": "{{ output.resource_id.value }}",
-		"backup_mode": "Manula",
+		"backup_mode": "Manual",
 		"db_instance_id": "{{ output.db_instance_id.value }}"
 	}
 ]
