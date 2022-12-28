@@ -24,6 +24,8 @@ func tableAlicloudRdsBackup(ctx context.Context) *plugin.Table {
 		List: &plugin.ListConfig{
 			ParentHydrate: listRdsInstances,
 			Hydrate:       listRdsBackups,
+				ShouldIgnoreError: isNotFoundError([]string{"InvalidBackupId.NotFound"}),
+		},
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "backup_id", Require: plugin.Optional},
 				{Name: "db_instance_id", Require: plugin.Optional},
