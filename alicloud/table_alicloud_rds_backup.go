@@ -22,10 +22,9 @@ func tableAlicloudRdsBackup(ctx context.Context) *plugin.Table {
 		Name:        "alicloud_rds_backup",
 		Description: "ApsaraDB RDS Backup is a policy expression that defines when and how you want to back up your DB Instances.",
 		List: &plugin.ListConfig{
-			ParentHydrate: listRdsInstances,
-			Hydrate:       listRdsBackups,
-				ShouldIgnoreError: isNotFoundError([]string{"InvalidBackupId.NotFound"}),
-		},
+			ParentHydrate:     listRdsInstances,
+			Hydrate:           listRdsBackups,
+			ShouldIgnoreError: isNotFoundError([]string{"InvalidBackupId.NotFound"}),
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "backup_id", Require: plugin.Optional},
 				{Name: "db_instance_id", Require: plugin.Optional},
