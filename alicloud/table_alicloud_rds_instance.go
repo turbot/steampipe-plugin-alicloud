@@ -393,7 +393,7 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getRdsInstanceEncryptionKey,
 				Transform:   transform.FromValue(),
-				Description: "The custom key for the instance.",
+				Description: "The custom encryption key for the instance.",
 			},
 			{
 				Name:      "origin_configuration",
