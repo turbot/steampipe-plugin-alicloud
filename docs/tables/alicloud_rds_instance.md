@@ -108,7 +108,7 @@ where
 select
   i.db_instance_id,
   s ->> 'NetworkType' as network_type,
-  s ->> 'RegionId' as region_id,
+  s ->> 'RegionId' as security_group_region_id,
   s ->> 'SecurityGroupId' as security_group_id
 from
   alicloud_rds_instance as i,
