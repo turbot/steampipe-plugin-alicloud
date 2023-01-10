@@ -47,7 +47,7 @@ func tableAlicloudRdsDatabase(ctx context.Context) *plugin.Table {
 				Name:        "db_instance_id",
 				Type:        proto.ColumnType_STRING,
 				Transform:   transform.FromField("DBInstanceId"),
-				Description: "The ID of the single instance to query.",
+				Description: "The unique ID of the instance.",
 			},
 			{
 				Name:        "db_status",
