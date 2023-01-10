@@ -42,7 +42,7 @@ where
   engine = 'MySQL';
 ```
 
-### Get DB instance details for each database
+### Get DB instance details of each database
 
 ```sql
 select
