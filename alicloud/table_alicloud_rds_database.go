@@ -146,7 +146,7 @@ func listRdsdatabases(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 			return nil, err
 		}
 
-		// Response body doesn't contains record count and page number details, so we need to handle it manually
+		// Response body doesn't contain record count and page number details, so we need to handle it manually
 		if len(response.Databases.Database) > 0 {
 			request.PageNumber = request.PageNumber + requests.NewInteger(1)
 		} else {
