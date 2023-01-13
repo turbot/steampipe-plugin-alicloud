@@ -43,7 +43,7 @@ func tableAlicloudVpcFlowLog(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "flow_log_id",
-				Description: "The id of the flow log.",
+				Description: "The ID of the flow log.",
 				Type:        proto.ColumnType_STRING,
 			},
 			{
