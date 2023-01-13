@@ -65,6 +65,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_vpc":                                        tableAlicloudVpc(ctx),
 			"alicloud_vpc_dhcp_options_set":                       tableAlicloudVpcDhcpOptionsSet(ctx),
 			"alicloud_vpc_eip":                                    tableAlicloudVpcEip(ctx),
+			"alicloud_vpc_flow_log":                               tableAlicloudVpcFlowLog(ctx),
 			"alicloud_vpc_nat_gateway":                            tableAlicloudVpcNatGateway(ctx),
 			"alicloud_vpc_network_acl":                            tableAlicloudVpcNetworkACL(ctx),
 			"alicloud_vpc_route_entry":                            tableAlicloudVpcRouteEntry(ctx),
