@@ -107,14 +107,14 @@ func tableAlicloudVpcFlowLog(ctx context.Context) *plugin.Table {
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
-				Hydrate:     getVpcFlowLogRegion,
-				Transform:   transform.FromValue(),
+				Transform:   transform.FromField("RegionId"),
 			},
 			{
 				Name:        "account_id",
 				Description: ColumnDescriptionAccount,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("OwnerId"),
+				Hydrate:     getVpcFlowLogAccountId,
+				Transform:   transform.FromValue(),
 			},
 		},
 	}
@@ -185,6 +185,11 @@ func getVpcFlowLog(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	}
 	id := d.KeyColumnQuals["flow_log_id"].GetStringValue()
 
+	// Empty check
+	if id == "" {
+		return nil, nil
+	}
+
 	request := vpc.CreateDescribeFlowLogsRequest()
 	request.Scheme = "https"
 	request.FlowLogId = id
@@ -220,8 +225,15 @@ func getVpcFlowLogAka(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	return akas, nil
 }
 
-func getVpcFlowLogRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+func getVpcFlowLogAccountId(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	// Get project details
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
+	if err != nil {
+		return nil, err
+	}
+	commonColumnData := commonData.(*alicloudCommonColumnData)
+	accountID := commonColumnData.AccountID
 
-	return region, nil
+	return accountID, nil
 }
