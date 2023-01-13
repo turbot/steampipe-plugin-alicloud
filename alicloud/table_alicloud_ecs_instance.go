@@ -427,7 +427,7 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "ram_role",
-				Description: "The RAM role that attach to instance.",
+				Description: "RAM role attached to the instance.",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getEcsInstanceRamRole,
 				Transform:   transform.FromValue(),
