@@ -73,7 +73,7 @@ func tableAlicloudVpcFlowLog(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "log_store_name",
-				Description: "Logstore for storing captured traffic.",
+				Description: "Log store for storing captured traffic.",
 				Type:        proto.ColumnType_STRING,
 			},
 			{
