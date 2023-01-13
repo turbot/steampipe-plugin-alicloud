@@ -51,7 +51,7 @@ where
   resource_type = 'VPC';
 ```
 
-### List flow logs that created in last 30 days
+### List flow logs created in the last 30 days
 
 ```sql
 select
