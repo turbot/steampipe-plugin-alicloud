@@ -427,7 +427,7 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "ram_role",
-				Description: "The public IP addresses of instances.",
+				Description: "The RAM role that attach to instance.",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getEcsInstanceRamRole,
 				Transform:   transform.FromValue(),
