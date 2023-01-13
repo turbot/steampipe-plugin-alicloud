@@ -19,7 +19,7 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 		Name:        "alicloud_ecs_image",
 		Description: "AliCloud ECS Image.",
 		List: &plugin.ListConfig{
-			Hydrate:    listEcsImages,
+			Hydrate: listEcsImages,
 		},
 		Get: &plugin.GetConfig{
 			// We must include both image_id and region in the where clause else we will receive numerous rows. Which causes Error: get call returned 2 results - the key column is not globally unique (SQLSTATE HV000)
