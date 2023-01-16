@@ -2,7 +2,7 @@
 
 An ECS image stores information that is required to create an ECS instance. An image works as a copy that stores data from one or more disks. An ECS instance image may store data from a system disk or from both system and data disks.
 
-To query a specific ECS image you need to pass `image_id` and `region` in the where clause (`where iamge_id='' and region=''`).
+To query a specific ECS image you need to pass `image_id` and `region` in the where clause (`where image_id='' and region=''`).
 
 ## Examples
 
@@ -113,7 +113,7 @@ where
   and image.creation_time <= (current_date - interval '90' day)
 ```
 
-### Get a particular image details
+### Get details of a particular image
 
 ```sql
 select
@@ -127,6 +127,5 @@ from
   alicloud_ecs_image
 where
   image_id = 'centos_7_9_x64_20G_alibase_20221129.vhd'
-and
-  region = 'us-east-1';
+  and region = 'us-east-1';
 ```
