@@ -20,6 +20,12 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 		Description: "AliCloud ECS Image.",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsImages,
+			KeyColumns: []*plugin.KeyColumn{
+				{
+					Name:    "image_id",
+					Require: plugin.Optional,
+				},
+			},
 		},
 		Get: &plugin.GetConfig{
 			// We must include both image_id and region in the where clause else we will receive numerous rows. Which causes Error: get call returned 2 results - the key column is not globally unique (SQLSTATE HV000)
@@ -228,13 +234,14 @@ func listEcsImages(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 		return nil, err
 	}
 
-	// regionName := d.KeyColumnQuals["region"].GetStringValue()
-
 	request := ecs.CreateDescribeImagesRequest()
 	request.Scheme = "https"
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
-	// request.RegionId = regionName
+	imageId := d.KeyColumnQualString("image_id")
+	if imageId != "" {
+		request.ImageId = imageId
+	}
 
 	count := 0
 	for {
