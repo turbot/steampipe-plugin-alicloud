@@ -81,7 +81,7 @@ where
   backup_location = 'OSS';
 ```
 
-### List backups that are completed in the last 30 days
+### List backups that were created in the last 30 days
 
 ```sql
 select
