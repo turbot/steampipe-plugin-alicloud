@@ -135,7 +135,7 @@ func tableAlicloudRdsBackup(ctx context.Context) *plugin.Table {
 			{
 				Name:        "host_instance_id",
 				Type:        proto.ColumnType_STRING,
-				Description: "The No. of the instance that generates the data backup. This parameter is used to indicate whether the instance that generates the data backup file is a primary instance or a secondary instance.",
+				Description: "The number of the instance that generates the data backup. This parameter is used to indicate whether the instance that generates the data backup file is a primary instance or a secondary instance.",
 				Transform:   transform.FromField("HostInstanceID"),
 			},
 			{
