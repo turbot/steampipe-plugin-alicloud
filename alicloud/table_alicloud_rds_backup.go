@@ -83,7 +83,7 @@ func tableAlicloudRdsBackup(ctx context.Context) *plugin.Table {
 			{
 				Name:        "backup_download_url",
 				Type:        proto.ColumnType_STRING,
-				Description: "The Internet download URL of the backup set. If the download URL is unavailable, this parameter is an empty string.",
+				Description: "The internet download URL of the backup set. If the download URL is unavailable, this parameter is an empty string.",
 				Transform:   transform.FromField("BackupDownloadURL"),
 			},
 			{
@@ -105,7 +105,7 @@ func tableAlicloudRdsBackup(ctx context.Context) *plugin.Table {
 			{
 				Name:        "backup_type",
 				Type:        proto.ColumnType_STRING,
-				Description: "The backup method.",
+				Description: "The backup type.",
 			},
 			{
 				Name:        "backup_initiator",
@@ -119,7 +119,7 @@ func tableAlicloudRdsBackup(ctx context.Context) *plugin.Table {
 			},
 			{
 				Name:        "consistent_time",
-				Type:        proto.ColumnType_INT,
+				Type:        proto.ColumnType_TIMESTAMP,
 				Description: "The point in time at which the data in the data backup is consistent. ",
 			},
 			{
@@ -135,7 +135,7 @@ func tableAlicloudRdsBackup(ctx context.Context) *plugin.Table {
 			{
 				Name:        "host_instance_id",
 				Type:        proto.ColumnType_STRING,
-				Description: "The No. of the instance that generates the data backup. This parameter is used to indicate whether the instance that generates the data backup file is a primary instance or a secondary instance.",
+				Description: "The number of the instance that generates the data backup. This parameter is used to indicate whether the instance that generates the data backup file is a primary instance or a secondary instance.",
 				Transform:   transform.FromField("HostInstanceID"),
 			},
 			{
@@ -151,7 +151,7 @@ func tableAlicloudRdsBackup(ctx context.Context) *plugin.Table {
 			{
 				Name:        "slave_status",
 				Type:        proto.ColumnType_STRING,
-				Description: "The salve status of the backup.",
+				Description: "The slave status of the backup.",
 			},
 			{
 				Name:        "storage_class",
