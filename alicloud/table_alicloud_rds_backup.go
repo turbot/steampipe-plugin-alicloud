@@ -105,7 +105,7 @@ func tableAlicloudRdsBackup(ctx context.Context) *plugin.Table {
 			{
 				Name:        "backup_type",
 				Type:        proto.ColumnType_STRING,
-				Description: "The backup method.",
+				Description: "The backup type.",
 			},
 			{
 				Name:        "backup_initiator",
