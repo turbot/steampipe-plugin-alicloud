@@ -151,7 +151,7 @@ func tableAlicloudRdsBackup(ctx context.Context) *plugin.Table {
 			{
 				Name:        "slave_status",
 				Type:        proto.ColumnType_STRING,
-				Description: "The salve status of the backup.",
+				Description: "The slave status of the backup.",
 			},
 			{
 				Name:        "storage_class",
