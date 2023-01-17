@@ -10,10 +10,11 @@ _What's new?_
 _Enhancements_
 
 - Added column `ram_role` to `alicloud_ecs_instance` table. ([#313](https://github.com/turbot/steampipe-plugin-alicloud/pull/313))
+- Updated the `alicloud_ecs_image` table to return the details of a particular image when `image_id` and `region` are passed in the `where` clause. ([#315](https://github.com/turbot/steampipe-plugin-alicloud/pull/315))
 
 _Bug fixes_
 
-- Fixed the `alicloud_ecs_image` table to return the details of a particular image, when `image_id` and `region` are passed in the `where` clause, instead of returning an error. ([#315](https://github.com/turbot/steampipe-plugin-alicloud/pull/315))
+- Fixed the `alicloud_ecs_image` table to return the details of an image instead of returning an error when multiple regions are configured in the `alicloud.spc` file. ([#315](https://github.com/turbot/steampipe-plugin-alicloud/pull/315))
 
 _Dependencies_
 
