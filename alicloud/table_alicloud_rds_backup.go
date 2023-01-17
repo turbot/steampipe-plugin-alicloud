@@ -83,7 +83,7 @@ func tableAlicloudRdsBackup(ctx context.Context) *plugin.Table {
 			{
 				Name:        "backup_download_url",
 				Type:        proto.ColumnType_STRING,
-				Description: "The Internet download URL of the backup set. If the download URL is unavailable, this parameter is an empty string.",
+				Description: "The internet download URL of the backup set. If the download URL is unavailable, this parameter is an empty string.",
 				Transform:   transform.FromField("BackupDownloadURL"),
 			},
 			{
