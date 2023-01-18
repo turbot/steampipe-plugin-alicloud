@@ -46,6 +46,7 @@ where
   engine = 'MySQL';
 ```
 
+
 ### List DB instances that are currently running
 
 ```sql
@@ -72,6 +73,7 @@ where
   security_ips :: jsonb ? '0.0.0.0/0'
 ```
 
+
 ### List DB instances with SSL encryption disabled
 
 ```sql
@@ -87,6 +89,7 @@ where
   ssl_status = 'Disabled';
 ```
 
+
 ### List DB instances with TDE disabled
 
 ```sql
@@ -100,17 +103,4 @@ from
   alicloud_rds_instance
 where
   tde_status = 'Disabled';
-```
-
-### Get security group configuration details for instances
-
-```sql
-select
-  i.db_instance_id,
-  s ->> 'NetworkType' as network_type,
-  s ->> 'RegionId' as security_group_region_id,
-  s ->> 'SecurityGroupId' as security_group_id
-from
-  alicloud_rds_instance as i,
-  jsonb_array_elements(security_group_configuration) as s;
 ```
