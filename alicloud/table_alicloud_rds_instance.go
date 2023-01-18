@@ -491,6 +491,13 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Description: "An array that consists of the IDs of the read-only instances attached to the primary instance.",
 			},
 			{
+				Name:        "security_group_configuration",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getRdsInstanceSecurityGroupConfiguration,
+				Transform:   transform.FromValue(),
+				Description: "ECS security groups that are bound to an ApsaraDB for the instance.",
+			},
+			{
 				Name:        "sql_collector_policy",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getSqlCollectorPolicy,
@@ -848,6 +855,32 @@ func getSqlCollectorRetention(ctx context.Context, d *plugin.QueryData, h *plugi
 		return nil, err
 	}
 	return response, nil
+}
+
+func getRdsInstanceSecurityGroupConfiguration(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := RDSService(ctx, d, region)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_rds_instance.getRdsInstanceSecurityGroupConfiguration", "connection_error", err)
+		return nil, err
+	}
+
+	request := rds.CreateDescribeSecurityGroupConfigurationRequest()
+	request.Scheme = "https"
+	request.RegionId = region
+	request.DBInstanceId = databaseID(h.Item)
+	response, err := client.DescribeSecurityGroupConfiguration(request)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_rds_instance.getRdsInstanceSecurityGroupConfiguration", "query_error", err, "request", request)
+		return nil, err
+	}
+
+	if len(response.Items.EcsSecurityGroupRelation) > 0 {
+		return response.Items.EcsSecurityGroupRelation, nil
+	}
+	return nil, nil
 }
 
 //// TRANSFORM FUNCTIONS
