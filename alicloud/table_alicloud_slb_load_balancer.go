@@ -26,6 +26,18 @@ func tableAlicloudSlbLoadBalancer(ctx context.Context) *plugin.Table {
 		},
 		List: &plugin.ListConfig{
 			Hydrate: listSlbLoadBalancers,
+			KeyColumns: []*plugin.KeyColumn{
+				{Name: "load_balancer_name", Require: plugin.Optional},
+				{Name: "network_type", Require: plugin.Optional},
+				{Name: "resource_group_id", Require: plugin.Optional},
+				{Name: "master_zone_id", Require: plugin.Optional},
+				{Name: "address_ip_version", Require: plugin.Optional},
+				{Name: "v_switch_id", Require: plugin.Optional},
+				{Name: "vpc_id", Require: plugin.Optional},
+				{Name: "load_balancer_status", Require: plugin.Optional},
+				{Name: "address_type", Require: plugin.Optional},
+				{Name: "internet_charge_type", Require: plugin.Optional},
+			},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -110,6 +122,7 @@ func tableAlicloudSlbLoadBalancer(ctx context.Context) *plugin.Table {
 				Name:        "address_ip_version",
 				Type:        proto.ColumnType_STRING,
 				Description: "The IP version. Valid values: ipv4 and ipv6.",
+				Transform: transform.FromField("AddressIPVersion"),
 			},
 			{
 				Name:        "modification_protection_status",
@@ -161,13 +174,6 @@ func tableAlicloudSlbLoadBalancer(ctx context.Context) *plugin.Table {
 				Description: ColumnDescriptionTags,
 				Transform:   transform.From(slbLoadbalancerTagMap),
 			},
-			// {
-			// 	Name:        "akas",
-			// 	Type:        proto.ColumnType_JSON,
-			// 	Description: ColumnDescriptionAkas,
-			// 	Hydrate:     getSecurityCenterVersionAkas,
-			// 	Transform:   transform.FromValue(),
-			// },
 
 			// Alicloud standard columns
 			{
@@ -201,6 +207,37 @@ func listSlbLoadBalancers(ctx context.Context, d *plugin.QueryData, _ *plugin.Hy
 	request.Scheme = "https"
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
+
+	if d.KeyColumnQualString("load_balancer_name") != "" {
+		request.LoadBalancerName = d.KeyColumnQualString("load_balancer_name")
+	}
+	if d.KeyColumnQualString("network_type") != "" {
+		request.NetworkType = d.KeyColumnQualString("network_type")
+	}
+	if d.KeyColumnQualString("resource_group_id") != "" {
+		request.ResourceGroupId = d.KeyColumnQualString("resource_group_id")
+	}
+	if d.KeyColumnQualString("master_zone_id") != "" {
+		request.MasterZoneId = d.KeyColumnQualString("master_zone_id")
+	}
+	if d.KeyColumnQualString("address_ip_version") != "" {
+		request.AddressIPVersion = d.KeyColumnQualString("address_ip_version")
+	}
+	if d.KeyColumnQualString("v_switch_id") != "" {
+		request.VSwitchId = d.KeyColumnQualString("v_switch_id")
+	}
+	if d.KeyColumnQualString("vpc_id") != "" {
+		request.VpcId = d.KeyColumnQualString("vpc_id")
+	}
+	if d.KeyColumnQualString("load_balancer_status") != "" {
+		request.LoadBalancerStatus = d.KeyColumnQualString("load_balancer_status")
+	}
+	if d.KeyColumnQualString("address_type") != "" {
+		request.AddressType = d.KeyColumnQualString("address_type")
+	}
+	if d.KeyColumnQualString("internet_charge_type") != "" {
+		request.InternetChargeType = d.KeyColumnQualString("internet_charge_type")
+	}
 
 	count := 0
 	for {
