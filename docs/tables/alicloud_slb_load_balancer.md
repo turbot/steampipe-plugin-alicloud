@@ -30,7 +30,7 @@ select
   v.cidr_block
 from
   alicloud_vpc_dhcp_options_set as s,
-  alicloud_vpc as v
+  alicloud_vpc as v;
 ```
 
 ### List SLB load balancers that have delete protection enable
