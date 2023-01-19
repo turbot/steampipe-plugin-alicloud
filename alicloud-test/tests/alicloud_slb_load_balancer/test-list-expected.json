@@ -1,0 +1,7 @@
+[
+	{
+		"address": "{{ output.resource_address.value }}",
+		"load_balancer_id": "{{ output.resource_id.value }}",
+		"load_balancer_name": "{{ resourceName }}"
+	}
+]

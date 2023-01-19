@@ -1,0 +1,6 @@
+[
+	{
+		"load_balancer_name": "{{ resourceName }}",
+		"title": "{{ resourceName }}"
+	}
+]
