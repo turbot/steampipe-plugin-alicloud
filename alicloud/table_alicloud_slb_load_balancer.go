@@ -247,7 +247,6 @@ func listSlbLoadBalancers(ctx context.Context, d *plugin.QueryData, _ *plugin.Hy
 			return nil, err
 		}
 		for _, loadBalancer := range response.LoadBalancers.LoadBalancer {
-			plugin.Logger(ctx).Error("RESPONSE ====>>", loadBalancer)
 			d.StreamListItem(ctx, loadBalancer)
 			count++
 		}
