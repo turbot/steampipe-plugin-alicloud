@@ -267,7 +267,7 @@ func getSlbLoadBalancer(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	// Create service connection
 	client, err := SLBService(ctx, d)
 	if err != nil {
-		plugin.Logger(ctx).Error("getRdsInstance", "connection_error", err)
+		plugin.Logger(ctx).Error("alicloud_slb_load_balancer.getSlbLoadBalancer", "connection_error", err)
 		return nil, err
 	}
 
@@ -298,6 +298,7 @@ func getSlbLoadBalancer(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 				}
 				return err
 			}
+			plugin.Logger(ctx).Error("alicloud_slb_load_balancer.getSlbLoadBalancer", "api_error", err)
 		}
 		return nil
 	})
