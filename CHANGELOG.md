@@ -1,3 +1,9 @@
+## v0.12.0 [2023-01-19]
+
+_Enhancements_
+
+- Added column `security_group_configuration` to `alicloud_rds_instance` table. ([#319](https://github.com/turbot/steampipe-plugin-alicloud/pull/319))
+
 ## v0.11.0 [2023-01-17]
 
 _What's new?_
