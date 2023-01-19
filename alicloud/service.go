@@ -259,7 +259,7 @@ func RAMService(ctx context.Context, d *plugin.QueryData) (*ram.Client, error) {
 	return svc, nil
 }
 
-// SLBService returns the service connection for Alicloud Servcer Load Balancer service
+// SLBService returns the service connection for Alicloud Server Load Balancer service
 func SLBService(ctx context.Context, d *plugin.QueryData) (*slb.Client, error) {
 	region := GetDefaultRegion(d.Connection)
 
