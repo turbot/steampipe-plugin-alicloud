@@ -157,7 +157,8 @@ func tableAlicloudKmsKey(ctx context.Context) *plugin.Table {
 				Name:        "title",
 				Description: ColumnDescriptionTitle,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.FromField("KeyId"),
+				Hydrate:     getKeyAlias,
+				Transform:   transform.From(kmsKeyTitle),
 			},
 			{
 				Name:        "akas",
@@ -424,4 +425,23 @@ func getKmsKeyRegion(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 	region := d.KeyColumnQualString(matrixKeyRegion)
 
 	return region, nil
+}
+
+//// TRANSFORM FUNCTIONS
+
+func kmsKeyTitle(ctx context.Context, d *transform.TransformData) (interface{}, error) {
+	// Use the first alias if one is set, else fallback to the key ID
+	key := d.HydrateItem.([]kms.Alias)
+	if len(key) > 0 {
+		return key[0].AliasName, nil
+	}
+
+	var keyID string
+	if d.HydrateResults["listKmsKey"] != nil {
+		keyID = (d.HydrateResults["listKmsKey"]).(kms.KeyMetadata).KeyId
+	} else if d.HydrateResults["getKmsKey"] != nil {
+		keyID = (d.HydrateResults["getKmsKey"]).(kms.KeyMetadata).KeyId
+	}
+
+	return keyID, nil
 }
