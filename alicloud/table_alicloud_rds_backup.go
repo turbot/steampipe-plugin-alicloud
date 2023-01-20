@@ -121,6 +121,7 @@ func tableAlicloudRdsBackup(ctx context.Context) *plugin.Table {
 				Name:        "consistent_time",
 				Type:        proto.ColumnType_TIMESTAMP,
 				Description: "The point in time at which the data in the data backup is consistent. ",
+				Transform:   transform.FromField("ConsistentTime").Transform(transform.UnixMsToTimestamp),
 			},
 			{
 				Name:        "copy_only_backup",
