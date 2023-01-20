@@ -1,3 +1,13 @@
+## v0.13.0 [2023-01-20]
+
+_Enhancements_
+
+- Updated the `title` column of `alicloud_kms_key` table to first use the key alias if available, else fall back to the key ID. ([#328](https://github.com/turbot/steampipe-plugin-alicloud/pull/328))
+
+_Bug fixes_
+
+- Fixed the column `consistent_time` in `alicloud_rds_backup` table to correctly return data instead of an error. ([#327](https://github.com/turbot/steampipe-plugin-alicloud/pull/327))
+
 ## v0.12.0 [2023-01-19]
 
 _Enhancements_
