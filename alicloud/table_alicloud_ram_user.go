@@ -341,7 +341,7 @@ func getRAMUserMfaDevices(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 		return nil, serverErr
 	}
 
-	var items []ram.VirtualMFADeviceInListVirtualMFADevices
+	var items []ram.VirtualMFADevice
 	for _, i := range response.VirtualMFADevices.VirtualMFADevice {
 		if i.User.UserName == data.UserName {
 			items = append(items, i)
@@ -399,7 +399,7 @@ func getCsUserPermissions(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 //// TRANSFORM FUNCTION
 
 func userMfaStatus(_ context.Context, d *transform.TransformData) (interface{}, error) {
-	data := d.HydrateItem.([]ram.VirtualMFADeviceInListVirtualMFADevices)
+	data := d.HydrateItem.([]ram.VirtualMFADevice)
 
 	if len(data) > 0 {
 		return true, nil

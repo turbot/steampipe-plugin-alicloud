@@ -157,7 +157,7 @@ func getRAMGroup(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 	var name string
 
 	if h.Item != nil {
-		i := h.Item.(ram.GroupInListGroups)
+		i := h.Item.(groupInfo)
 		name = i.GroupName
 	} else {
 		quals := d.KeyColumnQuals

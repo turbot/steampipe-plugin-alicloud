@@ -8,7 +8,6 @@ import (
 	ims "github.com/alibabacloud-go/ims-20190815/client"
 	rpc "github.com/alibabacloud-go/tea-rpc/client"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/actiontrail"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/cas"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -20,6 +19,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/turbot/alibaba-cloud-sdk-go/services/cas"
 	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
 )
 

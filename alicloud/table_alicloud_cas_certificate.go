@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/cas"
+	"github.com/turbot/alibaba-cloud-sdk-go/services/cas"
 
 	"github.com/turbot/go-kit/helpers"
 	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
@@ -219,7 +219,7 @@ func getUserCertificate(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		data := casCertificate(h.Item)
 		id = data
 	} else {
-		id = d.KeyColumnQuals["id"].GetInt64Value()
+		id = int64(d.KeyColumnQuals["id"].GetDoubleValue())
 	}
 
 	request := cas.CreateDescribeUserCertificateDetailRequest()
