@@ -61,7 +61,6 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 				Name:        "create_time",
 				Description: "The time when the trail was created.",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Transform:   transform.FromField("CreateTime").Transform(transform.UnixMsToTimestamp),
 			},
 			{
 				Name:        "event_rw",
@@ -88,13 +87,11 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 				Name:        "start_logging_time",
 				Description: "The most recent date and time when logging was enabled for the trail.",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Transform:   transform.FromField("StartLoggingTime").Transform(transform.UnixMsToTimestamp),
 			},
 			{
 				Name:        "stop_logging_time",
 				Description: "The most recent date and time when logging was disabled for the trail.",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Transform:   transform.FromField("StopLoggingTime").Transform(transform.NullIfZeroValue).Transform(transform.UnixMsToTimestamp),
 			},
 			{
 				Name:        "trail_region",
@@ -105,7 +102,6 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 				Name:        "update_time",
 				Description: "The most recent time when the configuration of the trail was updated.",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Transform:   transform.FromField("UpdateTime").Transform(transform.UnixMsToTimestamp),
 			},
 
 			// Steampipe standard columns
