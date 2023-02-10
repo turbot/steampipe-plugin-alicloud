@@ -2,7 +2,7 @@
 
 _Dependencies_
 
-- Recompile plugin with [steampipe-plugin-sdk v4.1.12](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v4112-2023-02-09) which fixes the query caching functionality. ([#331](https://github.com/turbot/steampipe-plugin-alicloud/pull/331))
+- Recompiled plugin with [steampipe-plugin-sdk v4.1.12](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v4112-2023-02-09) which fixes the query caching functionality. ([#331](https://github.com/turbot/steampipe-plugin-alicloud/pull/331))
 
 ## v0.13.0 [2023-01-20]
 
