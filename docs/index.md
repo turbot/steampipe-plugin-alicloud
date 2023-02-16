@@ -106,6 +106,32 @@ connection "ali_account_bbb" {
 
 ```
 
+You can multi-account connections by using an [**aggregator** connection](https://steampipe.io/docs/using-steampipe/managing-connections#using-aggregators). Aggregators allow you to query data from multiple connections for a plugin as if they are a single connection:
+
+```hcl
+connection "alicloud_all" {
+  plugin      = "alicloud"
+  type        = "aggregator"
+  connections = ["alicloud_01", "alicloud_02", "alicloud_03"]
+}
+```
+
+Querying tables from this connection will return results from the `alicloud_01`, `alicloud_02`, and `alicloud_03` connections:
+
+```sql
+select * from alicloud_all.alicloud_vpc;
+```
+
+Steampipe supports the `*` wildcard in the connection names. For example, to aggregate all the AWS plugin connections whose names begin with `alicloud_`:
+
+```hcl
+connection "alicloud_all" {
+  type        = "aggregator"
+  plugin      = "alicloud"
+  connections = ["alicloud_*"]
+}
+```
+
 ### Specify static credentials using environment variables 
 Steampipe supports three different naming conventions for Alicloud authentication environment variables, checking for existence in the following order:
 
