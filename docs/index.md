@@ -122,7 +122,7 @@ Querying tables from this connection will return results from the `alicloud_01`,
 select * from alicloud_all.alicloud_vpc;
 ```
 
-Steampipe supports the `*` wildcard in the connection names. For example, to aggregate all the AWS plugin connections whose names begin with `alicloud_`:
+Steampipe supports the `*` wildcard in the connection names. For example, to aggregate all the Alicloud plugin connections whose names begin with `alicloud_`:
 
 ```hcl
 connection "alicloud_all" {
