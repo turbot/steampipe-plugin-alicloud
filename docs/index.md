@@ -27,7 +27,7 @@ from
   alicloud_ram_user;
 ```
 
-```
+```plain
 +---------+----------------+-------------+
 | name    | display_name   | mfa_enabled |
 +---------+----------------+-------------+
@@ -78,15 +78,15 @@ connection "alicloud" {
 
 ## Get involved
 
-* Open source: https://github.com/turbot/steampipe-plugin-alicloud
-* Community: [Slack Channel](https://steampipe.io/community/join)
-
+- Open source: https://github.com/turbot/steampipe-plugin-alicloud
+- Community: [Slack Channel](https://steampipe.io/community/join)
 
 ## Advanced configuration options
 
 For users with multiple accounts and more complex authentication use cases, here are some examples of advanced configuration options:
 
-### Specify multiple accounts 
+### Specify multiple accounts
+
 A common configuration is to have multiple connections to different accounts:
 
 ```hcl
@@ -103,7 +103,6 @@ connection "ali_account_bbb" {
   access_key  = "ASIA42DZSWFYS42PFJHP"
   regions     = ["cn-east-1"]
 }
-
 ```
 
 You can multi-account connections by using an [**aggregator** connection](https://steampipe.io/docs/using-steampipe/managing-connections#using-aggregators). Aggregators allow you to query data from multiple connections for a plugin as if they are a single connection:
@@ -132,28 +131,32 @@ connection "alicloud_all" {
 }
 ```
 
-### Specify static credentials using environment variables 
+### Specify static credentials using environment variables
+
 Steampipe supports three different naming conventions for Alicloud authentication environment variables, checking for existence in the following order:
 
 1. aliyun CLI format
+
 ```sh
 export ALIBABACLOUD_ACCESS_KEY_ID=ASIA42DZSWFYS42PFJHP  
 export ALIBABACLOUD_ACCESS_KEY_SECRET=gMCYsoGqjfThisAintARealKeyVVhh
 export ALIBABACLOUD_REGION_ID=cn-east-1
-``` 
+```
 
-2. Terraform format
+1. Terraform format
+
 ```sh
 export ALICLOUD_ACCESS_KEY_ID=ASIA42DZSWFYS42PFJHP  
 export ALICLOUD_ACCESS_KEY_SECRET=gMCYsoGqjfThisAintARealKeyVVhh
 export ALICLOUD_REGION_ID=cn-east-1
-``` 
+```
 
-3. Steampipe format
+1. Steampipe format
+
 ```sh
 export ALICLOUD_ACCESS_KEY=ASIA42DZSWFYS42PFJHP  
 export ALICLOUD_SECRET_KEY=gMCYsoGqjfThisAintARealKeyVVhh
 export ALICLOUD_REGION=cn-east-1
-``` 
+```
 
 If regions is not specified, Steampipe will use the single default region.
