@@ -76,11 +76,6 @@ connection "alicloud" {
 }
 ```
 
-## Get involved
-
-- Open source: https://github.com/turbot/steampipe-plugin-alicloud
-- Community: [Slack Channel](https://steampipe.io/community/join)
-
 ## Advanced configuration options
 
 For users with multiple accounts and more complex authentication use cases, here are some examples of advanced configuration options:
@@ -160,3 +155,8 @@ export ALICLOUD_REGION=cn-east-1
 ```
 
 If regions is not specified, Steampipe will use the single default region.
+
+## Get involved
+
+- Open source: [https://github.com/turbot/steampipe-plugin-alicloud](https://github.com/turbot/steampipe-plugin-alicloud)
+- Community: [Slack Channel](https://steampipe.io/community/join)
