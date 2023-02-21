@@ -25,9 +25,7 @@ select
   mfa_enabled
 from
   alicloud_ram_user;
-```
 
-```plain
 +---------+----------------+-------------+
 | name    | display_name   | mfa_enabled |
 +---------+----------------+-------------+
@@ -125,7 +123,7 @@ Querying tables from this connection will return results from the `alicloud_dev`
 select * from alicloud_all.alicloud_account;
 ```
 
-Alternatively, can use an unqualified name and it will be resolved according to the [Search Path](https://steampipe.io/docs/guides/search-path). It's a good idea to name your aggregator first alphbetically, so that it is the first connection in the search path (i.e. `alicloud_all` comes before `alicloud_dev`):
+Alternatively, you can use an unqualified name and it will be resolved according to the [Search Path](https://steampipe.io/docs/guides/search-path). It's a good idea to name your aggregator first alphabetically, so that it is the first connection in the search path (i.e. `alicloud_all` comes before `alicloud_dev`):
 
 ```sql
 select * from alicloud_account;
@@ -141,7 +139,7 @@ connection "alicloud_all" {
 }
 ```
 
-Aggregators are powerful, but they are not infinitely scalable. Like any other Steampipe connection, they query APIs and are subject to API limits and throttling. Consider as an example and aggregator that includes 3 Alicloud connections, where each connection queries 28 regions. This means you essentially run the same list API calls 84 times! When using aggregators, it is especially important to:
+Aggregators are powerful, but they are not infinitely scalable. Like any other Steampipe connection, they query APIs and are subject to API limits and throttling. Consider as an example and aggregator that includes 3 Alicloud connections, where each connection queries 33 regions ([28 for `Alibaba Cloud public cloud`, 4 for `Alibaba Finance Cloud` and 1 for `Alibaba Gov Cloud`](https://www.alibabacloud.com/help/en/basics-for-beginners/latest/regions-and-zones)). This means you essentially run the same list API calls 84 times! When using aggregators, it is especially important to:
 
 - Query only what you need! `select * from alicloud_oss_bucket` must make a list API call in each connection, and then 11 API calls *for each bucket*, where `select name, versioning from alicloud_oss_bucket` would only require a single API call per bucket.
 - Consider extending the [cache TTL](https://steampipe.io/docs/reference/config-files#connection-options). The default is currently 300 seconds (5 minutes). Obviously, anytime Steampipe can pull from the cache, its is faster and less impactful to the APIs. If you don't need the most up-to-date results, increase the cache TTL!
