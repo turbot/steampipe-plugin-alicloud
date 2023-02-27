@@ -68,7 +68,7 @@ select
 from
   alicloud_rds_instance
 where
-  security_ips :: jsonb ? '0.0.0.0/0'
+  security_ips :: jsonb ? '0.0.0.0/0';
 ```
 
 ### List DB instances with SSL encryption disabled
@@ -112,4 +112,19 @@ select
 from
   alicloud_rds_instance as i,
   jsonb_array_elements(security_group_configuration) as s;
+```
+
+### Get encryption details for all the instances
+
+```sql
+select
+  i.arn as instance_arn,
+  i.title as instance_name,
+  encryption_key,
+  k.title as kms_key_name 
+from
+  alicloud_rds_instance i 
+  left join
+    alicloud_kms_key k 
+    on encryption_key = key_id;
 ```

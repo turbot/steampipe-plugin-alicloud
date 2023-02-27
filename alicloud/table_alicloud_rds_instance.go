@@ -389,6 +389,13 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Transform: transform.FromField("DispenseMode"),
 			},
 			{
+				Name:        "encryption_key",
+				Type:        proto.ColumnType_STRING,
+				Hydrate:     getRdsInstanceEncryptionKey,
+				Transform:   transform.FromValue(),
+				Description: "The custom encryption key for the instance.",
+			},
+			{
 				Name:      "origin_configuration",
 				Type:      proto.ColumnType_STRING,
 				Hydrate:   getRdsInstance,
@@ -833,6 +840,38 @@ func getSqlCollectorPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.H
 		return nil, err
 	}
 	return response, nil
+}
+
+func getRdsInstanceEncryptionKey(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+
+	// Create service connection
+	client, err := RDSService(ctx, d, region)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_rds_instance.getRdsInstanceEncryptionKey", "connection_error", err)
+		return nil, err
+	}
+
+	request := rds.CreateDescribeDBInstanceEncryptionKeyRequest()
+	request.Scheme = "https"
+	request.RegionId = region
+	request.DBInstanceId = databaseID(h.Item)
+	response, err := client.DescribeDBInstanceEncryptionKey(request)
+	if err != nil {
+		// If the transparent data encryption (TDE) is not enabled for the instance the API throws NoActiveBYOK error.
+		serverErr := err.(*errors.ServerError)
+		if serverErr.ErrorCode() == "NoActiveBYOK" {
+			return nil, nil
+		}
+		plugin.Logger(ctx).Error("alicloud_rds_instance.getRdsInstanceEncryptionKey", "query_error", err, "request", request)
+		return nil, err
+	}
+
+	if response != nil {
+		return response.EncryptionKey, nil
+	}
+
+	return nil, nil
 }
 
 func getSqlCollectorRetention(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
