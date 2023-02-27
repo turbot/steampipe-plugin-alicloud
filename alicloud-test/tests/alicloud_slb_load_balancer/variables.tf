@@ -64,10 +64,6 @@ output "resource_address" {
   value = alicloud_slb_load_balancer.named_test_resource.address
 }
 
-# output "resource_aka" {
-#   value = "acs:vpc:us-east-1:${data.alicloud_caller_identity.current.account_id}:natgateway/${alicloud_nat_gateway.named_test_resource.id}"
-# }
-
 output "account_id" {
   value = data.alicloud_caller_identity.current.account_id
 }
