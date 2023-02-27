@@ -107,7 +107,7 @@ Each connection is implemented as a distinct [Postgres schema](https://www.postg
 select * from alicloud_qa.alicloud_account;
 ```
 
-You can multi-account connections by using an [**aggregator** connection](https://steampipe.io/docs/using-steampipe/managing-connections#using-aggregators). Aggregators allow you to query data from multiple connections for a plugin as if they are a single connection:
+You can multi-account connections by using an [**aggregator** connection](https://steampipe.io/docs/using-steampipe/managing-connections#using-aggregators). Aggregators allow you to query data from multiple connections for a plugin as if they are a single connection.
 
 ```hcl
 connection "alicloud_all" {
@@ -139,9 +139,9 @@ connection "alicloud_all" {
 }
 ```
 
-Aggregators are powerful, but they are not infinitely scalable. Like any other Steampipe connection, they query APIs and are subject to API limits and throttling. Consider as an example and aggregator that includes 3 Alicloud connections, where each connection queries 33 regions ([28 for `Alibaba Cloud public cloud`, 4 for `Alibaba Finance Cloud` and 1 for `Alibaba Gov Cloud`](https://www.alibabacloud.com/help/en/basics-for-beginners/latest/regions-and-zones)). This means you essentially run the same list API calls 84 times! When using aggregators, it is especially important to:
+Aggregators are powerful, but they are not infinitely scalable. Like any other Steampipe connection, they query APIs and are subject to API limits and throttling. Consider as an example and aggregator that includes 3 Alicloud connections, where each connection queries 33 regions ([28 for `Alibaba Cloud public cloud`, 4 for `Alibaba Finance Cloud` and 1 for `Alibaba Gov Cloud`](https://www.alibabacloud.com/help/en/basics-for-beginners/latest/regions-and-zones)). This means you essentially run the same list API calls 99 times! When using aggregators, it is especially important to:
 
-- Query only what you need! `select * from alicloud_oss_bucket` must make a list API call in each connection, and then 11 API calls *for each bucket*, where `select name, versioning from alicloud_oss_bucket` would only require a single API call per bucket.
+- Query only what you need! `select * from alicloud_oss_bucket` must make a list API call in each connection, and then 5 API calls *for each bucket*, where `select name, versioning from alicloud_oss_bucket` would only require a single API call per bucket.
 - Consider extending the [cache TTL](https://steampipe.io/docs/reference/config-files#connection-options). The default is currently 300 seconds (5 minutes). Obviously, anytime Steampipe can pull from the cache, its is faster and less impactful to the APIs. If you don't need the most up-to-date results, increase the cache TTL!
 
 ## Specify static credentials using environment variables
