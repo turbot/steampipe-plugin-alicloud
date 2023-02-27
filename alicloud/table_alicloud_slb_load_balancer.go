@@ -44,53 +44,53 @@ func tableAlicloudSlbLoadBalancer(ctx context.Context) *plugin.Table {
 			{
 				Name:        "load_balancer_name",
 				Type:        proto.ColumnType_STRING,
-				Description: "The name of the CLB instance.",
+				Description: "The name of the SLB instance.",
 			},
 			{
 				Name:        "load_balancer_id",
 				Type:        proto.ColumnType_STRING,
-				Description: "The ID of the CLB instance.",
+				Description: "The ID of the SLB instance.",
 			},
 			{
 				Name:        "load_balancer_status",
 				Type:        proto.ColumnType_STRING,
-				Description: "The status of the CLB instance. Valid values: inactive|active|locked.",
+				Description: "The status of the SLB instance. Valid values: inactive|active|locked.",
 			},
 			{
 				Name:        "address",
 				Type:        proto.ColumnType_IPADDR,
-				Description: "The service IP address of the CLB instance.",
+				Description: "The service IP address of the SLB instance.",
 			},
 			{
 				Name:        "address_type",
 				Type:        proto.ColumnType_STRING,
-				Description: "The network type of the CLB instance. Valid values: internet|intranet.",
+				Description: "The network type of the SLB instance. Valid values: internet|intranet.",
 			},
 			{
 				Name:        "v_switch_id",
 				Type:        proto.ColumnType_STRING,
-				Description: "The ID of the vSwitch to which the CLB instance belongs.",
+				Description: "The ID of the vSwitch to which the SLB instance belongs.",
 				Transform:   transform.FromField("VSwitchId"),
 			},
 			{
 				Name:        "vpc_id",
 				Type:        proto.ColumnType_STRING,
-				Description: "The ID of the virtual private cloud (VPC) to which the CLB instance belongs.",
+				Description: "The ID of the virtual private cloud (VPC) to which the SLB instance belongs.",
 			},
 			{
 				Name:        "network_type",
 				Type:        proto.ColumnType_STRING,
-				Description: "The network type of the internal-facing CLB instance. Valid values: vpc|classic.",
+				Description: "The network type of the internal-facing SLB instance. Valid values: vpc|classic.",
 			},
 			{
 				Name:        "master_zone_id",
 				Type:        proto.ColumnType_STRING,
-				Description: "The ID of the primary zone to which the CLB instance belongs.",
+				Description: "The ID of the primary zone to which the SLB instance belongs.",
 			},
 			{
 				Name:        "slave_zone_id",
 				Type:        proto.ColumnType_STRING,
-				Description: "The ID of the secondary zone to which the CLB instance belongs.",
+				Description: "The ID of the secondary zone to which the SLB instance belongs.",
 			},
 			{
 				Name:        "internet_charge_type",
@@ -100,7 +100,7 @@ func tableAlicloudSlbLoadBalancer(ctx context.Context) *plugin.Table {
 			{
 				Name:        "create_time",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Description: "The time when the CLB instance was created.",
+				Description: "The time when the SLB instance was created.",
 			},
 			{
 				Name:        "create_time_stamp",
@@ -111,7 +111,7 @@ func tableAlicloudSlbLoadBalancer(ctx context.Context) *plugin.Table {
 			{
 				Name:        "pay_type",
 				Type:        proto.ColumnType_STRING,
-				Description: "The billing method of the CLB instance. Valid values: PayOnDemand.",
+				Description: "The billing method of the SLB instance. Valid values: PayOnDemand.",
 			},
 			{
 				Name:        "resource_group_id",
@@ -127,7 +127,7 @@ func tableAlicloudSlbLoadBalancer(ctx context.Context) *plugin.Table {
 			{
 				Name:        "modification_protection_status",
 				Type:        proto.ColumnType_STRING,
-				Description: "Indicates whether the configuration read-only mode is enabled for the CLB instance. ",
+				Description: "Indicates whether the configuration read-only mode is enabled for the SLB instance. ",
 			},
 			{
 				Name:        "modification_protection_reason",
@@ -147,12 +147,12 @@ func tableAlicloudSlbLoadBalancer(ctx context.Context) *plugin.Table {
 			{
 				Name:        "load_balancer_spec",
 				Type:        proto.ColumnType_STRING,
-				Description: "The specification of the CLB instance.",
+				Description: "The specification of the SLB instance.",
 			},
 			{
 				Name:        "delete_protection",
 				Type:        proto.ColumnType_STRING,
-				Description: "Indicates whether deletion protection is enabled for the CLB instance.",
+				Description: "Indicates whether deletion protection is enabled for the SLB instance.",
 			},
 			{
 				Name:        "tags_src",
