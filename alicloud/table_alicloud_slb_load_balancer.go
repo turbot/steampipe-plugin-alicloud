@@ -19,7 +19,7 @@ import (
 func tableAlicloudSlbLoadBalancer(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "alicloud_slb_load_balancer",
-		Description: "Alicloud Server load Balancer",
+		Description: "Alicloud Server Load Balancer",
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("load_balancer_id"),
 			Hydrate:    getSlbLoadBalancer,
@@ -81,7 +81,6 @@ func tableAlicloudSlbLoadBalancer(ctx context.Context) *plugin.Table {
 				Name:        "network_type",
 				Type:        proto.ColumnType_STRING,
 				Description: "The network type of the internal-facing CLB instance. Valid values: vpc|classic.",
-				Transform:   transform.FromField("ReleaseTime").Transform(transform.UnixToTimestamp),
 			},
 			{
 				Name:        "master_zone_id",
@@ -101,12 +100,13 @@ func tableAlicloudSlbLoadBalancer(ctx context.Context) *plugin.Table {
 			{
 				Name:        "create_time",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Description: "The time when the CLB instance was created. ",
+				Description: "The time when the CLB instance was created.",
 			},
 			{
 				Name:        "create_time_stamp",
-				Type:        proto.ColumnType_INT,
+				Type:        proto.ColumnType_TIMESTAMP,
 				Description: "The timestamp when the instance was created.",
+				Transform:   transform.FromField("CreateTimeStamp").Transform(transform.UnixToTimestamp),
 			},
 			{
 				Name:        "pay_type",
@@ -122,7 +122,7 @@ func tableAlicloudSlbLoadBalancer(ctx context.Context) *plugin.Table {
 				Name:        "address_ip_version",
 				Type:        proto.ColumnType_STRING,
 				Description: "The IP version. Valid values: ipv4 and ipv6.",
-				Transform: transform.FromField("AddressIPVersion"),
+				Transform:   transform.FromField("AddressIPVersion"),
 			},
 			{
 				Name:        "modification_protection_status",
@@ -142,7 +142,7 @@ func tableAlicloudSlbLoadBalancer(ctx context.Context) *plugin.Table {
 			{
 				Name:        "internet_charge_type_alias",
 				Type:        proto.ColumnType_STRING,
-				Description: "The metering method of Internet data transfer. Valid values: paybybandwidth|paybytraffic.",
+				Description: "The alias for metering method of Internet data transfer.",
 			},
 			{
 				Name:        "load_balancer_spec",
@@ -271,11 +271,10 @@ func getSlbLoadBalancer(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		return nil, err
 	}
 
-	var id string
-	if h.Item != nil {
-		id = databaseID(h.Item)
-	} else {
-		id = d.KeyColumnQuals["load_balancer_id"].GetStringValue()
+	id := d.KeyColumnQuals["load_balancer_id"].GetStringValue()
+
+	if id == "" {
+		return nil, nil
 	}
 
 	request := slb.CreateDescribeLoadBalancersRequest()
