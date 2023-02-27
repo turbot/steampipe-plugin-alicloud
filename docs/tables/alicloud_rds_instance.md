@@ -117,13 +117,14 @@ from
 ### Get encryption details for all the instances
 
 ```sql
-select 
+select
   i.arn as instance_arn,
   i.title as instance_name,
   encryption_key,
-  k.title as kms_key_name
-from 
+  k.title as kms_key_name 
+from
   alicloud_rds_instance i 
-  left join alicloud_kms_key k 
-    on encryption_key = key_id
+  left join
+    alicloud_kms_key k 
+    on encryption_key = key_id;
 ```
