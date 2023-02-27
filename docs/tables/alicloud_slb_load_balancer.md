@@ -1,6 +1,6 @@
 # Table: alicloud_slb_load_balancer
 
-Server Load Balancer (SLB) distributes network traffic across groups of backend servers to improve the service capability and application availability. It Includes Layer 4 Network Load Balancer (NLB), Layer 7 Application Load Balancer (ALB), and Classic Load Balancer (CLB). It Is the Official Cloud-Native Gateway of Alibaba Cloud.
+Server Load Balancer (SLB) distributes network traffic across groups of backend servers to improve the service capability and application availability. It Includes Layer 4 Network Load Balancer (NLB), Layer 7 Application Load Balancer (ALB), and Classic Load Balancer (CLB). It is the Official Cloud-Native Gateway of Alibaba Cloud.
 
 ## Examples
 
