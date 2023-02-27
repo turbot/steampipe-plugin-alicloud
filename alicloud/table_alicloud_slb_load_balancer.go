@@ -203,9 +203,18 @@ func listSlbLoadBalancers(ctx context.Context, d *plugin.QueryData, _ *plugin.Hy
 		return nil, err
 	}
 
+	// Limiting the results
+	maxLimit := int32(50)
+	if d.QueryContext.Limit != nil {
+		limit := int32(*d.QueryContext.Limit)
+		if limit < maxLimit {
+			maxLimit = limit
+		}
+	}
+
 	request := slb.CreateDescribeLoadBalancersRequest()
 	request.Scheme = "https"
-	request.PageSize = requests.NewInteger(50)
+	request.PageSize = requests.NewInteger(int(maxLimit))
 	request.PageNumber = requests.NewInteger(1)
 
 	if d.KeyColumnQualString("load_balancer_name") != "" {
