@@ -1,3 +1,47 @@
+## v0.13.1 [2023-02-10]
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v4.1.12](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v4112-2023-02-09) which fixes the query caching functionality. ([#331](https://github.com/turbot/steampipe-plugin-alicloud/pull/331))
+
+## v0.13.0 [2023-01-20]
+
+_Enhancements_
+
+- Updated the `title` column of `alicloud_kms_key` table to first use the key alias if available, else fall back to the key ID. ([#328](https://github.com/turbot/steampipe-plugin-alicloud/pull/328))
+
+_Bug fixes_
+
+- Fixed the column `consistent_time` in `alicloud_rds_backup` table to correctly return data instead of an error. ([#327](https://github.com/turbot/steampipe-plugin-alicloud/pull/327))
+
+## v0.12.0 [2023-01-19]
+
+_Enhancements_
+
+- Added column `security_group_configuration` to `alicloud_rds_instance` table. ([#319](https://github.com/turbot/steampipe-plugin-alicloud/pull/319))
+
+## v0.11.0 [2023-01-17]
+
+_What's new?_
+
+- New tables added
+  - [alicloud_rds_backup](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_rds_backup) ([#300](https://github.com/turbot/steampipe-plugin-alicloud/pull/300))
+  - [alicloud_rds_database](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_rds_database) ([#299](https://github.com/turbot/steampipe-plugin-alicloud/pull/299))
+  - [alicloud_vpc_flow_log](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_vpc_flow_log) ([#312](https://github.com/turbot/steampipe-plugin-alicloud/pull/312))
+
+_Enhancements_
+
+- Added column `ram_role` to `alicloud_ecs_instance` table. ([#313](https://github.com/turbot/steampipe-plugin-alicloud/pull/313))
+- Updated the `alicloud_ecs_image` table to return the details of a particular image when `image_id` and `region` are passed in the `where` clause. ([#315](https://github.com/turbot/steampipe-plugin-alicloud/pull/315))
+
+_Bug fixes_
+
+- Fixed the `alicloud_ecs_image` table to return the details of an image instead of returning an error when multiple regions are configured in the `alicloud.spc` file. ([#315](https://github.com/turbot/steampipe-plugin-alicloud/pull/315))
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v4.1.9](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v419-2022-11-30) which fixes hydrate function caching for aggregator connections. ([#316](https://github.com/turbot/steampipe-plugin-alicloud/pull/316))
+
 ## v0.10.1 [2022-11-11]
 
 _Dependencies_
