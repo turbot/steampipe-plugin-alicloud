@@ -106,7 +106,7 @@ func tableAlicloudSlbLoadBalancer(ctx context.Context) *plugin.Table {
 				Name:        "create_time_stamp",
 				Type:        proto.ColumnType_TIMESTAMP,
 				Description: "The timestamp when the instance was created.",
-				Transform:   transform.FromField("CreateTimeStamp").Transform(transform.UnixToTimestamp),
+				Transform:   transform.FromField("CreateTimeStamp").Transform(transform.UnixMsToTimestamp),
 			},
 			{
 				Name:        "pay_type",

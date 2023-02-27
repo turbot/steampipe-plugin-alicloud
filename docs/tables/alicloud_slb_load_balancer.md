@@ -1,6 +1,6 @@
-# Table: alicloud_vpc_dhcp_options_set
+# Table: alicloud_slb_load_balancer
 
-Dynamic Host Configuration Protocol (DHCP) is a network management protocol. DHCP provides a standard for passing configuration information to servers in a TCP/IP network.
+Server Load Balancer (SLB) distributes network traffic across groups of backend servers to improve the service capability and application availability. It Includes Layer 4 Network Load Balancer (NLB), Layer 7 Application Load Balancer (ALB), and Classic Load Balancer (CLB). It Is the Official Cloud-Native Gateway of Alibaba Cloud.
 
 ## Examples
 
@@ -19,7 +19,7 @@ from
   alicloud_slb_load_balancer;
 ```
 
-### Get VPC details that associated with SLB load balancers
+### Get VPC details associated with SLB load balancers
 
 ```sql
 select
@@ -33,7 +33,7 @@ from
   alicloud_vpc as v;
 ```
 
-### List SLB load balancers that have delete protection enable
+### List SLB load balancers that have deletion protection enabled
 
 ```sql
 select
@@ -47,7 +47,7 @@ where
   delete_protection = 'on';
 ```
 
-### List SLB load balancers that are created in last 30 days
+### List SLB load balancers that are created in the last 30 days
 
 ```sql
 select
