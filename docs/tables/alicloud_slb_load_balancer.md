@@ -29,7 +29,7 @@ select
   v.is_default,
   v.cidr_block
 from
-  alicloud_vpc_dhcp_options_set as s,
+  alicloud_slb_load_balancer as s,
   alicloud_vpc as v;
 ```
 
@@ -47,15 +47,15 @@ where
   delete_protection = 'on';
 ```
 
-### List SLB load balancers that are created in the last 30 days
+### List SLB load balancers created in the last 30 days
 
 ```sql
 select
   load_balancer_name,
   load_balancer_id,
-  load_balancer_status,
+  load_balancer_status
 from
-  alicloud_vpc_dhcp_options_set
+  alicloud_slb_load_balancer
 where
   create_time >= now() - interval '30' day;
 ```

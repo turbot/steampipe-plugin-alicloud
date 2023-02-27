@@ -273,6 +273,7 @@ func getSlbLoadBalancer(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 
 	id := d.KeyColumnQuals["load_balancer_id"].GetStringValue()
 
+	// Empty check
 	if id == "" {
 		return nil, nil
 	}
