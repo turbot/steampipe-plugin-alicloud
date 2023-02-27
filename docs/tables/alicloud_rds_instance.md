@@ -68,7 +68,7 @@ select
 from
   alicloud_rds_instance
 where
-  security_ips :: jsonb ? '0.0.0.0/0'
+  security_ips :: jsonb ? '0.0.0.0/0';
 ```
 
 ### List DB instances with SSL encryption disabled
