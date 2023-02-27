@@ -1,3 +1,15 @@
+## v0.14.0 [2023-02-27]
+
+_What's new?_
+
+- New tables added
+  - [alicloud_slb_load_balancer](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_slb_load_balancer) ([#321](https://github.com/turbot/steampipe-plugin-alicloud/pull/321))
+
+_Enhancements_
+
+- Added column `encryption_key` to `alicloud_rds_instance` table. ([#301](https://github.com/turbot/steampipe-plugin-alicloud/pull/301))
+- Updated the `docs/index.md` file to include multi-account configuration information and examples. ([#334](https://github.com/turbot/steampipe-plugin-alicloud/pull/334) (Thanks [@vmdude](https://github.com/vmdude) for the contribution!!)
+
 ## v0.13.1 [2023-02-10]
 
 _Dependencies_
