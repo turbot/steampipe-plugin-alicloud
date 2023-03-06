@@ -9,9 +9,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/sethvargo/go-retry"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -561,7 +561,7 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listRdsInstances(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Create service connection
 	client, err := RDSService(ctx, d, region)
@@ -597,7 +597,7 @@ func listRdsInstances(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 //// HYDRATE FUNCTIONS
 
 func getRdsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Create service connection
 	client, err := RDSService(ctx, d, region)
@@ -610,7 +610,7 @@ func getRdsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 	if h.Item != nil {
 		id = databaseID(h.Item)
 	} else {
-		id = d.KeyColumnQuals["db_instance_id"].GetStringValue()
+		id = d.EqualsQuals["db_instance_id"].GetStringValue()
 	}
 
 	request := rds.CreateDescribeDBInstanceAttributeRequest()
@@ -618,10 +618,7 @@ func getRdsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 	request.DBInstanceId = id
 	var response *rds.DescribeDBInstanceAttributeResponse
 
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return nil, err
-	}
+	b := retry.NewFibonacci(100 * time.Millisecond)
 
 	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
 		var err error
@@ -651,7 +648,7 @@ func getRdsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 }
 
 func getRdsInstanceIPArrayList(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Create service connection
 	client, err := RDSService(ctx, d, region)
@@ -679,7 +676,7 @@ func getRdsInstanceIPArrayList(ctx context.Context, d *plugin.QueryData, h *plug
 }
 
 func getTDEDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Create service connection
 	client, err := RDSService(ctx, d, region)
@@ -692,7 +689,7 @@ func getTDEDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	if h.Item != nil {
 		id = databaseID(h.Item)
 	} else {
-		id = d.KeyColumnQuals["db_instance_id"].GetStringValue()
+		id = d.EqualsQuals["db_instance_id"].GetStringValue()
 	}
 
 	request := rds.CreateDescribeDBInstanceTDERequest()
@@ -711,7 +708,7 @@ func getTDEDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 }
 
 func getSSLDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Create service connection
 	client, err := RDSService(ctx, d, region)
@@ -724,7 +721,7 @@ func getSSLDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 	if h.Item != nil {
 		id = databaseID(h.Item)
 	} else {
-		id = d.KeyColumnQuals["db_instance_id"].GetStringValue()
+		id = d.EqualsQuals["db_instance_id"].GetStringValue()
 	}
 
 	request := rds.CreateDescribeDBInstanceSSLRequest()
@@ -746,7 +743,7 @@ func getSSLDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 }
 
 func getRdsInstanceParameters(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Create service connection
 	client, err := RDSService(ctx, d, region)
@@ -769,7 +766,7 @@ func getRdsInstanceParameters(ctx context.Context, d *plugin.QueryData, h *plugi
 }
 
 func getRdsTags(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Create service connection
 	client, err := RDSService(ctx, d, region)
@@ -821,7 +818,7 @@ func getRdsInstanceARN(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 }
 
 func getSqlCollectorPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Create service connection
 	client, err := RDSService(ctx, d, region)
@@ -843,7 +840,7 @@ func getSqlCollectorPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.H
 }
 
 func getRdsInstanceEncryptionKey(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Create service connection
 	client, err := RDSService(ctx, d, region)
@@ -875,7 +872,7 @@ func getRdsInstanceEncryptionKey(ctx context.Context, d *plugin.QueryData, h *pl
 }
 
 func getSqlCollectorRetention(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Create service connection
 	client, err := RDSService(ctx, d, region)
@@ -897,7 +894,7 @@ func getSqlCollectorRetention(ctx context.Context, d *plugin.QueryData, h *plugi
 }
 
 func getRdsInstanceSecurityGroupConfiguration(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Create service connection
 	client, err := RDSService(ctx, d, region)

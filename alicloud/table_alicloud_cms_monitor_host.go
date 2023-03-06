@@ -6,9 +6,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -175,8 +175,8 @@ func getCmsMonitorHost(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 		return nil, err
 	}
 
-	hostName := d.KeyColumnQuals["host_name"].GetStringValue()
-	instanceId := d.KeyColumnQuals["instance_id"].GetStringValue()
+	hostName := d.EqualsQuals["host_name"].GetStringValue()
+	instanceId := d.EqualsQuals["instance_id"].GetStringValue()
 
 	// handle empty hostName or instanceId in get call
 	if hostName == "" || instanceId == "" {

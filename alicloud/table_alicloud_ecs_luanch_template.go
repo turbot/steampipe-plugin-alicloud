@@ -5,9 +5,9 @@ import (
 	"strconv"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 )
@@ -172,7 +172,7 @@ func getEcsLaunchTemplate(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 		disk := h.Item.(ecs.Disk)
 		id = disk.DiskId
 	} else {
-		id = d.KeyColumnQuals["launch_template_id"].GetStringValue()
+		id = d.EqualsQuals["launch_template_id"].GetStringValue()
 	}
 
 	request := ecs.CreateDescribeLaunchTemplatesRequest()
@@ -223,7 +223,7 @@ func getEcsLaunchTemplateLatestVersionDetails(ctx context.Context, d *plugin.Que
 func getEcsLaunchTemplateAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsLaunchTemplateAka")
 	data := h.Item.(ecs.LaunchTemplateSet)
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Get project details
 	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
@@ -240,7 +240,7 @@ func getEcsLaunchTemplateAka(ctx context.Context, d *plugin.QueryData, h *plugin
 }
 
 func getLaunchTemplateRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	return region, nil
 }

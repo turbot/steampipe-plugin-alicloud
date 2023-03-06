@@ -6,9 +6,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 func tableAlicloudVpcEip(ctx context.Context) *plugin.Table {
@@ -252,7 +252,7 @@ func getEip(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (in
 		data := h.Item.(vpc.EipAddress)
 		id = data.AllocationId
 	} else {
-		id = d.KeyColumnQuals["allocation_id"].GetStringValue()
+		id = d.EqualsQuals["allocation_id"].GetStringValue()
 	}
 	request.AllocationId = id
 	response, err := client.DescribeEipAddresses(request)

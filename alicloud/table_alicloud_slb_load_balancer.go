@@ -9,9 +9,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/sethvargo/go-retry"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -217,35 +217,35 @@ func listSlbLoadBalancers(ctx context.Context, d *plugin.QueryData, _ *plugin.Hy
 	request.PageSize = requests.NewInteger(int(maxLimit))
 	request.PageNumber = requests.NewInteger(1)
 
-	if d.KeyColumnQualString("load_balancer_name") != "" {
-		request.LoadBalancerName = d.KeyColumnQualString("load_balancer_name")
+	if d.EqualsQualString("load_balancer_name") != "" {
+		request.LoadBalancerName = d.EqualsQualString("load_balancer_name")
 	}
-	if d.KeyColumnQualString("network_type") != "" {
-		request.NetworkType = d.KeyColumnQualString("network_type")
+	if d.EqualsQualString("network_type") != "" {
+		request.NetworkType = d.EqualsQualString("network_type")
 	}
-	if d.KeyColumnQualString("resource_group_id") != "" {
-		request.ResourceGroupId = d.KeyColumnQualString("resource_group_id")
+	if d.EqualsQualString("resource_group_id") != "" {
+		request.ResourceGroupId = d.EqualsQualString("resource_group_id")
 	}
-	if d.KeyColumnQualString("master_zone_id") != "" {
-		request.MasterZoneId = d.KeyColumnQualString("master_zone_id")
+	if d.EqualsQualString("master_zone_id") != "" {
+		request.MasterZoneId = d.EqualsQualString("master_zone_id")
 	}
-	if d.KeyColumnQualString("address_ip_version") != "" {
-		request.AddressIPVersion = d.KeyColumnQualString("address_ip_version")
+	if d.EqualsQualString("address_ip_version") != "" {
+		request.AddressIPVersion = d.EqualsQualString("address_ip_version")
 	}
-	if d.KeyColumnQualString("v_switch_id") != "" {
-		request.VSwitchId = d.KeyColumnQualString("v_switch_id")
+	if d.EqualsQualString("v_switch_id") != "" {
+		request.VSwitchId = d.EqualsQualString("v_switch_id")
 	}
-	if d.KeyColumnQualString("vpc_id") != "" {
-		request.VpcId = d.KeyColumnQualString("vpc_id")
+	if d.EqualsQualString("vpc_id") != "" {
+		request.VpcId = d.EqualsQualString("vpc_id")
 	}
-	if d.KeyColumnQualString("load_balancer_status") != "" {
-		request.LoadBalancerStatus = d.KeyColumnQualString("load_balancer_status")
+	if d.EqualsQualString("load_balancer_status") != "" {
+		request.LoadBalancerStatus = d.EqualsQualString("load_balancer_status")
 	}
-	if d.KeyColumnQualString("address_type") != "" {
-		request.AddressType = d.KeyColumnQualString("address_type")
+	if d.EqualsQualString("address_type") != "" {
+		request.AddressType = d.EqualsQualString("address_type")
 	}
-	if d.KeyColumnQualString("internet_charge_type") != "" {
-		request.InternetChargeType = d.KeyColumnQualString("internet_charge_type")
+	if d.EqualsQualString("internet_charge_type") != "" {
+		request.InternetChargeType = d.EqualsQualString("internet_charge_type")
 	}
 
 	count := 0
@@ -271,7 +271,7 @@ func listSlbLoadBalancers(ctx context.Context, d *plugin.QueryData, _ *plugin.Hy
 //// HYDRATE FUNCTIONS
 
 func getSlbLoadBalancer(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Create service connection
 	client, err := SLBService(ctx, d)
@@ -280,7 +280,7 @@ func getSlbLoadBalancer(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		return nil, err
 	}
 
-	id := d.KeyColumnQuals["load_balancer_id"].GetStringValue()
+	id := d.EqualsQuals["load_balancer_id"].GetStringValue()
 
 	// Empty check
 	if id == "" {
@@ -292,10 +292,7 @@ func getSlbLoadBalancer(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	request.LoadBalancerId = id
 	var response *slb.DescribeLoadBalancersResponse
 
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return nil, err
-	}
+	b := retry.NewFibonacci(100 * time.Millisecond)
 
 	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
 		var err error

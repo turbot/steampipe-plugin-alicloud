@@ -6,9 +6,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 type groupInfo = struct {
@@ -160,7 +160,7 @@ func getRAMGroup(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 		i := h.Item.(ram.GroupInListGroups)
 		name = i.GroupName
 	} else {
-		quals := d.KeyColumnQuals
+		quals := d.EqualsQuals
 		name = quals["name"].GetStringValue()
 	}
 

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
 // struct to store the common column data

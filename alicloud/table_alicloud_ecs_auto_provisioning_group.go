@@ -7,9 +7,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -204,7 +204,7 @@ func getEcsAutosProvisioningGroup(ctx context.Context, d *plugin.QueryData, h *p
 		plugin.Logger(ctx).Error("alicloud_ecs_auto_provisioning_group.getEcsAutosProvisioningGroup", "connection_error", err)
 		return nil, err
 	}
-	id := d.KeyColumnQuals["auto_provisioning_group_id"].GetStringValue()
+	id := d.EqualsQuals["auto_provisioning_group_id"].GetStringValue()
 
 	request := ecs.CreateDescribeAutoProvisioningGroupsRequest()
 	request.Scheme = "https"

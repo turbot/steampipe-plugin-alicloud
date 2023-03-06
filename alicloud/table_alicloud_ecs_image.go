@@ -5,9 +5,9 @@ import (
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 )
@@ -238,7 +238,7 @@ func listEcsImages(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 	request.Scheme = "https"
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
-	imageId := d.KeyColumnQualString("image_id")
+	imageId := d.EqualsQualString("image_id")
 	if imageId != "" {
 		request.ImageId = imageId
 	}
@@ -273,8 +273,8 @@ func getEcsImage(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 		return nil, err
 	}
 
-	id := d.KeyColumnQuals["image_id"].GetStringValue()
-	regionName := d.KeyColumnQuals["region"].GetStringValue()
+	id := d.EqualsQuals["image_id"].GetStringValue()
+	regionName := d.EqualsQuals["region"].GetStringValue()
 
 	// Handle empty name or region
 	if id == "" || regionName == "" {
@@ -359,7 +359,7 @@ func getEcsImageARN(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 	plugin.Logger(ctx).Trace("getEcsImageARN")
 
 	data := h.Item.(ecs.Image)
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Get project details
 	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
@@ -376,7 +376,7 @@ func getEcsImageARN(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 }
 
 func getEcsImageRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	return region, nil
 }

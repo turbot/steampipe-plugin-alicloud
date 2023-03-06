@@ -3,9 +3,9 @@ package alicloud
 import (
 	"context"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
@@ -113,7 +113,8 @@ func tableAlicloudVpcDhcpOptionsSet(ctx context.Context) *plugin.Table {
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.From(vpcDhcpOptionsetRegion),
+				Hydrate: 		 vpcDhcpOptionsetRegion,
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "account_id",
@@ -140,11 +141,11 @@ func listVpcDhcpOptionsSets(ctx context.Context, d *plugin.QueryData, _ *plugin.
 	request.Scheme = "https"
 	request.MaxResults = requests.NewInteger(100)
 
-	if d.KeyColumnQualString("name") != "" {
-		request.DhcpOptionsSetName = d.KeyColumnQualString("name")
+	if d.EqualsQualString("name") != "" {
+		request.DhcpOptionsSetName = d.EqualsQualString("name")
 	}
-	if d.KeyColumnQualString("domain_name") != "" {
-		request.DomainName = d.KeyColumnQualString("domain_name")
+	if d.EqualsQualString("domain_name") != "" {
+		request.DomainName = d.EqualsQualString("domain_name")
 	}
 
 	// Limiting the results
@@ -171,7 +172,7 @@ func listVpcDhcpOptionsSets(ctx context.Context, d *plugin.QueryData, _ *plugin.
 			d.StreamListItem(ctx, dhcpOptionSet)
 
 			// Context can be cancelled due to manual cancellation or the limit has been hit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
@@ -202,7 +203,7 @@ func getVpcDhcpOptionsSet(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 	if h.Item != nil {
 		id = h.Item.(vpc.DhcpOptionsSet).DhcpOptionsSetId
 	} else {
-		id = d.KeyColumnQuals["dhcp_options_set_id"].GetStringValue()
+		id = d.EqualsQuals["dhcp_options_set_id"].GetStringValue()
 	}
 
 	request := vpc.CreateGetDhcpOptionsSetRequest()
@@ -225,7 +226,7 @@ func getVpcDhcpOptionSetAka(ctx context.Context, d *plugin.QueryData, h *plugin.
 	plugin.Logger(ctx).Trace("getVpcDhcpOptionSetAka")
 
 	var id, region string
-	region = d.KeyColumnQualString(matrixKeyRegion)
+	region = d.EqualsQualString(matrixKeyRegion)
 
 	switch item := h.Item.(type) {
 	case *vpc.GetDhcpOptionsSetResponse:
@@ -250,7 +251,7 @@ func getVpcDhcpOptionSetAka(ctx context.Context, d *plugin.QueryData, h *plugin.
 
 //// TRANSFORM FUNCTIONS
 
-func vpcDhcpOptionsetRegion(ctx context.Context, _ *transform.TransformData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+func vpcDhcpOptionsetRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := d.EqualsQualString(matrixKeyRegion)
 	return region, nil
 }

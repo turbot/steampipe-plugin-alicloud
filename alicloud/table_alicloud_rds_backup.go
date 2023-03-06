@@ -12,9 +12,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 
 	"github.com/turbot/go-kit/helpers"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -194,11 +194,11 @@ func tableAlicloudRdsBackup(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listRdsBackups(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 	dbInstance := h.Item.(rds.DBInstance)
 
-	if d.KeyColumnQualString("db_instance_id") != "" {
-		if d.KeyColumnQualString("db_instance_id") != dbInstance.DBInstanceId {
+	if d.EqualsQualString("db_instance_id") != "" {
+		if d.EqualsQualString("db_instance_id") != dbInstance.DBInstanceId {
 			return nil, nil
 		}
 	}
@@ -216,17 +216,17 @@ func listRdsBackups(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 	request.DBInstanceId = dbInstance.DBInstanceId
 
 	// Optional Qulas
-	if d.KeyColumnQualString("backup_id") != "" {
-		request.BackupId = d.KeyColumnQualString("backup_id")
+	if d.EqualsQualString("backup_id") != "" {
+		request.BackupId = d.EqualsQualString("backup_id")
 	}
-	if d.KeyColumnQualString("backup_status") != "" {
-		request.BackupStatus = d.KeyColumnQualString("backup_status")
+	if d.EqualsQualString("backup_status") != "" {
+		request.BackupStatus = d.EqualsQualString("backup_status")
 	}
-	if d.KeyColumnQualString("backup_mode") != "" {
-		request.BackupMode = d.KeyColumnQualString("backup_mode")
+	if d.EqualsQualString("backup_mode") != "" {
+		request.BackupMode = d.EqualsQualString("backup_mode")
 	}
-	if d.KeyColumnQualString("backup_location") != "" {
-		request.BackupLocation = d.KeyColumnQualString("backup_location")
+	if d.EqualsQualString("backup_location") != "" {
+		request.BackupLocation = d.EqualsQualString("backup_location")
 	}
 	quals := d.Quals
 	if quals["backup_start_time"] != nil {

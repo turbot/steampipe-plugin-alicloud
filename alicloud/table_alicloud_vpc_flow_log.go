@@ -5,9 +5,9 @@ import (
 	"strconv"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 )
@@ -134,23 +134,23 @@ func listVpcFlowLogs(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
 
-	if d.KeyColumnQualString("name") != "" {
-		request.FlowLogName = d.KeyColumnQualString("name")
+	if d.EqualsQualString("name") != "" {
+		request.FlowLogName = d.EqualsQualString("name")
 	}
-	if d.KeyColumnQualString("log_store_name") != "" {
-		request.LogStoreName = d.KeyColumnQualString("log_store_name")
+	if d.EqualsQualString("log_store_name") != "" {
+		request.LogStoreName = d.EqualsQualString("log_store_name")
 	}
-	if d.KeyColumnQualString("resource_id") != "" {
-		request.ResourceId = d.KeyColumnQualString("resource_id")
+	if d.EqualsQualString("resource_id") != "" {
+		request.ResourceId = d.EqualsQualString("resource_id")
 	}
-	if d.KeyColumnQualString("status") != "" {
-		request.Status = d.KeyColumnQualString("status")
+	if d.EqualsQualString("status") != "" {
+		request.Status = d.EqualsQualString("status")
 	}
-	if d.KeyColumnQualString("project_name") != "" {
-		request.ProjectName = d.KeyColumnQualString("project_name")
+	if d.EqualsQualString("project_name") != "" {
+		request.ProjectName = d.EqualsQualString("project_name")
 	}
-	if d.KeyColumnQualString("traffic_type") != "" {
-		request.TrafficType = d.KeyColumnQualString("traffic_type")
+	if d.EqualsQualString("traffic_type") != "" {
+		request.TrafficType = d.EqualsQualString("traffic_type")
 	}
 
 	count := 0
@@ -183,7 +183,7 @@ func getVpcFlowLog(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 		plugin.Logger(ctx).Error("alicloud_vpc_flow_log.getVpcFlowLog", "connection_error", err)
 		return nil, err
 	}
-	id := d.KeyColumnQuals["flow_log_id"].GetStringValue()
+	id := d.EqualsQuals["flow_log_id"].GetStringValue()
 
 	// Empty check
 	if id == "" {
@@ -209,7 +209,7 @@ func getVpcFlowLog(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 
 func getVpcFlowLogAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	data := h.Item.(vpc.FlowLog)
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Get project details
 	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()

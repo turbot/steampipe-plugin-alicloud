@@ -10,9 +10,9 @@ import (
 	"github.com/sethvargo/go-retry"
 
 	"github.com/turbot/go-kit/helpers"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -172,7 +172,7 @@ func listRAMPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 			d.StreamListItem(ctx, policy)
 			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
 			// if there is a limit, it will return the number of rows required to reach this limit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 		}
@@ -200,8 +200,8 @@ func getRAMPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 		name = i.PolicyName
 		policyType = i.PolicyType
 	} else {
-		name = d.KeyColumnQuals["policy_name"].GetStringValue()
-		policyType = d.KeyColumnQuals["policy_type"].GetStringValue()
+		name = d.EqualsQuals["policy_name"].GetStringValue()
+		policyType = d.EqualsQuals["policy_type"].GetStringValue()
 	}
 
 	request := ram.CreateGetPolicyRequest()
@@ -210,11 +210,8 @@ func getRAMPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 	request.PolicyType = policyType
 	var response *ram.GetPolicyResponse
 
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return nil, err
-	}
-
+	b := retry.NewFibonacci(100 * time.Millisecond)
+	
 	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 		var err error
 		response, err = client.GetPolicy(request)
