@@ -10,9 +10,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/kms"
 	"github.com/sethvargo/go-retry"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -196,7 +196,7 @@ func listKmsSecret(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 			})
 			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
 			// if there is a limit, it will return the number of rows required to reach this limit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 			count++
@@ -227,7 +227,7 @@ func getKmsSecret(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 		data := h.Item.(*kms.DescribeSecretResponse)
 		name = data.SecretName
 	} else {
-		name = d.KeyColumnQuals["name"].GetStringValue()
+		name = d.EqualsQuals["name"].GetStringValue()
 	}
 
 	request := kms.CreateDescribeSecretRequest()
@@ -235,10 +235,7 @@ func getKmsSecret(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 	request.SecretName = name
 	request.FetchTags = "true"
 
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return nil, err
-	}
+	b := retry.NewFibonacci(100 * time.Millisecond)
 
 	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
 		var err error
@@ -280,10 +277,7 @@ func listKmsSecretVersionIds(ctx context.Context, d *plugin.QueryData, h *plugin
 	request.SecretName = secretData.SecretName
 	request.IncludeDeprecated = "true"
 
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return nil, err
-	}
+	b := retry.NewFibonacci(100 * time.Millisecond)
 
 	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
 		var err error

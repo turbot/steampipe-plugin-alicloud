@@ -7,9 +7,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cs"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -205,8 +205,8 @@ func getCsKubernetesClusterNode(ctx context.Context, d *plugin.QueryData, h *plu
 		return nil, err
 	}
 
-	clusterId := d.KeyColumnQuals["cluster_id"].GetStringValue()
-	instanceId := d.KeyColumnQuals["instance_id"].GetStringValue()
+	clusterId := d.EqualsQuals["cluster_id"].GetStringValue()
+	instanceId := d.EqualsQuals["instance_id"].GetStringValue()
 
 	// handle empty clusterId or instanceId in get call
 	if clusterId == "" || instanceId == "" {

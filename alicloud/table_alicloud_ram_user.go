@@ -9,9 +9,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
 	"github.com/sethvargo/go-retry"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 type userInfo = struct {
@@ -218,7 +218,7 @@ func getRAMUser(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 		i := h.Item.(userInfo)
 		name = i.UserName
 	} else {
-		name = d.KeyColumnQuals["name"].GetStringValue()
+		name = d.EqualsQuals["name"].GetStringValue()
 	}
 
 	request := ram.CreateGetUserRequest()
@@ -226,10 +226,7 @@ func getRAMUser(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 	request.UserName = name
 	var response *ram.GetUserResponse
 
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return nil, err
-	}
+	b := retry.NewFibonacci(100 * time.Millisecond)
 
 	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
 		var err error
@@ -294,10 +291,7 @@ func getRAMUserPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	request.UserName = data.UserName
 	var response *ram.ListPoliciesForUserResponse
 
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return nil, err
-	}
+	b:= retry.NewFibonacci(100 * time.Millisecond)
 
 	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
 		var err error

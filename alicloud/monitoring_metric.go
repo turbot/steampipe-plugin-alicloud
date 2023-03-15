@@ -11,8 +11,8 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
 	"github.com/sethvargo/go-retry"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
 // append the common cloud monitoring metric columns onto the column list
@@ -136,10 +136,7 @@ func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularit
 	request.Dimensions = metricDimension
 	var stats *cms.DescribeMetricListResponse
 
-	b, err := retry.NewFibonacci(100 * time.Millisecond)
-	if err != nil {
-		return nil, err
-	}
+	b := retry.NewFibonacci(100 * time.Millisecond)
 
 	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
 		var err error

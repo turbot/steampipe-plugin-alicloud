@@ -6,9 +6,9 @@ import (
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 )
@@ -514,7 +514,7 @@ func listEcsInstance(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 	request.Scheme = "https"
 	request.PageSize = requests.NewInteger(100)
 	request.PageNumber = requests.NewInteger(1)
-	request.RegionId = d.KeyColumnQualString(matrixKeyRegion)
+	request.RegionId = d.EqualsQualString(matrixKeyRegion)
 	quals := d.Quals
 
 	if value, ok := GetBoolQualValue(quals, "device_available"); ok {
@@ -583,7 +583,7 @@ func listEcsInstance(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 			d.StreamListItem(ctx, instance)
 			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
 			// if there is a limit, it will return the number of rows required to reach this limit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 			count++
@@ -613,7 +613,7 @@ func getEcsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 		instance := h.Item.(ecs.Instance)
 		id = instance.InstanceId
 	} else {
-		id = d.KeyColumnQuals["instance_id"].GetStringValue()
+		id = d.EqualsQuals["instance_id"].GetStringValue()
 	}
 
 	// In SDK, the Datatype of InstanceIds is string, though the value should be passed as

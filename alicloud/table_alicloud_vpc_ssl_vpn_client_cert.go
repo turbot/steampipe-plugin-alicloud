@@ -6,9 +6,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 type vpnSslClientCertInfo = struct {
@@ -180,7 +180,7 @@ func getVpcSslVpnClientCert(ctx context.Context, d *plugin.QueryData, h *plugin.
 		data := h.Item.(vpnSslClientCertInfo)
 		id = data.SslVpnClientCertId
 	} else {
-		id = d.KeyColumnQuals["ssl_vpn_client_cert_id"].GetStringValue()
+		id = d.EqualsQuals["ssl_vpn_client_cert_id"].GetStringValue()
 	}
 
 	request := vpc.CreateDescribeSslVpnClientCertRequest()

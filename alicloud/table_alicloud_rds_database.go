@@ -6,9 +6,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -112,10 +112,10 @@ func tableAlicloudRdsDatabase(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listRdsdatabases(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 	dbInstance := h.Item.(rds.DBInstance)
-	if d.KeyColumnQualString("db_instance_id") != "" {
-		if d.KeyColumnQualString("db_instance_id") != dbInstance.DBInstanceId {
+	if d.EqualsQualString("db_instance_id") != "" {
+		if d.EqualsQualString("db_instance_id") != dbInstance.DBInstanceId {
 			return nil, nil
 		}
 	}
@@ -132,11 +132,11 @@ func listRdsdatabases(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	request.PageNumber = requests.NewInteger(1)
 	request.DBInstanceId = dbInstance.DBInstanceId
 
-	if d.KeyColumnQualString("db_name") != "" {
-		request.DBName = d.KeyColumnQualString("db_name")
+	if d.EqualsQualString("db_name") != "" {
+		request.DBName = d.EqualsQualString("db_name")
 	}
-	if d.KeyColumnQualString("db_status") != "" {
-		request.DBStatus = d.KeyColumnQualString("db_status")
+	if d.EqualsQualString("db_status") != "" {
+		request.DBStatus = d.EqualsQualString("db_status")
 	}
 
 	for {

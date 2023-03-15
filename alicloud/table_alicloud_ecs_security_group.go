@@ -6,9 +6,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
@@ -190,7 +190,7 @@ func getEcsSecurityGroup(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 		data := h.Item.(ecs.SecurityGroup)
 		id = data.SecurityGroupId
 	} else {
-		id = d.KeyColumnQuals["security_group_id"].GetStringValue()
+		id = d.EqualsQuals["security_group_id"].GetStringValue()
 	}
 
 	request := ecs.CreateDescribeSecurityGroupsRequest()
@@ -236,7 +236,7 @@ func getSecurityGroupAttribute(ctx context.Context, d *plugin.QueryData, h *plug
 func getEcsSecurityGroupARN(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsSecurityGroupARN")
 	data := h.Item.(ecs.SecurityGroup)
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Get project details
 	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
@@ -253,7 +253,7 @@ func getEcsSecurityGroupARN(ctx context.Context, d *plugin.QueryData, h *plugin.
 }
 
 func getSecurityGroupRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	return region, nil
 }
