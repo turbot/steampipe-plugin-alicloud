@@ -1,3 +1,9 @@
+## v0.15.0 [2023-03-15]
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v5.2.0](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v520-2023-03-02) which includes fixes for query cache pending item mechanism and aggregator connections not working for dynamic tables. ([#337](https://github.com/turbot/steampipe-plugin-alicloud/pull/337))
+
 ## v0.14.0 [2023-02-27]
 
 _What's new?_
