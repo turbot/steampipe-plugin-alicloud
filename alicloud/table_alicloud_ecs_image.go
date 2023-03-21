@@ -5,9 +5,9 @@ import (
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 )
@@ -20,9 +20,16 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 		Description: "AliCloud ECS Image.",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsImages,
+			KeyColumns: []*plugin.KeyColumn{
+				{
+					Name:    "image_id",
+					Require: plugin.Optional,
+				},
+			},
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("image_id"),
+			// We must include both image_id and region in the where clause else we will receive numerous rows. Which causes Error: get call returned 2 results - the key column is not globally unique (SQLSTATE HV000)
+			KeyColumns: plugin.AllColumns([]string{"image_id", "region"}),
 			Hydrate:    getEcsImage,
 		},
 		GetMatrixItemFunc: BuildRegionList,
@@ -226,10 +233,15 @@ func listEcsImages(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 		plugin.Logger(ctx).Error("alicloud_ecs_image.listEcsImages", "connection_error", err)
 		return nil, err
 	}
+
 	request := ecs.CreateDescribeImagesRequest()
 	request.Scheme = "https"
 	request.PageSize = requests.NewInteger(50)
 	request.PageNumber = requests.NewInteger(1)
+	imageId := d.EqualsQualString("image_id")
+	if imageId != "" {
+		request.ImageId = imageId
+	}
 
 	count := 0
 	for {
@@ -254,7 +266,6 @@ func listEcsImages(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 //// HYDRATE FUNCTIONS
 
 func getEcsImage(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	plugin.Logger(ctx).Trace("getEcsImage")
 	// Create service connection
 	client, err := ECSService(ctx, d)
 	if err != nil {
@@ -262,17 +273,18 @@ func getEcsImage(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 		return nil, err
 	}
 
-	var id string
-	if h.Item != nil {
-		data := h.Item.(ecs.Image)
-		id = data.ImageId
-	} else {
-		id = d.KeyColumnQuals["image_id"].GetStringValue()
+	id := d.EqualsQuals["image_id"].GetStringValue()
+	regionName := d.EqualsQuals["region"].GetStringValue()
+
+	// Handle empty name or region
+	if id == "" || regionName == "" {
+		return nil, nil
 	}
 
 	request := ecs.CreateDescribeImagesRequest()
 	request.Scheme = "https"
 	request.ImageId = id
+	request.RegionId = regionName
 
 	response, err := client.DescribeImages(request)
 	if serverErr, ok := err.(*errors.ServerError); ok {
@@ -347,7 +359,7 @@ func getEcsImageARN(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 	plugin.Logger(ctx).Trace("getEcsImageARN")
 
 	data := h.Item.(ecs.Image)
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Get project details
 	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
@@ -364,7 +376,7 @@ func getEcsImageARN(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 }
 
 func getEcsImageRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	return region, nil
 }

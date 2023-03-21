@@ -6,9 +6,9 @@ import (
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 )
@@ -426,6 +426,13 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("PublicIpAddress.IpAddress"),
 			},
 			{
+				Name:        "ram_role",
+				Description: "RAM role attached to the instance.",
+				Type:        proto.ColumnType_JSON,
+				Hydrate:     getEcsInstanceRamRole,
+				Transform:   transform.FromValue(),
+			},
+			{
 				Name:        "rdma_ip_address",
 				Description: "The RDMA IP address of HPC instance.",
 				Type:        proto.ColumnType_JSON,
@@ -507,7 +514,7 @@ func listEcsInstance(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 	request.Scheme = "https"
 	request.PageSize = requests.NewInteger(100)
 	request.PageNumber = requests.NewInteger(1)
-	request.RegionId = d.KeyColumnQualString(matrixKeyRegion)
+	request.RegionId = d.EqualsQualString(matrixKeyRegion)
 	quals := d.Quals
 
 	if value, ok := GetBoolQualValue(quals, "device_available"); ok {
@@ -576,7 +583,7 @@ func listEcsInstance(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 			d.StreamListItem(ctx, instance)
 			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
 			// if there is a limit, it will return the number of rows required to reach this limit
-			if d.QueryStatus.RowsRemaining(ctx) == 0 {
+			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
 			count++
@@ -606,7 +613,7 @@ func getEcsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 		instance := h.Item.(ecs.Instance)
 		id = instance.InstanceId
 	} else {
-		id = d.KeyColumnQuals["instance_id"].GetStringValue()
+		id = d.EqualsQuals["instance_id"].GetStringValue()
 	}
 
 	// In SDK, the Datatype of InstanceIds is string, though the value should be passed as
@@ -628,6 +635,40 @@ func getEcsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 
 	if response.Instances.Instance != nil && len(response.Instances.Instance) > 0 {
 		return response.Instances.Instance[0], nil
+	}
+
+	return nil, nil
+}
+
+func getEcsInstanceRamRole(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	instance := h.Item.(ecs.Instance)
+
+	// Create service connection
+	client, err := ECSService(ctx, d)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_ecs_instance.getEcsInstanceRamRole", "connection_error", err)
+		return nil, err
+	}
+
+	// In SDK, the Datatype of InstanceIds is string, though the value should be passed as
+	// ["i-bp67acfmxazb4p****", "i-bp67acfmxazb4p****", ... "i-bp67acfmxazb4p****"]
+	input, err := json.Marshal([]string{instance.InstanceId})
+	if err != nil {
+		return nil, err
+	}
+
+	request := ecs.CreateDescribeInstanceRamRoleRequest()
+	request.Scheme = "https"
+	request.InstanceIds = string(input)
+
+	response, err := client.DescribeInstanceRamRole(request)
+	if serverErr, ok := err.(*errors.ServerError); ok {
+		plugin.Logger(ctx).Error("alicloud_ecs_instance.getEcsInstanceRamRole", "api_error", serverErr, "request", request)
+		return nil, serverErr
+	}
+
+	if len(response.InstanceRamRoleSets.InstanceRamRoleSet) > 0 {
+		return response.InstanceRamRoleSets.InstanceRamRoleSet, nil
 	}
 
 	return nil, nil

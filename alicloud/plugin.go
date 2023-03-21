@@ -3,8 +3,8 @@ package alicloud
 import (
 	"context"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 // Plugin creates this (alicloud) plugin
@@ -54,6 +54,8 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_ram_role":                                   tableAlicloudRAMRole(ctx),
 			"alicloud_ram_security_preference":                    tableAlicloudRAMSecurityPreference(ctx),
 			"alicloud_ram_user":                                   tableAlicloudRAMUser(ctx),
+			"alicloud_rds_backup":                                 tableAlicloudRdsBackup(ctx),
+			"alicloud_rds_database":                               tableAlicloudRdsDatabase(ctx),
 			"alicloud_rds_instance":                               tableAlicloudRdsInstance(ctx),
 			"alicloud_rds_instance_metric_connections":            tableAlicloudRdsInstanceMetricConnections(ctx),
 			"alicloud_rds_instance_metric_connections_daily":      tableAlicloudRdsInstanceMetricConnectionsDaily(ctx),
@@ -62,10 +64,12 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_rds_instance_metric_cpu_utilization_hourly": tableAlicloudRdsInstanceMetricCpuUtilizationHourly(ctx),
 			"alicloud_security_center_field_statistics":           tableAlicloudSecurityCenterFieldStatistics(ctx),
 			"alicloud_security_center_version":                    tableAlicloudSecurityCenterVersion(ctx),
+			"alicloud_slb_load_balancer":                          tableAlicloudSlbLoadBalancer(ctx),
 			"alicloud_vpc":                                        tableAlicloudVpc(ctx),
 			"alicloud_vpc_bgp_peer":                               tableAlicloudVpcBGPPeer(ctx),
 			"alicloud_vpc_dhcp_options_set":                       tableAlicloudVpcDhcpOptionsSet(ctx),
 			"alicloud_vpc_eip":                                    tableAlicloudVpcEip(ctx),
+			"alicloud_vpc_flow_log":                               tableAlicloudVpcFlowLog(ctx),
 			"alicloud_vpc_nat_gateway":                            tableAlicloudVpcNatGateway(ctx),
 			"alicloud_vpc_network_acl":                            tableAlicloudVpcNetworkACL(ctx),
 			"alicloud_vpc_route_entry":                            tableAlicloudVpcRouteEntry(ctx),

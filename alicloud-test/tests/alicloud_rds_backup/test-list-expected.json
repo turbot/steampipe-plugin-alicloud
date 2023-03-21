@@ -1,0 +1,7 @@
+[
+	{
+		"backup_id": "{{ output.resource_id.value }}",
+		"db_instance_id": "{{ output.db_instance_id.value }}",
+		"store_status": "{{ output.store_status.value }}"
+	}
+]

@@ -17,15 +17,17 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sas"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
+
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
 // AutoscalingService returns the service connection for Alicloud Autoscaling service
 func AutoscalingService(ctx context.Context, d *plugin.QueryData) (*ess.Client, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	if region == "" {
 		return nil, fmt.Errorf("region must be passed AutoscalingService")
@@ -113,7 +115,7 @@ func CmsService(ctx context.Context, d *plugin.QueryData) (*cms.Client, error) {
 
 // ECSService returns the service connection for Alicloud ECS service
 func ECSService(ctx context.Context, d *plugin.QueryData) (*ecs.Client, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	if region == "" {
 		return nil, fmt.Errorf("region must be passed ECSService")
@@ -202,7 +204,7 @@ func IMSService(ctx context.Context, d *plugin.QueryData) (*ims.Client, error) {
 
 // KMSService returns the service connection for Alicloud KMS service
 func KMSService(ctx context.Context, d *plugin.QueryData) (*kms.Client, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	if region == "" {
 		return nil, fmt.Errorf("region must be passed KMSService")
@@ -257,6 +259,33 @@ func RAMService(ctx context.Context, d *plugin.QueryData) (*ram.Client, error) {
 	return svc, nil
 }
 
+// SLBService returns the service connection for Alicloud Server Load Balancer service
+func SLBService(ctx context.Context, d *plugin.QueryData) (*slb.Client, error) {
+	region := GetDefaultRegion(d.Connection)
+
+	// have we already created and cached the service?
+	serviceCacheKey := fmt.Sprintf("ram-%s", region)
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(*slb.Client), nil
+	}
+
+	ak, secret, err := getEnv(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+
+	// so it was not in cache - create service
+	svc, err := slb.NewClientWithAccessKey(region, ak, secret)
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the service connection
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+	return svc, nil
+}
+
 // StsService returns the service connection for Alicloud STS service
 func StsService(ctx context.Context, d *plugin.QueryData) (*sts.Client, error) {
 	region := GetDefaultRegion(d.Connection)
@@ -285,7 +314,7 @@ func StsService(ctx context.Context, d *plugin.QueryData) (*sts.Client, error) {
 
 // VpcService returns the service connection for Alicloud VPC service
 func VpcService(ctx context.Context, d *plugin.QueryData) (*vpc.Client, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	if region == "" {
 		return nil, fmt.Errorf("region must be passed VpcService")
@@ -458,7 +487,7 @@ func RDSService(ctx context.Context, d *plugin.QueryData, region string) (*rds.C
 
 // ActionTrailService returns the service connection for Alicloud ActionTrail service
 func ActionTrailService(ctx context.Context, d *plugin.QueryData) (*actiontrail.Client, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	if region == "" {
 		return nil, fmt.Errorf("region must be passed ActionTrailService")

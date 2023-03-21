@@ -1,0 +1,8 @@
+[
+	{
+		"load_balancer_id": "{{ output.resource_id.value }}",
+		"load_balancer_name": "{{ resourceName }}",
+		"load_balancer_status": "active",
+		"vpc_id": "{{ output.vpc_id.value }}"
+	}
+]

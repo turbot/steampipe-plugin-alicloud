@@ -7,9 +7,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -146,7 +146,7 @@ func getEcsKeypair(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 		keypair := h.Item.(ecs.KeyPair)
 		name = keypair.KeyPairName
 	} else {
-		name = d.KeyColumnQuals["name"].GetStringValue()
+		name = d.EqualsQuals["name"].GetStringValue()
 	}
 
 	request := ecs.CreateDescribeKeyPairsRequest()
@@ -169,7 +169,7 @@ func getEcsKeypair(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 func getEcsKeypairAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsKeypairAka")
 	data := h.Item.(ecs.KeyPair)
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Get account details
 	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
@@ -186,7 +186,7 @@ func getEcsKeypairAka(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 }
 
 func getKeyPairRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	return region, nil
 }

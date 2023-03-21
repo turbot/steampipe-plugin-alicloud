@@ -8,9 +8,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cs"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -402,7 +402,7 @@ func getCsKubernetesCluster(ctx context.Context, d *plugin.QueryData, h *plugin.
 		clusterData := h.Item.(map[string]interface{})
 		id = clusterData["cluster_id"].(string)
 	} else {
-		id = d.KeyColumnQuals["cluster_id"].GetStringValue()
+		id = d.EqualsQuals["cluster_id"].GetStringValue()
 	}
 
 	request := cs.CreateDescribeClusterDetailRequest()

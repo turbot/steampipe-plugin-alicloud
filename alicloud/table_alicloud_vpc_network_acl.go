@@ -7,9 +7,9 @@ import (
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/turbot/go-kit/types"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 )
@@ -111,7 +111,8 @@ func tableAlicloudVpcNetworkACL(ctx context.Context) *plugin.Table {
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
-				Transform:   transform.From(networkAclRegion),
+				Hydrate:     networkAclRegion,
+				Transform:   transform.FromValue(),
 			},
 			{
 				Name:        "account_id",
@@ -179,7 +180,7 @@ func getNetworkACL(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 		plugin.Logger(ctx).Error("alicloud_vpc_network_acl.getNetworkACL", "connection_error", err)
 		return nil, err
 	}
-	id := d.KeyColumnQuals["network_acl_id"].GetStringValue()
+	id := d.EqualsQuals["network_acl_id"].GetStringValue()
 
 	request := vpc.CreateDescribeNetworkAclAttributesRequest()
 	request.Scheme = "https"
@@ -195,7 +196,7 @@ func getNetworkACL(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 func getNetworkACLAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getNetworkACLAka")
 	data := networkAclData(h.Item)
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Get project details
 	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
@@ -226,8 +227,8 @@ func vpcNetworkACLTitle(_ context.Context, d *transform.TransformData) (interfac
 	return title, nil
 }
 
-func networkAclRegion(ctx context.Context, _ *transform.TransformData) (interface{}, error) {
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+func networkAclRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := d.EqualsQualString(matrixKeyRegion)
 	return region, nil
 }
 

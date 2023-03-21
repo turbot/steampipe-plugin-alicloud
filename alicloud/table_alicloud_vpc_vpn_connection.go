@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 )
@@ -201,7 +201,7 @@ func getVpcVpnConnection(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 		data := h.Item.(vpc.VpnConnection)
 		id = data.VpnConnectionId
 	} else {
-		id = d.KeyColumnQuals["vpn_connection_id"].GetStringValue()
+		id = d.EqualsQuals["vpn_connection_id"].GetStringValue()
 	}
 
 	request := vpc.CreateDescribeVpnConnectionsRequest()
@@ -223,7 +223,7 @@ func getVpcVpnConnection(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 func getVpnConnectionAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getVpnConnectionAka")
 	data := h.Item.(vpc.VpnConnection)
-	region := plugin.GetMatrixItem(ctx)[matrixKeyRegion].(string)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Get project details
 	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
@@ -241,7 +241,7 @@ func getVpnConnectionAka(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 
 func getVpnConnectionRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getVpnConnectionRegion")
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	return region, nil
 }

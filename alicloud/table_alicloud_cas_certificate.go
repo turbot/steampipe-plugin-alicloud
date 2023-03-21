@@ -8,9 +8,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cas"
 
 	"github.com/turbot/go-kit/helpers"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 var supportedRegions = []string{"cn-hangzhou", "ap-south-1", "me-east-1", "eu-central-1", "ap-northeast-1", "ap-southeast-2"}
@@ -150,7 +150,7 @@ func tableAlicloudUserCertificate(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listUserCertificate(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// API does not return any error, if the request is made from an unsupported region
 	// If the request is made from an unsupported region, it lists all the certificates
@@ -197,7 +197,7 @@ func listUserCertificate(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 
 func getUserCertificate(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getUserCertificate")
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// API does not return any error, if the request is made from an unsupported region
 	// If the request is made from an unsupported region, it lists all the certificates
@@ -219,7 +219,7 @@ func getUserCertificate(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		data := casCertificate(h.Item)
 		id = data
 	} else {
-		id = d.KeyColumnQuals["id"].GetInt64Value()
+		id = d.EqualsQuals["id"].GetInt64Value()
 	}
 
 	request := cas.CreateDescribeUserCertificateDetailRequest()
@@ -236,7 +236,7 @@ func getUserCertificate(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 
 func getUserCertificateAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getUserCertificateAka")
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 	data := casCertificate(h.Item)
 
 	// Get project details
@@ -255,7 +255,7 @@ func getUserCertificateAka(ctx context.Context, d *plugin.QueryData, h *plugin.H
 
 func getUserCertificateRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getUserCertificateRegion")
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 	return region, nil
 }
 

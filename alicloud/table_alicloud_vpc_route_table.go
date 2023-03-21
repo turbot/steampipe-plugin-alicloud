@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 )
@@ -185,7 +185,7 @@ func getVpcRouteTable(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 		plugin.Logger(ctx).Error("alicloud_vpc_route_table.listVpcRouteTable", "connection_error", err)
 		return nil, err
 	}
-	id := d.KeyColumnQuals["route_table_id"].GetStringValue()
+	id := d.EqualsQuals["route_table_id"].GetStringValue()
 
 	request := vpc.CreateDescribeRouteTableListRequest()
 	request.Scheme = "https"
@@ -230,7 +230,7 @@ func getVpcRouteTableEntryList(ctx context.Context, d *plugin.QueryData, h *plug
 func getVpcRouteTableAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getVpcRouteTableAka")
 	data := h.Item.(vpc.RouterTableListType)
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Get project details
 	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
@@ -248,7 +248,7 @@ func getVpcRouteTableAka(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 
 func getVpcRouteTableRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getVpcRouteTableRegion")
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	return region, nil
 }

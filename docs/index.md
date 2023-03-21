@@ -25,9 +25,7 @@ select
   mfa_enabled
 from
   alicloud_ram_user;
-```
 
-```
 +---------+----------------+-------------+
 | name    | display_name   | mfa_enabled |
 +---------+----------------+-------------+
@@ -76,58 +74,107 @@ connection "alicloud" {
 }
 ```
 
-## Get involved
+## Multi-Account Connections
 
-* Open source: https://github.com/turbot/steampipe-plugin-alicloud
-* Community: [Slack Channel](https://steampipe.io/community/join)
-
-
-## Advanced configuration options
-
-For users with multiple accounts and more complex authentication use cases, here are some examples of advanced configuration options:
-
-### Specify multiple accounts 
-A common configuration is to have multiple connections to different accounts:
+You may create multiple alicloud connections:
 
 ```hcl
-connection "ali_account_aaa" {
+connection "alicloud_dev" {
   plugin      = "alicloud"
   secret_key  = "gMCYsoGqjfThisISNotARealKeyVVhh"
   access_key  = "ASIA42DZSWFYSN2PFHPJ"
-  regions     = ["us-east-1" , "ap-south-1"]
+  regions     = ["eu-central-1" , "cn-hangzhou"]
 }
 
-connection "ali_account_bbb" {
+connection "alicloud_qa" {
   plugin      = "alicloud"
   secret_key  = "gMCYsoGqjfThisAintARealKeyVVhh"
   access_key  = "ASIA42DZSWFYS42PFJHP"
-  regions     = ["cn-east-1"]
+  regions     = ["cn-hangzhou"]
 }
 
+connection "alicloud_prod" {
+  plugin      = "alicloud"
+  secret_key  = "gMCYsoGqjfThisAintARealKeyVVhh"
+  access_key  = "ASIA42DZSWFYS42PFJHP"
+  regions     = ["cn-hangzhou"]
+}
 ```
 
-### Specify static credentials using environment variables 
+Each connection is implemented as a distinct [Postgres schema](https://www.postgresql.org/docs/current/ddl-schemas.html). As such, you can use qualified table names to query a specific connection:
+
+```sql
+select * from alicloud_qa.alicloud_account;
+```
+
+You can multi-account connections by using an [**aggregator** connection](https://steampipe.io/docs/using-steampipe/managing-connections#using-aggregators). Aggregators allow you to query data from multiple connections for a plugin as if they are a single connection.
+
+```hcl
+connection "alicloud_all" {
+  plugin      = "alicloud"
+  type        = "aggregator"
+  connections = ["alicloud_dev", "alicloud_qa", "alicloud_prod"]
+}
+```
+
+Querying tables from this connection will return results from the `alicloud_dev`, `alicloud_qa`, and `alicloud_prod` connections:
+
+```sql
+select * from alicloud_all.alicloud_account;
+```
+
+Alternatively, you can use an unqualified name and it will be resolved according to the [Search Path](https://steampipe.io/docs/guides/search-path). It's a good idea to name your aggregator first alphabetically, so that it is the first connection in the search path (i.e. `alicloud_all` comes before `alicloud_dev`):
+
+```sql
+select * from alicloud_account;
+```
+
+Steampipe supports the `*` wildcard in the connection names. For example, to aggregate all the Alicloud plugin connections whose names begin with `alicloud_`:
+
+```hcl
+connection "alicloud_all" {
+  type        = "aggregator"
+  plugin      = "alicloud"
+  connections = ["alicloud_*"]
+}
+```
+
+Aggregators are powerful, but they are not infinitely scalable. Like any other Steampipe connection, they query APIs and are subject to API limits and throttling. Consider as an example and aggregator that includes 3 Alicloud connections, where each connection queries 33 regions ([28 for `Alibaba Cloud public cloud`, 4 for `Alibaba Finance Cloud` and 1 for `Alibaba Gov Cloud`](https://www.alibabacloud.com/help/en/basics-for-beginners/latest/regions-and-zones)). This means you essentially run the same list API calls 99 times! When using aggregators, it is especially important to:
+
+- Query only what you need! `select * from alicloud_oss_bucket` must make a list API call in each connection, and then 5 API calls *for each bucket*, where `select name, versioning from alicloud_oss_bucket` would only require a single API call per bucket.
+- Consider extending the [cache TTL](https://steampipe.io/docs/reference/config-files#connection-options). The default is currently 300 seconds (5 minutes). Obviously, anytime Steampipe can pull from the cache, its is faster and less impactful to the APIs. If you don't need the most up-to-date results, increase the cache TTL!
+
+## Specify static credentials using environment variables
+
 Steampipe supports three different naming conventions for Alicloud authentication environment variables, checking for existence in the following order:
 
-1. aliyun CLI format
+### Aliyun CLI format
+
 ```sh
 export ALIBABACLOUD_ACCESS_KEY_ID=ASIA42DZSWFYS42PFJHP  
 export ALIBABACLOUD_ACCESS_KEY_SECRET=gMCYsoGqjfThisAintARealKeyVVhh
 export ALIBABACLOUD_REGION_ID=cn-east-1
-``` 
+```
 
-2. Terraform format
+### Terraform format
+
 ```sh
 export ALICLOUD_ACCESS_KEY_ID=ASIA42DZSWFYS42PFJHP  
 export ALICLOUD_ACCESS_KEY_SECRET=gMCYsoGqjfThisAintARealKeyVVhh
 export ALICLOUD_REGION_ID=cn-east-1
-``` 
+```
 
-3. Steampipe format
+### Steampipe format
+
 ```sh
 export ALICLOUD_ACCESS_KEY=ASIA42DZSWFYS42PFJHP  
 export ALICLOUD_SECRET_KEY=gMCYsoGqjfThisAintARealKeyVVhh
 export ALICLOUD_REGION=cn-east-1
-``` 
+```
 
 If regions is not specified, Steampipe will use the single default region.
+
+## Get involved
+
+- Open source: [https://github.com/turbot/steampipe-plugin-alicloud](https://github.com/turbot/steampipe-plugin-alicloud)
+- Community: [Slack Channel](https://steampipe.io/community/join)

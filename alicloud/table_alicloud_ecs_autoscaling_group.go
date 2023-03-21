@@ -7,9 +7,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -334,8 +334,8 @@ func getEcsAutoscalingGroup(ctx context.Context, d *plugin.QueryData, h *plugin.
 		return nil, err
 	}
 
-	name := d.KeyColumnQuals["name"].GetStringValue()
-	id := d.KeyColumnQuals["scaling_group_id"].GetStringValue()
+	name := d.EqualsQuals["name"].GetStringValue()
+	id := d.EqualsQuals["scaling_group_id"].GetStringValue()
 
 	request := ess.CreateDescribeScalingGroupsRequest()
 	request.Scheme = "https"

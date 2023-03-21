@@ -7,9 +7,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 //// TABLE DEFINITION
@@ -243,7 +243,7 @@ func getEcsSnapshot(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 		snapshot := h.Item.(ecs.Snapshot)
 		name = snapshot.SnapshotName
 	} else {
-		name = d.KeyColumnQuals["name"].GetStringValue()
+		name = d.EqualsQuals["name"].GetStringValue()
 	}
 
 	request := ecs.CreateDescribeSnapshotsRequest()
@@ -266,7 +266,7 @@ func getEcsSnapshot(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 func getEcsSnapshotArn(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getEcsSnapshotArn")
 	data := h.Item.(ecs.Snapshot)
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	// Get account details
 	commonData, err := getCommonColumns(ctx, d, h)
@@ -282,7 +282,7 @@ func getEcsSnapshotArn(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 }
 
 func getSnapshotRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	region := d.KeyColumnQualString(matrixKeyRegion)
+	region := d.EqualsQualString(matrixKeyRegion)
 
 	return region, nil
 }

@@ -31,7 +31,6 @@ group by
   db_instance_class;
 ```
 
-
 ### List DB instances whose engine is MySQL
 
 ```sql
@@ -45,7 +44,6 @@ from
 where
   engine = 'MySQL';
 ```
-
 
 ### List DB instances that are currently running
 
@@ -70,9 +68,8 @@ select
 from
   alicloud_rds_instance
 where
-  security_ips :: jsonb ? '0.0.0.0/0'
+  security_ips :: jsonb ? '0.0.0.0/0';
 ```
-
 
 ### List DB instances with SSL encryption disabled
 
@@ -89,7 +86,6 @@ where
   ssl_status = 'Disabled';
 ```
 
-
 ### List DB instances with TDE disabled
 
 ```sql
@@ -103,4 +99,32 @@ from
   alicloud_rds_instance
 where
   tde_status = 'Disabled';
+```
+
+### Get security group configuration details for instances
+
+```sql
+select
+  i.db_instance_id,
+  s ->> 'NetworkType' as network_type,
+  s ->> 'RegionId' as security_group_region_id,
+  s ->> 'SecurityGroupId' as security_group_id
+from
+  alicloud_rds_instance as i,
+  jsonb_array_elements(security_group_configuration) as s;
+```
+
+### Get encryption details for all the instances
+
+```sql
+select
+  i.arn as instance_arn,
+  i.title as instance_name,
+  encryption_key,
+  k.title as kms_key_name 
+from
+  alicloud_rds_instance i 
+  left join
+    alicloud_kms_key k 
+    on encryption_key = key_id;
 ```
