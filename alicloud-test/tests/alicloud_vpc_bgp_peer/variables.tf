@@ -21,13 +21,26 @@ data "null_data_source" "resource" {
   }
 }
 
-data "alicloud_express_connect_physical_connections" "named_test_resource" {}
+resource "alicloud_express_connect_physical_connection" "named_test_resource" {
+  access_point_id          = "ap-cn-hangzhou-yh-B"
+  line_operator            = "Other"
+  peer_location            = var.alicloud_region
+  physical_connection_name = var.resource_name
+  type                     = "VPC"
+  description              = "my domestic connection"
+  port_type                = "1000Base-LX"
+  bandwidth                = 100
+}
+
 
 resource "alicloud_express_connect_virtual_border_router" "named_test_resource" {
+  depends_on = [
+    alicloud_express_connect_physical_connection.named_test_resource
+  ]
   local_gateway_ip           = "10.0.0.1"
   peer_gateway_ip            = "10.0.0.2"
   peering_subnet_mask        = "255.255.255.252"
-  physical_connection_id     = data.alicloud_express_connect_physical_connections.named_test_resource.connections.0.id
+  physical_connection_id     = alicloud_express_connect_physical_connection.named_test_resource.id
   virtual_border_router_name = "example_value"
   vlan_id                    = 120
   min_rx_interval            = 1000
@@ -36,6 +49,9 @@ resource "alicloud_express_connect_virtual_border_router" "named_test_resource" 
 }
 
 resource "alicloud_vpc_bgp_group" "named_test_resource" {
+  depends_on = [
+    alicloud_express_connect_virtual_border_router.named_test_resource
+  ]
   auth_key       = "YourPassword+12345678"
   bgp_group_name = var.resource_name
   description    = "example_value"
@@ -45,6 +61,9 @@ resource "alicloud_vpc_bgp_group" "named_test_resource" {
 }
 
 resource "alicloud_vpc_bgp_peer" "named_test_resource" {
+  depends_on = [
+    alicloud_vpc_bgp_group.named_test_resource
+  ]
   bfd_multi_hop   = "10"
   bgp_group_id    = alicloud_vpc_bgp_group.named_test_resource.id
   enable_bfd      = true
