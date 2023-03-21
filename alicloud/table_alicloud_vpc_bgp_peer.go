@@ -3,9 +3,9 @@ package alicloud
 import (
 	"context"
 
-	"github.com/turbot/steampipe-plugin-sdk/v4/grpc/proto"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin"
-	"github.com/turbot/steampipe-plugin-sdk/v4/plugin/transform"
+	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 )
@@ -17,7 +17,7 @@ func tableAlicloudVpcBGPPeer(ctx context.Context) *plugin.Table {
 		Name:        "alicloud_vpc_bgp_peer",
 		Description: "Aliclod VPC BGP Peer",
 		List: &plugin.ListConfig{
-			Hydrate: listVpcBgpPeers,
+			Hydrate:           listVpcBgpPeers,
 			ShouldIgnoreError: isNotFoundError([]string{"InvalidRegionId.NotFound"}),
 			KeyColumns: plugin.KeyColumnSlice{
 				{Name: "bgp_group_id", Require: plugin.Optional},
@@ -168,11 +168,11 @@ func listVpcBgpPeers(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 	request := vpc.CreateDescribeBgpPeersRequest()
 	request.Scheme = "https"
 
-	if d.KeyColumnQualString("bgp_group_id") != "" {
-		request.BgpGroupId = d.KeyColumnQualString("bgp_group_id")
+	if d.EqualsQualString("bgp_group_id") != "" {
+		request.BgpGroupId = d.EqualsQualString("bgp_group_id")
 	}
-	if d.KeyColumnQualString("bgp_peer_id") != "" {
-		request.BgpPeerId = d.KeyColumnQualString("bgp_peer_id")
+	if d.EqualsQualString("bgp_peer_id") != "" {
+		request.BgpPeerId = d.EqualsQualString("bgp_peer_id")
 	}
 
 	response, err := client.DescribeBgpPeers(request)
@@ -185,7 +185,7 @@ func listVpcBgpPeers(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 		d.StreamListItem(ctx, peer)
 
 		// Context can be cancelled due to manual cancellation or the limit has been hit
-		if d.QueryStatus.RowsRemaining(ctx) == 0 {
+		if d.RowsRemaining(ctx) == 0 {
 			return nil, nil
 		}
 	}
