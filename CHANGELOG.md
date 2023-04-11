@@ -1,3 +1,9 @@
+## v0.16.0 [2023-04-11]
+
+_Dependencies_
+
+- Recompiled plugin with steampipe-plugin-sdk v5.3.0 which adds go-getter support to dynamic tables. ([#340](https://github.com/turbot/steampipe-plugin-alicloud/pull/340))
+
 ## v0.15.0 [2023-03-15]
 
 _Dependencies_
