@@ -1,3 +1,9 @@
+## v0.17.0 [2023-05-11]
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v5.4.1](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v541-2023-05-05) which fixes increased plugin initialization time due to multiple connections causing the schema to be loaded repeatedly. ([#342](https://github.com/turbot/steampipe-plugin-alicloud/pull/342))
+
 ## v0.16.0 [2023-04-11]
 
 _Dependencies_
