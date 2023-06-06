@@ -36,9 +36,11 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 			Hydrate: listRAMUser,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.SingleColumn("name"),
-			ShouldIgnoreError: isNotFoundError([]string{"EntityNotExist.User", "MissingParameter"}),
-			Hydrate:           getRAMUser,
+			KeyColumns: plugin.SingleColumn("name"),
+			Hydrate:    getRAMUser,
+			IgnoreConfig: &plugin.IgnoreConfig{
+				ShouldIgnoreErrorFunc: isNotFoundError([]string{"EntityNotExist.User", "MissingParameter"}),
+			},
 		},
 		Columns: []*plugin.Column{
 			// Top columns
@@ -291,7 +293,7 @@ func getRAMUserPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	request.UserName = data.UserName
 	var response *ram.ListPoliciesForUserResponse
 
-	b:= retry.NewFibonacci(100 * time.Millisecond)
+	b := retry.NewFibonacci(100 * time.Millisecond)
 
 	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
 		var err error

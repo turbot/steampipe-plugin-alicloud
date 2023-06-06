@@ -25,9 +25,8 @@ func tableAlicloudKmsSecret(ctx context.Context) *plugin.Table {
 			Hydrate: listKmsSecret,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.SingleColumn("name"),
-			Hydrate:           getKmsSecret,
-			ShouldIgnoreError: isNotFoundError([]string{"Forbidden.ResourceNotFound"}),
+			KeyColumns: plugin.SingleColumn("name"),
+			Hydrate:    getKmsSecret,
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

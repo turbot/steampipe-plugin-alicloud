@@ -24,9 +24,8 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 			Hydrate: listRdsInstances,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.SingleColumn("db_instance_id"),
-			ShouldIgnoreError: isNotFoundError([]string{"InvalidDBInstanceId.NotFound"}),
-			Hydrate:           getRdsInstance,
+			KeyColumns: plugin.SingleColumn("db_instance_id"),
+			Hydrate:    getRdsInstance,
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

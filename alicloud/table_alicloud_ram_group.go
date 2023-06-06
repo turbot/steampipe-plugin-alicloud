@@ -28,9 +28,8 @@ func tableAlicloudRAMGroup(ctx context.Context) *plugin.Table {
 			Hydrate: listRAMGroup,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.SingleColumn("name"),
-			ShouldIgnoreError: isNotFoundError([]string{"EntityNotExist.Group"}),
-			Hydrate:           getRAMGroup,
+			KeyColumns: plugin.SingleColumn("name"),
+			Hydrate:    getRAMGroup,
 		},
 		Columns: []*plugin.Column{
 			// Top columns

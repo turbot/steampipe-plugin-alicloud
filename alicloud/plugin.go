@@ -12,6 +12,15 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 	p := &plugin.Plugin{
 		Name:             "steampipe-plugin-alicloud",
 		DefaultTransform: transform.FromCamel().NullIfZero(),
+		DefaultGetConfig: &plugin.GetConfig{
+			IgnoreConfig: &plugin.IgnoreConfig{
+				ShouldIgnoreErrorFunc: isNotFoundError([]string{"EntityNotExist", "ResourceNotFound", "NotFound"}),
+			},
+		},
+		// Default ignore config for the plugin
+		DefaultIgnoreConfig: &plugin.IgnoreConfig{
+			ShouldIgnoreErrorFunc: shouldIgnoreErrorPluginDefault(),
+		},
 		ConnectionConfigSchema: &plugin.ConnectionConfigSchema{
 			NewInstance: ConfigInstance,
 			Schema:      ConfigSchema,

@@ -23,9 +23,11 @@ func tableAlicloudRamPolicy(_ context.Context) *plugin.Table {
 		Description:      "Alibaba Cloud RAM Policy",
 		DefaultTransform: transform.FromCamel(),
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.AllColumns([]string{"policy_name", "policy_type"}),
-			ShouldIgnoreError: isNotFoundError([]string{"InvalidParameter.PolicyType", "EntityNotExist.Policy", "MissingParameter"}),
-			Hydrate:           getRAMPolicy,
+			KeyColumns: plugin.AllColumns([]string{"policy_name", "policy_type"}),
+			Hydrate:    getRAMPolicy,
+			IgnoreConfig: &plugin.IgnoreConfig{
+				ShouldIgnoreErrorFunc: isNotFoundError([]string{"InvalidParameter.PolicyType", "EntityNotExist.Policy", "MissingParameter"}),
+			},
 		},
 		List: &plugin.ListConfig{
 			Hydrate: listRAMPolicies,
@@ -211,7 +213,7 @@ func getRAMPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 	var response *ram.GetPolicyResponse
 
 	b := retry.NewFibonacci(100 * time.Millisecond)
-	
+
 	err = retry.Do(ctx, retry.WithMaxRetries(10, b), func(ctx context.Context) error {
 		var err error
 		response, err = client.GetPolicy(request)

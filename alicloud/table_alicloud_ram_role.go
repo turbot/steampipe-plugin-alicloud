@@ -32,9 +32,8 @@ func tableAlicloudRAMRole(ctx context.Context) *plugin.Table {
 			Hydrate: listRAMRoles,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.SingleColumn("name"),
-			ShouldIgnoreError: isNotFoundError([]string{"EntityNotExist.Role"}),
-			Hydrate:           getRAMRole,
+			KeyColumns: plugin.SingleColumn("name"),
+			Hydrate:    getRAMRole,
 		},
 		Columns: []*plugin.Column{
 			{
