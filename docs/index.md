@@ -74,7 +74,7 @@ connection "alicloud" {
 
   # List of additional Alicloud error codes to ignore for all queries.
   # By default, common not found error codes are ignored and will still be ignored even if this argument is not set.
-  # ignore_error_codes = ["Forbidden.Access", "Forbidden.NoPermission"]
+  # ignore_error_codes = ["AccessDenied", "Forbidden.Access", "Forbidden.NoPermission"]
 }
 ```
 
