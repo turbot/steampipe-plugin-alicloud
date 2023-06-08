@@ -6,9 +6,10 @@ import (
 )
 
 type alicloudConfig struct {
-	Regions   []string `cty:"regions"`
-	AccessKey *string  `cty:"access_key"`
-	SecretKey *string  `cty:"secret_key"`
+	Regions          []string `cty:"regions"`
+	AccessKey        *string  `cty:"access_key"`
+	SecretKey        *string  `cty:"secret_key"`
+	IgnoreErrorCodes []string `cty:"ignore_error_codes"`
 }
 
 var ConfigSchema = map[string]*schema.Attribute{
@@ -21,6 +22,10 @@ var ConfigSchema = map[string]*schema.Attribute{
 	},
 	"secret_key": {
 		Type: schema.TypeString,
+	},
+	"ignore_error_codes": {
+		Type: schema.TypeList,
+		Elem: &schema.Attribute{Type: schema.TypeString},
 	},
 }
 

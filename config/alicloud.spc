@@ -13,4 +13,7 @@ connection "alicloud" {
   #access_key  	= "LTAI4GBVFakeKey09Kxezv66"
   #secret_key  	= "6iNPvThisIsNotARealSecretk1sZF"
 
+  # List of additional Alicloud error codes to ignore for all queries.
+  # By default, common not found error codes are ignored and will still be ignored even if this argument is not set.
+  # ignore_error_codes = ["AccessDenied", "Forbidden.Access", "Forbidden.NoPermission"]
 }

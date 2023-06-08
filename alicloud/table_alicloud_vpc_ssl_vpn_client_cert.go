@@ -32,9 +32,8 @@ func tableAlicloudVpcSslVpnClientCert(ctx context.Context) *plugin.Table {
 		Name:        "alicloud_vpc_ssl_vpn_client_cert",
 		Description: "SSL Client is responsible for managing client certificates. The client needs to first complete certificate verification in order to connect to the SSL Server.",
 		Get: &plugin.GetConfig{
-			KeyColumns:        plugin.SingleColumn("ssl_vpn_client_cert_id"),
-			ShouldIgnoreError: isNotFoundError([]string{"InvalidSslVpnClientCertId.NotFound"}),
-			Hydrate:           getVpcSslVpnClientCert,
+			KeyColumns: plugin.SingleColumn("ssl_vpn_client_cert_id"),
+			Hydrate:    getVpcSslVpnClientCert,
 		},
 		List: &plugin.ListConfig{
 			Hydrate: listVpcSslVpnClientCerts,
