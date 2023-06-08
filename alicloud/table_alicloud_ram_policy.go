@@ -24,10 +24,10 @@ func tableAlicloudRamPolicy(_ context.Context) *plugin.Table {
 		DefaultTransform: transform.FromCamel(),
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.AllColumns([]string{"policy_name", "policy_type"}),
-			Hydrate:    getRAMPolicy,
 			IgnoreConfig: &plugin.IgnoreConfig{
 				ShouldIgnoreErrorFunc: isNotFoundError([]string{"InvalidParameter.PolicyType", "EntityNotExist.Policy", "MissingParameter"}),
 			},
+			Hydrate: getRAMPolicy,
 		},
 		List: &plugin.ListConfig{
 			Hydrate: listRAMPolicies,

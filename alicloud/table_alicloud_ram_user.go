@@ -37,10 +37,10 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("name"),
-			Hydrate:    getRAMUser,
 			IgnoreConfig: &plugin.IgnoreConfig{
 				ShouldIgnoreErrorFunc: isNotFoundError([]string{"EntityNotExist.User", "MissingParameter"}),
 			},
+			Hydrate: getRAMUser,
 		},
 		Columns: []*plugin.Column{
 			// Top columns

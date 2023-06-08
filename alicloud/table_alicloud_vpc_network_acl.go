@@ -25,10 +25,10 @@ func tableAlicloudVpcNetworkACL(ctx context.Context) *plugin.Table {
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("network_acl_id"),
-			Hydrate:    getNetworkACL,
 			IgnoreConfig: &plugin.IgnoreConfig{
 				ShouldIgnoreErrorFunc: isNotFoundError([]string{"InvalidNetworkAcl.NotFound", "MissingParameter"}),
 			},
+			Hydrate: getNetworkACL,
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

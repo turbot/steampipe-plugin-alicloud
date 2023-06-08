@@ -22,10 +22,10 @@ func tableAlicloudKmsKey(ctx context.Context) *plugin.Table {
 		Description: "Alicloud KMS Key",
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("key_id"),
-			Hydrate:    getKmsKey,
 			IgnoreConfig: &plugin.IgnoreConfig{
 				ShouldIgnoreErrorFunc: isNotFoundError([]string{"EntityNotExist.Key", "Forbidden.KeyNotFound"}),
 			},
+			Hydrate: getKmsKey,
 		},
 		List: &plugin.ListConfig{
 			Hydrate: listKmsKey,
