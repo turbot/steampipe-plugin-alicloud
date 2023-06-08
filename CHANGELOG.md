@@ -1,3 +1,9 @@
+## v0.18.0 [2023-06-08]
+
+_What's new?_
+
+- Added `ignore_error_codes` config arg to provide users the ability to set a list of additional Alibaba Cloud error codes to ignore while running queries. For instance, to ignore some common access denied errors, which is helpful when running with limited permissions, set the argument `ignore_error_codes = ["AccessDenied", "Forbidden.Access", "Forbidden.NoPermission"]`. For more information, please see [Alibaba Cloud plugin configuration](https://hub.steampipe.io/plugins/turbot/alicloud#configuration) ([#344](https://github.com/turbot/steampipe-plugin-alicloud/pull/344))
+
 ## v0.17.0 [2023-05-11]
 
 _Dependencies_
