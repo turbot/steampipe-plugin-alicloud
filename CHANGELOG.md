@@ -1,3 +1,9 @@
+## v0.19.0 [2023-06-20]
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v5.5.0](https://github.com/turbot/steampipe-plugin-sdk/blob/v5.5.0/CHANGELOG.md#v550-2023-06-16) which significantly reduces API calls and boosts query performance, resulting in faster data retrieval. ([#346](https://github.com/turbot/steampipe-plugin-alicloud/pull/346))
+
 ## v0.18.0 [2023-06-08]
 
 _What's new?_
