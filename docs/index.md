@@ -190,4 +190,4 @@ If regions is not specified, Steampipe will use the single default region.
 ## Get involved
 
 - Open source: [https://github.com/turbot/steampipe-plugin-alicloud](https://github.com/turbot/steampipe-plugin-alicloud)
-- Community: [Slack Channel](https://steampipe.io/community/join)
+- Community: [Join #steampipe on Slack →](https://turbot.com/community/join)
