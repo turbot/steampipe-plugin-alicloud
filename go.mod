@@ -3,7 +3,7 @@ module github.com/turbot/steampipe-plugin-alicloud
 go 1.21
 
 require (
-	github.com/alibabacloud-go/ims-20190815 v1.0.0
+	github.com/alibabacloud-go/ims-20190815 v1.0.1
 	github.com/alibabacloud-go/tea-rpc v1.1.8
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1140
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.6+incompatible
@@ -26,7 +26,7 @@ require (
 	github.com/alibabacloud-go/endpoint-util v1.1.0 // indirect
 	github.com/alibabacloud-go/tea v1.1.10 // indirect
 	github.com/alibabacloud-go/tea-rpc-utils v1.1.2 // indirect
-	github.com/alibabacloud-go/tea-utils v1.3.6 // indirect
+	github.com/alibabacloud-go/tea-utils v1.3.9 // indirect
 	github.com/aliyun/credentials-go v1.1.2 // indirect
 	github.com/allegro/bigcache/v3 v3.1.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
