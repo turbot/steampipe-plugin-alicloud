@@ -1,6 +1,15 @@
-# Table: alicloud_rds_backup
+---
+title: "Steampipe Table: alicloud_rds_backup - Query Alicloud RDS Backups using SQL"
+description: "Allows users to query Alicloud RDS Backups, specifically details about each backup such as backup status, type, method, and more, providing insights into the backup strategy and potential risks."
+---
 
-ApsaraDB RDS Backup is a policy expression that defines when and how you want to back up your DB Instances.
+# Table: alicloud_rds_backup - Query Alicloud RDS Backups using SQL
+
+Alicloud RDS Backup is a feature of the Alicloud RDS service which allows users to create backups of their RDS instances. These backups can be used to restore a database instance to a previous state, ensuring data security and continuity. The backups can be created manually or scheduled according to the user's needs.
+
+## Table Usage Guide
+
+The `alicloud_rds_backup` table provides insights into the backups of RDS instances within Alicloud. As a Database Administrator, you can explore backup-specific details through this table, including backup status, type, method, and more. Utilize it to understand your current backup strategy, identify potential risks, and ensure the security and continuity of your data.
 
 ## Examples
 

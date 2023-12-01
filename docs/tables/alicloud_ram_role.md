@@ -1,6 +1,15 @@
-# Table: alicloud_ram_role
+---
+title: "Steampipe Table: alicloud_ram_role - Query Alicloud RAM Roles using SQL"
+description: "Allows users to query Alicloud RAM Roles, providing insights into role-specific details, permissions, and trust policies."
+---
 
-A RAM role is a virtual RAM identity that you can create in your Alibaba Cloud account. A RAM role does not have a specific logon password or AccessKey pair. A RAM user can be used only after the RAM user is assumed by a trusted entity.
+# Table: alicloud_ram_role - Query Alicloud RAM Roles using SQL
+
+Alicloud RAM (Resource Access Management) is a service that helps you manage user identities and access permissions. You can create and manage multiple identities under your Alibaba Cloud account, and control the resources that each identity can access. RAM allows you to grant precise access permissions to different users, user groups, and roles.
+
+## Table Usage Guide
+
+The `alicloud_ram_role` table provides insights into RAM roles within Alicloud Resource Access Management. As a security analyst, explore role-specific details through this table, including permissions, trust policies, and associated metadata. Utilize it to uncover information about roles, such as those with wildcard permissions, the trust relationships between roles, and the verification of trust policies.
 
 ## Examples
 

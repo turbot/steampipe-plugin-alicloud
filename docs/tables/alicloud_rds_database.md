@@ -1,6 +1,15 @@
-# Table: alicloud_rds_database
+---
+title: "Steampipe Table: alicloud_rds_database - Query Alicloud RDS Databases using SQL"
+description: "Allows users to query Alicloud RDS Databases, specifically details about each database hosted within the Alicloud RDS service."
+---
 
-Alibaba Cloud ApsaraDB for RDS (Relational Database Service) is a stable and reliable online database service that scales elastically.
+# Table: alicloud_rds_database - Query Alicloud RDS Databases using SQL
+
+Alicloud RDS (Relational Database Service) is a web service that makes it easier to set up, operate, and scale a relational database in the cloud. It provides cost-efficient, resizable capacity for an industry-standard relational database and manages common database administration tasks. Alicloud RDS supports multiple types of databases, including MySQL, SQL Server, and PostgreSQL, among others.
+
+## Table Usage Guide
+
+The `alicloud_rds_database` table provides insights into databases within Alicloud RDS. As a database administrator or a DevOps engineer, explore database-specific details through this table, including database names, character sets, and associated metadata. Utilize it to uncover information about databases, such as their status, creation times, and engine versions.
 
 ## Examples
 

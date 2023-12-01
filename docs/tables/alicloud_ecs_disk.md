@@ -1,6 +1,15 @@
-# Table: alicloud_ecs_disk
+---
+title: "Steampipe Table: alicloud_ecs_disk - Query Alibaba Cloud Elastic Compute Service Disks using SQL"
+description: "Allows users to query Elastic Compute Service Disks in Alibaba Cloud, specifically the disk details such as its status, type, and size, providing insights into disk usage and management."
+---
 
-Cloud disks are block-level Elastic Block Storage (EBS) products provided by Alibaba Cloud for ECS and provide low latency, high performance, high durability, and high reliability. Cloud disks use a distributed triplicate mechanism to ensure data durability for ECS instances. If service disruptions occur within a zone (for example, due to hardware failures), data within the zone is copied to an available disk in another zone to help ensure data availability.
+# Table: alicloud_ecs_disk - Query Alibaba Cloud Elastic Compute Service Disks using SQL
+
+The Alibaba Cloud Elastic Compute Service (ECS) provides scalable, on-demand cloud servers for secure, flexible, and efficient application environments. ECS supports both Linux and Windows OS and offers a variety of instance types optimized to fit different workloads and scenarios. It allows users to manage the underlying physical resources while focusing on developing and deploying applications.
+
+## Table Usage Guide
+
+The `alicloud_ecs_disk` table provides insights into the Elastic Compute Service Disks within Alibaba Cloud. As a system administrator, explore disk-specific details through this table, including status, type, and size. Utilize it to uncover information about disks, such as those with high usage, the types of disks in use, and the verification of disk sizes.
 
 ## Examples
 

@@ -1,6 +1,15 @@
-# Table: alicloud_ecs_security_group
+---
+title: "Steampipe Table: alicloud_ecs_security_group - Query Alibaba Cloud ECS Security Groups using SQL"
+description: "Allows users to query Alibaba Cloud ECS Security Groups, providing insights into the security settings of Elastic Compute Service (ECS) instances."
+---
 
-A security group is a logically isolated, mutually accessible group of instances within the same region that all share the same security requirements.
+# Table: alicloud_ecs_security_group - Query Alibaba Cloud ECS Security Groups using SQL
+
+An Alibaba Cloud ECS Security Group is a logical group that segregates ECS instances in different security domains. It acts as a virtual firewall to control inbound and outbound traffic for one or more ECS instances. It is a crucial component for managing the security of Alibaba Cloud ECS instances.
+
+## Table Usage Guide
+
+The `alicloud_ecs_security_group` table provides insights into the security configurations of Alibaba Cloud ECS instances. As a security analyst, you can use this table to explore the security group settings for each ECS instance, including inbound and outbound rules, and associated metadata. Use this table to identify instances with potentially risky security settings, such as open ports or unrestricted IP access.
 
 ## Examples
 

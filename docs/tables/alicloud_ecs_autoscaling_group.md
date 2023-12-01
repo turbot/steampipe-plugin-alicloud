@@ -1,6 +1,15 @@
-# Table: alicloud_ecs_autoscaling_group
+---
+title: "Steampipe Table: alicloud_ecs_autoscaling_group - Query Alibaba Cloud Elastic Compute Service Autoscaling Groups using SQL"
+description: "Allows users to query Autoscaling Groups in Alibaba Cloud Elastic Compute Service (ECS), specifically the configuration, capacity, and detailed information about each autoscaling group."
+---
 
-Auto Scaling is a service to automatically adjust computing resources based on your volume of user requests. When the demand for computing resources increase, Auto Scaling automatically adds ECS instances to serve additional user requests, or alternatively removes instances in the case of decreased user requests.
+# Table: alicloud_ecs_autoscaling_group - Query Alibaba Cloud Elastic Compute Service Autoscaling Groups using SQL
+
+Alibaba Cloud Elastic Compute Service (ECS) Autoscaling Groups are a collection of ECS instances that are created, managed, and released automatically according to the specified scaling rules and strategies. They help in maintaining application availability and improve cost-effectiveness by automatically adjusting the number of ECS instances according to the network traffic.
+
+## Table Usage Guide
+
+The `alicloud_ecs_autoscaling_group` table provides insights into Autoscaling Groups within Alibaba Cloud Elastic Compute Service (ECS). As a system administrator or DevOps engineer, you can explore group-specific details through this table, including configuration, capacity, and detailed information about each autoscaling group. Use it to manage your ECS instances effectively, ensuring optimal resource allocation and cost-effectiveness.
 
 ## Examples
 

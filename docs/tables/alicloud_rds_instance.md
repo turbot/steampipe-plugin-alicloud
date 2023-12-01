@@ -1,6 +1,15 @@
-# Table: alicloud_rds_instance
+---
+title: "Steampipe Table: alicloud_rds_instance - Query Alibaba Cloud RDS Instances using SQL"
+description: "Allows users to query Alibaba Cloud Relational Database Service (RDS) Instances, providing detailed information about each instance's configuration and status."
+---
 
-Provides an RDS instance resource. A DB instance is an isolated database environment in the cloud. A DB instance can contain multiple user-created databases.
+# Table: alicloud_rds_instance - Query Alibaba Cloud RDS Instances using SQL
+
+Alibaba Cloud Relational Database Service (RDS) is a stable and reliable online database service that supports MySQL, SQL Server, PostgreSQL, and PPAS. RDS handles routine database tasks such as database backup, patch upgrades, and failure detection and recovery. It provides automatic monitoring, backup, and disaster recovery capabilities, freeing up developers to focus on their applications rather than managing databases.
+
+## Table Usage Guide
+
+The `alicloud_rds_instance` table provides insights into RDS instances within Alibaba Cloud Relational Database Service (RDS). As a database administrator, explore instance-specific details through this table, including the instance's ID, creation time, status, and associated metadata. Utilize it to uncover information about instances, such as their storage and memory usage, the network type they are using, and their security settings.
 
 ## Examples
 

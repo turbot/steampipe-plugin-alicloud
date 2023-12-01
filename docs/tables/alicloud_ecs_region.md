@@ -1,6 +1,15 @@
-# Table: alicloud_ecs_region
+---
+title: "Steampipe Table: alicloud_ecs_region - Query Alicloud Elastic Compute Service Regions using SQL"
+description: "Allows users to query Alicloud Elastic Compute Service (ECS) Regions, specifically providing information on all available regions within the Alicloud ECS."
+---
 
-Elastic Compute resources are hosted in multiple locations worldwide. These locations are composed of regions and zones. A region is a geographic area where a data center resides.
+# Table: alicloud_ecs_region - Query Alicloud Elastic Compute Service Regions using SQL
+
+Alicloud Elastic Compute Service (ECS) is a high-performance, stable, reliable, and scalable IaaS-level service provided by Alibaba Cloud. ECS eliminates the need to invest in IT hardware up front and allows you to quickly scale computing resources on demand, making ECS more convenient and efficient than physical servers. ECS provides a variety of instance types that suit different business needs and help boost business growth.
+
+## Table Usage Guide
+
+The `alicloud_ecs_region` table provides insights into the regions available within Alibaba Cloud's Elastic Compute Service (ECS). As a system administrator or DevOps engineer, you can explore region-specific details through this table, including region ID, local name, and status. Utilize it to uncover information about regions, such as those that are active, to better manage resource allocation and understand geographical distribution of your ECS instances.
 
 ## Examples
 

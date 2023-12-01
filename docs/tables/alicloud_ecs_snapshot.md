@@ -1,6 +1,15 @@
-# Table: alicloud_ecs_snapshot
+---
+title: "Steampipe Table: alicloud_ecs_snapshot - Query Alibaba Cloud ECS Snapshots using SQL"
+description: "Allows users to query Alibaba Cloud ECS Snapshots, specifically the snapshot details, providing insights into snapshot usage and potential anomalies."
+---
 
-The Alibaba Cloud snapshot service allows you to create crash-consistent snapshots for all disk categories. Crash-consistent snapshots are an effective solution to disaster recovery and are used to back up data, create custom images, and implement disaster recovery for applications.
+# Table: alicloud_ecs_snapshot - Query Alibaba Cloud ECS Snapshots using SQL
+
+Elastic Compute Service (ECS) Snapshots in Alibaba Cloud are a point-in-time copy of ECS disk data. Snapshots are used for data backup and restoration, disaster recovery, and migration across regions and zones. They provide a cost-effective and efficient way to create copies of data at a specific point in time.
+
+## Table Usage Guide
+
+The `alicloud_ecs_snapshot` table provides insights into ECS Snapshots within Alibaba Cloud Elastic Compute Service (ECS). As a DevOps engineer, explore snapshot-specific details through this table, including snapshot status, creation time, and associated metadata. Utilize it to uncover information about snapshots, such as those that are unused, the relationships between snapshots and disks, and the verification of snapshot policies.
 
 ## Examples
 

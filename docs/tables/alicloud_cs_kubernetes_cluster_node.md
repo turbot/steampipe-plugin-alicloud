@@ -1,6 +1,15 @@
-# Table: alicloud_cs_kubernetes_cluster_node
+---
+title: "Steampipe Table: alicloud_cs_kubernetes_cluster_node - Query Alibaba Cloud Container Service Kubernetes Cluster Nodes using SQL"
+description: "Allows users to query Kubernetes Cluster Nodes in Alibaba Cloud Container Service, providing detailed information about each node's configuration, status, and associated metadata."
+---
 
-A node is a worker machine in Kubernetes and may be either a virtual or a physical machine, depending on the cluster. Each Node is managed by the Master. A node can have multiple pods, and the Kubernetes master automatically handles scheduling the pods across the nodes in the cluster.
+# Table: alicloud_cs_kubernetes_cluster_node - Query Alibaba Cloud Container Service Kubernetes Cluster Nodes using SQL
+
+Alibaba Cloud Container Service for Kubernetes (ACK) is a fully-managed service compatible with Kubernetes to help users focus on their applications rather than managing container infrastructure. It provides out-of-the-box Kubernetes native capabilities, simplifies the deployment of Kubernetes clusters, and offers high-performance and flexible management of containerized applications throughout their lifecycle.
+
+## Table Usage Guide
+
+The `alicloud_cs_kubernetes_cluster_node` table provides insights into Kubernetes Cluster Nodes within Alibaba Cloud Container Service (ACK). As a DevOps engineer or system administrator, you can explore node-specific details through this table, including configuration, status, and associated metadata. Utilize it to monitor the health and performance of your nodes, track resource usage, and manage your containerized applications more effectively.
 
 ## Examples
 

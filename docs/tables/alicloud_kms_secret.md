@@ -1,6 +1,15 @@
-# Table: alicloud_kms_secret
+---
+title: "Steampipe Table: alicloud_kms_secret - Query Alicloud Key Management Service Secrets using SQL"
+description: "Allows users to query Alicloud Key Management Service Secrets, specifically the detailed information of the secrets including their version stages, rotation configuration, and recovery window."
+---
 
-Secret enables to manage secrets in a centralized manner throughout their lifecycle (creation, retrieval, updating, and deletion).
+# Table: alicloud_kms_secret - Query Alicloud Key Management Service Secrets using SQL
+
+Alicloud Key Management Service (KMS) Secrets is a feature of the Alicloud KMS that helps manage the lifecycle of secrets. It provides a secure and convenient method to create, use, and manage secrets, including database passwords, API keys, and other sensitive information. It also supports secret versioning and rotation to enhance the security of applications.
+
+## Table Usage Guide
+
+The `alicloud_kms_secret` table provides insights into secrets within Alicloud Key Management Service (KMS). As a security engineer, explore secret-specific details through this table, including their lifecycle stages, rotation configurations, and recovery windows. Utilize it to uncover information about secrets, such as their current status, the last time they were accessed, and whether they are scheduled for deletion.
 
 ## Examples
 

@@ -1,6 +1,15 @@
-# Table: alicloud_vpc
+---
+title: "Steampipe Table: alicloud_vpc - Query Alibaba Cloud Virtual Private Clouds using SQL"
+description: "Allows users to query Virtual Private Clouds in Alibaba Cloud, specifically the VPC ID, creation time, status, and other details, providing insights into network configurations and potential anomalies."
+---
 
-A VPC is a virtual network in Alicloud.
+# Table: alicloud_vpc - Query Alibaba Cloud Virtual Private Clouds using SQL
+
+Alibaba Cloud Virtual Private Cloud (VPC) is a private, isolated network environment based on Alibaba Cloud. It allows users to launch Alibaba Cloud resources in a virtual network that they define. With VPC, users can customize their network configuration, such as IP address range, subnet creation, route table, and network gateway.
+
+## Table Usage Guide
+
+The `alicloud_vpc` table provides insights into Virtual Private Clouds within Alibaba Cloud. As a network administrator, explore VPC-specific details through this table, including VPC ID, creation time, status, and other details. Utilize it to uncover information about your network configurations, such as IP address range, subnet creation, route table, and network gateway.
 
 ## Examples
 

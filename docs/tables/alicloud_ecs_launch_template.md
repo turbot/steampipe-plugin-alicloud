@@ -1,10 +1,15 @@
-# Table: alicloud_ecs_launch_template
+---
+title: "Steampipe Table: alicloud_ecs_launch_template - Query Alibaba Cloud ECS Launch Templates using SQL"
+description: "Allows users to query Alibaba Cloud ECS Launch Templates, providing detailed information about instances that can be launched from a template."
+---
 
-A launch template helps you quickly create an ECS instance. A template contains configurations that you can use to create instances for various scenarios with specific requirements.
+# Table: alicloud_ecs_launch_template - Query Alibaba Cloud ECS Launch Templates using SQL
 
-A template can include any configurations except passwords. It can include key pairs, RAM roles, instance type, and network configurations.
+Alibaba Cloud Elastic Compute Service (ECS) Launch Templates provide a way to save instance launch configurations, allowing for the rapid deployment of instances with pre-defined settings. These templates can include instance type, image, security group, and other instance-related parameters. Utilizing a launch template can streamline instance deployment and ensure consistency across instances.
 
-You can create multiple versions of each template. Each version can contain different configurations. You can then create an instance using any version of the template.
+## Table Usage Guide
+
+The `alicloud_ecs_launch_template` table provides insights into ECS Launch Templates within Alibaba Cloud Elastic Compute Service. As a DevOps engineer, explore template-specific details through this table, including instance configurations, security settings, and associated metadata. Utilize it to uncover information about templates, such as those with specific instance types or security groups, and to streamline and standardize your instance deployment process.
 
 ## Examples
 

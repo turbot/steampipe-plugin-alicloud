@@ -1,8 +1,15 @@
-# Table: alicloud_ram_policy
+---
+title: "Steampipe Table: alicloud_ram_policy - Query Alicloud RAM Policies using SQL"
+description: "Allows users to query Alicloud RAM Policies, specifically to retrieve information about the policy name, policy type, description, and creation time."
+---
 
-Permissions are specified by a statement within a policy that allows or denies access to a specific Alibaba Cloud resource.
+# Table: alicloud_ram_policy - Query Alicloud RAM Policies using SQL
 
-A policy defines a set of permissions that are described based on the policy structure and syntax. A policy can accurately describe the authorized resource sets, authorized operation sets, and authorization conditions.
+Alicloud RAM Policy is a service within Alibaba Cloud that allows you to manage access permissions to your Alicloud resources. It provides a centralized way to set up and manage policies for various Alicloud resources, including ECS instances, databases, web applications, and more. Alicloud RAM Policy helps you control who has authorization to access and manage your Alicloud resources.
+
+## Table Usage Guide
+
+The `alicloud_ram_policy` table provides insights into RAM policies within Alibaba Cloud Resource Access Management (RAM). As a security administrator, delve into policy-specific details through this table, including policy names, types, descriptions, and creation times. Utilize it to uncover information about policies, such as those with specific permissions, the resources they apply to, and when they were created.
 
 ## Examples
 

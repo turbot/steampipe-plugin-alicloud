@@ -1,6 +1,15 @@
-# Table: alicloud_ram_user
+---
+title: "Steampipe Table: alicloud_ram_access_key - Query Alibaba Cloud RAM Access Keys using SQL"
+description: "Allows users to query Alibaba Cloud RAM Access Keys, specifically the AccessKey ID, status, and creation time, providing insights into the access keys of RAM users."
+---
 
-Access keys are long-term credentials for a RAM user. You can use access keys to sign programmatic requests to the Alibaba Cloud CLI or API (directly or using the Alibaba Cloud SDK).
+# Table: alicloud_ram_access_key - Query Alibaba Cloud RAM Access Keys using SQL
+
+Alibaba Cloud Resource Access Management (RAM) is a service that helps you manage user identities and access permissions. With RAM, you can create and manage multiple identities under one Alibaba Cloud account, and control the access of these identities to your resources in an efficient and secure manner. RAM Access Keys are used by RAM users to access Alibaba Cloud services.
+
+## Table Usage Guide
+
+The `alicloud_ram_access_key` table provides insights into the access keys of RAM users within Alibaba Cloud Resource Access Management (RAM). As a security analyst, explore key-specific details through this table, including the AccessKey ID, status, and creation time. Utilize it to uncover information about access keys, such as those that are active or inactive, and the verification of their creation times.
 
 ## Examples
 

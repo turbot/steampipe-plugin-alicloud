@@ -1,8 +1,15 @@
-# Table: alicloud_ecs_image
+---
+title: "Steampipe Table: alicloud_ecs_image - Query Alibaba Cloud Elastic Compute Service Images using SQL"
+description: "Allows users to query Elastic Compute Service Images in Alibaba Cloud, specifically the image details, providing insights into image configurations and usage."
+---
 
-An ECS image stores information that is required to create an ECS instance. An image works as a copy that stores data from one or more disks. An ECS instance image may store data from a system disk or from both system and data disks.
+# Table: alicloud_ecs_image - Query Alibaba Cloud Elastic Compute Service Images using SQL
 
-To query a specific ECS image you need to pass `image_id` and `region` in the where clause (`where image_id='' and region=''`).
+Alibaba Cloud Elastic Compute Service (ECS) provides fast memory and the latest Intel CPUs to help you to power your cloud applications and achieve faster results with low latency. All ECS instances come with Anti-DDoS protection to safeguard your data and applications from DDoS and Trojan attacks. ECS offers a variety of instance types optimized to fit different use cases and provides the flexibility to choose the appropriate mix of resources for your applications.
+
+## Table Usage Guide
+
+The `alicloud_ecs_image` table provides insights into the Elastic Compute Service Images within Alibaba Cloud. As a Cloud Engineer, explore image-specific details through this table, including image configurations, usage, and associated metadata. Utilize it to uncover information about images, such as those with specific configurations, the relationships between images and instances, and the verification of image usage.
 
 ## Examples
 

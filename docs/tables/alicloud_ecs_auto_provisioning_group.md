@@ -1,8 +1,15 @@
-# Table: alicloud_ecs_auto_provisioning_group
+---
+title: "Steampipe Table: alicloud_ecs_auto_provisioning_group - Query Alicloud ECS Auto Provisioning Groups using SQL"
+description: "Allows users to query Alicloud ECS Auto Provisioning Groups, providing detailed information about the configuration, status, and instance details of each group."
+---
 
-Auto Provisioning is a service to quickly deploy an instance cluster that consists of preemptible and pay-as-you-go instances. It supports one-click deployment of instance clusters with specified billing methods, zones, and instance families.
+# Table: alicloud_ecs_auto_provisioning_group - Query Alicloud ECS Auto Provisioning Groups using SQL
 
-You can use auto provisioning groups to provide stable computing power, alleviate the instability caused by the reclaiming of preemptible instances, and eliminate the need to manually create instances.
+Alicloud Elastic Compute Service (ECS) Auto Provisioning Groups are a feature that enables automatic creation and release of ECS instances based on specified rules. This feature helps to simplify capacity management and reduce costs by automatically adjusting the number of instances based on the real-time business needs.
+
+## Table Usage Guide
+
+The `alicloud_ecs_auto_provisioning_group` table provides insights into the auto provisioning groups within Alicloud Elastic Compute Service (ECS). As a system administrator or DevOps engineer, you can explore group-specific details through this table, including configuration, status, and instance information. Use it to manage your ECS resources efficiently, ensuring optimal capacity and cost-effectiveness.
 
 ## Examples
 

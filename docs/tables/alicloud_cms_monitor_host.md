@@ -1,6 +1,15 @@
-# Table: alicloud_cms_monitor_host
+---
+title: "Steampipe Table: alicloud_cms_monitor_host - Query Alibaba Cloud Monitor Hosts using SQL"
+description: "Allows users to query Monitor Hosts in Alibaba Cloud, specifically providing insights into the performance of Elastic Compute Service (ECS) instances and custom hosts."
+---
 
-Cloud Monitor provides the host monitoring feature to monitor hosts by using the Cloud Monitor agents that are installed on the hosts. The host monitoring feature allows to monitor Elastic Compute Service (ECS) or physical Linux and Windows instances of Alibaba Cloud.
+# Table: alicloud_cms_monitor_host - Query Alibaba Cloud Monitor Hosts using SQL
+
+Alibaba Cloud Monitor Hosts is a feature within Alibaba Cloud Monitor that provides real-time monitoring of the performance of Elastic Compute Service (ECS) instances and custom hosts. It offers a centralized way to monitor and manage the performance of resources, ensuring smooth and efficient operation. Alibaba Cloud Monitor Hosts helps users stay informed about the health and performance of their resources and take appropriate actions when predefined conditions are met.
+
+## Table Usage Guide
+
+The `alicloud_cms_monitor_host` table provides insights into the performance of Elastic Compute Service (ECS) instances and custom hosts in Alibaba Cloud. As a system administrator or a DevOps engineer, you can explore host-specific details through this table, including the current status, network traffic, and associated metadata. Utilize it to uncover information about hosts, such as those with high CPU usage or network traffic, and to verify their performance.
 
 ## Examples
 

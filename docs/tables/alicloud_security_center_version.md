@@ -1,17 +1,15 @@
-# Table: alicloud_security_center_version
+---
+title: "Steampipe Table: alicloud_security_center_version - Query Alibaba Cloud Security Center Versions using SQL"
+description: "Allows users to query Security Center Versions in Alibaba Cloud, specifically the version details to understand the security services provided by Alibaba Cloud."
+---
 
-Security Center is a centralized security management system that dynamically identifies and analyzes security threats, and generates alerts when threats are detected. It provides multiple features to ensure the security of cloud resources and servers in data centers.
+# Table: alicloud_security_center_version - Query Alibaba Cloud Security Center Versions using SQL
 
-Alicloud Security Center versions provide the details of the purchased edition of security center.
+Alibaba Cloud Security Center is a flagship security product that integrates both Server Guard and Threat Detection Service. It is a unified security management system that recognizes, analyzes, and alerts of security threats in real-time. Alibaba Cloud Security Center provides an array of security features to protect your environment and provides security insights for better visibility.
 
-Valid values are:
-1: Basic
-2: Enterprise
-3: Enterprise
-5: Advanced
-6: Basic Anti-Virus
+## Table Usage Guide
 
-Note: Both 2 and 3 indicate the Enterprise edition and have no differences.
+The `alicloud_security_center_version` table provides insights into Security Center Versions within Alibaba Cloud Security Center. As a security engineer, explore version-specific details through this table, including the version code, name, and associated metadata. Utilize it to understand the different versions available in Alibaba Cloud Security Center and the services provided by each version.
 
 ## Examples
 

@@ -1,6 +1,15 @@
-# Table: alicloud_ram_user
+---
+title: "Steampipe Table: alicloud_ram_user - Query Alibaba Cloud RAM Users using SQL"
+description: "Allows users to query RAM Users in Alibaba Cloud, specifically the user details and associated policies, providing insights into user access management and security."
+---
 
-Alibaba Cloud RAM users can login to the console or use access keys programmatically.
+# Table: alicloud_ram_user - Query Alibaba Cloud RAM Users using SQL
+
+Alibaba Cloud RAM (Resource Access Management) is a service that helps you centrally manage your Alibaba Cloud resources. RAM allows you to control who (users and systems) has what permissions to which resources by setting policies. This aids in achieving least privilege, thereby enhancing the security of your Alibaba Cloud resources.
+
+## Table Usage Guide
+
+The `alicloud_ram_user` table provides insights into RAM users within Alibaba Cloud RAM. As a Security Analyst, explore user-specific details through this table, including associated policies, user creation time, and last login time. Utilize it to uncover information about users, such as those with excessive permissions, the policies associated with each user, and the verification of user activity.
 
 ## Examples
 

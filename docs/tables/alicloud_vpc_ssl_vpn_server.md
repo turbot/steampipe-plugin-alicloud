@@ -1,6 +1,15 @@
-# Table: alicloud_vpc_ssl_vpn_server
+---
+title: "Steampipe Table: alicloud_vpc_ssl_vpn_server - Query Alicloud VPC SSL VPN Servers using SQL"
+description: "Allows users to query Alicloud VPC SSL VPN Servers, providing detailed information about each SSL VPN server in the Alicloud Virtual Private Cloud (VPC)."
+---
 
-A Secure Socket Layer Virtual Private Network (SSL VPN) lets remote users access Web applications, client-server apps, and internal network utilities and directories without the need for specialized client software. SSL VPN provide safe communication for all types of device traffic across public networks and private networks.
+# Table: alicloud_vpc_ssl_vpn_server - Query Alicloud VPC SSL VPN Servers using SQL
+
+An Alicloud VPC SSL VPN Server is a resource within the Alicloud Virtual Private Cloud (VPC) that enables secure remote access to your private networks. It uses the SSL protocol to establish encrypted connections between remote users and your VPC. This service is critical for managing secure access to your VPC resources.
+
+## Table Usage Guide
+
+The `alicloud_vpc_ssl_vpn_server` table provides insights into SSL VPN servers within Alicloud VPC. As a network administrator, you can explore detailed information about each SSL VPN server, including its configuration, connection details, and associated network resources. Use this table to manage and monitor secure remote access to your VPC resources.
 
 ## Examples
 

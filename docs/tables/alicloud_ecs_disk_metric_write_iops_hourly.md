@@ -1,8 +1,15 @@
-# Table: alicloud_ecs_disk_metric_write_iops_hourly
+---
+title: "Steampipe Table: alicloud_ecs_disk_metric_write_iops_hourly - Query Alibaba Cloud ECS Disk Metrics using SQL"
+description: "Allows users to query ECS Disk Metrics in Alibaba Cloud, specifically the hourly write IOPS (input/output operations per second), providing insights into disk performance and potential issues."
+---
 
-Alicloud Monitoring metrics provide data about the performance of your systems. The `alicloud_ecs_disk_metric_write_iops_hourly` table provides metric statistics at 1 hour intervals for the most recent 30 days.
+# Table: alicloud_ecs_disk_metric_write_iops_hourly - Query Alibaba Cloud ECS Disk Metrics using SQL
 
-Note: If the instance is not older than one day then we will not get any metric statistics.
+Alibaba Cloud Elastic Compute Service (ECS) provides scalable, on-demand computing resources for secure, flexible, and efficient applications. ECS Disk Metrics is a feature within ECS that allows you to monitor and analyze disk performance and usage. It provides data such as read and write IOPS, throughput, and latency, which can be useful for capacity planning and troubleshooting.
+
+## Table Usage Guide
+
+The `alicloud_ecs_disk_metric_write_iops_hourly` table provides insights into the hourly write IOPS of ECS disks in Alibaba Cloud. As a system administrator or a DevOps engineer, explore disk-specific details through this table, including write IOPS, which can be quite useful for performance tuning, capacity planning, and troubleshooting. Utilize it to uncover information about disk performance, such as identifying disks with high write operations, and the verification of disk usage patterns.
 
 ## Examples
 

@@ -1,6 +1,15 @@
-# Table: alicloud_ram_group
+---
+title: "Steampipe Table: alicloud_ram_group - Query Alibaba Cloud RAM Groups using SQL"
+description: "Allows users to query RAM Groups in Alibaba Cloud, specifically providing details on group name, id, comments, and the creation time."
+---
 
-A RAM group is a collection of RAM users. Groups let you specify permissions for multiple users, which makes it easier to manage the permissions for those users.
+# Table: alicloud_ram_group - Query Alibaba Cloud RAM Groups using SQL
+
+Alibaba Cloud Resource Access Management (RAM) is a service that helps manage user identities and resource access permissions. RAM allows you to create and manage multiple identities under one Alibaba Cloud account, and control the access of these identities to your resources. You can grant different permissions to different identities to ensure that your resources can only be accessed by trusted entities.
+
+## Table Usage Guide
+
+The `alicloud_ram_group` table provides insights into RAM Groups within Alibaba Cloud Resource Access Management (RAM). As a system administrator, explore group-specific details through this table, including group name, id, comments, and the creation time. Utilize it to manage and control access to your resources, ensuring that only trusted entities have the necessary permissions.
 
 ## Examples
 

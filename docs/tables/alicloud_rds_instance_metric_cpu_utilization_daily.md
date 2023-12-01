@@ -1,8 +1,15 @@
-# Table: alicloud_rds_instance_metric_cpu_utilization_daily
+---
+title: "Steampipe Table: alicloud_rds_instance_metric_cpu_utilization_daily - Query Alibaba Cloud RDS Instance Metrics using SQL"
+description: "Allows users to query Alibaba Cloud RDS Instance Metrics, specifically the daily CPU utilization, providing insights into resource usage and potential performance bottlenecks."
+---
 
-Alicloud Monitoring metrics provide data about the performance of your systems. The `alicloud_rds_instance_metric_cpu_utilization_daily` table provides metric statistics at 24 hour intervals for the most recent 30 days.
+# Table: alicloud_rds_instance_metric_cpu_utilization_daily - Query Alibaba Cloud RDS Instance Metrics using SQL
 
-Note: If the instance is not older than 24 hour then we will not get any metric statistics.
+Alibaba Cloud Relational Database Service (RDS) is a stable and reliable online database service that supports MySQL, SQL Server, and PostgreSQL engines. It provides a complete set of solutions to handle disaster recovery, backup, restoration, monitoring, and migration, allowing users to focus on business innovation. RDS Instance Metrics provide detailed performance and health insights for instances within the RDS service.
+
+## Table Usage Guide
+
+The `alicloud_rds_instance_metric_cpu_utilization_daily` table provides insights into the daily CPU utilization of RDS instances within Alibaba Cloud. As a database administrator or DevOps engineer, you can explore instance-specific details through this table, including CPU usage patterns, peak usage times, and potential performance bottlenecks. Utilize it to monitor and optimize resource usage, ensuring the efficient operation of your databases.
 
 ## Examples
 

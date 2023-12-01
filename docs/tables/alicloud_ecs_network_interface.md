@@ -1,6 +1,15 @@
-# Table: alicloud_ecs_network_interface
+---
+title: "Steampipe Table: alicloud_ecs_network_interface - Query Alibaba Cloud Elastic Compute Service Network Interfaces using SQL"
+description: "Allows users to query Network Interfaces in Alibaba Cloud Elastic Compute Service (ECS), retrieving details such as the network interface's ID, status, type, and associated security groups."
+---
 
-An elastic network interface (ENI) is a virtual network interface controller (NIC) that can be bound to a VPC-type ECS instance. You can use ENIs to deploy high availability clusters and perform low-cost failover and fine-grained network management.
+# Table: alicloud_ecs_network_interface - Query Alibaba Cloud Elastic Compute Service Network Interfaces using SQL
+
+A Network Interface in Alibaba Cloud Elastic Compute Service (ECS) is a virtual network interface card (vNIC) that is attached to an instance. It provides the primary network connection for communication with network services and other instances. Each network interface is associated with a security group that controls the traffic to the instance.
+
+## Table Usage Guide
+
+The `alicloud_ecs_network_interface` table provides insights into Network Interfaces within Alibaba Cloud Elastic Compute Service (ECS). As a network administrator or cloud engineer, explore network interface-specific details through this table, including its status, type, and associated security groups. Utilize it to uncover information about network interfaces, such as those with specific security groups, the status of each interface, and the type of network interface.
 
 ## Examples
 

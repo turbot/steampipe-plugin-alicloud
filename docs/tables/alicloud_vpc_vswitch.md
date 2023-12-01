@@ -1,6 +1,15 @@
-# Table: alicloud_vpc_vswitch
+---
+title: "Steampipe Table: alicloud_vpc_vswitch - Query Alibaba Cloud VPC VSwitches using SQL"
+description: "Allows users to query Alibaba Cloud VPC VSwitches, providing detailed information about each VSwitch within a Virtual Private Cloud."
+---
 
-Alicloud VSwitch is a logical subdivision of an IP network. It enables dividing a network into two or more networks.
+# Table: alicloud_vpc_vswitch - Query Alibaba Cloud VPC VSwitches using SQL
+
+A VSwitch is a basic network device of a VPC in Alibaba Cloud, which connects different cloud product instances. It is similar to a traditional switch in a data center, which provides a communication channel for cloud product instances in the same network segment. VSwitches are used to create an isolated network environment, which can be associated with different cloud resources.
+
+## Table Usage Guide
+
+The `alicloud_vpc_vswitch` table provides insights into VSwitches within Alibaba Cloud Virtual Private Cloud (VPC). As a network administrator, explore VSwitch-specific details through this table, including its ID, status, creation time, and associated metadata. Utilize it to uncover information about VSwitches, such as their availability zones, CIDR blocks, and the VPCs they belong to.
 
 ## Examples
 

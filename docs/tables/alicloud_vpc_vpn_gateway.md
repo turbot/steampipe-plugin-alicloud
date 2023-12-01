@@ -1,6 +1,15 @@
-# Table: alicloud_vpc_vpn_gateway
+---
+title: "Steampipe Table: alicloud_vpc_vpn_gateway - Query Alicloud VPC VPN Gateways using SQL"
+description: "Allows users to query Alicloud VPC VPN Gateways, providing details such as the gateway's ID, name, description, status, and more."
+---
 
-VPN Gateway is an Internet-based service that establishes a connection between a VPC and on-premise data center.
+# Table: alicloud_vpc_vpn_gateway - Query Alicloud VPC VPN Gateways using SQL
+
+An Alicloud VPC VPN Gateway is a component of Alibaba Cloud's Virtual Private Cloud (VPC) service. It is used to establish a secure, encrypted communication tunnel between a VPC and an on-premises data center or between VPCs. It supports both IPsec-VPN connections and GRE-VPN connections, and is designed to facilitate secure and convenient cloud network deployment.
+
+## Table Usage Guide
+
+The `alicloud_vpc_vpn_gateway` table provides insights into VPN Gateways within Alibaba Cloud's VPC service. As a network administrator or cloud architect, you can explore gateway-specific details through this table, including its ID, description, status, bandwidth, and associated VPC information. Use it to monitor the status of your VPN gateways, analyze bandwidth usage, and manage your secure network connections.
 
 ## Examples
 

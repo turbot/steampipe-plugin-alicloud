@@ -1,6 +1,15 @@
-# Table: alicloud_vpc_flow_log
+---
+title: "Steampipe Table: alicloud_vpc_flow_log - Query Alibaba Cloud VPC Flow Logs using SQL"
+description: "Allows users to query VPC Flow Logs in Alibaba Cloud, providing insights into network traffic patterns and potential anomalies."
+---
 
-Virtual Private Cloud (VPC) provides the flow log feature to capture information about inbound and outbound traffic of an elastic network interface (ENI).
+# Table: alicloud_vpc_flow_log - Query Alibaba Cloud VPC Flow Logs using SQL
+
+A VPC Flow Log in Alibaba Cloud is a feature that enables you to capture information about the IP traffic going to and from network interfaces in your Virtual Private Cloud (VPC). Flow logs can help you with a number of tasks, such as troubleshooting why specific traffic is not reaching an instance, which in turn helps you diagnose overly restrictive security group rules. You can also use flow logs as a security tool to monitor the traffic that is reaching your instances.
+
+## Table Usage Guide
+
+The `alicloud_vpc_flow_log` table provides insights into VPC Flow Logs within Alibaba Cloud. As a network engineer, explore flow log-specific details through this table, including the traffic patterns, network interface details, and associated metadata. Utilize it to uncover information about flow logs, such as those with specific traffic patterns, the network interfaces involved, and the verification of security group rules.
 
 ## Examples
 

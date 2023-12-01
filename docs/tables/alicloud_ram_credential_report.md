@@ -1,15 +1,15 @@
-# Table: alicloud_ram_credential_report
+---
+title: "Steampipe Table: alicloud_ram_credential_report - Query Alicloud RAM Credential Reports using SQL"
+description: "Allows users to query Alicloud RAM Credential Reports, providing insights into the credential security status of RAM users."
+---
 
-Retrieves a credential report for the Alibaba Cloud account. For more
-information about the credential report, see [Generate and download user
-credential
-reports](https://partners-intl.aliyun.com/help/doc-detail/143477.htm) in the
-RAM Guide.
+# Table: alicloud_ram_credential_report - Query Alicloud RAM Credential Reports using SQL
 
-_Please note_: This table requires a valid credential report to exist. To
-generate it, please run the follow Aliyun CLI command:
+Alicloud RAM (Resource Access Management) is a service that helps you manage user identities and control their access to your resources. It allows you to create and manage multiple identities under your Alicloud account and grant permissions to these identities to access your Alicloud resources. The RAM Credential Report is a document that provides information about the credential security status of RAM users.
 
-`aliyun ims GenerateCredentialReport --endpoint ims.aliyuncs.com`
+## Table Usage Guide
+
+The `alicloud_ram_credential_report` table provides insights into the credential security status of RAM users within Alicloud RAM. As a security administrator, explore user-specific details through this table, including password status, MFA device bindings, and access key usage. Utilize it to uncover information about users, such as those with high-risk passwords or inactive MFA devices, and to monitor the usage of access keys.
 
 ## Examples
 

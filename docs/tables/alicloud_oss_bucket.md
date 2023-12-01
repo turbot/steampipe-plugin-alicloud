@@ -1,6 +1,15 @@
-# Table: alicloud_oss_bucket
+---
+title: "Steampipe Table: alicloud_oss_bucket - Query Alibaba Cloud Object Storage Service Buckets using SQL"
+description: "Allows users to query Alibaba Cloud Object Storage Service (OSS) Buckets, providing detailed information about each OSS bucket such as its name, location, storage class, and creation time."
+---
 
-An OSS bucket is the container used to store objects. All objects are contained in buckets. You can configure a variety of bucket properties such as the region, ACL, and storage class. You can create buckets of different storage classes to store data based on your requirements.
+# Table: alicloud_oss_bucket - Query Alibaba Cloud Object Storage Service Buckets using SQL
+
+Alibaba Cloud Object Storage Service (OSS) is a cost-effective, highly secure, and easy-to-use object storage service that enables you to store, back up, and archive large amounts of data in the cloud. OSS is designed to store and retrieve any type of data, at any time, from anywhere on the web. It provides massive, secure, durable, and highly available storage capacity.
+
+## Table Usage Guide
+
+The `alicloud_oss_bucket` table provides insights into OSS buckets within Alibaba Cloud Object Storage Service. As a cloud architect or developer, explore bucket-specific details through this table, including the bucket's name, location, storage class, and creation time. Utilize it to manage and analyze your OSS buckets, such as identifying buckets that are using outdated storage classes or located in regions with higher costs.
 
 ## Examples
 

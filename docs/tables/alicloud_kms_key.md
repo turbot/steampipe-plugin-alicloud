@@ -1,6 +1,15 @@
-# Table: alicloud_kms_key
+---
+title: "Steampipe Table: alicloud_kms_key - Query Alibaba Cloud Key Management Service Keys using SQL"
+description: "Allows users to query Alibaba Cloud Key Management Service Keys, providing insights into key metadata, usage, and status."
+---
 
-A kms key can help user to protect data security in the transmission process.
+# Table: alicloud_kms_key - Query Alibaba Cloud Key Management Service Keys using SQL
+
+Alibaba Cloud Key Management Service (KMS) is a secure and easy-to-use service to create, control, and manage cryptographic keys used to secure your data. It provides centralized management of cryptographic keys, and offers a range of features including key rotation, key version management, and audit trails for key usage. KMS is integrated with other Alibaba Cloud services to help protect the data you store in these services and control the keys that decrypt it.
+
+## Table Usage Guide
+
+The `alicloud_kms_key` table provides insights into cryptographic keys within Alibaba Cloud Key Management Service (KMS). As a security engineer, you can explore key-specific details through this table, including key state, key spec, and associated metadata. Utilize it to uncover information about keys, such as their creation time, description, and the key material expiration status.
 
 ## Examples
 

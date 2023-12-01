@@ -1,6 +1,15 @@
-# Table: alicloud_action_trail
+---
+title: "Steampipe Table: alicloud_action_trail - Query Alibaba Cloud Action Trails using SQL"
+description: "Allows users to query Action Trails in Alibaba Cloud, providing insights into user activity and operations within the platform."
+---
 
-Alibaba Cloud ActionTrail is a service that monitors and records the actions of your Alibaba Cloud account, including the access to and use of cloud products and services through the Alibaba Cloud console, API operations, and SDKs. ActionTrail records these actions as events. You can download these events from the ActionTrail console or configure ActionTrail to deliver these events to Log Service Logstores or Object Storage Service (OSS) buckets. Then, you can perform behavior analysis, security analysis, resource change tracking, and compliance auditing based on the events.
+# Table: alicloud_action_trail - Query Alibaba Cloud Action Trails using SQL
+
+Action Trail is a feature within Alibaba Cloud that records and audits user activity within an Alibaba Cloud account. It provides detailed information about API calls, including the caller identities, IP addresses, time of the calls, request parameters, and response elements. Action Trail helps in security analysis, resource change tracking, compliance auditing, and troubleshooting.
+
+## Table Usage Guide
+
+The `alicloud_action_trail` table provides insights into user activity within Alibaba Cloud. As a security analyst, you can explore trail-specific details through this table, including the name, home region, role name, and other associated metadata. Utilize it to uncover information about trails, such as delivery location, trail status, and the creation time, which can aid in auditing and compliance tasks.
 
 ## Examples
 
