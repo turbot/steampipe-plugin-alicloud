@@ -11,6 +11,9 @@ Alicloud Relational Database Service (RDS) is a stable and reliable online datab
 
 The `alicloud_rds_instance_metric_cpu_utilization` table provides insights into the CPU utilization of Alicloud RDS instances. As a database administrator, you can gain detailed information about the CPU usage of your RDS instances, helping you to monitor performance and identify potential bottlenecks or over-utilization. This table is particularly useful for optimizing resource allocation and maintaining efficient database operations.
 
+**Important Notes**
+- If the instance is not older than 5 minute then we will not get any metric statistics.
+
 ## Examples
 
 ### Basic info

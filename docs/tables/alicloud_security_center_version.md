@@ -11,6 +11,15 @@ Alibaba Cloud Security Center is a flagship security product that integrates bot
 
 The `alicloud_security_center_version` table provides insights into Security Center Versions within Alibaba Cloud Security Center. As a security engineer, explore version-specific details through this table, including the version code, name, and associated metadata. Utilize it to understand the different versions available in Alibaba Cloud Security Center and the services provided by each version.
 
+**Important Notes**
+- Valid values are:
+  - 1: Basic
+  - 2: Enterprise
+  - 3: Enterprise
+  - 5: Advanced
+  - 6: Basic Anti-Virus
+- Both 2 and 3 indicate the Enterprise edition and have no differences.
+
 ## Examples
 
 ### Basic info

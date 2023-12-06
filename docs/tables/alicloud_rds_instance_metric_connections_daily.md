@@ -4,6 +4,9 @@ Alicloud Monitoring metrics provide data about the performance of your systems. 
 
 Note: If the instance is not older than one day then we will not get any metric statistics.
 
+**Important Notes**
+- If the instance is not older than one day then we will not get any metric statistics.
+
 ## Examples
 
 ### Basic info

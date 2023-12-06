@@ -11,6 +11,9 @@ Alibaba Cloud Relational Database Service (RDS) is a stable and reliable online 
 
 The `alicloud_rds_instance_metric_cpu_utilization_daily` table provides insights into the daily CPU utilization of RDS instances within Alibaba Cloud. As a database administrator or DevOps engineer, you can explore instance-specific details through this table, including CPU usage patterns, peak usage times, and potential performance bottlenecks. Utilize it to monitor and optimize resource usage, ensuring the efficient operation of your databases.
 
+**Important Notes**
+- If the instance is not older than 24 hour then we will not get any metric statistics.
+
 ## Examples
 
 ### Basic info

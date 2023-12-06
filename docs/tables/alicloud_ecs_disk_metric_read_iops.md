@@ -11,6 +11,9 @@ Alibaba Cloud Elastic Compute Service (ECS) is a high-performance, stable, relia
 
 The `alicloud_ecs_disk_metric_read_iops` table provides insights into the read IOPS of disks within Alibaba Cloud Elastic Compute Service (ECS). As a system administrator, explore disk-specific details through this table, including performance metrics, potential bottlenecks, and associated metadata. Utilize it to uncover information about disk performance, such as those with high read IOPS, and the verification of disk performance policies.
 
+**Important Notes**
+- If the instance is not older than 5 minute then we will not get any metric statistics.
+
 ## Examples
 
 ### Basic info

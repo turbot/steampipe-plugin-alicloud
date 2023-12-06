@@ -11,6 +11,10 @@ Alicloud RAM (Resource Access Management) is a service that helps you manage use
 
 The `alicloud_ram_credential_report` table provides insights into the credential security status of RAM users within Alicloud RAM. As a security administrator, explore user-specific details through this table, including password status, MFA device bindings, and access key usage. Utilize it to uncover information about users, such as those with high-risk passwords or inactive MFA devices, and to monitor the usage of access keys.
 
+**Important Notes**
+- This table requires a valid credential report to exist. To generate it, please run the follow Aliyun CLI command:
+  - `aliyun ims GenerateCredentialReport --endpoint ims.aliyuncs.com`
+
 ## Examples
 
 ### List users that have logged into the console in the past 90 days

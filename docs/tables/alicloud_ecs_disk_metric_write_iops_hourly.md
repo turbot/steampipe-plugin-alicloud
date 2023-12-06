@@ -11,6 +11,9 @@ Alibaba Cloud Elastic Compute Service (ECS) provides scalable, on-demand computi
 
 The `alicloud_ecs_disk_metric_write_iops_hourly` table provides insights into the hourly write IOPS of ECS disks in Alibaba Cloud. As a system administrator or a DevOps engineer, explore disk-specific details through this table, including write IOPS, which can be quite useful for performance tuning, capacity planning, and troubleshooting. Utilize it to uncover information about disk performance, such as identifying disks with high write operations, and the verification of disk usage patterns.
 
+**Important Notes**
+- If the instance is not older than one day then we will not get any metric statistics.
+
 ## Examples
 
 ### Basic info

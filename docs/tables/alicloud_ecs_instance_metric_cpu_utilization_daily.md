@@ -11,6 +11,9 @@ Alibaba Cloud Elastic Compute Service (ECS) provides scalable, on-demand cloud s
 
 The `alicloud_ecs_instance_metric_cpu_utilization_daily` table provides insights into ECS Instance Metrics within Alibaba Cloud Elastic Compute Service (ECS). As a system administrator or DevOps engineer, explore instance-specific details through this table, including daily CPU utilization. Utilize it to uncover information about instances, such as CPU usage patterns, which can help in performance optimization and capacity planning.
 
+**Important Notes**
+- If the instance is not older than one day then we will not get any metric statistics.
+
 ## Examples
 
 ### Basic info

@@ -2,7 +2,8 @@
 
 Alicloud Monitoring metrics provide data about the performance of your systems. The `alicloud_rds_instance_metric_cpu_utilization_hourly` table provides metric statistics at 1 hour intervals for the most recent 30 days.
 
-Note: If the instance is not older than 1 hour then we will not get any metric statistics.
+**Important Notes**
+- If the instance is not older than 1 hour then we will not get any metric statistics.
 
 ## Examples
 

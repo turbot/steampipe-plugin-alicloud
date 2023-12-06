@@ -11,6 +11,9 @@ AliCloud Elastic Compute Service (ECS) provides scalable, on-demand cloud server
 
 The `alicloud_ecs_disk_metric_write_iops_daily` table provides insights into the daily write performance of ECS disks in AliCloud. As a system administrator or DevOps engineer, explore disk-specific details through this table, including daily write IOPS, to monitor and optimize disk performance. Utilize it to uncover information about disk usage patterns, identify potential bottlenecks, and ensure optimal resource allocation.
 
+**Important Notes**
+- If the instance is not older than one day then we will not get any metric statistics.
+
 ## Examples
 
 ### Basic info
