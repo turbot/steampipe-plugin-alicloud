@@ -14,8 +14,9 @@ The `alicloud_ram_group` table provides insights into RAM Groups within Alibaba 
 ## Examples
 
 ### User details associated with each RAM group
+Determine the areas in which users are associated with each RAM group in Alicloud. This can help in better understanding the group distribution and user management within your Alicloud environment.
 
-```sql
+```sql+postgres
 select
   name as group_name,
   iam_user ->> 'UserName' as user_name,
@@ -26,9 +27,21 @@ from
   cross join jsonb_array_elements(users) as iam_user;
 ```
 
-### List the policies attached to each RAM group
+```sql+sqlite
+select
+  name as group_name,
+  json_extract(iam_user.value, '$.UserName') as user_name,
+  json_extract(iam_user.value, '$.DisplayName') as display_name,
+  json_extract(iam_user.value, '$.JoinDate') as user_join_date
+from
+  alicloud_ram_group,
+  json_each(users) as iam_user;
+```
 
-```sql
+### List the policies attached to each RAM group
+Explore the various policies attached to each RAM group, including the policy type, default version, and attachment date. This can help in understanding the security measures and access controls in place for each group.
+
+```sql+postgres
 select
   name as group_name,
   policies ->> 'PolicyName' as policy_name,
@@ -40,9 +53,33 @@ from
   jsonb_array_elements(attached_policy) as policies;
 ```
 
-### List of RAM groups with no users added to it
+```sql+sqlite
+select
+  name as group_name,
+  json_extract(policies.value, '$.PolicyName') as policy_name,
+  json_extract(policies.value, '$.PolicyType') as policy_type,
+  json_extract(policies.value, '$.DefaultVersion') as policy_default_version,
+  json_extract(policies.value, '$.AttachDate') as policy_attachment_date
+from
+  alicloud_ram_group,
+  json_each(attached_policy) as policies;
+```
 
-```sql
+### List of RAM groups with no users added to it
+Determine the areas in which RAM groups have been created but no users have been added. This can help in identifying unused resources and optimizing resource allocation.
+
+```sql+postgres
+select
+  name as group_name,
+  create_date,
+  users
+from
+  alicloud_ram_group
+where
+  users = '[]';
+```
+
+```sql+sqlite
 select
   name as group_name,
   create_date,

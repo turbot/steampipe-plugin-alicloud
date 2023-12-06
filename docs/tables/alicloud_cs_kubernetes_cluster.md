@@ -14,8 +14,20 @@ The `alicloud_cs_kubernetes_cluster` table provides insights into Kubernetes Clu
 ## Examples
 
 ### Basic info
+Explore which Kubernetes clusters are currently active, their size, and type within the Alibaba Cloud service. This can be useful to manage resources and understand the distribution of different types of clusters.
 
-```sql
+```sql+postgres
+select
+  name,
+  cluster_id,
+  state,
+  size,
+  cluster_type
+from
+  alicloud_cs_kubernetes_cluster;
+```
+
+```sql+sqlite
 select
   name,
   cluster_id,
@@ -27,8 +39,22 @@ from
 ```
 
 ### List running clusters
+Determine the areas in which active clusters are operating to manage resources and ensure optimal performance. This query is useful for maintaining system efficiency and preventing overutilization of resources.
 
-```sql
+```sql+postgres
+select
+  name,
+  cluster_id,
+  state,
+  size,
+  cluster_type
+from
+  alicloud_cs_kubernetes_cluster
+where
+  state = 'running';
+```
+
+```sql+sqlite
 select
   name,
   cluster_id,
@@ -42,8 +68,22 @@ where
 ```
 
 ### List managed Kubernetes clusters
+Discover the segments that are utilizing Managed Kubernetes clusters. This is useful for assessing the distribution of cluster types and identifying areas for potential optimization or consolidation.
 
-```sql
+```sql+postgres
+select
+  name,
+  cluster_id,
+  state,
+  size,
+  cluster_type
+from
+  alicloud_cs_kubernetes_cluster
+where
+  cluster_type = 'ManagedKubernetes';
+```
+
+```sql+sqlite
 select
   name,
   cluster_id,

@@ -14,8 +14,20 @@ The `alicloud_cs_kubernetes_cluster_node` table provides insights into Kubernete
 ## Examples
 
 ### Basic info
+Explore the status and details of your Kubernetes nodes within the Alibaba Cloud Container Service. This allows you to monitor your infrastructure and identify any potential issues or changes.
 
-```sql
+```sql+postgres
+select
+  node_name,
+  cluster_id,
+  state,
+  creation_time,
+  instance_id
+from
+  alicloud_cs_kubernetes_cluster_node;
+```
+
+```sql+sqlite
 select
   node_name,
   cluster_id,
@@ -27,8 +39,21 @@ from
 ```
 
 ### List worker nodes
+Identify instances where the role of a node in a Kubernetes cluster is 'Worker'. This allows you to quickly determine which nodes are performing worker tasks within your cluster.
 
-```sql
+```sql+postgres
+select
+  node_name,
+  instance_id,
+  instance_name,
+  instance_role
+from
+  alicloud_cs_kubernetes_cluster_node
+where
+  instance_role = 'Worker';
+```
+
+```sql+sqlite
 select
   node_name,
   instance_id,
@@ -41,8 +66,19 @@ where
 ```
 
 ### Count the number of nodes per instance
+Determine the distribution of nodes across different instances in your Kubernetes cluster. This can help identify any uneven distribution and manage workload balancing effectively.
 
-```sql
+```sql+postgres
+select
+  instance_id,
+  count(*) as node_count
+from
+  alicloud_cs_kubernetes_cluster_node
+group by
+  instance_id;
+```
+
+```sql+sqlite
 select
   instance_id,
   count(*) as node_count

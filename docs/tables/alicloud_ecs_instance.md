@@ -5,7 +5,23 @@ An ECS instance is a virtual machine that contains basic computing components su
 ## Examples
 
 ### Basic Instance Info
-```sql
+Assess the elements within your Alibaba Cloud ECS instances to gain insights into their operational status, type, and network details. This can help in managing resources, ensuring optimal performance, and identifying potential issues.
+```sql+postgres
+select
+  instance_id,
+  name,
+  arn,
+  status,
+  instance_type,
+  os_name_en,
+  public_ip_address,
+  private_ip_address,
+  zone
+from
+  alicloud_ecs_instance;
+```
+
+```sql+sqlite
 select
   instance_id,
   name,
@@ -22,7 +38,25 @@ from
 
 
 ### List stopped instances that you are still being charged for
-```sql
+This query is useful for identifying instances that are in a stopped state but still incurring charges. It helps in managing costs by pinpointing areas where resources are not being optimally used.
+```sql+postgres
+select
+  instance_id,
+  name,
+  status,
+  stopped_mode,
+  instance_type,
+  os_name_en,
+  public_ip_address,
+  private_ip_address,
+  zone
+from
+  alicloud_ecs_instance
+where
+  stopped_mode = 'KeepCharging';
+```
+
+```sql+sqlite
 select
   instance_id,
   name,
@@ -41,7 +75,21 @@ where
 
 
 ### List linux instances
-```sql
+Identify instances where the operating system is Linux. This is useful for managing resources or troubleshooting specific issues related to Linux-based instances.
+```sql+postgres
+select
+  instance_id,
+  name,
+  instance_type,
+  os_name_en,
+  zone
+from
+  alicloud_ecs_instance
+where
+  os_type = 'linux';
+```
+
+```sql+sqlite
 select
   instance_id,
   name,
@@ -56,8 +104,19 @@ where
 
 
 ### Instance count in each zone
+Determine the distribution of instances across various zones to balance and optimize resource allocation. This aids in planning infrastructure decisions and mitigating risk by avoiding over-reliance on a single zone.
 
-```sql
+```sql+postgres
+select
+  zone as az,
+  count(*)
+from
+  alicloud_ecs_instance
+group by
+  zone;
+```
+
+```sql+sqlite
 select
   zone as az,
   count(*)
@@ -68,8 +127,19 @@ group by
 ```
 
 ### Count the number of instances by instance type
+Assess the distribution of different instance types within your Alicloud Elastic Compute Service to better understand your resource usage. This can aid in optimizing your allocation strategy and managing costs more effectively.
 
-```sql
+```sql+postgres
+select
+  instance_type,
+  count(instance_type) as count
+from
+  alicloud_ecs_instance
+group by
+  instance_type;
+```
+
+```sql+sqlite
 select
   instance_type,
   count(instance_type) as count
@@ -80,8 +150,9 @@ group by
 ```
 
 ### List of instances without application tag key
+Identify instances where the 'application' tag key is missing, which could indicate a lack of necessary metadata for proper resource management and classification. This can be crucial for maintaining organized and efficient infrastructure in a cloud environment.
 
-```sql
+```sql+postgres
 select
   instance_id,
   tags
@@ -91,9 +162,32 @@ where
   tags ->> 'application' is null;
 ```
 
-### List of ECS instances provisioned with undesired(for example ecs.t5-lc2m1.nano and ecs.t6-c2m1.large is desired) instance type(s)
+```sql+sqlite
+select
+  instance_id,
+  tags
+from
+  alicloud_ecs_instance
+where
+  json_extract(tags, '$.application') is null;
+```
 
-```sql
+### List of ECS instances provisioned with undesired(for example ecs.t5-lc2m1.nano and ecs.t6-c2m1.large is desired) instance type(s)
+Identify instances where ECS instances are provisioned with undesired types, helping to manage resources and maintain preferred configurations.
+
+```sql+postgres
+select
+  instance_type,
+  count(*) as count
+from
+  alicloud_ecs_instance
+where
+  instance_type not in ('ecs.t5-lc2m1.nano', 'ecs.t6-c2m1.large')
+group by
+  instance_type;
+```
+
+```sql+sqlite
 select
   instance_type,
   count(*) as count
@@ -106,8 +200,9 @@ group by
 ```
 
 ### List ECS instances having deletion protection safety feature disabled
+Determine the areas in which Elastic Compute Service (ECS) instances might be at risk due to disabled deletion protection. This query is useful to identify potential vulnerabilities and ensure data safety.
 
-```sql
+```sql+postgres
 select
   instance_id,
   deletion_protection
@@ -115,4 +210,14 @@ from
   alicloud_ecs_instance
 where
   not deletion_protection;
+```
+
+```sql+sqlite
+select
+  instance_id,
+  deletion_protection
+from
+  alicloud_ecs_instance
+where
+  deletion_protection = 0;
 ```

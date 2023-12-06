@@ -14,8 +14,23 @@ The `alicloud_ecs_instance_metric_cpu_utilization_hourly` table provides insight
 ## Examples
 
 ### Basic info
+Explore which instances have the highest average CPU utilization over time, allowing you to identify potential areas for performance optimization and resource management.
 
-```sql
+```sql+postgres
+select
+  instance_id,
+  timestamp,
+  minimum,
+  maximum,
+  average
+from
+  alicloud_ecs_instance_metric_cpu_utilization_hourly
+order by
+  instance_id,
+  timestamp;
+```
+
+```sql+sqlite
 select
   instance_id,
   timestamp,
@@ -30,14 +45,30 @@ order by
 ```
 
 ### CPU Over 80% average
+Determine the areas in which the average CPU utilization exceeds 80% for hourly intervals. This query is useful for identifying potential performance issues or bottlenecks in your system.
 
-```sql
+```sql+postgres
 select
   instance_id,
   timestamp,
   round(minimum::numeric,2) as min_cpu,
   round(maximum::numeric,2) as max_cpu,
   round(average::numeric,2) as avg_cpu
+from
+  alicloud_ecs_instance_metric_cpu_utilization_hourly
+where average > 80
+order by
+  instance_id,
+  timestamp;
+```
+
+```sql+sqlite
+select
+  instance_id,
+  timestamp,
+  round(minimum,2) as min_cpu,
+  round(maximum,2) as max_cpu,
+  round(average,2) as avg_cpu
 from
   alicloud_ecs_instance_metric_cpu_utilization_hourly
 where average > 80

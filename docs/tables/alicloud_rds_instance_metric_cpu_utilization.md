@@ -14,8 +14,23 @@ The `alicloud_rds_instance_metric_cpu_utilization` table provides insights into 
 ## Examples
 
 ### Basic info
+Explore the utilization of CPU resources over time for various database instances. This information can help in optimizing resource allocation, identifying performance bottlenecks, and planning for capacity.
 
-```sql
+```sql+postgres
+select
+  db_instance_id,
+  timestamp,
+  minimum,
+  maximum,
+  average
+from
+  alicloud_rds_instance_metric_cpu_utilization
+order by
+  db_instance_id,
+  timestamp;
+```
+
+```sql+sqlite
 select
   db_instance_id,
   timestamp,
@@ -30,14 +45,31 @@ order by
 ```
 
 ### CPU over 80% average
+Determine the areas in your Alicloud RDS instances where the average CPU utilization exceeds 80%. This can be useful for identifying potential performance issues, enabling proactive management and optimization of resources.
 
-```sql
+```sql+postgres
 select
   db_instance_id,
   timestamp,
   round(minimum::numeric,2) as min_cpu,
   round(maximum::numeric,2) as max_cpu,
   round(average::numeric,2) as avg_cpu
+from
+  alicloud_rds_instance_metric_cpu_utilization
+where
+  average > 80
+order by
+  db_instance_id,
+  timestamp;
+```
+
+```sql+sqlite
+select
+  db_instance_id,
+  timestamp,
+  round(minimum,2) as min_cpu,
+  round(maximum,2) as max_cpu,
+  round(average,2) as avg_cpu
 from
   alicloud_rds_instance_metric_cpu_utilization
 where

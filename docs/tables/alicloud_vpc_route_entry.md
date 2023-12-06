@@ -14,8 +14,23 @@ The `alicloud_vpc_route_entry` table provides insights into the routing rules wi
 ## Examples
 
 ### Basic info
+Explore the configuration of your virtual private cloud (VPC) routing table in Alibaba Cloud to understand the status and type of each route entry. This can help in managing network traffic and optimizing the performance of your cloud resources.
 
-```sql
+```sql+postgres
+select
+  name,
+  route_table_id,
+  description,
+  instance_id,
+  route_entry_id,
+  destination_cidr_block,
+  type,
+  status
+from
+  alicloud_vpc_route_entry;
+```
+
+```sql+sqlite
 select
   name,
   route_table_id,
@@ -30,8 +45,25 @@ from
 ```
 
 ### List custom route entries
+Explore custom route entries to understand their configuration and status. This can be useful for managing network traffic and ensuring optimal routing within your Alicloud Virtual Private Cloud (VPC).
 
-```sql
+```sql+postgres
+select
+  name,
+  route_table_id,
+  description,
+  instance_id,
+  route_entry_id,
+  destination_cidr_block,
+  type,
+  status
+from
+  alicloud_vpc_route_entry
+where
+  type = 'Custom';
+```
+
+```sql+sqlite
 select
   name,
   route_table_id,
@@ -48,8 +80,9 @@ where
 ```
 
 ### List route entries that have a next hop type of VPN gateway
+Determine the areas in which your network's route entries are directed towards a VPN gateway. This is useful for assessing your network's connectivity and identifying potential security concerns.
 
-```sql
+```sql+postgres
 select
   name,
   route_table_id,
@@ -63,4 +96,20 @@ from
   jsonb_array_elements(next_hops) as next_hop
 where
   next_hop ->> 'NextHopType' = 'VpnGateway';
+```
+
+```sql+sqlite
+select
+  name,
+  route_table_id,
+  description,
+  route_entry_id,
+  destination_cidr_block,
+  type,
+  status
+from
+  alicloud_vpc_route_entry,
+  json_each(next_hops) as next_hop
+where
+  json_extract(next_hop.value, '$.NextHopType') = 'VpnGateway';
 ```

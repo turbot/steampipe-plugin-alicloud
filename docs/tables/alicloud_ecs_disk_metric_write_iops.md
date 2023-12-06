@@ -14,8 +14,23 @@ The `alicloud_ecs_disk_metric_write_iops` table provides insights into the write
 ## Examples
 
 ### Basic info
+Analyze the write operations per second on your Alibaba Cloud Elastic Compute Service (ECS) disks to understand their performance over time. This can help in identifying any potential bottlenecks or performance issues.
 
-```sql
+```sql+postgres
+select
+  instance_id,
+  timestamp,
+  minimum,
+  maximum,
+  average
+from
+  alicloud_ecs_disk_metric_write_iops
+order by
+  instance_id,
+  timestamp;
+```
+
+```sql+sqlite
 select
   instance_id,
   timestamp,
@@ -30,14 +45,30 @@ order by
 ```
 
 ### Intervals where operation exceed 1000 average write iops
+Determine the instances and times when the average write operations per second exceeded 1000. This can be useful for identifying periods of high disk activity and potential performance issues.
 
-```sql
+```sql+postgres
 select
   instance_id,
   timestamp,
   round(minimum::numeric,2) as min_ops,
   round(maximum::numeric,2) as max_ops,
   round(average::numeric,2) as avg_ops
+from
+  alicloud_ecs_disk_metric_write_iops
+where average > 1000
+order by
+  instance_id,
+  timestamp;
+```
+
+```sql+sqlite
+select
+  instance_id,
+  timestamp,
+  round(minimum,2) as min_ops,
+  round(maximum,2) as max_ops,
+  round(average,2) as avg_ops
 from
   alicloud_ecs_disk_metric_write_iops
 where average > 1000

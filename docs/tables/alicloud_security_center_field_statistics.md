@@ -14,8 +14,21 @@ The `alicloud_security_center_field_statistics` table provides insights into the
 ## Examples
 
 ### Basic info
+Analyze the settings to understand the distribution and status of assets in different regions on Alicloud Security Center. This helps in identifying regions with a high number of unprotected instances, thereby aiding in enhancing the overall security posture.
 
-```sql
+```sql+postgres
+select
+  general_asset_count,
+  group_count,
+  important_asset_count,
+  instance_count,
+  unprotected_instance_count,
+  region
+from
+  alicloud_security_center_field_statistics;
+```
+
+```sql+sqlite
 select
   general_asset_count,
   group_count,

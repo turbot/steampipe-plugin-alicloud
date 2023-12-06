@@ -14,8 +14,21 @@ The `alicloud_vpc_vswitch` table provides insights into VSwitches within Alibaba
 ## Examples
 
 ### Basic info
+Explore the status and default settings of various zones within your virtual private cloud (VPC) to assess their configuration and better manage your resources.
 
-```sql
+```sql+postgres
+select
+  name,
+  vswitch_id,
+  status,
+  cidr_block,
+  zone_id,
+  is_default
+from
+  alicloud_vpc_vswitch;
+```
+
+```sql+sqlite
 select
   name,
   vswitch_id,
@@ -29,8 +42,9 @@ from
 
 
 ### Get the number of available IP addresses in each VSwitch
+Explore the capacity of each VSwitch by determining the number of available IP addresses. This can aid in resource allocation and network planning.
 
-```sql
+```sql+postgres
 select
   name,
   vswitch_id,
@@ -40,9 +54,14 @@ from
   alicloud_vpc_vswitch;
 ```
 
-### Route Table info associated with VSwitch
+```sql+sqlite
+Error: SQLite does not support CIDR operations.
+```
 
-```sql
+### Route Table info associated with VSwitch
+Explore the relationship between your VSwitch and its associated route tables in your Alicloud VPC setup. This allows you to gain insights into your network's routing configurations and better manage your network traffic flow.
+
+```sql+postgres
 select
   name,
   vswitch_id,
@@ -53,10 +72,32 @@ from
   alicloud_vpc_vswitch;
 ```
 
+```sql+sqlite
+select
+  name,
+  vswitch_id,
+  json_extract(route_table, '$.RouteTableId') as route_table_id,
+  json_extract(route_table, '$.RouteTableType') as route_table_type,
+  json_extract(route_table, '$.RouteEntrys.RouteEntry') as route_entry
+from
+  alicloud_vpc_vswitch;
+```
+
 
 ### VSwitch count by VPC ID
+Determine the number of virtual switches within each Virtual Private Cloud to effectively manage network resources and ensure optimal distribution.
 
-```sql
+```sql+postgres
+select
+  vpc_id,
+  count(vswitch_id) as vswitch_count
+from
+  alicloud_vpc_vswitch
+group by
+  vpc_id;
+```
+
+```sql+sqlite
 select
   vpc_id,
   count(vswitch_id) as vswitch_count

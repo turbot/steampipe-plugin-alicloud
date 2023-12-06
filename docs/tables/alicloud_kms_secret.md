@@ -14,8 +14,20 @@ The `alicloud_kms_secret` table provides insights into secrets within Alicloud K
 ## Examples
 
 ### Basic info
+Explore the basic information of your encrypted data keys in Alibaba Cloud's Key Management Service. This allows you to understand the type of secrets you have, when they were created, and their overall descriptions, aiding in efficient key management.
 
-```sql
+```sql+postgres
+select
+  name,
+  description,
+  arn,
+  secret_type,
+  create_time
+from
+  alicloud_kms_secret;
+```
+
+```sql+sqlite
 select
   name,
   description,
@@ -27,8 +39,9 @@ from
 ```
 
 ### List secrets that do not have automatic rotation enabled
+Uncover the details of encryption secrets that are not set to auto-renew, potentially exposing your system to security risks. This is useful for identifying and rectifying weak points in your security infrastructure.
 
-```sql
+```sql+postgres
 select
   name,
   secret_type automatic_rotation
@@ -38,9 +51,20 @@ where
   automatic_rotation <> 'Enabled';
 ```
 
-### List secrets that have not been rotated within the last 30 days
+```sql+sqlite
+select
+  name,
+  secret_type as automatic_rotation
+from
+  alicloud_kms_secret
+where
+  automatic_rotation != 'Enabled';
+```
 
-```sql
+### List secrets that have not been rotated within the last 30 days
+Explore which secrets have not been updated in the last month. This is useful for maintaining security standards and ensuring that sensitive information is regularly updated.
+
+```sql+postgres
 select
   name,
   secret_type,
@@ -51,9 +75,21 @@ where
   last_rotation_date < (current_date - interval '30' day);
 ```
 
-### Get the extended configuration info for each secret
+```sql+sqlite
+select
+  name,
+  secret_type,
+  automatic_rotation
+from
+  alicloud_kms_secret
+where
+  last_rotation_date < date('now','-30 day');
+```
 
-```sql
+### Get the extended configuration info for each secret
+This query is useful for gaining insights into the extended configuration details of each secret, such as the associated database name and instance ID, as well as the secret subtype. It can help in understanding and managing the security aspects of your cloud resources.
+
+```sql+postgres
 select
   name,
   extended_config -> 'CustomData' ->> 'DBName' as db_name,
@@ -63,9 +99,20 @@ from
   alicloud_kms_secret;
 ```
 
-### List secrets without application tag key
+```sql+sqlite
+select
+  name,
+  json_extract(json_extract(extended_config, '$.CustomData'), '$.DBName') as db_name,
+  json_extract(extended_config, '$.DBInstanceId') as db_instance_id,
+  json_extract(extended_config, '$.SecretSubType') as secret_sub_type
+from
+  alicloud_kms_secret;
+```
 
-```sql
+### List secrets without application tag key
+Discover the segments that have secrets without an application tag key. This is useful to identify and manage secrets that may not be associated with a specific application.
+
+```sql+postgres
 select
   name,
   tags
@@ -73,4 +120,14 @@ from
   alicloud_kms_secret
 where
   not tags :: JSONB ? 'application';
+```
+
+```sql+sqlite
+select
+  name,
+  tags
+from
+  alicloud_kms_secret
+where
+  json_extract(tags, '$.application') is null;
 ```

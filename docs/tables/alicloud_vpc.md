@@ -14,8 +14,24 @@ The `alicloud_vpc` table provides insights into Virtual Private Clouds within Al
 ## Examples
 
 ### Find default VPCs
+Determine the areas in which default VPCs are being used across different accounts and regions. This can be useful for managing network accessibility and understanding the distribution of resources in a cloud environment.
 
-```sql
+```sql+postgres
+select
+  name,
+  vpc_id,
+  is_default,
+  cidr_block,
+  status,
+  account_id,
+  region
+from
+  alicloud_vpc
+where
+  is_default;
+```
+
+```sql+sqlite
 select
   name,
   vpc_id,
@@ -31,8 +47,9 @@ where
 ```
 
 ### Show CIDR details
+Determine the characteristics of your network such as host address, broadcast address, netmask, and network address to better understand and manage your network infrastructure.
 
-```sql
+```sql+postgres
 select
   vpc_id,
   cidr_block,
@@ -44,9 +61,14 @@ from
   alicloud_vpc;
 ```
 
-### List VPCs with public CIDR blocks
+```sql+sqlite
+Error: SQLite does not support CIDR operations.
+```
 
-```sql
+### List VPCs with public CIDR blocks
+Identify instances where your VPCs have CIDR blocks that are publicly accessible. This is useful for assessing potential security risks and ensuring that your network configurations align with best practices.
+
+```sql+postgres
 select
   vpc_id,
   cidr_block,
@@ -60,9 +82,29 @@ where
   and not cidr_block <<= '172.16.0.0/12';
 ```
 
-### Get the VSwitches details for VPCs
+```sql+sqlite
+Error: SQLite does not support CIDR operations.
+```
 
-```sql
+### Get the VSwitches details for VPCs
+Explore the status and available IP addresses of virtual switches within specific virtual private clouds. This is useful for managing and optimizing network resources in a cloud environment.
+
+```sql+postgres
+select
+  vpc.vpc_id,
+  vswitch.vswitch_id,
+  vswitch.cidr_block,
+  vswitch.status,
+  vswitch.available_ip_address_count,
+  vswitch.zone_id
+from
+  alicloud_vpc as vpc
+  join alicloud_vpc_vswitch as vswitch on vpc.vpc_id = vswitch.vpc_id
+order by 
+  vpc.vpc_id;
+```
+
+```sql+sqlite
 select
   vpc.vpc_id,
   vswitch.vswitch_id,

@@ -14,8 +14,23 @@ The `alicloud_ecs_disk_metric_write_iops_hourly` table provides insights into th
 ## Examples
 
 ### Basic info
+Analyze the settings to understand the performance trends of your Alicloud Elastic Compute Service (ECS) disk. This query helps in monitoring the write operations per second, which is crucial for optimizing your disk's efficiency and managing workloads.
 
-```sql
+```sql+postgres
+select
+  instance_id,
+  timestamp,
+  minimum,
+  maximum,
+  average
+from
+  alicloud_ecs_disk_metric_write_iops_hourly
+order by
+  instance_id,
+  timestamp;
+```
+
+```sql+sqlite
 select
   instance_id,
   timestamp,
@@ -30,14 +45,30 @@ order by
 ```
 
 ### Intervals where operation exceed 1000 average write iops
+Determine the instances where the average write operations per second exceeded 1000 in a given hour. This can help in identifying potential performance issues or heavy workloads on your ECS disks.
 
-```sql
+```sql+postgres
 select
   instance_id,
   timestamp,
   round(minimum::numeric,2) as min_ops,
   round(maximum::numeric,2) as max_ops,
   round(average::numeric,2) as avg_ops
+from
+  alicloud_ecs_disk_metric_write_iops_hourly
+where average > 1000
+order by
+  instance_id,
+  timestamp;
+```
+
+```sql+sqlite
+select
+  instance_id,
+  timestamp,
+  round(minimum,2) as min_ops,
+  round(maximum,2) as max_ops,
+  round(average,2) as avg_ops
 from
   alicloud_ecs_disk_metric_write_iops_hourly
 where average > 1000

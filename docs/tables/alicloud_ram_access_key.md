@@ -14,8 +14,18 @@ The `alicloud_ram_access_key` table provides insights into the access keys of RA
 ## Examples
 
 ### List of access keys with their corresponding user name and date of creation
+Discover the segments that have access keys, their corresponding user names, and creation dates. This can be useful in managing and tracking user access within your system.
 
-```sql
+```sql+postgres
+select
+  access_key_id,
+  user_name,
+  create_date
+from
+  alicloud_ram_access_key;
+```
+
+```sql+sqlite
 select
   access_key_id,
   user_name,
@@ -25,8 +35,20 @@ from
 ```
 
 ### List of access keys which are inactive
+Determine the areas in which there are inactive access keys. This can be useful in maintaining security by identifying and managing unused access keys.
 
-```sql
+```sql+postgres
+select
+  access_key_id,
+  user_name,
+  status
+from
+  alicloud_ram_access_key
+where
+  status = 'Inactive';
+```
+
+```sql+sqlite
 select
   access_key_id,
   user_name,
@@ -38,8 +60,9 @@ where
 ```
 
 ### Access key count by user name
+Identify instances where multiple access keys are associated with the same user in Alicloud. This can help in managing access keys effectively and improving security by limiting the number of access keys per user.
 
-```sql
+```sql+postgres
 select
   user_name,
   count (access_key_id) as access_key_count
@@ -49,10 +72,21 @@ group by
   user_name;
 ```
 
+```sql+sqlite
+select
+  user_name,
+  count(access_key_id) as access_key_count
+from
+  alicloud_ram_access_key
+group by
+  user_name;
+```
+
 
 ### Access keys older than 90 days
+Determine the instances where access keys have been in use for more than 90 days. This can be beneficial for managing security and access control, as older keys may pose a higher risk if not regularly updated or reviewed.
 
-```sql
+```sql+postgres
 select
   access_key_id,
   user_name,
@@ -63,6 +97,21 @@ from
   alicloud_ram_access_key
 where
   create_date <= (current_date - interval '90' day)
+order by
+  create_date;
+```
+
+```sql+sqlite
+select
+  access_key_id,
+  user_name,
+  status,
+  create_date,
+  julianday('now') - julianday(create_date)
+from
+  alicloud_ram_access_key
+where
+  julianday('now') - julianday(create_date) >= 90
 order by
   create_date;
 ```

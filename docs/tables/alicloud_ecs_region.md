@@ -14,8 +14,19 @@ The `alicloud_ecs_region` table provides insights into the regions available wit
 ## Examples
 
 ### Basic info
+Discover the segments that are active within different regional endpoints of the Alibaba Cloud Elastic Compute Service. This can help in assessing the performance and availability of various regions for better resource management.
 
-```sql
+```sql+postgres
+select
+  region,
+  local_name,
+  region_endpoint,
+  status
+from
+  alicloud_ecs_region;
+```
+
+```sql+sqlite
 select
   region,
   local_name,
@@ -26,8 +37,21 @@ from
 ```
 
 ### Get details for a specific region
+Explore which regions are active by checking their status, specifically focusing on the 'us-east-1' region. This provides insights into the operational status and local name of the region, which can be useful for managing resources and planning deployments.
 
-```sql
+```sql+postgres
+select
+  region,
+  local_name,
+  region_endpoint,
+  status
+from
+  alicloud_ecs_region
+where
+  region = 'us-east-1';
+```
+
+```sql+sqlite
 select
   region,
   local_name,

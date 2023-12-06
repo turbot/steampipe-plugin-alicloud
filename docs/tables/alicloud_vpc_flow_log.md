@@ -14,8 +14,23 @@ The `alicloud_vpc_flow_log` table provides insights into VPC Flow Logs within Al
 ## Examples
 
 ### Basic info
+Explore which resources within your Alibaba Cloud Virtual Private Cloud (VPC) have flow logs enabled, to gain insights into your network traffic for security monitoring and diagnostic purposes. This query is useful in identifying potential security risks and ensuring compliance with your organization's logging policies.
 
-```sql
+```sql+postgres
+select
+  name,
+  flow_log_id,
+  creation_time,
+  resource_type,
+  description,
+  status,
+  region,
+  account_id
+from
+  alicloud_vpc_flow_log;
+```
+
+```sql+sqlite
 select
   name,
   flow_log_id,
@@ -30,8 +45,22 @@ from
 ```
 
 ### List flow logs that are inactive
+Identify instances where flow logs are inactive in your Alicloud VPC. This can be useful for optimizing resource usage and ensuring that all active flow logs are necessary and functional.
 
-```sql
+```sql+postgres
+select
+  name,
+  flow_log_id,
+  creation_time,
+  resource_type,
+  status
+from
+  alicloud_vpc_flow_log
+where
+  status = 'Inactive';
+```
+
+```sql+sqlite
 select
   name,
   flow_log_id,
@@ -45,8 +74,23 @@ where
 ```
 
 ### List flow logs by resource type
+Explore which flow logs have been created for a specific type of resource. This can be particularly useful for managing and troubleshooting network traffic within your Virtual Private Cloud (VPC), allowing you to identify potential issues or inefficiencies.
 
-```sql
+```sql+postgres
+select
+  name,
+  flow_log_id,
+  creation_time,
+  resource_type,
+  project_name,
+  log_store_name
+from
+  alicloud_vpc_flow_log
+where
+  resource_type = 'VPC';
+```
+
+```sql+sqlite
 select
   name,
   flow_log_id,
@@ -61,8 +105,9 @@ where
 ```
 
 ### List flow logs created in the last 30 days
+Analyze the flow logs to understand the recent activities in your Virtual Private Cloud (VPC). This is particularly useful for identifying any unusual network traffic patterns or potential security issues that have arisen in the past month.
 
-```sql
+```sql+postgres
 select
   name,
   flow_log_id,
@@ -74,4 +119,18 @@ from
   alicloud_vpc_flow_log
 where
   creation_time >= now() - interval '30' day;
+```
+
+```sql+sqlite
+select
+  name,
+  flow_log_id,
+  creation_time,
+  resource_type,
+  project_name,
+  log_store_name
+from
+  alicloud_vpc_flow_log
+where
+  creation_time >= datetime('now', '-30 day');
 ```

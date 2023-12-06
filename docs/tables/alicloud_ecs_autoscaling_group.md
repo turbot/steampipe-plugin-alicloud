@@ -14,8 +14,22 @@ The `alicloud_ecs_autoscaling_group` table provides insights into Autoscaling Gr
 ## Examples
 
 ### Basic auto scaling group info
+This example helps to understand the configuration and capacity details of an auto scaling group in Alibaba Cloud. It can be used to monitor and manage the scaling of resources, ensuring optimal performance and cost-effectiveness.
 
-```sql
+```sql+postgres
+select
+  name,
+  load_balancer_ids,
+  default_cooldown,
+  active_capacity,
+  desired_capacity,
+  min_size,
+  max_size
+from
+  alicloud_ecs_autoscaling_group;
+```
+
+```sql+sqlite
 select
   name,
   load_balancer_ids,
@@ -29,8 +43,9 @@ from
 ```
 
 ### Autoscaling group instance details
+Explore the specific details of instances within a particular autoscaling group. This can help in managing and optimizing resources by analyzing the health status, instance type, and other relevant details of each instance.
 
-```sql
+```sql+postgres
 select
   asg.name as autoscaling_group_name,
   i.instance_type,
@@ -53,9 +68,33 @@ where
   and asg.name = 'js_as_1';
 ```
 
-### List of Autoscaling Group for which deletion protection is not enabled
+```sql+sqlite
+select
+  asg.name as autoscaling_group_name,
+  i.instance_type,
+  i.os_name_en,
+  i.private_ip_address,
+  i.public_ip_address,
+  json_extract(ins_detail.value, '$.InstanceId') as instance_id,
+  json_extract(ins_detail.value, '$.CreationType') as instance_creation_type,
+  json_extract(ins_detail.value, '$.HealthStatus') as health_status,
+  json_extract(ins_detail.value, '$.ScalingConfigurationId') as scaling_configuration_id,
+  json_extract(ins_detail.value, '$.ScalingGroupId') as scaling_group_id,
+  json_extract(ins_detail.value, '$.LaunchTemplateId') as launch_template_id,
+  json_extract(ins_detail.value, '$.LaunchTemplateVersion') as launch_template_version
+from
+  alicloud_ecs_autoscaling_group as asg,
+  json_each(asg.scaling_instances) as ins_detail,
+  alicloud_ecs_instance as i
+where
+  json_extract(ins_detail.value, '$.InstanceId') = i.instance_id
+  and asg.name = 'js_as_1';
+```
 
-```sql
+### List of Autoscaling Group for which deletion protection is not enabled
+Explore which autoscaling groups in your Alicloud ECS setup lack deletion protection. This is beneficial to identify potential risk areas and take necessary measures to prevent accidental deletions.
+
+```sql+postgres
 select
   name,
   scaling_group_id,
@@ -64,4 +103,15 @@ from
   alicloud_ecs_autoscaling_group
 where
   not group_deletion_protection;
+```
+
+```sql+sqlite
+select
+  name,
+  scaling_group_id,
+  group_deletion_protection
+from
+  alicloud_ecs_autoscaling_group
+where
+  group_deletion_protection = 0;
 ```

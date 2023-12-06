@@ -14,8 +14,19 @@ The `alicloud_security_center_version` table provides insights into Security Cen
 ## Examples
 
 ### Basic info
+Explore which versions of the Alicloud Security Center are running as trial versions, are over balance, and identify the regions they are operating in. This can assist in managing resources and optimizing security measures.
 
-```sql
+```sql+postgres
+select
+  version,
+  is_trial_version,
+  is_over_balance,
+  region
+from
+  alicloud_security_center_version;
+```
+
+```sql+sqlite
 select
   version,
   is_trial_version,
@@ -26,8 +37,21 @@ from
 ```
 
 ### Ensure that Security Center is Advanced or Enterprise edition
+Discover the segments that are utilizing either the Advanced or Enterprise editions of the Security Center. This helps in understanding the deployment and usage of these premium editions across different regions, and whether they are trial versions or exceeding their balance.
 
-```sql
+```sql+postgres
+select
+  version,
+  is_trial_version,
+  is_over_balance,
+  region
+from
+  alicloud_security_center_version
+where
+version in ('2','3','5');
+```
+
+```sql+sqlite
 select
   version,
   is_trial_version,

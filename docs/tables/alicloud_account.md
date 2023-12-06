@@ -14,8 +14,19 @@ The `alicloud_account` table provides insights into Alibaba Cloud Accounts. As a
 ## Examples
 
 ### Basic info
+Explore the different aliases, account IDs, and titles within your Alicloud account. This can be particularly useful to understand the structure and organization of your account, aiding in efficient management and oversight.
 
-```sql
+```sql+postgres
+select
+  alias,
+  account_id,
+  akas,
+  title
+from
+  alicloud_account;
+```
+
+```sql+sqlite
 select
   alias,
   account_id,

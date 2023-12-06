@@ -14,8 +14,20 @@ The `alicloud_ecs_zone` table provides insights into the zones within Alibaba Cl
 ## Examples
 
 ### Basic info
+Explore which resources, volume categories, and instance types are available in specific zones of your Alicloud Elastic Compute Service. This can help you make informed decisions about where to deploy your resources based on the capabilities of each zone.
 
-```sql
+```sql+postgres
+select
+  zone_id,
+  local_name,
+  available_resource_creation,
+  available_volume_categories,
+  available_instance_types
+from
+  alicloud_ecs_zone;
+```
+
+```sql+sqlite
 select
   zone_id,
   local_name,
@@ -27,8 +39,22 @@ from
 ```
 
 ### Get details for a specific region
+Determine the resources available in a specific geographical region. This is useful for planning and optimizing resource allocation for your operations in that region.
 
-```sql
+```sql+postgres
+select
+  zone_id,
+  local_name,
+  available_resource_creation,
+  available_volume_categories,
+  available_instance_types
+from
+  alicloud_ecs_zone
+where
+  zone_id = 'ap-south-1b';
+```
+
+```sql+sqlite
 select
   zone_id,
   local_name,

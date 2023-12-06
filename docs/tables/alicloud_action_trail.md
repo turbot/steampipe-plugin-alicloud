@@ -14,8 +14,20 @@ The `alicloud_action_trail` table provides insights into user activity within Al
 ## Examples
 
 ### Basic info
+Explore the status and regional details of your Alicloud action trails to understand which trails are active and where they are operating. This can help in managing and optimizing your security audit trails.
 
-```sql
+```sql+postgres
+select
+  name,
+  home_region,
+  event_rw,
+  status,
+  trail_region
+from
+  alicloud_action_trail;
+```
+
+```sql+sqlite
 select
   name,
   home_region,
@@ -27,8 +39,22 @@ from
 ```
 
 ### List enabled trails
+Discover the segments that are actively monitoring your Alibaba Cloud resources. This query will help you understand which of your action trails are currently enabled and actively logging events, providing insights into your system's security and compliance.
 
-```sql
+```sql+postgres
+select
+  name,
+  home_region,
+  event_rw,
+  status,
+  trail_region
+from
+  alicloud_action_trail
+where
+  status = 'Enable';
+```
+
+```sql+sqlite
 select
   name,
   home_region,
@@ -42,8 +68,9 @@ where
 ```
 
 ### List multi-account trails
+This query is useful for identifying all the action trails that are set up across multiple accounts in your organization. It helps in understanding the configuration and status of these trails, which can be beneficial for auditing and compliance purposes.
 
-```sql
+```sql+postgres
 select
   name,
   home_region,
@@ -56,9 +83,35 @@ where
   is_organization_trail;
 ```
 
-### List shadow trails
+```sql+sqlite
+select
+  name,
+  home_region,
+  is_organization_trail,
+  status,
+  trail_region
+from
+  alicloud_action_trail
+where
+  is_organization_trail = 1;
+```
 
-```sql
+### List shadow trails
+Determine the areas in which Alicloud's action trails are active across all regions, but their home region is different. This can be useful for understanding the distribution and operation of action trails in different regions.
+
+```sql+postgres
+select
+  name,
+  region,
+  home_region
+from
+  alicloud_action_trail
+where
+  trail_region = 'All'
+  and home_region <> region;
+```
+
+```sql+sqlite
 select
   name,
   region,

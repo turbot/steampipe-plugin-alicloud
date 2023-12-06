@@ -5,8 +5,21 @@ A route table contains a set of rules, called routes, that are used to determine
 ## Examples
 
 ### Basic info
+This query is used to gain insights into the configuration of your Alicloud Virtual Private Cloud (VPC) by examining the details of its routing tables. It can be particularly useful in managing network traffic and ensuring optimal routing strategies within your VPC environment.
 
-```sql
+```sql+postgres
+select
+  name,
+  route_table_id,
+  description,
+  route_table_type,
+  router_id,
+  region
+from
+  alicloud_vpc_route_table;
+```
+
+```sql+sqlite
 select
   name,
   route_table_id,
@@ -19,8 +32,9 @@ from
 ```
 
 ### Get VPC and VSwitch attachment info for each route table
+Explore the relationships between your virtual private cloud (VPC) and virtual switch (VSwitch) by understanding their attachment details for each route table. This can be particularly useful in managing network routing and ensuring efficient data traffic within your cloud environment.
 
-```sql
+```sql+postgres
 select
   name,
   route_table_id,
@@ -30,9 +44,21 @@ from
   alicloud_vpc_route_table;
 ```
 
-### Routing details for each route table
+```sql+sqlite
+select
+  name,
+  route_table_id,
+  vpc_id,
+  json_each.value
+from
+  alicloud_vpc_route_table,
+  json_each(vswitch_ids);
+```
 
-```sql
+### Routing details for each route table
+Explore the intricate details of your network routing configurations. This query can help you understand how data is being directed across your network, which can be critical for troubleshooting connectivity issues or optimizing network performance.
+
+```sql+postgres
 select
   route_table_id,
   route_detail ->> 'Description' as description,
@@ -53,9 +79,31 @@ from
   jsonb_array_elements(route_entries) as route_detail;
 ```
 
-### List route tables without application tag key
+```sql+sqlite
+select
+  route_table_id,
+  json_extract(route_detail.value, '$.Description') as description,
+  json_extract(route_detail.value, '$.DestinationCidrBlock') as destination_CIDR_block,
+  json_extract(route_detail.value, '$.InstanceId') as instance_id,
+  json_extract(route_detail.value, '$.IpVersion') as ip_version,
+  json_extract(route_detail.value, '$.NextHopOppsiteInstanceId') as next_hop_oppsite_instance_id,
+  json_extract(route_detail.value, '$.NextHopOppsiteRegionId') as next_hop_oppsite_region_id,
+  json_extract(route_detail.value, '$.NextHopOppsiteType') as next_hop_oppsite_type,
+  json_extract(route_detail.value, '$.NextHopRegionId') as next_hop_region_id,
+  json_extract(route_detail.value, '$.NextHopType') as next_hop_type,
+  json_extract(route_detail.value, '$.RouteEntryId') as route_entry_id,
+  json_extract(route_detail.value, '$.RouteEntryName') as route_entry_name,
+  json_extract(route_detail.value, '$.RouteTableId') as route_table_id,
+  json_extract(route_detail.value, '$.Status') as status
+from
+  alicloud_vpc_route_table,
+  json_each(route_entries) as route_detail;
+```
 
-```sql
+### List route tables without application tag key
+Determine the areas in which route tables lack an application tag key. This can be useful for identifying potential gaps in your tagging strategy, ensuring that all resources are correctly tagged for better management and organization.
+
+```sql+postgres
 select
   name,
   route_table_id
@@ -63,4 +111,14 @@ from
   alicloud_vpc_route_table
 where
   not tags :: JSONB ? 'application';
+```
+
+```sql+sqlite
+select
+  name,
+  route_table_id
+from
+  alicloud_vpc_route_table
+where
+  json_extract(tags, '$.application') is null;
 ```

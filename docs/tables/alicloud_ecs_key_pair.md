@@ -14,8 +14,19 @@ The `alicloud_ecs_key_pair` table provides insights into key pairs within Alibab
 ## Examples
 
 ### Basic info
+Determine the areas in which specific resources are being utilized by assessing the creation time and associated resource group. This can help in managing and optimizing resource allocation in a cloud environment.
 
-```sql
+```sql+postgres
+select
+  name,
+  key_pair_finger_print,
+  creation_time,
+  resource_group_id
+from
+  alicloud_ecs_key_pair;
+```
+
+```sql+sqlite
 select
   name,
   key_pair_finger_print,
@@ -26,8 +37,9 @@ from
 ```
 
 ### List key pairs older than 30 days
+Discover key pairs that have been in existence for over 30 days. This is useful for maintaining security and access control by regularly updating or changing key pairs.
 
-```sql
+```sql+postgres
 select
   name,
   key_pair_finger_print,
@@ -37,6 +49,20 @@ from
   alicloud_ecs_key_pair
 where
   creation_time <= (current_date - interval '30' day)
+order by
+  creation_time;
+```
+
+```sql+sqlite
+select
+  name,
+  key_pair_finger_print,
+  creation_time,
+  julianday('now') - julianday(creation_time) as age
+from
+  alicloud_ecs_key_pair
+where
+  julianday(creation_time) <= julianday(date('now','-30 day'))
 order by
   creation_time;
 ```

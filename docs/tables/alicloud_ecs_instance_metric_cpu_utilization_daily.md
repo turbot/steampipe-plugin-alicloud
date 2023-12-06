@@ -14,8 +14,23 @@ The `alicloud_ecs_instance_metric_cpu_utilization_daily` table provides insights
 ## Examples
 
 ### Basic info
+Explore the daily CPU utilization patterns of your Alicloud ECS instances to monitor their performance and identify any irregularities. This can assist in optimizing resource allocation and identifying potential issues before they escalate.
 
-```sql
+```sql+postgres
+select
+  instance_id,
+  timestamp,
+  minimum,
+  maximum,
+  average
+from
+  alicloud_ecs_instance_metric_cpu_utilization_daily
+order by
+  instance_id,
+  timestamp;
+```
+
+```sql+sqlite
 select
   instance_id,
   timestamp,
@@ -30,14 +45,30 @@ order by
 ```
 
 ### CPU Over 80% average
+Explore which Alicloud Elastic Compute Service (ECS) instances have an average CPU utilization exceeding 80%, allowing for proactive resource management and performance optimization. This helps in identifying potential bottlenecks and ensuring efficient usage of resources.
 
-```sql
+```sql+postgres
 select
   instance_id,
   timestamp,
   round(minimum::numeric,2) as min_cpu,
   round(maximum::numeric,2) as max_cpu,
   round(average::numeric,2) as avg_cpu
+from
+  alicloud_ecs_instance_metric_cpu_utilization_daily
+where average > 80
+order by
+  instance_id,
+  timestamp;
+```
+
+```sql+sqlite
+select
+  instance_id,
+  timestamp,
+  round(minimum,2) as min_cpu,
+  round(maximum,2) as max_cpu,
+  round(average,2) as avg_cpu
 from
   alicloud_ecs_instance_metric_cpu_utilization_daily
 where average > 80

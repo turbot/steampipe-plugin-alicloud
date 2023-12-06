@@ -14,8 +14,20 @@ The `alicloud_ram_policy` table provides insights into RAM policies within Aliba
 ## Examples
 
 ### Basic info
+Explore the various policies in your Alicloud RAM to understand their types, descriptions, and default versions. This can be beneficial in managing and reviewing your security settings.
 
-```sql
+```sql+postgres
+select
+  policy_name,
+  policy_type,
+  description,
+  default_version,
+  policy_document
+from
+  alicloud_ram_policy;
+```
+
+```sql+sqlite
 select
   policy_name,
   policy_type,
@@ -27,8 +39,22 @@ from
 ```
 
 ### List system policies
+Determine the areas in which system policies are implemented for better understanding of the default versions and descriptions. This can aid in assessing the elements within your Alicloud RAM policy, offering insights into your system's security configuration.
 
-```sql
+```sql+postgres
+select
+  policy_name,
+  policy_type,
+  description,
+  default_version,
+  policy_document
+from
+  alicloud_ram_policy
+where
+  policy_type = 'System';
+```
+
+```sql+sqlite
 select
   policy_name,
   policy_type,
@@ -42,8 +68,22 @@ where
 ```
 
 ### List custom policies
+Explore which custom policies are in place within your system. This allows you to gain insights into the policy name, type, description, default version, and policy document, helping you better manage and understand your system's security measures.
 
-```sql
+```sql+postgres
+select
+  policy_name,
+  policy_type,
+  description,
+  default_version,
+  policy_document
+from
+  alicloud_ram_policy
+where
+  policy_type = 'Custom';
+```
+
+```sql+sqlite
 select
   policy_name,
   policy_type,
@@ -57,8 +97,9 @@ where
 ```
 
 ### List policies with statements granting full access
+Determine the areas in which policies are granting full access. This is useful for assessing potential security vulnerabilities and ensuring that access permissions align with your organization's security protocols.
 
-```sql
+```sql+postgres
 select
   policy_name,
   policy_type,
@@ -71,4 +112,19 @@ from
 where
   action in ('*', '*:*')
   and s ->> 'Effect' = 'Allow';
+```
+
+```sql+sqlite
+select
+  policy_name,
+  policy_type,
+  action.value as action,
+  json_extract(s.value, '$.Effect') as effect
+from
+  alicloud_ram_policy,
+  json_each(policy_document_std, '$.Statement') as s,
+  json_each(s.value, '$.Action') as action
+where
+  action.value in ('*', '*:*')
+  and json_extract(s.value, '$.Effect') = 'Allow';
 ```

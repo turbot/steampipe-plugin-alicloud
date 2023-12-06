@@ -14,8 +14,19 @@ The `alicloud_cas_certificate` table provides insights into the digital certific
 ## Examples
 
 ### Basic info
+Explore which certificates are issued by Alicloud CAS by determining their names, IDs, and associated organization names. This can help in managing and tracking the certificates used in your infrastructure.
 
-```sql
+```sql+postgres
+select
+  name,
+  id,
+  org_name,
+  issuer
+from
+  alicloud_cas_certificate;
+```
+
+```sql+sqlite
 select
   name,
   id,
@@ -26,8 +37,9 @@ from
 ```
 
 ### List expired certificates
+Explore which certificates have expired to ensure your systems remain secure and up-to-date. This is crucial as expired certificates can lead to security vulnerabilities and system downtime.
 
-```sql
+```sql+postgres
 select
   name,
   id,
@@ -39,9 +51,22 @@ where
   expired;
 ```
 
-### List third-party certificates
+```sql+sqlite
+select
+  name,
+  id,
+  issuer,
+  expired
+from
+  alicloud_cas_certificate
+where
+  expired = 1;
+```
 
-```sql
+### List third-party certificates
+Discover the segments that contain third-party certificates in the Alicloud CAS service. This can be useful to identify certificates not purchased through Alicloud, potentially highlighting areas of cost savings or security risks.
+
+```sql+postgres
 select
   name,
   id,
@@ -51,4 +76,16 @@ from
   alicloud_cas_certificate
 where
   not buy_in_aliyun;
+```
+
+```sql+sqlite
+select
+  name,
+  id,
+  issuer,
+  buy_in_aliyun
+from
+  alicloud_cas_certificate
+where
+  buy_in_aliyun = 0;
 ```

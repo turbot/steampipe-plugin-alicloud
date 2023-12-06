@@ -14,8 +14,9 @@ The `alicloud_ram_password_policy` table provides insights into password policie
 ## Examples
 
 ### Ensure RAM password policy requires at least one uppercase letter (CIS v1.1.7)
+Assess the elements within your Alicloud RAM password policy to verify if it mandates the inclusion of at least one uppercase letter. This aids in enhancing password security, aligning with the CIS v1.1.7 benchmark.
 
-```sql
+```sql+postgres
 select
   require_uppercase_characters,
   case require_uppercase_characters
@@ -26,9 +27,21 @@ from
   alicloud_ram_password_policy;
 ```
 
-### Ensure RAM password policy requires at least one lowercase letter (CIS v1.1.8)
+```sql+sqlite
+select
+  require_uppercase_characters,
+  case require_uppercase_characters
+    when 1 then 'pass'
+    else 'fail'
+  end as status
+from
+  alicloud_ram_password_policy;
+```
 
-```sql
+### Ensure RAM password policy requires at least one lowercase letter (CIS v1.1.8)
+Assess the security of your password policy by determining if it necessitates the inclusion of at least one lowercase letter. This can help enhance your system's protection by ensuring passwords are more complex and harder to guess.
+
+```sql+postgres
 select
   require_lowercase_characters,
   case require_lowercase_characters
@@ -39,9 +52,21 @@ from
   alicloud_ram_password_policy;
 ```
 
-### Ensure RAM password policy requires at least one symbol (CIS v1.1.9)
+```sql+sqlite
+select
+  require_lowercase_characters,
+  case require_lowercase_characters
+    when 1 then 'pass'
+    else 'fail'
+  end as status
+from
+  alicloud_ram_password_policy;
+```
 
-```sql
+### Ensure RAM password policy requires at least one symbol (CIS v1.1.9)
+This example helps in assessing the security of your password policy by determining whether it mandates the inclusion of at least one symbol. This is crucial for enhancing password strength and reducing the risk of unauthorized access.
+
+```sql+postgres
 select
   require_symbols,
   case require_symbols
@@ -52,9 +77,21 @@ from
   alicloud_ram_password_policy;
 ```
 
-### Ensure RAM password policy require at least one number (CIS v1.1.10)
+```sql+sqlite
+select
+  require_symbols,
+  case require_symbols
+    when 1 then 'pass'
+    else 'fail'
+  end as status
+from
+  alicloud_ram_password_policy;
+```
 
-```sql
+### Ensure RAM password policy require at least one number (CIS v1.1.10)
+Assess the elements within your Alicloud RAM password policy to ensure it mandates the inclusion of at least one numerical value, providing a simple pass or fail status. This aids in maintaining robust security standards as per the CIS v1.1.10 guidelines.
+
+```sql+postgres
 select
   require_numbers,
   case require_numbers
@@ -65,13 +102,36 @@ from
   alicloud_ram_password_policy;
 ```
 
-### Ensure RAM password policy requires minimum length of 14 or greater (CIS v1.1.11)
+```sql+sqlite
+select
+  require_numbers,
+  case require_numbers
+    when 1 then 'pass'
+    else 'fail'
+  end as status
+from
+  alicloud_ram_password_policy;
+```
 
-```sql
+### Ensure RAM password policy requires minimum length of 14 or greater (CIS v1.1.11)
+Determine the strength of your password policy by checking if it requires a minimum length of 14 characters or more. This can help ensure your system's security by enforcing robust password requirements.
+
+```sql+postgres
 select
   minimum_password_length,
   case minimum_password_length >= 14
     when true then 'pass'
+    else 'fail'
+  end as status
+from
+  alicloud_ram_password_policy;
+```
+
+```sql+sqlite
+select
+  minimum_password_length,
+  case when minimum_password_length >= 14
+    then 'pass'
     else 'fail'
   end as status
 from
