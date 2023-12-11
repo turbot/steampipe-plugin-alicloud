@@ -8,6 +8,7 @@ name: alicloud
 description: Steampipe plugin for querying Alibaba Cloud servers, databases, networks, and other resources.
 og_description: Query Alibaba Cloud with SQL! Open source CLI. No DB required. 
 og_image: "/images/plugins/turbot/alicloud-social-graphic.png"
+engines: ["steampipe", "sqlite", "postgres", "export"]
 ---
 
 # Alibaba Cloud + Steampipe
