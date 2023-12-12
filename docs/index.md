@@ -8,11 +8,12 @@ name: alicloud
 description: Steampipe plugin for querying Alibaba Cloud servers, databases, networks, and other resources.
 og_description: Query Alibaba Cloud with SQL! Open source CLI. No DB required. 
 og_image: "/images/plugins/turbot/alicloud-social-graphic.png"
+engines: ["steampipe", "sqlite", "postgres", "export"]
 ---
 
 # Alibaba Cloud + Steampipe
 
-[Steampipe](https://steampipe.io) is an open source CLI to instantly query cloud APIs using SQL.
+[Steampipe](https://steampipe.io) is an open-source zero-ETL engine to instantly query cloud APIs using SQL.
 
 [Alibaba Cloud](https://alibabacloud.com) provides on-demand cloud computing platforms and APIs to authenticated customers on a metered pay-as-you-go basis. 
 
@@ -187,7 +188,4 @@ export ALICLOUD_REGION=cn-east-1
 
 If regions is not specified, Steampipe will use the single default region.
 
-## Get involved
 
-- Open source: [https://github.com/turbot/steampipe-plugin-alicloud](https://github.com/turbot/steampipe-plugin-alicloud)
-- Community: [Join #steampipe on Slack →](https://turbot.com/community/join)

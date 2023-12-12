@@ -5,8 +5,19 @@ A customer gateway device is a physical or software appliance that you own or ma
 ## Examples
 
 ### Basic info
+Explore the details of your VPN customer gateway in Alibaba Cloud's VPC service. This query can be used to understand when and why each gateway was created, aiding in resource management and auditing processes.
 
-```sql
+```sql+postgres
+select
+  name,
+  customer_gateway_id,
+  description,
+  create_time
+from
+  alicloud_vpc_vpn_customer_gateway;
+```
+
+```sql+sqlite
 select
   name,
   customer_gateway_id,
@@ -17,8 +28,18 @@ from
 ```
 
 ### Get the IP address of each customer gateway
+Explore which customer gateways are associated with specific IP addresses to better manage network connections and troubleshoot potential issues. This query is beneficial for maintaining secure and efficient connectivity within your virtual private cloud (VPC).
 
-```sql
+```sql+postgres
+select
+  name,
+  customer_gateway_id,
+  ip_address
+from
+  alicloud_vpc_vpn_customer_gateway;
+```
+
+```sql+sqlite
 select
   name,
   customer_gateway_id,
