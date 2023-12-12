@@ -5,7 +5,7 @@ import (
 )
 
 type alicloudConfig struct {
-	Regions          []string `hcl:"regions"`
+	Regions          []string `hcl:"regions,optional"`
 	AccessKey        *string  `hcl:"access_key"`
 	SecretKey        *string  `hcl:"secret_key"`
 	IgnoreErrorCodes []string `hcl:"ignore_error_codes,optional"`
