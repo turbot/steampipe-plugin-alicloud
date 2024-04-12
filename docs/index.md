@@ -26,7 +26,9 @@ select
   mfa_enabled
 from
   alicloud_ram_user;
+```
 
+```
 +---------+----------------+-------------+
 | name    | display_name   | mfa_enabled |
 +---------+----------------+-------------+
