@@ -48,7 +48,7 @@ resource "tls_self_signed_cert" "example" {
 
 # Add a new Certificate.
 resource "alicloud_cas_certificate" "named_test_resource" {
-  name = var.resource_name
+  certificate_name = var.resource_name
   cert = tls_self_signed_cert.example.cert_pem
   key  = tls_private_key.example.private_key_pem
 }
