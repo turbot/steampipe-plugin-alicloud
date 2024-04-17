@@ -203,19 +203,8 @@ func IMSService(ctx context.Context, d *plugin.QueryData) (*ims.Client, error) {
 		return nil, err
 	}
 
-	ak, err := credential.GetAccessKeyId()
-	if err != nil {
-		return nil, err
-	}
-	secret, err := credential.GetAccessKeySecret()
-
-	if err != nil {
-		return nil, err
-	}
-
 	config := &rpc.Config{}
-	config.AccessKeyId = ak
-	config.AccessKeySecret = secret
+	config.Credential = credential
 	config.RegionId = &region
 
 	// so it was not in cache - create service
