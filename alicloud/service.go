@@ -2,11 +2,18 @@ package alicloud
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 	"os"
+	"path/filepath"
 
 	ims "github.com/alibabacloud-go/ims-20190815/client"
 	rpc "github.com/alibabacloud-go/tea-rpc/client"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials/provider"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/actiontrail"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cas"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
@@ -242,13 +249,14 @@ func RAMService(ctx context.Context, d *plugin.QueryData) (*ram.Client, error) {
 		return cachedData.(*ram.Client), nil
 	}
 
-	ak, secret, err := getEnv(ctx, d)
+	credCfg, err := getCredentialSessionCached(ctx, d, nil)
 	if err != nil {
 		return nil, err
 	}
+	cfg := credCfg.(*CredentialConfig)
 
 	// so it was not in cache - create service
-	svc, err := ram.NewClientWithAccessKey(region, ak, secret)
+	svc, err := ram.NewClientWithOptions(region, cfg.Config, cfg.Creds)
 	if err != nil {
 		return nil, err
 	}
@@ -269,13 +277,14 @@ func SLBService(ctx context.Context, d *plugin.QueryData) (*slb.Client, error) {
 		return cachedData.(*slb.Client), nil
 	}
 
-	ak, secret, err := getEnv(ctx, d)
+	credCfg, err := getCredentialSessionCached(ctx, d, nil)
 	if err != nil {
 		return nil, err
 	}
+	cfg := credCfg.(*CredentialConfig)
 
 	// so it was not in cache - create service
-	svc, err := slb.NewClientWithAccessKey(region, ak, secret)
+	svc, err := slb.NewClientWithOptions(region, cfg.Config, cfg.Creds)
 	if err != nil {
 		return nil, err
 	}
@@ -295,13 +304,14 @@ func StsService(ctx context.Context, d *plugin.QueryData) (*sts.Client, error) {
 		return cachedData.(*sts.Client), nil
 	}
 
-	ak, secret, err := getEnv(ctx, d)
+	credCfg, err := getCredentialSessionCached(ctx, d, nil)
 	if err != nil {
 		return nil, err
 	}
+	cfg := credCfg.(*CredentialConfig)
 
 	// so it was not in cache - create service
-	svc, err := sts.NewClientWithAccessKey(region, ak, secret)
+	svc, err := sts.NewClientWithOptions(region, cfg.Config, cfg.Creds)
 	if err != nil {
 		return nil, err
 	}
@@ -325,13 +335,14 @@ func VpcService(ctx context.Context, d *plugin.QueryData) (*vpc.Client, error) {
 		return cachedData.(*vpc.Client), nil
 	}
 
-	ak, secret, err := getEnv(ctx, d)
+	credCfg, err := getCredentialSessionCached(ctx, d, nil)
 	if err != nil {
 		return nil, err
 	}
+	cfg := credCfg.(*CredentialConfig)
 
 	// so it was not in cache - create service
-	svc, err := vpc.NewClientWithAccessKey(region, ak, secret)
+	svc, err := vpc.NewClientWithOptions(region, cfg.Config, cfg.Creds)
 	if err != nil {
 		return nil, err
 	}
@@ -435,7 +446,7 @@ func getEnv(_ context.Context, d *plugin.QueryData) (secretKey string, accessKey
 		if accessKey, ok = os.LookupEnv("ALIBABACLOUD_ACCESS_KEY_ID"); !ok {
 			if accessKey, ok = os.LookupEnv("ALICLOUD_ACCESS_KEY_ID"); !ok {
 				if accessKey, ok = os.LookupEnv("ALICLOUD_ACCESS_KEY"); !ok {
-					panic("\n'access_key' must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe.")
+					panic("\n'access_key' or 'profile' must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe.")
 				}
 			}
 		}
@@ -448,13 +459,189 @@ func getEnv(_ context.Context, d *plugin.QueryData) (secretKey string, accessKey
 		if secretKey, ok = os.LookupEnv("ALIBABACLOUD_ACCESS_KEY_SECRET"); !ok {
 			if secretKey, ok = os.LookupEnv("ALICLOUD_ACCESS_KEY_SECRET"); !ok {
 				if secretKey, ok = os.LookupEnv("ALICLOUD_SECRET_KEY"); !ok {
-					panic("\n'secret_key' must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe.")
+					panic("\n'secret_key' or 'profile' must be set in the connection configuration. Edit your connection configuration file and then restart Steampipe.")
 				}
 			}
 		}
 	}
 
 	return accessKey, secretKey, nil
+}
+
+// Credential configuration
+type CredentialConfig struct {
+	Creds         auth.Credential
+	DefaultRegion string
+	Config        *sdk.Config
+}
+
+type Config struct {
+	Profiles []Profile `json:"profiles"`
+}
+
+// Profile structure
+type Profile struct {
+	Name            string `json:"name"`
+	Mode            string `json:"mode"`
+	AccessKeyId     string `json:"access_key_id"`
+	AccessKeySecret string `json:"access_key_secret"`
+	StsToken        string `json:"sts_token"`
+	StsRegion       string `json:"sts_region"`
+	RamRoleName     string `json:"ram_role_name"`
+	RamRoleArn      string `json:"ram_role_arn"`
+	RamSessionName  string `json:"ram_session_name"`
+	SourceProfile   string `json:"source_profile"`
+	PublicKeyId     string `json:"public_key_id"`
+	PrivateKey      string `json:"private_key"`
+	KeyPairName     string `json:"key_pair_name"`
+	ExpiredSeconds  int    `json:"expired_seconds"`
+	Verified        string `json:"verified"`
+	RegionId        string `json:"region_id"`
+	OutputFormat    string `json:"output_format"`
+	Language        string `json:"language"`
+	Site            string `json:"site"`
+	RetryTimeout    int    `json:"retry_timeout"`
+	ConnectTimeout  int    `json:"connect_timeout"`
+	RetryCount      int    `json:"retry_count"`
+	ProcessCommand  string `json:"process_command"`
+	CredentialsUri  string `json:"credentials_uri"`
+}
+
+// Get credential from the profile configuration for Alicloud CLI
+func getProfileConfigurations(_ context.Context, d *plugin.QueryData) (*CredentialConfig, error) {
+	alicloudConfig := GetConfig(d.Connection)
+	if alicloudConfig.Profile != nil {
+		defaultRegion := GetDefaultRegion(d.Connection)
+		defaultConfig := sdk.NewConfig()
+		profile := alicloudConfig.Profile
+
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			log.Fatalf("Failed to get home directory: %v", err)
+		}
+		// Credential path is ~/.aliyun/config.json
+		configPath := filepath.Join(homeDir, ".aliyun", "config.json")
+
+		config, err := loadConfig(configPath)
+		if err != nil {
+			log.Fatalf("Failed to load config: %v", err)
+		}
+
+		configuredProfiles := make(map[string]*Profile, 0)
+
+		for _, p := range config.Profiles {
+			configuredProfiles[p.Name] = &p
+		}
+
+		profileConfig := configuredProfiles[*profile]
+
+		if profileConfig == nil {
+			return nil, fmt.Errorf("profile with name '%s' is not configured", *profile)
+		}
+
+		creds := getCredentialBasedOnProfile(profileConfig)
+		if creds == nil {
+			return nil, fmt.Errorf("unsupported authentication mode '%s'", profileConfig.Mode)
+		}
+		return &CredentialConfig{creds, defaultRegion, defaultConfig}, nil
+	}
+	return nil, nil
+}
+
+// Load the alicloud credential
+func loadConfig(path string) (*Config, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("error reading config file: %v", err)
+	}
+
+	var config Config
+	if err := json.Unmarshal(data, &config); err != nil {
+		return nil, fmt.Errorf("error unmarshaling config: %v", err)
+	}
+
+	return &config, nil
+}
+
+// We can configure the profile with following supported authentication methods:
+// https://github.com/aliyun/aliyun-cli/blob/master/README.md#configure-authentication-methods
+func getCredentialBasedOnProfile(profileConfig *Profile) interface{} {
+	switch profileConfig.Mode {
+	case "AK":
+		return &credentials.AccessKeyCredential{
+			AccessKeyId:     profileConfig.AccessKeyId,
+			AccessKeySecret: profileConfig.AccessKeySecret,
+		}
+	case "StsToken":
+		return &credentials.StsTokenCredential{
+			AccessKeyId:       profileConfig.AccessKeyId,
+			AccessKeySecret:   profileConfig.AccessKeySecret,
+			AccessKeyStsToken: profileConfig.StsToken,
+		}
+	case "EcsRamRole":
+		return &credentials.EcsRamRoleCredential{
+			RoleName: profileConfig.RamRoleName,
+		}
+	case "RamRoleArn":
+		return &credentials.RamRoleArnCredential{
+			AccessKeyId:           profileConfig.AccessKeyId,
+			AccessKeySecret:       profileConfig.AccessKeySecret,
+			RoleArn:               profileConfig.RamRoleArn,
+			RoleSessionName:       profileConfig.RamSessionName,
+			RoleSessionExpiration: profileConfig.ExpiredSeconds,
+		}
+		//// Commenting out for the time being, will uncomment it as per user's request.
+		//// This type of authentication is not supported by Alicloud CLI
+		//// Supported authentication modes: AK, StsToken, RamRoleArn, and EcsRamRole
+		//// https://www.alibabacloud.com/help/en/cli/interactive-configuration-or-fast-configuration#concept-508451/section-pq4-04b-7an
+		// case "RsaKeyPair":
+		// 	return &credentials.RsaKeyPairCredential{
+		// 		PublicKeyId:       profileConfig.PublicKeyId,
+		// 		PrivateKey:        profileConfig.PrivateKey,
+		// 		SessionExpiration: profileConfig.ExpiredSeconds,
+		// }
+	}
+	return nil
+}
+
+var getCredentialSessionCached = plugin.HydrateFunc(getCredentialSessionUncached).Memoize()
+
+func getCredentialSessionUncached(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+
+	var connectionCfg *CredentialConfig
+
+	config := GetConfig(d.Connection)
+	defaultRegion := GetDefaultRegion(d.Connection)
+	defaultConfig := sdk.NewConfig() // initialize with default config
+
+	// Create client based on environment credential support
+	// Supported environment variables: https://github.com/aliyun/aliyun-cli/blob/master/README.md#supported-environment-variables
+	envProvider := provider.NewInstanceCredentialsProvider()
+	envCreds, err := envProvider.Resolve()
+	if err != nil {
+		return nil, err
+	}
+	if envCreds != nil {
+		return &CredentialConfig{envCreds, defaultRegion, defaultConfig}, nil
+	}
+
+	// Profile based client
+	if config.Profile != nil {
+		return getProfileConfigurations(ctx, d)
+	}
+
+	// Access key and Secret Key from environment variable
+	accessKey, secretKey, err := getEnv(ctx, d)
+	if err != nil {
+		return nil, err
+	}
+	if accessKey != "" && secretKey != "" {
+		creds := credentials.NewAccessKeyCredential(accessKey, secretKey)
+		connectionCfg = &CredentialConfig{creds, defaultRegion, defaultConfig}
+		return connectionCfg, nil
+	}
+
+	return nil, nil
 }
 
 // RDSService returns the service connection for Alicloud RDS service
