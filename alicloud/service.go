@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -484,7 +483,7 @@ type CredentialConfig struct {
 	Creds         auth.Credential
 	DefaultRegion string
 	Config        *sdk.Config
-	CredConfig    *credsConfig.Config
+	CredConfig    *credsConfig.Config // This is required for the table alicloud_ram_credential_report because, it uses the different SDK to make the API call.
 }
 
 type Config struct {
@@ -526,7 +525,7 @@ func (p ProfileMap) getProfileDetails(profile string) *Profile {
 }
 
 // Get credential from the profile configuration for Alicloud CLI
-func getProfileConfigurations(_ context.Context, d *plugin.QueryData) (*CredentialConfig, error) {
+func getProfileConfigurations(ctx context.Context, d *plugin.QueryData) (*CredentialConfig, error) {
 	alicloudConfig := GetConfig(d.Connection)
 	if alicloudConfig.Profile != nil {
 		defaultRegion := GetDefaultRegion(d.Connection)
@@ -535,14 +534,14 @@ func getProfileConfigurations(_ context.Context, d *plugin.QueryData) (*Credenti
 
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
-			log.Fatalf("Failed to get home directory: %v", err)
+			plugin.Logger(ctx).Error("Failed to get home directory: %v", err)
 		}
 		// Credential path is ~/.aliyun/config.json
 		configPath := filepath.Join(homeDir, ".aliyun", "config.json")
 
 		config, err := loadConfig(configPath)
 		if err != nil {
-			log.Fatalf("Failed to load config: %v", err)
+			plugin.Logger(ctx).Error("Failed to load config: %v", err)
 		}
 
 		configuredProfiles := make(ProfileMap)
@@ -558,6 +557,10 @@ func getProfileConfigurations(_ context.Context, d *plugin.QueryData) (*Credenti
 			return nil, fmt.Errorf("profile with name '%s' is not configured", *profile)
 		}
 
+		// We will get a nil value if the specified profile is not available
+		// Or
+		// The authentication mode of the profile is not AK | RamRoleArn | StsToken | EcsRamRole As these are the supported type by ALicloud CLI.
+		// https://github.com/aliyun/aliyun-cli/blob/master/README.md#configure-authentication-methods
 		creds, credsConfig := getCredentialBasedOnProfile(profileConfig)
 		if creds == nil {
 			return nil, fmt.Errorf("unsupported authentication mode '%s'", profileConfig.Mode)
@@ -621,7 +624,7 @@ func getCredentialBasedOnProfile(profileConfig *Profile) (interface{}, *credsCon
 				SetRoleArn(profileConfig.RamRoleArn).
 				SetRoleSessionName(profileConfig.RamSessionName).
 				SetRoleSessionExpiration(profileConfig.ExpiredSeconds)
-		//// Commenting out for the time being, will uncomment it as per user's request.
+		//// Commenting out for the time being for reference, will uncomment it as per user's request.
 		//// This type of authentication is not supported by Alicloud CLI
 		//// Supported authentication modes: AK, StsToken, RamRoleArn, and EcsRamRole
 		//// https://www.alibabacloud.com/help/en/cli/interactive-configuration-or-fast-configuration#concept-508451/section-pq4-04b-7an
