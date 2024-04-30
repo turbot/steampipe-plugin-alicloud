@@ -665,11 +665,9 @@ func getCredentialBasedOnProfile(profileConfig *Profile) (interface{}, *credsCon
 }
 
 func getSourceProfileCredential(profile string) *Profile {
-	p := &Profile{}
-
 	pMap := getProfileMap()
 
-	p = pMap.getProfileDetails(profile)
+	p := pMap.getProfileDetails(profile)
 
 	return p
 }
