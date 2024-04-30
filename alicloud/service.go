@@ -524,6 +524,29 @@ func (p ProfileMap) getProfileDetails(profile string) *Profile {
 	return p[profile]
 }
 
+func getProfileMap() ProfileMap {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		panic("Failed to get home directory :" + err.Error())
+	}
+	// Credential path is ~/.aliyun/config.json
+	configPath := filepath.Join(homeDir, ".aliyun", "config.json")
+
+	config, err := loadConfig(configPath)
+	if err != nil {
+		panic("Failed to load config: " + err.Error())
+	}
+
+	configuredProfiles := make(ProfileMap)
+
+	for _, p := range config.Profiles {
+		pCopy := p // Create a copy of p
+		configuredProfiles[pCopy.Name] = &pCopy
+	}
+
+	return configuredProfiles
+}
+
 // Get credential from the profile configuration for Alicloud CLI
 func getProfileConfigurations(ctx context.Context, d *plugin.QueryData) (*CredentialConfig, error) {
 	alicloudConfig := GetConfig(d.Connection)
@@ -532,24 +555,7 @@ func getProfileConfigurations(ctx context.Context, d *plugin.QueryData) (*Creden
 		defaultConfig := sdk.NewConfig()
 		profile := alicloudConfig.Profile
 
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			plugin.Logger(ctx).Error("Failed to get home directory: %v", err)
-		}
-		// Credential path is ~/.aliyun/config.json
-		configPath := filepath.Join(homeDir, ".aliyun", "config.json")
-
-		config, err := loadConfig(configPath)
-		if err != nil {
-			plugin.Logger(ctx).Error("Failed to load config: %v", err)
-		}
-
-		configuredProfiles := make(ProfileMap)
-
-		for _, p := range config.Profiles {
-			pCopy := p // Create a copy of p
-			configuredProfiles[pCopy.Name] = &pCopy
-		}
+		configuredProfiles := getProfileMap()
 
 		profileConfig := configuredProfiles.getProfileDetails(*profile)
 
@@ -624,6 +630,26 @@ func getCredentialBasedOnProfile(profileConfig *Profile) (interface{}, *credsCon
 				SetRoleArn(profileConfig.RamRoleArn).
 				SetRoleSessionName(profileConfig.RamSessionName).
 				SetRoleSessionExpiration(profileConfig.ExpiredSeconds)
+	case "ChainableRamRoleArn": // https://github.com/aliyun/aliyun-cli/blob/master/config/profile.go#L324
+		sourceProfile := getSourceProfileCredential(profileConfig.SourceProfile)
+		if sourceProfile == nil {
+			return nil, nil
+		}
+		return &credentials.RamRoleArnCredential{
+				AccessKeyId:           sourceProfile.AccessKeyId,
+				AccessKeySecret:       sourceProfile.AccessKeySecret,
+				RoleArn:               profileConfig.RamRoleArn,
+				RoleSessionName:       profileConfig.RamSessionName,
+				RoleSessionExpiration: profileConfig.ExpiredSeconds,
+				StsRegion:             profileConfig.StsRegion,
+			}, new(credsConfig.Config).
+				SetType("ram_role_arn").
+				SetAccessKeyId(sourceProfile.AccessKeyId).
+				SetAccessKeySecret(sourceProfile.AccessKeySecret).
+				SetRoleArn(profileConfig.RamRoleArn).
+				SetRoleSessionName(profileConfig.RamSessionName).
+				SetRoleSessionExpiration(profileConfig.ExpiredSeconds)
+
 		//// Commenting out for the time being for reference, will uncomment it as per user's request.
 		//// This type of authentication is not supported by Alicloud CLI
 		//// Supported authentication modes: AK, StsToken, RamRoleArn, and EcsRamRole
@@ -636,6 +662,16 @@ func getCredentialBasedOnProfile(profileConfig *Profile) (interface{}, *credsCon
 		// }
 	}
 	return nil, nil
+}
+
+func getSourceProfileCredential(profile string) *Profile {
+	p := &Profile{}
+
+	pMap := getProfileMap()
+
+	p = pMap.getProfileDetails(profile)
+
+	return p
 }
 
 var getCredentialSessionCached = plugin.HydrateFunc(getCredentialSessionUncached).Memoize()
