@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
+	"github.com/turbot/steampipe-plugin-sdk/v5/memoize"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
@@ -14,8 +15,7 @@ type alicloudCommonColumnData struct {
 
 // getCommonColumns:: helps to avoid multiple sts.GetCallerIdentity API calls in parallel where using it directly in column definitions
 func getCommonColumns(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	getCallerIdentityCached := plugin.HydrateFunc(getCallerIdentity).WithCache()
-	getCallerIdentityData, err := getCallerIdentityCached(ctx, d, h)
+	getCallerIdentityData, err := getAccountDetails(ctx, d, h)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,37 @@ func getCommonColumns(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	return commonColumnData, nil
 }
 
-func getCallerIdentity(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func getAccountId(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	getCallerIdentityData, err := getAccountDetails(ctx, d, h)
+	if err != nil {
+		return nil, err
+	}
+
+	callerIdentity := getCallerIdentityData.(*sts.GetCallerIdentityResponse)
+
+	return callerIdentity.AccountId, nil
+}
+
+var getAccountDetailsMemoize = plugin.HydrateFunc(getCallerIdentityUncached).Memoize(memoize.WithCacheKeyFunction(getAccountDetailsCacheKey))
+
+func getAccountDetailsCacheKey(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	cacheKey := "GetCallerIdentity"
+	return cacheKey, nil
+}
+
+func getAccountDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+
+	config, err := getAccountDetailsMemoize(ctx, d, h)
+	if err != nil {
+		return nil, err
+	}
+
+	c := config.(*sts.GetCallerIdentityResponse)
+
+	return c, nil
+}
+
+func getCallerIdentityUncached(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	cacheKey := "GetCallerIdentity"
 
 	// if found in cache, return the result
