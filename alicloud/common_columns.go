@@ -59,12 +59,6 @@ func getAccountDetails(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 }
 
 func getCallerIdentityUncached(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	cacheKey := "GetCallerIdentity"
-
-	// if found in cache, return the result
-	if cachedData, ok := d.ConnectionManager.Cache.Get(cacheKey); ok {
-		return cachedData.(*sts.GetCallerIdentityResponse), nil
-	}
 
 	// Create service connection
 	client, err := StsService(ctx, d)
@@ -80,9 +74,6 @@ func getCallerIdentityUncached(ctx context.Context, d *plugin.QueryData, _ *plug
 		// let the cache know that we have failed to fetch this item
 		return nil, err
 	}
-
-	// save to extension cache
-	d.ConnectionManager.Cache.Set(cacheKey, callerIdentity)
 
 	return callerIdentity, nil
 }
