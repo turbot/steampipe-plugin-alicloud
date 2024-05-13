@@ -11,7 +11,6 @@ _Dependencies_
 - Recompiled plugin with [steampipe-plugin-sdk v5.10.0](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v5100-2024-04-10) that adds support for connection key columns. ([#406](https://github.com/turbot/steampipe-plugin-alicloud/pull/406))
 - Recompiled plugin with [github.com/hashicorp/go-getter v1.7.4](https://github.com/hashicorp/go-getter/releases/tag/v1.7.4). ([#412](https://github.com/turbot/steampipe-plugin-alicloud/pull/412))
 
-
 ## v0.21.0 [2023-12-12]
 
 _What's new?_
