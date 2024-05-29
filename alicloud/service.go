@@ -430,6 +430,24 @@ func GetDefaultRegion(connection *plugin.Connection) string {
 	return region
 }
 
+// https://github.com/aliyun/aliyun-cli/blob/master/README.md#supported-environment-variables
+func getEnvForProfile(_ context.Context, d *plugin.QueryData) (profile string) {
+	alicloudConfig := GetConfig(d.Connection)
+	if alicloudConfig.Profile != nil {
+		profile = *alicloudConfig.Profile
+	} else {
+		var ok bool
+		if profile, ok = os.LookupEnv("ALIBABACLOUD_PROFILE"); !ok {
+			if profile, ok = os.LookupEnv("ALIBABA_CLOUD_PROFILE"); !ok {
+				if profile, ok = os.LookupEnv("ALICLOUD_PROFILE"); !ok {
+					return ""
+				}
+			}
+		}
+	}
+	return profile
+}
+
 func getEnv(_ context.Context, d *plugin.QueryData) (secretKey string, accessKey string, err error) {
 
 	// https://github.com/aliyun/aliyun-cli/blob/master/CHANGELOG.md#3040
@@ -548,32 +566,42 @@ func getProfileMap() ProfileMap {
 }
 
 // Get credential from the profile configuration for Alicloud CLI
-func getProfileConfigurations(ctx context.Context, d *plugin.QueryData) (*CredentialConfig, error) {
+func getProfileConfigurations(_ context.Context, d *plugin.QueryData) (*CredentialConfig, error) {
 	alicloudConfig := GetConfig(d.Connection)
 	if alicloudConfig.Profile != nil {
-		defaultRegion := GetDefaultRegion(d.Connection)
-		defaultConfig := sdk.NewConfig()
 		profile := alicloudConfig.Profile
 
-		configuredProfiles := getProfileMap()
-
-		profileConfig := configuredProfiles.getProfileDetails(*profile)
-
-		if profileConfig == nil {
-			return nil, fmt.Errorf("profile with name '%s' is not configured", *profile)
+		cfg, err := getCredentialConfigByProfile(*profile, d)
+		if err != nil {
+			return nil, err
 		}
 
-		// We will get a nil value if the specified profile is not available
-		// Or
-		// The authentication mode of the profile is not AK | RamRoleArn | StsToken | EcsRamRole As these are the supported type by ALicloud CLI.
-		// https://github.com/aliyun/aliyun-cli/blob/master/README.md#configure-authentication-methods
-		creds, credsConfig := getCredentialBasedOnProfile(profileConfig)
-		if creds == nil {
-			return nil, fmt.Errorf("unsupported authentication mode '%s'", profileConfig.Mode)
-		}
-		return &CredentialConfig{creds, defaultRegion, defaultConfig, credsConfig}, nil
+		return cfg, nil
 	}
 	return nil, nil
+}
+
+func getCredentialConfigByProfile(profile string, d *plugin.QueryData) (*CredentialConfig, error) {
+	defaultRegion := GetDefaultRegion(d.Connection)
+	defaultConfig := sdk.NewConfig()
+	configuredProfiles := getProfileMap()
+
+	profileConfig := configuredProfiles.getProfileDetails(profile)
+
+	if profileConfig == nil {
+		return nil, fmt.Errorf("profile with name '%s' is not configured", profile)
+	}
+
+	// We will get a nil value if the specified profile is not available
+	// Or
+	// The authentication mode of the profile is not AK | RamRoleArn | StsToken | EcsRamRole As these are the supported type by ALicloud CLI.
+	// https://github.com/aliyun/aliyun-cli/blob/master/README.md#configure-authentication-methods
+	creds, credsConfig := getCredentialBasedOnProfile(profileConfig)
+	if creds == nil {
+		return nil, fmt.Errorf("unsupported authentication mode '%s'", profileConfig.Mode)
+	}
+
+	return &CredentialConfig{creds, defaultRegion, defaultConfig, credsConfig}, nil
 }
 
 // Load the alicloud credential
@@ -685,6 +713,11 @@ func getCredentialSessionUncached(ctx context.Context, d *plugin.QueryData, h *p
 	// Profile based client
 	if config.Profile != nil {
 		return getProfileConfigurations(ctx, d)
+	}
+
+	profileEnv := getEnvForProfile(ctx, d)
+	if profileEnv != "" {
+		return getCredentialConfigByProfile(profileEnv, d)
 	}
 
 	// Access key and Secret Key from environment variable
