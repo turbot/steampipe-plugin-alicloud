@@ -1,3 +1,16 @@
+## v0.22.0 [2024-05-13]
+
+_Enhancements_
+
+- The `account_id` column has now been assigned as a connection key column across all the tables which facilitates more precise and efficient querying across multiple Alibaba Cloud accounts. ([#406](https://github.com/turbot/steampipe-plugin-alicloud/pull/406))
+- The Plugin and the Steampipe Anywhere binaries are now built with the `netgo` package. ([#419](https://github.com/turbot/steampipe-plugin-alicloud/pull/419))
+- Added the `version` flag to the plugin's Export tool. ([#65](https://github.com/turbot/steampipe-export/pull/65))
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v5.10.0](https://github.com/turbot/steampipe-plugin-sdk/blob/main/CHANGELOG.md#v5100-2024-04-10) that adds support for connection key columns. ([#406](https://github.com/turbot/steampipe-plugin-alicloud/pull/406))
+- Recompiled plugin with [github.com/hashicorp/go-getter v1.7.4](https://github.com/hashicorp/go-getter/releases/tag/v1.7.4). ([#412](https://github.com/turbot/steampipe-plugin-alicloud/pull/412))
+
 ## v0.21.0 [2023-12-12]
 
 _What's new?_

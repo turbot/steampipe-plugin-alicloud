@@ -13,6 +13,7 @@ import (
 	"github.com/sethvargo/go-retry"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
 // append the common cloud monitoring metric columns onto the column list
@@ -54,6 +55,13 @@ func commonCMMetricColumns() []*plugin.Column {
 			Name:        "timestamp",
 			Description: "The timestamp used for the data point.",
 			Type:        proto.ColumnType_TIMESTAMP,
+		},
+		{
+			Name:        "account_id",
+			Description: ColumnDescriptionAccount,
+			Type:        proto.ColumnType_STRING,
+			Hydrate:     getCommonColumns,
+			Transform:   transform.FromField("AccountID"),
 		},
 	}
 }
