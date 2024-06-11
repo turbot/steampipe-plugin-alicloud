@@ -509,13 +509,7 @@ func csKubernetesClusterAkaTagsToMap(_ context.Context, d *transform.TransformDa
 	}
 	
 	tags := d.Value.([]interface{})
-	if tags == nil {
-		return nil, nil
-	}
 
-	if len(tags) == 0 {
-		return nil, nil
-	}
 	turbotTagsMap := map[string]string{}
 	for _, i := range tags {
 		tagDetails := i.(map[string]interface{})
