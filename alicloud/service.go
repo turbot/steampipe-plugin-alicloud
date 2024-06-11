@@ -568,17 +568,15 @@ func getProfileMap() ProfileMap {
 // Get credential from the profile configuration for Alicloud CLI
 func getProfileConfigurations(_ context.Context, d *plugin.QueryData) (*CredentialConfig, error) {
 	alicloudConfig := GetConfig(d.Connection)
-	if alicloudConfig.Profile != nil {
-		profile := alicloudConfig.Profile
+	profile := alicloudConfig.Profile
 
-		cfg, err := getCredentialConfigByProfile(*profile, d)
-		if err != nil {
-			return nil, err
-		}
-
-		return cfg, nil
+	cfg, err := getCredentialConfigByProfile(*profile, d)
+	
+	if err != nil {
+		return nil, err
 	}
-	return nil, nil
+
+	return cfg, nil
 }
 
 func getCredentialConfigByProfile(profile string, d *plugin.QueryData) (*CredentialConfig, error) {
