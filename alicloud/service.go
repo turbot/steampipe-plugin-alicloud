@@ -391,6 +391,127 @@ func OssService(ctx context.Context, d *plugin.QueryData, region string) (*oss.C
 	return svc, nil
 }
 
+// ActionTrailService returns the service connection for Alicloud ActionTrail service
+func ActionTrailService(ctx context.Context, d *plugin.QueryData) (*actiontrail.Client, error) {
+	region := d.EqualsQualString(matrixKeyRegion)
+
+	if region == "" {
+		return nil, fmt.Errorf("region must be passed ActionTrailService")
+	}
+	// have we already created and cached the service?
+	serviceCacheKey := fmt.Sprintf("actiontrail-%s", region)
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(*actiontrail.Client), nil
+	}
+
+	credCfg, err := getCredentialSessionCached(ctx, d, nil)
+	if err != nil {
+		return nil, err
+	}
+	cfg := credCfg.(*CredentialConfig)
+
+	// so it was not in cache - create service
+	svc, err := actiontrail.NewClientWithOptions(region, cfg.Config, cfg.Creds)
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the service connection
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+	return svc, nil
+}
+
+// ContainerService returns the service connection for Alicloud Container service
+func ContainerService(ctx context.Context, d *plugin.QueryData) (*cs.Client, error) {
+	region := GetDefaultRegion(d.Connection)
+
+	if region == "" {
+		return nil, fmt.Errorf("region must be passed ContainerService")
+	}
+	// have we already created and cached the service?
+	serviceCacheKey := fmt.Sprintf("cs-%s", region)
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(*cs.Client), nil
+	}
+
+	credCfg, err := getCredentialSessionCached(ctx, d, nil)
+	if err != nil {
+		return nil, err
+	}
+	cfg := credCfg.(*CredentialConfig)
+
+	// so it was not in cache - create service
+	svc, err := cs.NewClientWithOptions(region, cfg.Config, cfg.Creds)
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the service connection
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+	return svc, nil
+}
+
+// SecurityCenterService returns the service connection for Alicloud Security Center service
+func SecurityCenterService(ctx context.Context, d *plugin.QueryData, region string) (*sas.Client, error) {
+	if region == "" {
+		return nil, fmt.Errorf("region must be passed SecurityCenterService")
+	}
+
+	// have we already created and cached the service?
+	serviceCacheKey := fmt.Sprintf("sas-%s", region)
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(*sas.Client), nil
+	}
+
+	credCfg, err := getCredentialSessionCached(ctx, d, nil)
+	if err != nil {
+		return nil, err
+	}
+	cfg := credCfg.(*CredentialConfig)
+
+	// so it was not in cache - create service
+	svc, err := sas.NewClientWithOptions(region, cfg.Config, cfg.Creds)
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the service connection
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+	return svc, nil
+}
+
+// RDSService returns the service connection for Alicloud RDS service
+func RDSService(ctx context.Context, d *plugin.QueryData, region string) (*rds.Client, error) {
+	if region == "" {
+		return nil, fmt.Errorf("region must be passed RDSService")
+	}
+	// have we already created and cached the service?
+	serviceCacheKey := fmt.Sprintf("rds-%s", region)
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(*rds.Client), nil
+	}
+
+	credCfg, err := getCredentialSessionCached(ctx, d, nil)
+	if err != nil {
+		return nil, err
+	}
+	cfg := credCfg.(*CredentialConfig)
+
+	// so it was not in cache - create service
+	svc, err := rds.NewClientWithOptions(region, cfg.Config, cfg.Creds)
+	if err != nil {
+		return nil, err
+	}
+
+	// cache the service connection
+	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+
+	return svc, nil
+}
+
 // GetDefaultRegion returns the default region used
 func GetDefaultRegion(connection *plugin.Connection) string {
 	// get alicloud config info
@@ -571,7 +692,7 @@ func getProfileConfigurations(_ context.Context, d *plugin.QueryData) (*Credenti
 	profile := alicloudConfig.Profile
 
 	cfg, err := getCredentialConfigByProfile(*profile, d)
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -734,123 +855,4 @@ func getCredentialSessionUncached(ctx context.Context, d *plugin.QueryData, h *p
 	return nil, nil
 }
 
-// RDSService returns the service connection for Alicloud RDS service
-func RDSService(ctx context.Context, d *plugin.QueryData, region string) (*rds.Client, error) {
-	if region == "" {
-		return nil, fmt.Errorf("region must be passed RDSService")
-	}
-	// have we already created and cached the service?
-	serviceCacheKey := fmt.Sprintf("rds-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
-		return cachedData.(*rds.Client), nil
-	}
 
-	credCfg, err := getCredentialSessionCached(ctx, d, nil)
-	if err != nil {
-		return nil, err
-	}
-	cfg := credCfg.(*CredentialConfig)
-
-	// so it was not in cache - create service
-	svc, err := rds.NewClientWithOptions(region, cfg.Config, cfg.Creds)
-	if err != nil {
-		return nil, err
-	}
-
-	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
-
-	return svc, nil
-}
-
-// ActionTrailService returns the service connection for Alicloud ActionTrail service
-func ActionTrailService(ctx context.Context, d *plugin.QueryData) (*actiontrail.Client, error) {
-	region := d.EqualsQualString(matrixKeyRegion)
-
-	if region == "" {
-		return nil, fmt.Errorf("region must be passed ActionTrailService")
-	}
-	// have we already created and cached the service?
-	serviceCacheKey := fmt.Sprintf("actiontrail-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
-		return cachedData.(*actiontrail.Client), nil
-	}
-
-	credCfg, err := getCredentialSessionCached(ctx, d, nil)
-	if err != nil {
-		return nil, err
-	}
-	cfg := credCfg.(*CredentialConfig)
-
-	// so it was not in cache - create service
-	svc, err := actiontrail.NewClientWithOptions(region, cfg.Config, cfg.Creds)
-	if err != nil {
-		return nil, err
-	}
-
-	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
-
-	return svc, nil
-}
-
-// ContainerService returns the service connection for Alicloud Container service
-func ContainerService(ctx context.Context, d *plugin.QueryData) (*cs.Client, error) {
-	region := GetDefaultRegion(d.Connection)
-
-	if region == "" {
-		return nil, fmt.Errorf("region must be passed ContainerService")
-	}
-	// have we already created and cached the service?
-	serviceCacheKey := fmt.Sprintf("cs-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
-		return cachedData.(*cs.Client), nil
-	}
-
-	credCfg, err := getCredentialSessionCached(ctx, d, nil)
-	if err != nil {
-		return nil, err
-	}
-	cfg := credCfg.(*CredentialConfig)
-
-	// so it was not in cache - create service
-	svc, err := cs.NewClientWithOptions(region, cfg.Config, cfg.Creds)
-	if err != nil {
-		return nil, err
-	}
-
-	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
-
-	return svc, nil
-}
-
-// SecurityCenterService returns the service connection for Alicloud Security Center service
-func SecurityCenterService(ctx context.Context, d *plugin.QueryData, region string) (*sas.Client, error) {
-	if region == "" {
-		return nil, fmt.Errorf("region must be passed SecurityCenterService")
-	}
-
-	// have we already created and cached the service?
-	serviceCacheKey := fmt.Sprintf("sas-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
-		return cachedData.(*sas.Client), nil
-	}
-
-	credCfg, err := getCredentialSessionCached(ctx, d, nil)
-	if err != nil {
-		return nil, err
-	}
-	cfg := credCfg.(*CredentialConfig)
-
-	// so it was not in cache - create service
-	svc, err := sas.NewClientWithOptions(region, cfg.Config, cfg.Creds)
-	if err != nil {
-		return nil, err
-	}
-
-	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
-
-	return svc, nil
-}
