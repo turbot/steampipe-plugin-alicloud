@@ -504,14 +504,12 @@ func getCsKubernetesClusterARN(ctx context.Context, d *plugin.QueryData, h *plug
 //// TRANSFORM FUNCTIONS
 
 func csKubernetesClusterAkaTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	if d.Value == nil {
+		return nil, nil
+	}
+	
 	tags := d.Value.([]interface{})
-	if tags == nil {
-		return nil, nil
-	}
 
-	if len(tags) == 0 {
-		return nil, nil
-	}
 	turbotTagsMap := map[string]string{}
 	for _, i := range tags {
 		tagDetails := i.(map[string]interface{})
