@@ -1,3 +1,13 @@
+## v0.23.0 [2024-06-15]
+
+_What's new?_
+
+- Added support for the `profile` connection config argument. ([#409](https://github.com/turbot/steampipe-plugin-alicloud/pull/409))
+
+_Bug fixes_
+
+- Fixed the `alicloud_cs_kubernetes_cluster` table to ensure it correctly returns data when querying clusters without tags.. ([#426](https://github.com/turbot/steampipe-plugin-alicloud/pull/426))
+
 ## v0.22.0 [2024-05-13]
 
 _Enhancements_
