@@ -9,10 +9,11 @@ require (
 	github.com/alibabacloud-go/tea-rpc v1.1.8
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1140
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.6+incompatible
+	github.com/aliyun/credentials-go v1.1.2
 	github.com/gocarina/gocsv v0.0.0-20201208093247-67c824bc04d4
 	github.com/sethvargo/go-retry v0.2.4
 	github.com/turbot/go-kit v0.10.0-rc.0
-	github.com/turbot/steampipe-plugin-sdk/v5 v5.10.1
+	github.com/turbot/steampipe-plugin-sdk/v5 v5.10.2
 )
 
 require (
@@ -28,7 +29,6 @@ require (
 	github.com/alibabacloud-go/tea v1.1.10 // indirect
 	github.com/alibabacloud-go/tea-rpc-utils v1.1.2 // indirect
 	github.com/alibabacloud-go/tea-utils v1.3.6 // indirect
-	github.com/aliyun/credentials-go v1.1.2 // indirect
 	github.com/allegro/bigcache/v3 v3.1.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/aws/aws-sdk-go v1.44.122 // indirect
