@@ -167,27 +167,27 @@ func listUserCertificate(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 		return nil, err
 	}
 
-	request := cas.CreateDescribeUserCertificateListRequest()
+	request := cas.CreateListUserCertificateOrderRequest()
 	request.ShowSize = "50"
 	request.CurrentPage = "1"
 	request.QueryParams["RegionId"] = region
 
 	count := 0
 	for {
-		response, err := client.DescribeUserCertificateList(request)
+		response, err := client.ListUserCertificateOrder(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_user_certificate.listUserCertificate", "query_error", err, "request", request)
 			return nil, err
 		}
 
-		for _, i := range response.CertificateList {
+		for _, i := range response.CertificateOrderList {
 			d.StreamListItem(ctx, i)
 			count++
 		}
-		if count >= response.TotalCount {
+		if count >= int(response.TotalCount) {
 			break
 		}
-		request.CurrentPage = requests.NewInteger(response.CurrentPage + 1)
+		request.CurrentPage = requests.NewInteger(int(response.CurrentPage) + 1)
 	}
 
 	return nil, nil
@@ -222,10 +222,10 @@ func getUserCertificate(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		id = d.EqualsQuals["id"].GetInt64Value()
 	}
 
-	request := cas.CreateDescribeUserCertificateDetailRequest()
+	request := cas.CreateGetUserCertificateDetailRequest()
 	request.CertId = requests.NewInteger(int(id))
 
-	response, err := client.DescribeUserCertificateDetail(request)
+	response, err := client.GetUserCertificateDetail(request)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_user_certificate.getUserCertificate", "query_error", err, "request", request)
 		return nil, err
@@ -261,9 +261,9 @@ func getUserCertificateRegion(ctx context.Context, d *plugin.QueryData, h *plugi
 
 func casCertificate(item interface{}) int64 {
 	switch item := item.(type) {
-	case cas.Certificate:
-		return item.Id
-	case *cas.DescribeUserCertificateDetailResponse:
+	case cas.CertificateOrderListItem:
+		return item.CertificateId
+	case *cas.GetUserCertificateDetailResponse:
 		return item.Id
 	}
 	return 0
