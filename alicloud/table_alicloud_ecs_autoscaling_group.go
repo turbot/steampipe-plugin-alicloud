@@ -352,7 +352,7 @@ func getEcsAutoscalingGroup(ctx context.Context, d *plugin.QueryData, h *plugin.
 		return nil, serverErr
 	}
 
-	if response.ScalingGroups.ScalingGroup != nil && len(response.ScalingGroups.ScalingGroup) > 0 {
+	if len(response.ScalingGroups.ScalingGroup) > 0 {
 		return response.ScalingGroups.ScalingGroup[0], nil
 	}
 
