@@ -50,7 +50,7 @@ resource "alicloud_vswitch" "named_test_resource" {
 # }
 
 resource "alicloud_cs_managed_kubernetes" "named_test_resource" {
-  name         = var.name
+  name         = var.resource_name
   cluster_spec = "ack.pro.small"
   # version can not be defined in variables.tf.
   # version            = "1.26.3-aliyun.1"
@@ -94,7 +94,7 @@ resource "alicloud_cs_managed_kubernetes" "named_test_resource" {
 }
 
 output "cluster_id" {
-  value = alicloud_cs_managed_kubernetes.named_test_resource[0].id
+  value = alicloud_cs_managed_kubernetes.named_test_resource.id
 }
 
 output "resource_name" {
@@ -106,5 +106,5 @@ output "region" {
 }
 
 output "resource_aka" {
-  value = "arn:acs:cs:${var.alicloud_region}:${data.alicloud_caller_identity.current.account_id}:cluster/${alicloud_cs_managed_kubernetes.named_test_resource[0].id}"
+  value = "arn:acs:cs:${var.alicloud_region}:${data.alicloud_caller_identity.current.account_id}:cluster/${alicloud_cs_managed_kubernetes.named_test_resource.id}"
 }

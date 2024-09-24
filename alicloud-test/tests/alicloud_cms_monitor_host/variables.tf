@@ -45,7 +45,7 @@ resource "alicloud_cs_managed_kubernetes" "named_test_resource" {
   pod_cidr                     = "172.20.0.0/16"
   service_cidr                 = "172.21.0.0/20"
   worker_vswitch_ids           = [alicloud_vswitch.named_test_resource.id]
-  worker_instance_types        = ["ecs.c5.large"]
+  instance_types               = ["ecs.c5.large"]
 }
 
 output "cluster_id" {

@@ -7,7 +7,7 @@ variable "resource_name" {
 
 variable "alicloud_region" {
   type        = string
-  default     = "ap-south-1"
+  default     = "us-east-1"
   description = "Alicloud region used for the test."
 }
 

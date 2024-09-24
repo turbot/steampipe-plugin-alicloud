@@ -14,4 +14,4 @@ select
 from
   alicloud_kms_key
 where
-  key_id = '{{ output.resource_id.value }}';
+  key_id = '{{ output.resource_id.value }}' and region = '{{ output.region.value }}';

@@ -36,7 +36,7 @@ resource "alicloud_vswitch" "named_test_resource" {
 }
 
 resource "alicloud_cs_managed_kubernetes" "named_test_resource" {
-  name         = var.name
+  name         = var.resource_name
   cluster_spec = "ack.pro.small"
   # version can not be defined in variables.tf.
   # version            = "1.26.3-aliyun.1"
@@ -80,15 +80,15 @@ resource "alicloud_cs_managed_kubernetes" "named_test_resource" {
 }
 
 output "cluster_id" {
-  value = alicloud_cs_managed_kubernetes.named_test_resource[0].id
+  value = alicloud_cs_managed_kubernetes.named_test_resource.id
 }
 
 output "instance_id" {
-  value = alicloud_cs_managed_kubernetes.named_test_resource[0].worker_nodes[0].id
+  value = alicloud_cs_managed_kubernetes.named_test_resource.worker_nodes[0].id
 }
 
 output "ip_address" {
-  value = alicloud_cs_managed_kubernetes.named_test_resource[0].worker_nodes[0].private_ip
+  value = alicloud_cs_managed_kubernetes.named_test_resource.worker_nodes[0].private_ip
 }
 
 output "resource_name" {
