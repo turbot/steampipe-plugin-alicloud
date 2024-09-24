@@ -407,7 +407,7 @@ func getEcsDisk(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 		return nil, serverErr
 	}
 
-	if response.Disks.Disk != nil && len(response.Disks.Disk) > 0 {
+	if len(response.Disks.Disk) > 0 {
 		return response.Disks.Disk[0], nil
 	}
 
@@ -435,7 +435,7 @@ func getEcsDiskAutoSnapshotPolicy(ctx context.Context, d *plugin.QueryData, h *p
 		return nil, serverErr
 	}
 
-	if response.AutoSnapshotPolicies.AutoSnapshotPolicy != nil && len(response.AutoSnapshotPolicies.AutoSnapshotPolicy) > 0 {
+	if len(response.AutoSnapshotPolicies.AutoSnapshotPolicy) > 0 {
 		return response.AutoSnapshotPolicies.AutoSnapshotPolicy[0], nil
 	}
 

@@ -637,7 +637,7 @@ func getRdsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 		return nil, err
 	}
 
-	if response.Items.DBInstanceAttribute != nil && len(response.Items.DBInstanceAttribute) > 0 {
+	if len(response.Items.DBInstanceAttribute) > 0 {
 		if response.Items.DBInstanceAttribute[0].RegionId == region {
 			return response.Items.DBInstanceAttribute[0], nil
 		}
@@ -667,7 +667,7 @@ func getRdsInstanceIPArrayList(ctx context.Context, d *plugin.QueryData, h *plug
 		return nil, err
 	}
 
-	if response.Items.DBInstanceIPArray != nil && len(response.Items.DBInstanceIPArray) > 0 {
+	if len(response.Items.DBInstanceIPArray) > 0 {
 		return response, nil
 	}
 

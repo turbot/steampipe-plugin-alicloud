@@ -227,7 +227,7 @@ func getVpcVpnGateway(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 		return nil, err
 	}
 
-	if response.VpnGateways.VpnGateway != nil && len(response.VpnGateways.VpnGateway) > 0 {
+	if len(response.VpnGateways.VpnGateway) > 0 {
 		return response.VpnGateways.VpnGateway[0], nil
 	}
 	return nil, nil

@@ -198,7 +198,7 @@ func getRAMPolicy(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 
 	var name, policyType string
 	if h.Item != nil {
-		i := h.Item.(ram.PolicyInListPolicies)
+		i := h.Item.(ram.Policy)
 		name = i.PolicyName
 		policyType = i.PolicyType
 	} else {
@@ -257,7 +257,7 @@ func getPolicyAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 
 func policyName(item interface{}) string {
 	switch item := item.(type) {
-	case ram.PolicyInListPolicies:
+	case ram.Policy:
 		return item.PolicyName
 	case *ram.GetPolicyResponse:
 		return item.Policy.PolicyName

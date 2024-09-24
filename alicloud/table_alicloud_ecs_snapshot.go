@@ -256,7 +256,7 @@ func getEcsSnapshot(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 		return nil, serverErr
 	}
 
-	if response.Snapshots.Snapshot != nil && len(response.Snapshots.Snapshot) > 0 {
+	if len(response.Snapshots.Snapshot) > 0 {
 		return response.Snapshots.Snapshot[0], nil
 	}
 

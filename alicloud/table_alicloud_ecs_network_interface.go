@@ -250,7 +250,7 @@ func getEcsEni(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) 
 		return nil, serverErr
 	}
 
-	if response.NetworkInterfaceSets.NetworkInterfaceSet != nil && len(response.NetworkInterfaceSets.NetworkInterfaceSet) > 0 {
+	if len(response.NetworkInterfaceSets.NetworkInterfaceSet) > 0 {
 		return response.NetworkInterfaceSets.NetworkInterfaceSet[0], nil
 	}
 

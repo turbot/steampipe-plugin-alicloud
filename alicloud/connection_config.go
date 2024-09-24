@@ -10,6 +10,9 @@ type alicloudConfig struct {
 	SecretKey        *string  `hcl:"secret_key"`
 	IgnoreErrorCodes []string `hcl:"ignore_error_codes,optional"`
 	Profile          *string  `hcl:"profile"`
+	AutoRetry        *bool    `hcl:"auto_retry,optional"`
+	MaxRetryTime     *int     `hcl:"max_retry_time,optional"`
+	Timeout          *int     `hcl:"timeout,optional"`
 }
 
 func ConfigInstance() interface{} {

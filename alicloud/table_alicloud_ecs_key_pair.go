@@ -159,7 +159,7 @@ func getEcsKeypair(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 		return nil, serverErr
 	}
 
-	if response.KeyPairs.KeyPair != nil && len(response.KeyPairs.KeyPair) > 0 {
+	if len(response.KeyPairs.KeyPair) > 0 {
 		return response.KeyPairs.KeyPair[0], nil
 	}
 

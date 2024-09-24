@@ -184,7 +184,7 @@ func getEcsLaunchTemplate(ctx context.Context, d *plugin.QueryData, h *plugin.Hy
 		return nil, err
 	}
 
-	if response.LaunchTemplateSets.LaunchTemplateSet != nil && len(response.LaunchTemplateSets.LaunchTemplateSet) > 0 {
+	if len(response.LaunchTemplateSets.LaunchTemplateSet) > 0 {
 		return response.LaunchTemplateSets.LaunchTemplateSet[0], nil
 	}
 
@@ -213,7 +213,7 @@ func getEcsLaunchTemplateLatestVersionDetails(ctx context.Context, d *plugin.Que
 		return nil, err
 	}
 
-	if response.LaunchTemplateVersionSets.LaunchTemplateVersionSet != nil && len(response.LaunchTemplateVersionSets.LaunchTemplateVersionSet) > 0 {
+	if len(response.LaunchTemplateVersionSets.LaunchTemplateVersionSet) > 0 {
 		return response.LaunchTemplateVersionSets.LaunchTemplateVersionSet[0], nil
 	}
 

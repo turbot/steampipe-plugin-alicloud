@@ -261,7 +261,7 @@ func getEip(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (in
 		return nil, err
 	}
 
-	if response.EipAddresses.EipAddress != nil && len(response.EipAddresses.EipAddress) > 0 {
+	if len(response.EipAddresses.EipAddress) > 0 {
 		return response.EipAddresses.EipAddress[0], nil
 	}
 	return nil, nil

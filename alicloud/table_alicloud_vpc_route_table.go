@@ -197,7 +197,7 @@ func getVpcRouteTable(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 		return nil, err
 	}
 
-	if response.RouterTableList.RouterTableListType != nil && len(response.RouterTableList.RouterTableListType) > 0 {
+	if len(response.RouterTableList.RouterTableListType) > 0 {
 		return response.RouterTableList.RouterTableListType[0], nil
 	}
 

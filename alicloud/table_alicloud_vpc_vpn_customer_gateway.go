@@ -146,7 +146,7 @@ func getVpcCustomerGateway(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 		return nil, err
 	}
 
-	if response.CustomerGateways.CustomerGateway != nil && len(response.CustomerGateways.CustomerGateway) > 0 {
+	if len(response.CustomerGateways.CustomerGateway) > 0 {
 		return response.CustomerGateways.CustomerGateway[0], nil
 	}
 

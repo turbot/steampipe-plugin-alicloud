@@ -292,7 +292,7 @@ func getEcsImage(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 		return nil, serverErr
 	}
 
-	if response.Images.Image != nil && len(response.Images.Image) > 0 {
+	if len(response.Images.Image) > 0 {
 		return response.Images.Image[0], nil
 	}
 

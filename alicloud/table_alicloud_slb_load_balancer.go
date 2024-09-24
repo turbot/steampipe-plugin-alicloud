@@ -313,7 +313,7 @@ func getSlbLoadBalancer(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 		return nil, err
 	}
 
-	if response.LoadBalancers.LoadBalancer != nil && len(response.LoadBalancers.LoadBalancer) > 0 {
+	if len(response.LoadBalancers.LoadBalancer) > 0 {
 		if response.LoadBalancers.LoadBalancer[0].RegionId == region {
 			return response.LoadBalancers.LoadBalancer[0], nil
 		}

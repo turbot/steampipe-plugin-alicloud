@@ -3,8 +3,9 @@ package alicloud
 import (
 	"context"
 	"encoding/base64"
+	"encoding/json"
 
-	ims "github.com/alibabacloud-go/ims-20190815/client"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/gocarina/gocsv"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
@@ -241,20 +242,41 @@ func tableAlicloudRAMCredentialReport(ctx context.Context) *plugin.Table {
 
 func listRAMCredentialReports(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Create service connection
-	client, err := IMSService(ctx, d)
+	client, err := RAMService(ctx, d)
 	if err != nil {
 		plugin.Logger(ctx).Error("alicloud_ram_credential_report.listRAMCredentialReports", "connection_error", err)
 		return nil, err
 	}
-	request := &ims.GetCredentialReportRequest{}
 
-	response, err := client.GetCredentialReport(request)
+	// Create a new request to retrieve the credential report.
+	// To maintain consistency within the authentication module, we chose not to use
+	// the "github.com/alibabacloud-go/ims-20190815/client" and "github.com/alibabacloud-go/tea-rpc/client" packages.
+	// Instead, we opted for the "github.com/aliyun/alibaba-cloud-sdk-go/sdk" package to handle authentication and make the API call.
+
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Scheme = "https"
+	request.Domain = "ims.aliyuncs.com"
+	request.Version = "2019-08-15"
+	request.ApiName = "GetCredentialReport"
+
+	// Make the API call
+	response, err := client.ProcessCommonRequest(request)
 	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_ram_credential_report.listRAMCredentialReports", "Api_error", err)
+		return nil, err
+	}
+
+	// Unmarshal the response to the struct
+	var credentialReportResponse GetCredentialReportResponse
+	err = json.Unmarshal(response.GetHttpContentBytes(), &credentialReportResponse)
+	if err != nil {
+		plugin.Logger(ctx).Error("alicloud_ram_credential_report.listRAMCredentialReports", "unmarshal_error", err)
 		return nil, err
 	}
 
 	// The report is Base64-encoded. After decoding the report, the credential report is in the CSV format.
-	data, err := base64.StdEncoding.DecodeString(*response.Content)
+	data, err := base64.StdEncoding.DecodeString(*credentialReportResponse.Content)
 	if err != nil {
 		return nil, err
 	}
@@ -266,9 +288,15 @@ func listRAMCredentialReports(ctx context.Context, d *plugin.QueryData, _ *plugi
 	}
 
 	for _, row := range rows {
-		row.GeneratedTime = response.GeneratedTime
+		row.GeneratedTime = credentialReportResponse.GeneratedTime
 		d.StreamListItem(ctx, row)
 	}
 
-	return response, nil
+	return nil, nil
+}
+
+type GetCredentialReportResponse struct {
+	RequestId     *string `json:"RequestId,omitempty" xml:"RequestId,omitempty" require:"true"`
+	Content       *string `json:"Content,omitempty" xml:"Content,omitempty" require:"true"`
+	GeneratedTime *string `json:"GeneratedTime,omitempty" xml:"GeneratedTime,omitempty" require:"true"`
 }

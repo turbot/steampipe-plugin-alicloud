@@ -633,7 +633,7 @@ func getEcsInstance(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 		return nil, serverErr
 	}
 
-	if response.Instances.Instance != nil && len(response.Instances.Instance) > 0 {
+	if len(response.Instances.Instance) > 0 {
 		return response.Instances.Instance[0], nil
 	}
 
