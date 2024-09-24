@@ -599,7 +599,7 @@ func getProfileConfigurations(_ context.Context, d *plugin.QueryData) (*Credenti
 
 func getCredentialConfigByProfile(profile string, d *plugin.QueryData) (*CredentialConfig, error) {
 	defaultRegion := GetDefaultRegion(d.Connection)
-	defaultConfig := sdk.NewConfig()
+	defaultConfig := sdk.NewConfig().WithScheme("HTTPS")
 
 	// We will get a nil value if the specified profile is not available
 	// Or
