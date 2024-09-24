@@ -25,7 +25,7 @@ func tableAlicloudKmsSecret(ctx context.Context) *plugin.Table {
 			Hydrate: listKmsSecret,
 		},
 		Get: &plugin.GetConfig{
-			KeyColumns: plugin.SingleColumn("name"),
+			KeyColumns: plugin.AllColumns([]string{"name", "region"}),
 			Hydrate:    getKmsSecret,
 		},
 		GetMatrixItemFunc: BuildRegionList,

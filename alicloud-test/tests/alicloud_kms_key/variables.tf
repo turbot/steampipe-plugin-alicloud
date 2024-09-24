@@ -71,6 +71,10 @@ output "resource_name" {
   value = var.resource_name
 }
 
+output "region" {
+  value = var.alicloud_region
+}
+
 output "account_id" {
   value = data.alicloud_caller_identity.current.account_id
 }
