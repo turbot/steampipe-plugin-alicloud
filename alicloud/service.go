@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth"
@@ -600,6 +601,17 @@ func getProfileConfigurations(_ context.Context, d *plugin.QueryData) (*Credenti
 func getCredentialConfigByProfile(profile string, d *plugin.QueryData) (*CredentialConfig, error) {
 	defaultRegion := GetDefaultRegion(d.Connection)
 	defaultConfig := sdk.NewConfig().WithScheme("HTTPS")
+	config := GetConfig(d.Connection)
+
+	if config.AutoRetry != nil {
+		defaultConfig = defaultConfig.WithAutoRetry(*config.AutoRetry)
+	}
+	if config.MaxRetryTime != nil {
+		defaultConfig = defaultConfig.WithMaxRetryTime(*config.MaxRetryTime)
+	}
+	if config.Timeout != nil {
+		defaultConfig = defaultConfig.WithTimeout(time.Duration(*config.Timeout) * time.Second)
+	}
 
 	// We will get a nil value if the specified profile is not available
 	// Or
@@ -620,6 +632,16 @@ func getCredentialSessionUncached(ctx context.Context, d *plugin.QueryData, h *p
 	config := GetConfig(d.Connection)
 	defaultRegion := GetDefaultRegion(d.Connection)
 	defaultConfig := sdk.NewConfig() // initialize with default config
+
+	if config.AutoRetry != nil {
+		defaultConfig = defaultConfig.WithAutoRetry(*config.AutoRetry)
+	}
+	if config.MaxRetryTime != nil {
+		defaultConfig = defaultConfig.WithMaxRetryTime(*config.MaxRetryTime)
+	}
+	if config.Timeout != nil {
+		defaultConfig = defaultConfig.WithTimeout(time.Duration(*config.Timeout) * time.Second)
+	}
 
 	// Profile based client
 	if config.Profile != nil {
