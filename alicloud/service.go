@@ -605,7 +605,6 @@ func getCredentialConfigByProfile(profile string, d *plugin.QueryData) (*Credent
 	// Or
 	// The authentication mode of the profile is not AK | RamRoleArn | StsToken | EcsRamRole As these are the supported type by ALicloud CLI.
 	// https://github.com/aliyun/aliyun-cli/blob/master/README.md#configure-authentication-methods
-	// credsProvider := credentials.NewCLIProfileCredentialsProviderBuilder().Build().
 
 	creds := credentials.NewCLIProfileCredentialsProviderBuilder().WithProfileName(profile).Build()
 
