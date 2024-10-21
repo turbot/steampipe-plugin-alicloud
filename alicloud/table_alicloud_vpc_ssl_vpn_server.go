@@ -197,7 +197,7 @@ func getVpnSslServer(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 		return nil, serverErr
 	}
 
-	if response.SslVpnServers.SslVpnServer != nil && len(response.SslVpnServers.SslVpnServer) > 0 {
+	if len(response.SslVpnServers.SslVpnServer) > 0 {
 		return response.SslVpnServers.SslVpnServer[0], nil
 	}
 

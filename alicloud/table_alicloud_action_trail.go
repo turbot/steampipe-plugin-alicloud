@@ -189,7 +189,7 @@ func getActionTrail(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 		return nil, serverErr
 	}
 
-	if response.TrailList != nil && len(response.TrailList) > 0 {
+	if len(response.TrailList) > 0 {
 		return response.TrailList[0], nil
 	}
 

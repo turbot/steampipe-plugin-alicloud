@@ -203,7 +203,7 @@ func getEcsSecurityGroup(ctx context.Context, d *plugin.QueryData, h *plugin.Hyd
 		return nil, err
 	}
 
-	if response.SecurityGroups.SecurityGroup != nil && len(response.SecurityGroups.SecurityGroup) > 0 {
+	if len(response.SecurityGroups.SecurityGroup) > 0 {
 		return response.SecurityGroups.SecurityGroup[0], nil
 	}
 

@@ -216,7 +216,7 @@ func getEcsAutosProvisioningGroup(ctx context.Context, d *plugin.QueryData, h *p
 		return nil, serverErr
 	}
 
-	if response.AutoProvisioningGroups.AutoProvisioningGroup != nil && len(response.AutoProvisioningGroups.AutoProvisioningGroup) > 0 {
+	if len(response.AutoProvisioningGroups.AutoProvisioningGroup) > 0 {
 		return response.AutoProvisioningGroups.AutoProvisioningGroup[0], nil
 	}
 
