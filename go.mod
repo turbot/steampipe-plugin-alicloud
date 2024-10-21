@@ -1,8 +1,8 @@
 module github.com/turbot/steampipe-plugin-alicloud
 
-go 1.21.0
+go 1.22.4
 
-toolchain go1.21.1
+toolchain go1.22.6
 
 require (
 	github.com/alibabacloud-go/ims-20190815 v1.0.0
@@ -13,7 +13,7 @@ require (
 	github.com/gocarina/gocsv v0.0.0-20201208093247-67c824bc04d4
 	github.com/sethvargo/go-retry v0.2.4
 	github.com/turbot/go-kit v0.10.0-rc.0
-	github.com/turbot/steampipe-plugin-sdk/v5 v5.10.1
+	github.com/turbot/steampipe-plugin-sdk/v5 v5.10.4
 )
 
 require (

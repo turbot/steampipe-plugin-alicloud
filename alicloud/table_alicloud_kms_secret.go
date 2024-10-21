@@ -298,7 +298,7 @@ func listKmsSecretVersionIds(ctx context.Context, d *plugin.QueryData, h *plugin
 		return nil, err
 	}
 
-	if response.VersionIds.VersionId != nil && len(response.VersionIds.VersionId) > 0 {
+	if len(response.VersionIds.VersionId) > 0 {
 		return response.VersionIds, nil
 	}
 
