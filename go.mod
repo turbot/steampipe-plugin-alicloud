@@ -9,7 +9,7 @@ require (
 	github.com/alibabacloud-go/tea-rpc v1.1.8
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1140
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.6+incompatible
-	github.com/aliyun/credentials-go v1.1.2
+	github.com/aliyun/credentials-go v1.4.0
 	github.com/gocarina/gocsv v0.0.0-20201208093247-67c824bc04d4
 	github.com/sethvargo/go-retry v0.2.4
 	github.com/turbot/go-kit v0.10.0-rc.0
@@ -24,9 +24,9 @@ require (
 	cloud.google.com/go/storage v1.36.0 // indirect
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d // indirect
 	github.com/agext/levenshtein v1.2.2 // indirect
-	github.com/alibabacloud-go/debug v0.0.0-20190504072949-9472017b5c68 // indirect
+	github.com/alibabacloud-go/debug v1.0.1 // indirect
 	github.com/alibabacloud-go/endpoint-util v1.1.0 // indirect
-	github.com/alibabacloud-go/tea v1.1.10 // indirect
+	github.com/alibabacloud-go/tea v1.2.2 // indirect
 	github.com/alibabacloud-go/tea-rpc-utils v1.1.2 // indirect
 	github.com/alibabacloud-go/tea-utils v1.3.6 // indirect
 	github.com/allegro/bigcache/v3 v3.1.0 // indirect
@@ -60,7 +60,6 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
-	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.1 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-getter v1.7.5 // indirect
@@ -93,8 +92,6 @@ require (
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
-	github.com/smartystreets/assertions v1.13.0 // indirect
-	github.com/smartystreets/goconvey v1.7.2 // indirect
 	github.com/stevenle/topsort v0.2.0 // indirect
 	github.com/tkrajina/go-reflector v0.5.6 // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect
@@ -128,6 +125,6 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240401170217-c3f982113cda // indirect
 	google.golang.org/grpc v1.63.2 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
-	gopkg.in/ini.v1 v1.56.0 // indirect
+	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
