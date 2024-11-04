@@ -7,7 +7,7 @@ toolchain go1.22.6
 require (
 	github.com/alibabacloud-go/ims-20190815 v1.0.0
 	github.com/alibabacloud-go/tea-rpc v1.1.8
-	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1140
+	github.com/aliyun/alibaba-cloud-sdk-go v1.63.46
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.6+incompatible
 	github.com/aliyun/credentials-go v1.1.2
 	github.com/gocarina/gocsv v0.0.0-20201208093247-67c824bc04d4
@@ -60,7 +60,6 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
-	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.1 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-getter v1.7.5 // indirect
@@ -86,6 +85,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/oklog/run v1.0.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
+	github.com/opentracing/opentracing-go v1.2.1-0.20220228012449-10b1cf09e00b // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.14.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
@@ -93,8 +93,6 @@ require (
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
-	github.com/smartystreets/assertions v1.13.0 // indirect
-	github.com/smartystreets/goconvey v1.7.2 // indirect
 	github.com/stevenle/topsort v0.2.0 // indirect
 	github.com/tkrajina/go-reflector v0.5.6 // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect
@@ -128,6 +126,6 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240401170217-c3f982113cda // indirect
 	google.golang.org/grpc v1.63.2 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
-	gopkg.in/ini.v1 v1.56.0 // indirect
+	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
