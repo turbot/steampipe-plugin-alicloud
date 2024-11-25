@@ -8,7 +8,7 @@ variable "resource_name" {
 # The Cas Certificate region only support cn-hangzhou, ap-south-1, me-east-1, eu-central-1, ap-northeast-1, ap-southeast-2.
 variable "alicloud_region" {
   type        = string
-  default     = "ap-south-1"
+  default     = "cn-hangzhou"
   description = "Alicloud region used for the test."
 }
 
@@ -48,13 +48,13 @@ resource "tls_self_signed_cert" "example" {
 
 # Add a new Certificate.
 resource "alicloud_cas_certificate" "named_test_resource" {
-  name = var.resource_name
-  cert = tls_self_signed_cert.example.cert_pem
-  key  = tls_private_key.example.private_key_pem
+  certificate_name = var.resource_name
+  cert             = tls_self_signed_cert.example.cert_pem
+  key              = tls_private_key.example.private_key_pem
 }
 
 output "private_key" {
-  value = replace(tls_private_key.example.private_key_pem, "\n", "\\n")
+  value     = replace(tls_private_key.example.private_key_pem, "\n", "\\n")
   sensitive = true
 }
 

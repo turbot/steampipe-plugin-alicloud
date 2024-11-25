@@ -61,7 +61,7 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 				Name:        "create_time",
 				Description: "The time when the trail was created.",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Transform:   transform.FromField("CreateTime").Transform(transform.UnixMsToTimestamp),
+				Transform:   transform.FromField("CreateTime").Transform(transform.NullIfZeroValue),
 			},
 			{
 				Name:        "event_rw",
@@ -88,13 +88,13 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 				Name:        "start_logging_time",
 				Description: "The most recent date and time when logging was enabled for the trail.",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Transform:   transform.FromField("StartLoggingTime").Transform(transform.UnixMsToTimestamp),
+				Transform:   transform.FromField("StartLoggingTime").Transform(transform.NullIfZeroValue),
 			},
 			{
 				Name:        "stop_logging_time",
 				Description: "The most recent date and time when logging was disabled for the trail.",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Transform:   transform.FromField("StopLoggingTime").Transform(transform.NullIfZeroValue).Transform(transform.UnixMsToTimestamp),
+				Transform:   transform.FromField("StopLoggingTime").Transform(transform.NullIfZeroValue),
 			},
 			{
 				Name:        "trail_region",
@@ -105,7 +105,7 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 				Name:        "update_time",
 				Description: "The most recent time when the configuration of the trail was updated.",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Transform:   transform.FromField("UpdateTime").Transform(transform.UnixMsToTimestamp),
+				Transform:   transform.FromField("UpdateTime").Transform(transform.NullIfZeroValue),
 			},
 
 			// Steampipe standard columns
@@ -198,7 +198,7 @@ func getActionTrail(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 
 func getActionTrailAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getActionTrailAka")
-	data := h.Item.(actiontrail.TrailListItem)
+	data := h.Item.(actiontrail.Trail)
 
 	// Get project details
 	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()

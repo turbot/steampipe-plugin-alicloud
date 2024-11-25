@@ -36,28 +36,59 @@ resource "alicloud_vswitch" "named_test_resource" {
 }
 
 resource "alicloud_cs_managed_kubernetes" "named_test_resource" {
-  name                         = var.resource_name
-  count                        = 1
-  cluster_spec                 = "ack.standard"
-  is_enterprise_security_group = true
-  worker_number                = 3
-  password                     = "Hello1234"
-  pod_cidr                     = "172.20.0.0/16"
-  service_cidr                 = "172.21.0.0/20"
-  worker_vswitch_ids           = [alicloud_vswitch.named_test_resource.id]
-  worker_instance_types        = ["ecs.c5.large"]
+  name         = var.resource_name
+  cluster_spec = "ack.pro.small"
+  # version can not be defined in variables.tf.
+  # version            = "1.26.3-aliyun.1"
+  worker_vswitch_ids = [alicloud_vswitch.named_test_resource.id]
+  new_nat_gateway    = true
+  proxy_mode         = "ipvs"
+  service_cidr       = "192.168.0.0/16"
+
+  addons {
+    name = "terway-eniip"
+  }
+  addons {
+    name = "csi-plugin"
+  }
+  addons {
+    name = "csi-provisioner"
+  }
+  addons {
+    name = "logtail-ds"
+    config = jsonencode({
+      IngressDashboardEnabled = "true"
+    })
+  }
+  addons {
+    name = "nginx-ingress-controller"
+    config = jsonencode({
+      IngressSlbNetworkType = "internet"
+    })
+    # to disable install nginx-ingress-controller automatically
+    # disabled = true
+  }
+  addons {
+    name = "arms-prometheus"
+  }
+  addons {
+    name = "ack-node-problem-detector"
+    config = jsonencode({
+      # sls_project_name = "your-sls-project"
+    })
+  }
 }
 
 output "cluster_id" {
-  value = alicloud_cs_managed_kubernetes.named_test_resource[0].id
+  value = alicloud_cs_managed_kubernetes.named_test_resource.id
 }
 
 output "instance_id" {
-  value = alicloud_cs_managed_kubernetes.named_test_resource[0].worker_nodes[0].id
+  value = alicloud_cs_managed_kubernetes.named_test_resource.worker_nodes[0].id
 }
 
 output "ip_address" {
-  value = alicloud_cs_managed_kubernetes.named_test_resource[0].worker_nodes[0].private_ip
+  value = alicloud_cs_managed_kubernetes.named_test_resource.worker_nodes[0].private_ip
 }
 
 output "resource_name" {

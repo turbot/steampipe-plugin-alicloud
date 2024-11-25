@@ -92,6 +92,16 @@ connection "alicloud" {
   # access_key  	= "LTAI4GBVFakeKey09Kxezv66"
   # secret_key  	= "6iNPvThisIsNotARealSecretk1sZF"
 
+  # Disable automatic reconnection (true/false). Defaults to false.
+  # auto_retry = false
+
+  # The maximum number of attempts (including the initial call) Steampipe will
+  # make for failing API calls. Defaults to 3 and must be greater than or equal to 1.
+  # max_retry_time = 3
+
+  # Timeout for API requests in seconds. Defaults to 10 second.
+  # timeout = 10
+
   # List of additional Alicloud error codes to ignore for all queries.
   # By default, common not found error codes are ignored and will still be ignored even if this argument is not set.
   # ignore_error_codes = ["AccessDenied", "Forbidden.Access", "Forbidden.NoPermission"]
