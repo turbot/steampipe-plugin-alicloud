@@ -33,6 +33,7 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 		TableMap: map[string]*plugin.Table{
 			"alicloud_account":                                    tableAlicloudAccount(ctx),
 			"alicloud_action_trail":                               tableAlicloudActionTrail(ctx),
+			"alicloud_alidns_domain":                              tableAlicloudAlidnsDomain(ctx),
 			"alicloud_cas_certificate":                            tableAlicloudUserCertificate(ctx),
 			"alicloud_cms_monitor_host":                           tableAlicloudCmsMonitorHost(ctx),
 			"alicloud_cs_kubernetes_cluster":                      tableAlicloudCsKubernetesCluster(ctx),
