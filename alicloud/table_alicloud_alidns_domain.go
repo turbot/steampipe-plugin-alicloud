@@ -171,7 +171,8 @@ func tableAlicloudAlidnsDomain(ctx context.Context) *plugin.Table {
 				Name:        "akas",
 				Description: ColumnDescriptionAkas,
 				Type:        proto.ColumnType_JSON,
-				Transform:   transform.FromField("DomainName").Transform(domainToAka),
+				Hydrate:     domainToAka,
+				Transform:   transform.FromValue().Transform(transform.EnsureStringArray),
 			},
 			{
 				Name:        "title",
@@ -246,7 +247,7 @@ func listAlidnsDomains(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 	return nil, nil
 }
 
-//// GET FUNCTION
+//// HYDRATE FUNCTION
 
 func getAlidnsDomain(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	domainName := d.EqualsQualString("domain_name")
@@ -275,14 +276,27 @@ func getAlidnsDomain(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 	return response, nil
 }
 
-//// HELPER FUNCTIONS
+func domainToAka(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	region := d.EqualsQualString(matrixKeyRegion)
 
-func domainToAka(ctx context.Context, d *transform.TransformData) (interface{}, error) {
-	data := d.Value.(string)
-	region := d.HydrateItem.(map[string]interface{})["region"].(string)
-	accountID := d.HydrateItem.(map[string]interface{})["account_id"].(string)
+	getCommonColumnsCached := plugin.HydrateFunc(getCommonColumns).WithCache()
+	commonData, err := getCommonColumnsCached(ctx, d, h)
+	if err != nil {
+		return nil, err
+	}
+	commonColumnData := commonData.(*alicloudCommonColumnData)
+	accountID := commonColumnData.AccountID
 
-	aka := []string{"acs:alidns:" + region + ":" + accountID + ":domain/" + data}
+	domainName := ""
+
+	switch item := h.Item.(type) {
+	case *alidns.DescribeDomainInfoResponse:
+		domainName = item.DomainName
+	case alidns.DomainInDescribeDomains:
+		domainName = item.DomainName
+	}
+
+	aka := []string{"acs:alidns:" + region + ":" + accountID + ":domain/" + domainName}
 	return aka, nil
 }
 
