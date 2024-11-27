@@ -56,12 +56,13 @@ func tableAlicloudAlidnsDomain(ctx context.Context) *plugin.Table {
 			{
 				Name:        "create_time",
 				Description: "The creation time of the domain.",
-				Type:        proto.ColumnType_STRING,
+				Type:        proto.ColumnType_TIMESTAMP,
 			},
 			{
 				Name:        "create_timestamp",
 				Description: "The timestamp when the domain was created.",
-				Type:        proto.ColumnType_INT,
+				Type:        proto.ColumnType_TIMESTAMP,
+				Transform:   transform.FromField("CreateTimestamp").Transform(transform.UnixToTimestamp),
 			},
 			{
 				Name:        "record_count",
@@ -203,7 +204,6 @@ func tableAlicloudAlidnsDomain(ctx context.Context) *plugin.Table {
 //// LIST FUNCTION
 
 func listAlidnsDomains(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	// region := d.EqualsQualString(matrixKeyRegion)
 
 	// Create service connection
 	client, err := AliDNSService(ctx, d)
