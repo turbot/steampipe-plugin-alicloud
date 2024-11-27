@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/kms"
@@ -80,6 +81,25 @@ func ecsTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, e
 	turbotTagsMap := map[string]string{}
 	for _, i := range tags {
 		turbotTagsMap[i.TagKey] = i.TagValue
+	}
+
+	return turbotTagsMap, nil
+}
+
+func dnsTagsToMap(_ context.Context, d *transform.TransformData) (interface{}, error) {
+	tags := d.Value.([]alidns.Tag)
+
+	if tags == nil {
+		return nil, nil
+	}
+
+	if len(tags) == 0 {
+		return nil, nil
+	}
+
+	turbotTagsMap := map[string]string{}
+	for _, i := range tags {
+		turbotTagsMap[i.Key] = i.Value
 	}
 
 	return turbotTagsMap, nil
