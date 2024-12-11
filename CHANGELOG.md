@@ -1,3 +1,14 @@
+## v1.1.0 [2024-12-12]
+
+_What's new?_
+
+- New tables added
+  - [alicloud_alidns_domain](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_alidns_domain) ([#473](https://github.com/turbot/steampipe-plugin-alicloud/pull/473))
+
+_Dependencies_
+
+- Recompiled plugin with [Alicloud SDK v1.63.17](https://github.com/aliyun/alibaba-cloud-sdk-go/releases/tag/v1.63.17). ([#456](https://github.com/turbot/steampipe-plugin-alicloud/pull/456))
+
 ## v1.0.0 [2024-10-22]
 
 There are no significant changes in this plugin version; it has been released to align with [Steampipe's v1.0.0](https://steampipe.io/changelog/steampipe-cli-v1-0-0) release. This plugin adheres to [semantic versioning](https://semver.org/#semantic-versioning-specification-semver), ensuring backward compatibility within each major version.
