@@ -275,7 +275,7 @@ func SLBService(ctx context.Context, d *plugin.QueryData) (*slb.Client, error) {
 	region := GetDefaultRegion(d.Connection)
 
 	// have we already created and cached the service?
-	serviceCacheKey := fmt.Sprintf("ram-%s", region)
+	serviceCacheKey := fmt.Sprintf("slb-%s", region)
 	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
 		return cachedData.(*slb.Client), nil
 	}
