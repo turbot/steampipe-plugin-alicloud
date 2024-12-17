@@ -62,7 +62,7 @@ func tableAlicloudAlidnsDomain(ctx context.Context) *plugin.Table {
 				Name:        "create_timestamp",
 				Description: "The timestamp when the domain was created.",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Transform:   transform.FromField("CreateTimestamp").Transform(transform.UnixToTimestamp),
+				Transform:   transform.FromField("CreateTimestamp").Transform(transform.UnixMsToTimestamp),
 			},
 			{
 				Name:        "record_count",
