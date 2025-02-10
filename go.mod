@@ -5,11 +5,8 @@ go 1.22.4
 toolchain go1.22.6
 
 require (
-	github.com/alibabacloud-go/ims-20190815 v1.0.0
-	github.com/alibabacloud-go/tea-rpc v1.1.8
-	github.com/aliyun/alibaba-cloud-sdk-go v1.63.17
+	github.com/aliyun/alibaba-cloud-sdk-go v1.63.86
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.6+incompatible
-	github.com/aliyun/credentials-go v1.1.2
 	github.com/gocarina/gocsv v0.0.0-20201208093247-67c824bc04d4
 	github.com/sethvargo/go-retry v0.2.4
 	github.com/turbot/go-kit v0.10.0-rc.0
@@ -24,11 +21,6 @@ require (
 	cloud.google.com/go/storage v1.36.0 // indirect
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d // indirect
 	github.com/agext/levenshtein v1.2.2 // indirect
-	github.com/alibabacloud-go/debug v0.0.0-20190504072949-9472017b5c68 // indirect
-	github.com/alibabacloud-go/endpoint-util v1.1.0 // indirect
-	github.com/alibabacloud-go/tea v1.1.10 // indirect
-	github.com/alibabacloud-go/tea-rpc-utils v1.1.2 // indirect
-	github.com/alibabacloud-go/tea-utils v1.3.6 // indirect
 	github.com/allegro/bigcache/v3 v3.1.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/aws/aws-sdk-go v1.44.122 // indirect
