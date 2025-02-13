@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"slices"
 	"strconv"
 	"time"
 
@@ -11,7 +12,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 
-	"github.com/turbot/go-kit/helpers"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
@@ -254,7 +254,7 @@ func listRdsBackups(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 		if err != nil {
 			// Not found eror code could not be captured in ignore config so need to handle it here.
 			if serverErr, ok := err.(*errors.ServerError); ok {
-				if helpers.StringSliceContains([]string{"InvalidBackupId.NotFound"}, serverErr.ErrorCode()) {
+				if slices.Contains([]string{"InvalidBackupId.NotFound"}, serverErr.ErrorCode()) {
 					return nil, nil
 				}
 			}

@@ -2,12 +2,12 @@ package alicloud
 
 import (
 	"context"
+	"slices"
 	"strconv"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cas"
 
-	"github.com/turbot/go-kit/helpers"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
@@ -156,7 +156,7 @@ func listUserCertificate(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 	// If the request is made from an unsupported region, it lists all the certificates
 	// created in 'cn-hangzhou' region
 	// Return nil, if unsupported region (To avoid duplicate entries, when using multi-region configuration)
-	if !helpers.StringSliceContains(supportedRegions, region) {
+	if !slices.Contains(supportedRegions, region) {
 		return nil, nil
 	}
 
@@ -203,7 +203,7 @@ func getUserCertificate(ctx context.Context, d *plugin.QueryData, h *plugin.Hydr
 	// If the request is made from an unsupported region, it lists all the certificates
 	// created in 'cn-hangzhou' region
 	// Return nil, if unsupported region (To avoid duplicate entries, when using multi-region configuration)
-	if !helpers.StringSliceContains(supportedRegions, region) {
+	if !slices.Contains(supportedRegions, region) {
 		return nil, nil
 	}
 
