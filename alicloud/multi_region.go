@@ -2,9 +2,9 @@ package alicloud
 
 import (
 	"context"
+	"slices"
 	"strings"
 
-	"github.com/turbot/go-kit/helpers"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
@@ -42,10 +42,9 @@ func getInvalidRegions(regions []string) []string {
 
 	invalidRegions := []string{}
 	for _, region := range regions {
-		if !helpers.StringSliceContains(alicloudRegions, region) {
+		if !slices.Contains(alicloudRegions, region) {
 			invalidRegions = append(invalidRegions, region)
 		}
 	}
 	return invalidRegions
 }
-

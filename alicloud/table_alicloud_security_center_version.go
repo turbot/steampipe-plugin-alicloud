@@ -2,11 +2,11 @@ package alicloud
 
 import (
 	"context"
+	"slices"
 	"strconv"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sas"
 
-	"github.com/turbot/go-kit/helpers"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
@@ -145,7 +145,7 @@ func listSecurityCenterVersions(ctx context.Context, d *plugin.QueryData, _ *plu
 
 	// supported regions for security center are International(cn-hangzhou), Malaysia(ap-southeast-3) and Singapore(ap-southeast-1)
 	supportedRegions := []string{"cn-hangzhou", "ap-southeast-1", "ap-southeast-3"}
-	if !helpers.StringSliceContains(supportedRegions, region) {
+	if !slices.Contains(supportedRegions, region) {
 		return nil, nil
 	}
 	// Create service connection

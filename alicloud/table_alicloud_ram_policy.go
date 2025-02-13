@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"context"
+	"slices"
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
@@ -9,7 +10,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
 	"github.com/sethvargo/go-retry"
 
-	"github.com/turbot/go-kit/helpers"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
@@ -144,7 +144,7 @@ func listRAMPolicies(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrate
 
 		// select policy_name, policy_type from alicloud.alicloud_ram_policy where policy_type = 'Custom1'
 		// Message: PolicyType must be Custom/System but meet:Custom1
-		if !helpers.StringSliceContains([]string{"Custom", "System"}, *value) {
+		if !slices.Contains([]string{"Custom", "System"}, *value) {
 			return nil, nil
 		}
 	}
