@@ -5,7 +5,7 @@ go 1.23.1
 toolchain go1.23.2
 
 require (
-	github.com/aliyun/alibaba-cloud-sdk-go v1.63.17
+	github.com/aliyun/alibaba-cloud-sdk-go v1.63.88
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.6+incompatible
 	github.com/gocarina/gocsv v0.0.0-20201208093247-67c824bc04d4
 	github.com/sethvargo/go-retry v0.2.4
