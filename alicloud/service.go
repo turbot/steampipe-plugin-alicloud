@@ -23,7 +23,10 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
-	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+
+	// "github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss"
+	ossCred "github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss/credentials"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
@@ -367,16 +370,38 @@ func OssService(ctx context.Context, d *plugin.QueryData, region string) (*oss.C
 		return cachedData.(*oss.Client), nil
 	}
 
-	ak, secret, err := getEnv(ctx, d)
+	endpoint := "oss-"+region+".aliyuncs.com"
+
+	ossCfg := oss.NewConfig()
+	ossCfg.WithEndpoint(endpoint)
+	ossCfg.WithRegion(region)
+
+	credCfg, err := getCredentialSessionCached(ctx, d, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	// so it was not in cache - create service
-	svc, err := oss.New("oss-"+region+".aliyuncs.com", ak, secret)
+	cfg := credCfg.(*CredentialConfig)
+
+	credentialProvider, err := auth.ToCredentialsProvider(cfg.Creds)
 	if err != nil {
 		return nil, err
 	}
+
+	profileCred, err := credentialProvider.GetCredentials()
+	if err != nil {
+		return nil, err
+	}
+
+	if profileCred.AccessKeyId != "" && profileCred.AccessKeySecret != "" && profileCred.SecurityToken != "" {
+		ossCfg.CredentialsProvider = ossCred.NewStaticCredentialsProvider(profileCred.AccessKeyId, profileCred.AccessKeySecret, profileCred.SecurityToken)
+	} else if profileCred.AccessKeyId != "" && profileCred.AccessKeySecret != "" {
+		ossCfg.CredentialsProvider = ossCred.NewStaticCredentialsProvider(profileCred.AccessKeyId, profileCred.AccessKeySecret, "")
+	} else {
+		return nil, fmt.Errorf("the credential provider '%s' is not supported for doing the operation for OSS service", profileCred.ProviderName)
+	}
+
+	svc := oss.NewClient(ossCfg)
 
 	// cache the service connection
 	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
