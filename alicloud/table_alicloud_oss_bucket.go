@@ -169,10 +169,6 @@ func listBucket(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 		for _, i := range p.Buckets {
 			d.StreamListItem(ctx, i)
 		}
-
-		if p.IsTruncated {
-			return nil, nil
-		}
 	}
 	return nil, nil
 }

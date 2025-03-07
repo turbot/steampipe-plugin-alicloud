@@ -399,14 +399,7 @@ func OssService(ctx context.Context, d *plugin.QueryData, region string) (*oss.C
 		return nil, fmt.Errorf("failed to retrieve credentials from the provider: %v", err)
 	}
 
-	// Validate the retrieved credentials and set up the OSS client
-	if profileCred.AccessKeyId != "" && profileCred.AccessKeySecret != "" && profileCred.SecurityToken != "" {
-		ossCfg.CredentialsProvider = ossCred.NewStaticCredentialsProvider(profileCred.AccessKeyId, profileCred.AccessKeySecret, profileCred.SecurityToken)
-	} else if profileCred.AccessKeyId != "" && profileCred.AccessKeySecret != "" {
-		ossCfg.CredentialsProvider = ossCred.NewStaticCredentialsProvider(profileCred.AccessKeyId, profileCred.AccessKeySecret)
-	} else {
-		return nil, fmt.Errorf("unsupported credential provider '%s' for OSS service authentication", profileCred.ProviderName)
-	}
+	ossCfg.CredentialsProvider = ossCred.NewStaticCredentialsProvider(profileCred.AccessKeyId, profileCred.AccessKeySecret, profileCred.SecurityToken)
 
 	// Initialize and return the OSS client
 	svc := oss.NewClient(ossCfg)
