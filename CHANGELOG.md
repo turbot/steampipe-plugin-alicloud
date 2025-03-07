@@ -1,3 +1,20 @@
+## v1.2.0 [2025-03-07]
+
+_Enhancements_
+
+- Added `profile` based authentication support for the `alicloud_oss_bucket` table. ([#498](https://github.com/turbot/steampipe-plugin-alicloud/pull/498))
+- Added support for the new `me-central-1`, `cn-wuhan-lr`, `cn-nanjing`, `ap-northeast-2`, `cn-fuzhou`, `ap-southeast-6`, `ap-southeast-7` regions. ([#491](https://github.com/turbot/steampipe-plugin-alicloud/pull/491))
+
+_Bug fixes_
+
+- Fixed the `create_timestamp` column of `alicloud_alidns_domain` table to correctly return data instead of an error. ([#482](https://github.com/turbot/steampipe-plugin-alicloud/pull/482))
+- Fixed the `alicloud_slb_load_balancer` table to correctly return data instead of a `panic interface conversion` error. ([#481](https://github.com/turbot/steampipe-plugin-alicloud/pull/481))
+
+_Dependencies_
+
+- Recompiled plugin with Go version `1.23.1`. ([#495](https://github.com/turbot/steampipe-plugin-alicloud/pull/495))
+- Recompiled plugin with [steampipe-plugin-sdk v5.11.3](https://github.com/turbot/steampipe-plugin-sdk/blob/develop/CHANGELOG.md#v5113-2025-02-11) that addresses critical and high vulnerabilities in dependent packages. ([#495](https://github.com/turbot/steampipe-plugin-alicloud/pull/495))
+
 ## v1.1.0 [2024-12-12]
 
 _What's new?_
