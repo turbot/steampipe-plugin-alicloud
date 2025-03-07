@@ -23,7 +23,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
-	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+
+	"github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss"
+	ossCred "github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss/credentials"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
@@ -358,27 +360,51 @@ func VpcService(ctx context.Context, d *plugin.QueryData) (*vpc.Client, error) {
 
 // OssService returns the service connection for Alicloud OSS service
 func OssService(ctx context.Context, d *plugin.QueryData, region string) (*oss.Client, error) {
+	// Validate the region parameter before proceeding
 	if region == "" {
-		return nil, fmt.Errorf("region must be passed OssService")
+		return nil, fmt.Errorf("region must be provided to initialize the OSS service")
 	}
-	// have we already created and cached the service?
+
+	// Check if the OSS client is already cached to avoid redundant initialization
 	serviceCacheKey := fmt.Sprintf("oss-%s", region)
 	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
 		return cachedData.(*oss.Client), nil
 	}
 
-	ak, secret, err := getEnv(ctx, d)
+	// Construct the OSS endpoint for the given region
+	endpoint := "oss-" + region + ".aliyuncs.com"
+
+	// Initialize OSS client configuration
+	ossCfg := oss.NewConfig()
+	ossCfg.WithEndpoint(endpoint)
+	ossCfg.WithRegion(region)
+
+	// Retrieve cached credentials for authentication
+	credCfg, err := getCredentialSessionCached(ctx, d, nil)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to retrieve cached credentials: %v", err)
 	}
 
-	// so it was not in cache - create service
-	svc, err := oss.New("oss-"+region+".aliyuncs.com", ak, secret)
+	cfg := credCfg.(*CredentialConfig)
+
+	// Convert the credential configuration to an OSS-compatible provider
+	credentialProvider, err := auth.ToCredentialsProvider(cfg.Creds)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to convert credentials to a provider: %v", err)
 	}
 
-	// cache the service connection
+	// Retrieve credentials from the provider
+	profileCred, err := credentialProvider.GetCredentials()
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve credentials from the provider: %v", err)
+	}
+
+	ossCfg.CredentialsProvider = ossCred.NewStaticCredentialsProvider(profileCred.AccessKeyId, profileCred.AccessKeySecret, profileCred.SecurityToken)
+
+	// Initialize and return the OSS client
+	svc := oss.NewClient(ossCfg)
+
+	// Cache the service connection to optimize future requests
 	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
 
 	return svc, nil
