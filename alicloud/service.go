@@ -378,6 +378,7 @@ func OssService(ctx context.Context, d *plugin.QueryData, region string) (*oss.C
 	ossCfg := oss.NewConfig()
 	ossCfg.WithEndpoint(endpoint)
 	ossCfg.WithRegion(region)
+	ossCfg.WithProxyFromEnvironment(true)
 
 	// Retrieve cached credentials for authentication
 	credCfg, err := getCredentialSessionCached(ctx, d, nil)
