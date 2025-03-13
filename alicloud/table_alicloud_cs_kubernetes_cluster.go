@@ -357,6 +357,7 @@ func listCsKubernetesClusters(ctx context.Context, d *plugin.QueryData, _ *plugi
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeClustersV1(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("listCsKubernetesClusters", "query_error", err, "request", request)
@@ -507,7 +508,7 @@ func csKubernetesClusterAkaTagsToMap(_ context.Context, d *transform.TransformDa
 	if d.Value == nil {
 		return nil, nil
 	}
-	
+
 	tags := d.Value.([]interface{})
 
 	turbotTagsMap := map[string]string{}

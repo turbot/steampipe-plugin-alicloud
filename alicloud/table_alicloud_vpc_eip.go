@@ -219,6 +219,7 @@ func listVpcEip(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeEipAddresses(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_eip.listEip", "query_error", err, "request", request)

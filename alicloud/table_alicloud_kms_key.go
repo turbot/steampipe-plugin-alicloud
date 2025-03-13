@@ -253,6 +253,7 @@ func listKmsKey(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.ListKeys(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_kms_key.listKmsKey", "query_error", err, "request", request)

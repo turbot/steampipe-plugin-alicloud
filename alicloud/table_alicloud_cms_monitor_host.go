@@ -146,6 +146,7 @@ func listCmsMonitorHosts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeMonitoringAgentHosts(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("listCmsMonitorHosts", "query_error", err, "request", request)

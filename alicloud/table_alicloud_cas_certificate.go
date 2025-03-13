@@ -174,6 +174,7 @@ func listUserCertificate(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.ListUserCertificateOrder(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_user_certificate.listUserCertificate", "query_error", err, "request", request)

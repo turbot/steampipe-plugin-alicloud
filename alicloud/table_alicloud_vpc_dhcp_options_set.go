@@ -113,7 +113,7 @@ func tableAlicloudVpcDhcpOptionsSet(ctx context.Context) *plugin.Table {
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
-				Hydrate: 		 vpcDhcpOptionsetRegion,
+				Hydrate:     vpcDhcpOptionsetRegion,
 				Transform:   transform.FromValue(),
 			},
 			{
@@ -162,6 +162,7 @@ func listVpcDhcpOptionsSets(ctx context.Context, d *plugin.QueryData, _ *plugin.
 
 	pageLeft := true
 	for pageLeft {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.ListDhcpOptionsSets(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_vpc_dhcp_options_set.listVpcDhcpOptionsSets", "query_error", err, "request", request)

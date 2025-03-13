@@ -176,6 +176,7 @@ func listEcsAutosProvisioningGroups(ctx context.Context, d *plugin.QueryData, _ 
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeAutoProvisioningGroups(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_ecs_auto_provisioning_group.listEcsAutosProvisioningGroups", "query_error", err, "request", request)

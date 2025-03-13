@@ -189,6 +189,7 @@ func listVpcVpnGateways(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeVpnGateways(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_vpc_vpn_gateway.listVpcVpnGateways", "query_error", err, "request", request)

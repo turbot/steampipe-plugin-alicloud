@@ -145,6 +145,7 @@ func listVpcSslVpnClientCerts(ctx context.Context, d *plugin.QueryData, _ *plugi
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeSslVpnClientCerts(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_client.listVpcSslVpnClientCerts", "query_error", err, "request", request)

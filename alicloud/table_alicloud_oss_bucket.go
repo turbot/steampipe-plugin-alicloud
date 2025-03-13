@@ -160,6 +160,7 @@ func listBucket(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 	page := client.NewListBucketsPaginator(param)
 
 	for page.HasNext() {
+		d.WaitForListRateLimit(ctx)
 		p, err := page.NextPage(ctx)
 		if err != nil {
 			plugin.Logger(ctx).Error("listBucket", "paging_error", err)
@@ -329,7 +330,7 @@ func bucketSSEConfiguration(_ context.Context, d *transform.TransformData) (inte
 	}
 	sse := d.Value.(oss.SSERule)
 
-	result :=  make(map[string]string, 0)
+	result := make(map[string]string, 0)
 
 	if sse.KMSDataEncryption != nil {
 		result["KMSDataEncryption"] = *sse.KMSDataEncryption

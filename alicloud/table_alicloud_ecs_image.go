@@ -245,6 +245,7 @@ func listEcsImages(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeImages(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_ecs_image.listEcsImages", "query_error", err, "request", request)

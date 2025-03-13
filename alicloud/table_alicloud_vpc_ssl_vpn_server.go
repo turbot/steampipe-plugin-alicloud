@@ -149,6 +149,7 @@ func listVpcVpnSslServers(ctx context.Context, d *plugin.QueryData, _ *plugin.Hy
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeSslVpnServers(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_server.listVpcVpnSslServers", "query_error", err, "request", request)

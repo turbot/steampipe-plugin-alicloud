@@ -221,6 +221,7 @@ func listAlidnsDomains(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeDomains(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_alidns_domain.listAlidnsDomains", "query_error", err, "request", request)
