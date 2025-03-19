@@ -160,6 +160,9 @@ func listCmsMonitorHosts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 			plugin.Logger(ctx).Error("listCmsMonitorHosts", "query_error", err, "request", request)
 			return nil, err
 		}
+		if len(response.Hosts.Host) == 0 {
+			break
+		}
 		for _, host := range response.Hosts.Host {
 			plugin.Logger(ctx).Warn("listCmsMonitorHosts", "item", host)
 			d.StreamListItem(ctx, host)

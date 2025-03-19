@@ -116,6 +116,9 @@ func listVpcCustomerGateways(ctx context.Context, d *plugin.QueryData, _ *plugin
 			plugin.Logger(ctx).Error("alicloud_vpc_vpn_customer_gateway.listVpcCustomerGateways", "query_error", err, "request", request)
 			return nil, err
 		}
+		if len(response.CustomerGateways.CustomerGateway) == 0 {
+			break
+		}
 		for _, i := range response.CustomerGateways.CustomerGateway {
 			d.StreamListItem(ctx, i)
 			count++

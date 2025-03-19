@@ -169,6 +169,9 @@ func listEcsSecurityGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 			plugin.Logger(ctx).Error("alicloud_ecs_security_group.listEcsSecurityGroups", "query_error", err, "request", request)
 			return nil, err
 		}
+		if len(response.SecurityGroups.SecurityGroup) == 0 {
+			break
+		}
 		for _, securityGroup := range response.SecurityGroups.SecurityGroup {
 			plugin.Logger(ctx).Warn("alicloud_ecs_security_group.listEcsSecurityGroups", "query_error", err, "item", securityGroup)
 			d.StreamListItem(ctx, securityGroup)

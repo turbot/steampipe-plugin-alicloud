@@ -218,6 +218,9 @@ func listEcsEni(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 			plugin.Logger(ctx).Error("alicloud_ecs_network_interface.listEcsEni", "query_error", err, "request", request)
 			return nil, err
 		}
+		if len(response.NetworkInterfaceSets.NetworkInterfaceSet) == 0 {
+			break
+		}
 		for _, eni := range response.NetworkInterfaceSets.NetworkInterfaceSet {
 			d.StreamListItem(ctx, eni)
 			count++

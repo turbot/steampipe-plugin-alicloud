@@ -259,6 +259,9 @@ func listEcsImages(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 			plugin.Logger(ctx).Error("alicloud_ecs_image.listEcsImages", "query_error", err, "request", request)
 			return nil, err
 		}
+		if len(response.Images.Image) == 0 {
+			break
+		}
 		for _, image := range response.Images.Image {
 			plugin.Logger(ctx).Warn("listEcsDisk", "item", image)
 			d.StreamListItem(ctx, image)

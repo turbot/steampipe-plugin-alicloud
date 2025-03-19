@@ -236,6 +236,10 @@ func listAlidnsDomains(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 			return nil, err
 		}
 
+		if len(response.Domains.Domain) == 0 {
+			break
+		}
+
 		for _, domain := range response.Domains.Domain {
 			d.StreamListItem(ctx, domain)
 			count++

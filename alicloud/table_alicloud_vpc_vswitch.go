@@ -196,6 +196,9 @@ func listVSwitch(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 			plugin.Logger(ctx).Error("listVSwitch", "query_error", err, "request", request)
 			return nil, err
 		}
+		if len(response.VSwitches.VSwitch) == 0 {
+			break
+		}
 		for _, i := range response.VSwitches.VSwitch {
 			plugin.Logger(ctx).Warn("listVSwitch", "tags", i.Tags, "item", i)
 			d.StreamListItem(ctx, i)

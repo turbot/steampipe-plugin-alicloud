@@ -216,6 +216,9 @@ func listEcsSnapshot(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 			plugin.Logger(ctx).Error("alicloud_ecs_snapshot.listEcsSnapshot", "query_error", err, "request", request)
 			return nil, err
 		}
+		if len(response.Snapshots.Snapshot) == 0 {
+			break
+		}
 		for _, snapshot := range response.Snapshots.Snapshot {
 			plugin.Logger(ctx).Warn("listEcsSnapshot", "item", snapshot)
 			d.StreamListItem(ctx, snapshot)

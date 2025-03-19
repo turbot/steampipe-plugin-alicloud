@@ -191,6 +191,9 @@ func listKmsSecret(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 			plugin.Logger(ctx).Error("alicloud_kms_secret.listKmsSecret", "query_error", err, "request", request)
 			return nil, err
 		}
+		if len(response.SecretList.Secret) == 0 {
+			break
+		}
 		for _, i := range response.SecretList.Secret {
 			d.StreamListItem(ctx, &kms.DescribeSecretResponse{
 				CreateTime:        i.CreateTime,

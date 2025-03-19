@@ -227,6 +227,9 @@ func listVpcEip(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 			plugin.Logger(ctx).Error("alicloud_eip.listEip", "query_error", err, "request", request)
 			return nil, err
 		}
+		if len(response.EipAddresses.EipAddress) == 0 {
+			break
+		}
 		for _, i := range response.EipAddresses.EipAddress {
 			plugin.Logger(ctx).Warn("alicloud_eip.listEip", "tags", i.Tags, "item", i)
 			d.StreamListItem(ctx, i)

@@ -152,6 +152,9 @@ func listEcsLaunchTemplates(ctx context.Context, d *plugin.QueryData, _ *plugin.
 			plugin.Logger(ctx).Error("alicloud_ecs_launch_template.listEcsLaunchTemplates", "query_error", err, "request", request)
 			return nil, err
 		}
+		if len(response.LaunchTemplateSets.LaunchTemplateSet) == 0 {
+			break
+		}
 		for _, launchTemplate := range response.LaunchTemplateSets.LaunchTemplateSet {
 			d.StreamListItem(ctx, launchTemplate)
 			count++

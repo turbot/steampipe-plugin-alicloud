@@ -175,6 +175,9 @@ func listVpcVpnConnections(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 			plugin.Logger(ctx).Error("alicloud_vpc_vpn_connection.listVpcVpnConnections", "query_error", err, "request", request)
 			return nil, err
 		}
+		if len(response.VpnConnections.VpnConnection) == 0 {
+			break
+		}
 		for _, vpnConnection := range response.VpnConnections.VpnConnection {
 			d.StreamListItem(ctx, vpnConnection)
 			count++

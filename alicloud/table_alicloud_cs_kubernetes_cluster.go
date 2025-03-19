@@ -385,6 +385,9 @@ func listCsKubernetesClusters(ctx context.Context, d *plugin.QueryData, _ *plugi
 		pageInfo := result["page_info"].(map[string]interface{})
 		TotalCount := pageInfo["total_count"].(float64)
 		PageNumber := pageInfo["page_number"].(float64)
+		if len(clusters) == 0 {
+			break
+		}
 		for _, cluster := range clusters {
 			clusterAsMap := cluster.(map[string]interface{})
 			d.StreamListItem(ctx, clusterAsMap)

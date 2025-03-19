@@ -289,6 +289,9 @@ func listVpcs(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (
 			plugin.Logger(ctx).Error("alicloud_vpc.listVpc", "query_error", err, "request", request)
 			return nil, err
 		}
+		if len(response.Vpcs.Vpc) == 0 {
+			break
+		}
 		for _, i := range response.Vpcs.Vpc {
 			d.StreamListItem(ctx, i)
 			// This will return zero if context has been cancelled (i.e due to manual cancellation) or

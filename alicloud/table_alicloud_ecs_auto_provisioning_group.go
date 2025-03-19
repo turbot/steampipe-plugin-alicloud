@@ -190,6 +190,9 @@ func listEcsAutosProvisioningGroups(ctx context.Context, d *plugin.QueryData, _ 
 			plugin.Logger(ctx).Error("alicloud_ecs_auto_provisioning_group.listEcsAutosProvisioningGroups", "query_error", err, "request", request)
 			return nil, err
 		}
+		if len(response.AutoProvisioningGroups.AutoProvisioningGroup) == 0 {
+			break
+		}
 		for _, group := range response.AutoProvisioningGroups.AutoProvisioningGroup {
 			d.StreamListItem(ctx, group)
 			count++
