@@ -207,28 +207,38 @@ func listEcsEni(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 	}
 	request := ecs.CreateDescribeNetworkInterfacesRequest()
 	request.Scheme = "https"
-	request.PageSize = requests.NewInteger(50)
-	request.PageNumber = requests.NewInteger(1)
+	request.MaxResults = requests.NewInteger(100)
 
-	count := 0
-	for {
+	// If the request no of items is less than the paging max limit
+	// update limit to the requested no of results.
+	limit := d.QueryContext.Limit
+	if d.QueryContext.Limit != nil {
+		maxResults, err := request.MaxResults.GetValue64()
+		if err != nil {
+			plugin.Logger(ctx).Error("alicloud_ecs_network_interface.listEcsEni", "max_results_error", err)
+			return nil, err
+		}
+		if *limit < maxResults {
+			request.MaxResults = requests.NewInteger(int(*limit))
+		}
+	}
+
+	pageLeft := true
+	for pageLeft {
 		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeNetworkInterfaces(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_ecs_network_interface.listEcsEni", "query_error", err, "request", request)
 			return nil, err
 		}
-		if len(response.NetworkInterfaceSets.NetworkInterfaceSet) == 0 {
-			break
-		}
 		for _, eni := range response.NetworkInterfaceSets.NetworkInterfaceSet {
 			d.StreamListItem(ctx, eni)
-			count++
 		}
-		if count >= response.TotalCount {
-			break
+		if response.NextToken != "" {
+			request.NextToken = response.NextToken
+		} else {
+			pageLeft = false
 		}
-		request.PageNumber = requests.NewInteger(response.PageNumber + 1)
 	}
 	return nil, nil
 }

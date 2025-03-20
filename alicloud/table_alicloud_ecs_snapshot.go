@@ -205,29 +205,39 @@ func listEcsSnapshot(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 	}
 	request := ecs.CreateDescribeSnapshotsRequest()
 	request.Scheme = "https"
-	request.PageSize = requests.NewInteger(50)
-	request.PageNumber = requests.NewInteger(1)
+	request.MaxResults = requests.NewInteger(100)
 
-	count := 0
-	for {
+	// If the request no of items is less than the paging max limit
+	// update limit to the requested no of results.
+	limit := d.QueryContext.Limit
+	if d.QueryContext.Limit != nil {
+		maxResults, err := request.MaxResults.GetValue64()
+		if err != nil {
+			plugin.Logger(ctx).Error("alicloud_ecs_snapshot.listEcsSnapshot", "max_results_error", err)
+			return nil, err
+		}
+		if *limit < maxResults {
+			request.MaxResults = requests.NewInteger(int(*limit))
+		}
+	}
+
+	pageLeft := true
+	for pageLeft {
 		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeSnapshots(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_ecs_snapshot.listEcsSnapshot", "query_error", err, "request", request)
 			return nil, err
 		}
-		if len(response.Snapshots.Snapshot) == 0 {
-			break
-		}
 		for _, snapshot := range response.Snapshots.Snapshot {
 			plugin.Logger(ctx).Warn("listEcsSnapshot", "item", snapshot)
 			d.StreamListItem(ctx, snapshot)
-			count++
 		}
-		if count >= response.TotalCount {
-			break
+		if response.NextToken != "" {
+			request.NextToken = response.NextToken
+		} else {
+			pageLeft = false
 		}
-		request.PageNumber = requests.NewInteger(response.PageNumber + 1)
 	}
 	return nil, nil
 }
