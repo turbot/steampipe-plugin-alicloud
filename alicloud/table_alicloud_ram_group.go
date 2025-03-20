@@ -33,6 +33,16 @@ func tableAlicloudRAMGroup(ctx context.Context) *plugin.Table {
 			Hydrate:    getRAMGroup,
 			Tags:       map[string]string{"service": "ram", "action": "getGroup"},
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getRAMGroupUsers,
+				Tags: map[string]string{"service": "ram", "action": "listUsersForGroup"},
+			},
+			{
+				Func: getRAMGroupPolicies,
+				Tags: map[string]string{"service": "ram", "action": "listPoliciesForGroup"},
+			},
+		},
 		Columns: []*plugin.Column{
 			// Top columns
 			{

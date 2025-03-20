@@ -28,6 +28,12 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 			Hydrate:    getEcsDisk,
 			Tags:       map[string]string{"service": "ecs", "action": "DescribeDisks"},
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getEcsDiskAutoSnapshotPolicy,
+				Tags: map[string]string{"service": "ecs", "action": "DescribeAutoSnapshotPolicyEx"},
+			},
+		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
 			{

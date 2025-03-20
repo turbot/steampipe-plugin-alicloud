@@ -26,6 +26,12 @@ func tableAlicloudCmsMonitorHost(ctx context.Context) *plugin.Table {
 			Hydrate:    getCmsMonitorHost,
 			Tags:       map[string]string{"service": "cms", "action": "DescribeMonitoringAgentHosts"},
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getCmsMonitoringAgentStatus,
+				Tags: map[string]string{"service": "cms", "action": "DescribeMonitoringAgentStatuses"},
+			},
+		},
 		Columns: []*plugin.Column{
 			{
 				Name:        "host_name",

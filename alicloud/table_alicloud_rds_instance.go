@@ -29,6 +29,36 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 			Hydrate:    getRdsInstance,
 			Tags:       map[string]string{"service": "rds", "action": "DescribeDBInstanceAttribute"},
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getRdsInstanceIPArrayList,
+				Tags: map[string]string{"service": "rds", "action": "DescribeDBInstanceIPArrayList"},
+			},
+			{
+				Func: getRdsInstanceSecurityGroupConfiguration,
+				Tags: map[string]string{"service": "rds", "action": "DescribeSecurityGroupConfiguration"},
+			},
+			{
+				Func: getRdsInstanceParameters,
+				Tags: map[string]string{"service": "rds", "action": "DescribeParameters"},
+			},
+			{
+				Func: getRdsTags,
+				Tags: map[string]string{"service": "rds", "action": "ListTags"},
+			},
+			{
+				Func: getSqlCollectorPolicy,
+				Tags: map[string]string{"service": "rds", "action": "DescribeSQLCollectorPolicy"},
+			},
+			{
+				Func: getSSLDetails,
+				Tags: map[string]string{"service": "rds", "action": "DescribeDBInstanceSSL"},
+			},
+			{
+				Func: getTDEDetails,
+				Tags: map[string]string{"service": "rds", "action": "DescribeDBInstanceTDE"},
+			},
+		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
 			// Top columns

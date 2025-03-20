@@ -21,6 +21,28 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 			Hydrate: listBucket,
 			Tags:    map[string]string{"service": "oss", "action": "ListBuckets"},
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getBucketInfo,
+				Tags: map[string]string{"service": "oss", "action": "GetBucketInfo"},
+			},
+			{
+				Func: getBucketLifecycle,
+				Tags: map[string]string{"service": "oss", "action": "GetBucketLifecycle"},
+			},
+			{
+				Func: getBucketLogging,
+				Tags: map[string]string{"service": "oss", "action": "GetBucketLogging"},
+			},
+			{
+				Func: getBucketTagging,
+				Tags: map[string]string{"service": "oss", "action": "GetBucketTags"},
+			},
+			{
+				Func: getBucketPolicy,
+				Tags: map[string]string{"service": "oss", "action": "GetBucketPolicy"},
+			},
+		},
 		Columns: []*plugin.Column{
 			{
 				Name:        "name",

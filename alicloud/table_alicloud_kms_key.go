@@ -38,6 +38,12 @@ func tableAlicloudKmsKey(ctx context.Context) *plugin.Table {
 				{Name: "protection_level", Require: plugin.Optional},
 			},
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getKeyTags,
+				Tags: map[string]string{"service": "kms", "action": "ListResourceTags"},
+			},
+		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
 			{

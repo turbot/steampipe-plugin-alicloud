@@ -44,6 +44,20 @@ func tableAlicloudRAMUser(ctx context.Context) *plugin.Table {
 			Hydrate: getRAMUser,
 			Tags:    map[string]string{"service": "ram", "action": "GetUser"},
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getRAMUserMfaDevices,
+				Tags: map[string]string{"service": "ram", "action": "ListVirtualMFADevices"},
+			},
+			{
+				Func: getRAMUserPolicies,
+				Tags: map[string]string{"service": "ram", "action": "ListPoliciesForUser"},
+			},
+			{
+				Func: getRAMUserGroups,
+				Tags: map[string]string{"service": "ram", "action": "ListGroupsForUser"},
+			},
+		},
 		Columns: []*plugin.Column{
 			// Top columns
 			{

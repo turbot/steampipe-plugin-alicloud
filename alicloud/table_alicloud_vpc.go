@@ -31,6 +31,12 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 				{Name: "is_default", Require: plugin.Optional, Operators: []string{"<>", "="}},
 			},
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getVpcAttributes,
+				Tags: map[string]string{"service": "vpc", "action": "DescribeVpcAttribute"},
+			},
+		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
 			// Top columns

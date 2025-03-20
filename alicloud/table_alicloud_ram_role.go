@@ -37,6 +37,12 @@ func tableAlicloudRAMRole(ctx context.Context) *plugin.Table {
 			Hydrate:    getRAMRole,
 			Tags:       map[string]string{"service": "ram", "action": "GetRole"},
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getRAMRolePolicies,
+				Tags: map[string]string{"service": "ram", "action": "ListPoliciesForRole"},
+			},
+		},
 		Columns: []*plugin.Column{
 			{
 				Name:        "name",

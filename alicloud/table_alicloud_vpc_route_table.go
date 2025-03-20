@@ -26,6 +26,12 @@ func tableAlicloudVpcRouteTable(ctx context.Context) *plugin.Table {
 			Hydrate:    getVpcRouteTable,
 			Tags:       map[string]string{"service": "vpc", "action": "DescribeRouteTableList"},
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getVpcRouteTableEntryList,
+				Tags: map[string]string{"service": "vpc", "action": "DescribeRouteEntryList"},
+			},
+		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
 			{

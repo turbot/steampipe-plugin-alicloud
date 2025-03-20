@@ -44,6 +44,12 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 				{Name: "io_optimized", Require: plugin.Optional, Operators: []string{"<>", "="}},
 			},
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getEcsInstanceRamRole,
+				Tags: map[string]string{"service": "ecs", "action": "DescribeInstanceRamRole"},
+			},
+		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
 			{

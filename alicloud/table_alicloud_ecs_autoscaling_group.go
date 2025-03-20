@@ -27,6 +27,20 @@ func tableAlicloudEcsAutoscalingGroup(ctx context.Context) *plugin.Table {
 			Hydrate:    getEcsAutoscalingGroup,
 			Tags:       map[string]string{"service": "ess", "action": "DescribeScalingGroups"},
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getEcsAutoscalingGroupConfigurations,
+				Tags: map[string]string{"service": "ess", "action": "DescribeScalingConfigurations"},
+			},
+			{
+				Func: getEcsAutoscalingGroupScalingInstances,
+				Tags: map[string]string{"service": "ess", "action": "DescribeScalingInstances"},
+			},
+			{
+				Func: getEcsAutoscalingGroupTags,
+				Tags: map[string]string{"service": "ess", "action": "ListTagResources"},
+			},
+		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
 			{

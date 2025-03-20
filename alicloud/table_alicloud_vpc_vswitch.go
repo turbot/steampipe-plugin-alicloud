@@ -22,6 +22,12 @@ func tableAlicloudVpcVSwitch(ctx context.Context) *plugin.Table {
 			Hydrate: listVSwitch,
 			Tags:    map[string]string{"service": "vpc", "action": "DescribeVSwitches"},
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getVSwitchAttributes,
+				Tags: map[string]string{"service": "vpc", "action": "DescribeVSwitchAttributes"},
+			},
+		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
 			// Top columns

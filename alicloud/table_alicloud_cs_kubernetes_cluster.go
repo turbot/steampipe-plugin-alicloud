@@ -28,6 +28,16 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 			Hydrate:    getCsKubernetesCluster,
 			Tags:       map[string]string{"service": "cs", "action": "DescribeClusterDetail"},
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getCsKubernetesClusterLog,
+				Tags: map[string]string{"service": "cs", "action": "DescribeClusterLogs"},
+			},
+			{
+				Func: getCsKubernetesClusterNamespace,
+				Tags: map[string]string{"service": "cs", "action": "DescribeClusterNamespaces"},
+			},
+		},
 		Columns: []*plugin.Column{
 			{
 				Name:        "name",

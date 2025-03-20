@@ -24,6 +24,12 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 			Hydrate:    getEcsSecurityGroup,
 			Tags:       map[string]string{"service": "ecs", "action": "DescribeSecurityGroups"},
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getSecurityGroupAttribute,
+				Tags: map[string]string{"service": "ecs", "action": "DescribeSecurityGroupAttribute"},
+			},
+		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
 			{

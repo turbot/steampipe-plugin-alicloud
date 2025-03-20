@@ -34,6 +34,12 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 			Hydrate:    getEcsImage,
 			Tags:       map[string]string{"service": "ecs", "action": "DescribeImages"},
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getEcsImageSharePermission,
+				Tags: map[string]string{"service": "ecs", "action": "DescribeImageSharePermission"},
+			},
+		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
 			{

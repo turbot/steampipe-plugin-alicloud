@@ -30,6 +30,12 @@ func tableAlicloudKmsSecret(ctx context.Context) *plugin.Table {
 			Hydrate:    getKmsSecret,
 			Tags:       map[string]string{"service": "kms", "action": "DescribeSecret"},
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: listKmsSecretVersionIds,
+				Tags: map[string]string{"service": "kms", "action": "ListSecretVersionIds"},
+			},
+		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
 			{

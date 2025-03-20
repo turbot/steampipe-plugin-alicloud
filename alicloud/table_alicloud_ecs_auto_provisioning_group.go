@@ -27,6 +27,12 @@ func tableAlicloudEcsAutoProvisioningGroup(ctx context.Context) *plugin.Table {
 			Hydrate:    getEcsAutosProvisioningGroup,
 			Tags:       map[string]string{"service": "ecs", "action": "DescribeAutoProvisioningGroups"},
 		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getEcsAutosProvisioningGroupInstances,
+				Tags: map[string]string{"service": "ecs", "action": "DescribeAutoProvisioningGroupInstances"},
+			},
+		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
 			{
