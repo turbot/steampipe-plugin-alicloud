@@ -20,10 +20,12 @@ func tableAlicloudEcsLaunchTemplate(ctx context.Context) *plugin.Table {
 		Description: "Alicloud ECS Launch Template",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsLaunchTemplates,
+			Tags:    map[string]string{"service": "ecs", "action": "DescribeLaunchTemplates"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("launch_template_id"),
 			Hydrate:    getEcsLaunchTemplate,
+			Tags:       map[string]string{"service": "ecs", "action": "DescribeLaunchTemplates"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

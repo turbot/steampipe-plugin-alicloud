@@ -34,9 +34,11 @@ func tableAlicloudVpcSslVpnClientCert(ctx context.Context) *plugin.Table {
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("ssl_vpn_client_cert_id"),
 			Hydrate:    getVpcSslVpnClientCert,
+			Tags:       map[string]string{"service": "vpc", "action": "DescribeSslVpnClientCert"},
 		},
 		List: &plugin.ListConfig{
 			Hydrate: listVpcSslVpnClientCerts,
+			Tags:    map[string]string{"service": "vpc", "action": "DescribeSslVpnClientCerts"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

@@ -20,10 +20,12 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 		Description: "ECS Disk Snapshot.",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsSnapshot,
+			Tags:    map[string]string{"service": "ecs", "action": "DescribeSnapshots"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("name"),
 			Hydrate:    getEcsSnapshot,
+			Tags:       map[string]string{"service": "ecs", "action": "DescribeSnapshots"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

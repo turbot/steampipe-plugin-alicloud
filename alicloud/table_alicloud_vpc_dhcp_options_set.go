@@ -20,9 +20,11 @@ func tableAlicloudVpcDhcpOptionsSet(ctx context.Context) *plugin.Table {
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("dhcp_options_set_id"),
 			Hydrate:    getVpcDhcpOptionsSet,
+			Tags:       map[string]string{"service": "vpc", "action": "DescribeDhcpOptionsSet"},
 		},
 		List: &plugin.ListConfig{
 			Hydrate: listVpcDhcpOptionsSets,
+			Tags:    map[string]string{"service": "vpc", "action": "DescribeDhcpOptionsSets"},
 			KeyColumns: plugin.KeyColumnSlice{
 				{Name: "name", Require: plugin.Optional},
 				{Name: "domain_name", Require: plugin.Optional},

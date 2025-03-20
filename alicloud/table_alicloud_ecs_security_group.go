@@ -17,10 +17,12 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 		Description: "ECS Security Group",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsSecurityGroups,
+			Tags:    map[string]string{"service": "ecs", "action": "DescribeSecurityGroups"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("security_group_id"),
 			Hydrate:    getEcsSecurityGroup,
+			Tags:       map[string]string{"service": "ecs", "action": "DescribeSecurityGroups"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

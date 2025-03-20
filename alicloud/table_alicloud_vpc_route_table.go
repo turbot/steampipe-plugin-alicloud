@@ -19,10 +19,12 @@ func tableAlicloudVpcRouteTable(ctx context.Context) *plugin.Table {
 		Description: "Alicloud VPC Route Table",
 		List: &plugin.ListConfig{
 			Hydrate: listVpcRouteTable,
+			Tags:    map[string]string{"service": "vpc", "action": "DescribeRouteTableList"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("route_table_id"),
 			Hydrate:    getVpcRouteTable,
+			Tags:       map[string]string{"service": "vpc", "action": "DescribeRouteTableList"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

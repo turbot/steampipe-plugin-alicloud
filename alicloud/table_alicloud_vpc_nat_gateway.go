@@ -19,10 +19,12 @@ func tableAlicloudVpcNatGateway(ctx context.Context) *plugin.Table {
 		Description: "Aliclod VPC NAT Gateway",
 		List: &plugin.ListConfig{
 			Hydrate: listVpcNatGateways,
+			Tags:    map[string]string{"service": "vpc", "action": "DescribeNatGateways"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("nat_gateway_id"),
 			Hydrate:    getVpcNatGateway,
+			Tags:       map[string]string{"service": "vpc", "action": "DescribeNatGateways"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

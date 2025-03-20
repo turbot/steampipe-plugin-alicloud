@@ -21,10 +21,12 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 		Description: "Elastic Compute Disk",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsDisk,
+			Tags:    map[string]string{"service": "ecs", "action": "DescribeDisks"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("disk_id"),
 			Hydrate:    getEcsDisk,
+			Tags:       map[string]string{"service": "ecs", "action": "DescribeDisks"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

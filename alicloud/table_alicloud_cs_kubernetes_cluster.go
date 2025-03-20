@@ -21,10 +21,12 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 		Description: "Alicloud Container Service Kubernetes Cluster",
 		List: &plugin.ListConfig{
 			Hydrate: listCsKubernetesClusters,
+			Tags:    map[string]string{"service": "cs", "action": "DescribeClustersV1"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("cluster_id"),
 			Hydrate:    getCsKubernetesCluster,
+			Tags:       map[string]string{"service": "cs", "action": "DescribeClusterDetail"},
 		},
 		Columns: []*plugin.Column{
 			{

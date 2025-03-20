@@ -20,6 +20,7 @@ func tableAlicloudVpcFlowLog(ctx context.Context) *plugin.Table {
 		Description: "Alicloud VPC Flow Log",
 		List: &plugin.ListConfig{
 			Hydrate: listVpcFlowLogs,
+			Tags:    map[string]string{"service": "vpc", "action": "DescribeFlowLogs"},
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "name", Require: plugin.Optional},
 				{Name: "log_store_name", Require: plugin.Optional},
@@ -32,6 +33,7 @@ func tableAlicloudVpcFlowLog(ctx context.Context) *plugin.Table {
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("flow_log_id"),
 			Hydrate:    getVpcFlowLog,
+			Tags:       map[string]string{"service": "vpc", "action": "DescribeFlowLogs"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

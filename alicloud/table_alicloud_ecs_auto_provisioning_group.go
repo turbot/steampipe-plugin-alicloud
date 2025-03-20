@@ -20,10 +20,12 @@ func tableAlicloudEcsAutoProvisioningGroup(ctx context.Context) *plugin.Table {
 		Description: "Alicloud ECS Auto Provisioning Group",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsAutosProvisioningGroups,
+			Tags:    map[string]string{"service": "ecs", "action": "DescribeAutoProvisioningGroups"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("auto_provisioning_group_id"),
 			Hydrate:    getEcsAutosProvisioningGroup,
+			Tags:       map[string]string{"service": "ecs", "action": "DescribeAutoProvisioningGroups"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

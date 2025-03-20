@@ -22,10 +22,12 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 		Description: "Provides an RDS instance resource. A DB instance is an isolated database environment in the cloud. A DB instance can contain multiple user-created databases.",
 		List: &plugin.ListConfig{
 			Hydrate: listRdsInstances,
+			Tags:    map[string]string{"service": "rds", "action": "DescribeDBInstances"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("db_instance_id"),
 			Hydrate:    getRdsInstance,
+			Tags:       map[string]string{"service": "rds", "action": "DescribeDBInstanceAttribute"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

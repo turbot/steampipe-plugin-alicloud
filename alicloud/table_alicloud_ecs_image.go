@@ -20,6 +20,7 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 		Description: "AliCloud ECS Image.",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsImages,
+			Tags:    map[string]string{"service": "ecs", "action": "DescribeImages"},
 			KeyColumns: []*plugin.KeyColumn{
 				{
 					Name:    "image_id",
@@ -31,6 +32,7 @@ func tableAlicloudEcsImage(ctx context.Context) *plugin.Table {
 			// We must include both image_id and region in the where clause else we will receive numerous rows. Which causes Error: get call returned 2 results - the key column is not globally unique (SQLSTATE HV000)
 			KeyColumns: plugin.AllColumns([]string{"image_id", "region"}),
 			Hydrate:    getEcsImage,
+			Tags:       map[string]string{"service": "ecs", "action": "DescribeImages"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

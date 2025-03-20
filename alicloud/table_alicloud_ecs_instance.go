@@ -20,9 +20,11 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("instance_id"),
 			Hydrate:    getEcsInstance,
+			Tags:       map[string]string{"service": "ecs", "action": "DescribeInstances"},
 		},
 		List: &plugin.ListConfig{
 			Hydrate: listEcsInstance,
+			Tags:    map[string]string{"service": "ecs", "action": "DescribeInstances"},
 			KeyColumns: plugin.KeyColumnSlice{
 				// String columns
 				{Name: "image_id", Require: plugin.Optional},

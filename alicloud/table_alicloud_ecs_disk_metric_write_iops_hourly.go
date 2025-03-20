@@ -18,6 +18,7 @@ func tableAlicloudEcsDiskMetricWriteIopsHourly(_ context.Context) *plugin.Table 
 		List: &plugin.ListConfig{
 			ParentHydrate: listEcsInstance,
 			Hydrate:       listEcsDisksMetricWriteIopsHourly,
+			Tags:          map[string]string{"service": "ecs", "monitoring": "DiskWriteIOPS", "hourly": "true"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: cmMetricColumns(

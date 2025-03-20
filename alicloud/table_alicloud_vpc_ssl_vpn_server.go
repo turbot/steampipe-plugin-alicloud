@@ -20,10 +20,12 @@ func tableAlicloudVpcSslVpnServer(ctx context.Context) *plugin.Table {
 		Description: "SSL Server refers to the SSL-VPN server within the VPC. It authenticates clients and manages configurations.",
 		List: &plugin.ListConfig{
 			Hydrate: listVpcVpnSslServers,
+			Tags:    map[string]string{"service": "vpc", "action": "DescribeSslVpnServers"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("ssl_vpn_server_id"),
 			Hydrate:    getVpnSslServer,
+			Tags:       map[string]string{"service": "vpc", "action": "DescribeSslVpnServers"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

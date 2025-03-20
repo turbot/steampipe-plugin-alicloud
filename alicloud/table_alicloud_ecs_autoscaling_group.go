@@ -20,10 +20,12 @@ func tableAlicloudEcsAutoscalingGroup(ctx context.Context) *plugin.Table {
 		Description: "Elastic Compute Autoscaling Group",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsAutoscalingGroup,
+			Tags:    map[string]string{"service": "ess", "action": "DescribeScalingGroups"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.AnyColumn([]string{"scaling_group_id", "name"}),
 			Hydrate:    getEcsAutoscalingGroup,
+			Tags:       map[string]string{"service": "ess", "action": "DescribeScalingGroups"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

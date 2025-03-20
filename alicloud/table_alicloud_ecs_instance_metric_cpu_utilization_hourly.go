@@ -18,6 +18,7 @@ func tableAlicloudEcsInstanceMetricCpuUtilizationHourly(_ context.Context) *plug
 		List: &plugin.ListConfig{
 			ParentHydrate: listEcsInstance,
 			Hydrate:       listEcsInstanceMetricCpuUtilizationHourly,
+			Tags:          map[string]string{"service": "ecs", "monitoring": "CPUUtilization", "hourly": "true"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: cmMetricColumns(

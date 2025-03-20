@@ -18,12 +18,14 @@ func tableAlicloudAlidnsDomain(ctx context.Context) *plugin.Table {
 		Description: "Alicloud Alidns Domain",
 		List: &plugin.ListConfig{
 			Hydrate: listAlidnsDomains,
+			Tags:    map[string]string{"service": "Alidns", "action": "DescribeDomains"},
 			KeyColumns: plugin.KeyColumnSlice{
 				{Name: "group_id", Require: plugin.Optional},
 			},
 		},
 		Get: &plugin.GetConfig{
 			Hydrate:    listAlidnsDomains,
+			Tags:       map[string]string{"service": "Alidns", "action": "DescribeDomains"},
 			KeyColumns: plugin.SingleColumn("domain_name"),
 		},
 		GetMatrixItemFunc: BuildRegionList,

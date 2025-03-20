@@ -17,10 +17,12 @@ func tableAlicloudVpcEip(ctx context.Context) *plugin.Table {
 		Description: "An independent public IP resource that decouples ECS and public IP resources, allowing you to flexibly manage public IP resources.",
 		List: &plugin.ListConfig{
 			Hydrate: listVpcEip,
+			Tags:    map[string]string{"service": "vpc", "action": "DescribeEipAddresses"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("allocation_id"),
 			Hydrate:    getEip,
+			Tags:       map[string]string{"service": "vpc", "action": "DescribeEipAddresses"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

@@ -24,6 +24,7 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 		Description: "A virtual private cloud service that provides an isolated cloud network to operate resources in a secure environment.",
 		List: &plugin.ListConfig{
 			Hydrate: listVpcs,
+			Tags:    map[string]string{"service": "vpc", "action": "DescribeVpcs"},
 			KeyColumns: plugin.KeyColumnSlice{
 				{Name: "vpc_id", Require: plugin.Optional},
 				{Name: "name", Require: plugin.Optional},

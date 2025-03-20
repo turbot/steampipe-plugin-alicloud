@@ -26,6 +26,7 @@ func tableAlicloudRdsBackup(ctx context.Context) *plugin.Table {
 		List: &plugin.ListConfig{
 			ParentHydrate: listRdsInstances,
 			Hydrate:       listRdsBackups,
+			Tags:          map[string]string{"service": "rds", "action": "DescribeBackups"},
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "backup_id", Require: plugin.Optional},
 				{Name: "db_instance_id", Require: plugin.Optional},

@@ -23,10 +23,12 @@ func tableAlicloudUserCertificate(ctx context.Context) *plugin.Table {
 		Description: "Alicloud CAS Certificate",
 		List: &plugin.ListConfig{
 			Hydrate: listUserCertificate,
+			Tags:    map[string]string{"service": "cas", "action": "ListUserCertificateOrder"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("id"),
 			Hydrate:    getUserCertificate,
+			Tags:       map[string]string{"service": "cas", "action": "GetUserCertificateDetail"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

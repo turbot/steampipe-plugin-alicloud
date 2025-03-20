@@ -20,6 +20,7 @@ func tableAlicloudRdsDatabase(ctx context.Context) *plugin.Table {
 		List: &plugin.ListConfig{
 			ParentHydrate: listRdsInstances,
 			Hydrate:       listRdsdatabases,
+			Tags:          map[string]string{"service": "rds", "action": "DescribeDatabases"},
 			KeyColumns: []*plugin.KeyColumn{
 				{
 					Name:    "db_instance_id",
@@ -161,4 +162,3 @@ func listRdsdatabases(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 
 	return nil, nil
 }
-

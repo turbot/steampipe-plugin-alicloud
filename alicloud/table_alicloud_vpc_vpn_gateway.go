@@ -19,10 +19,12 @@ func tableAlicloudVpcVpnGateway(ctx context.Context) *plugin.Table {
 		Description: "Alicloud VPC VPN Gateway.",
 		List: &plugin.ListConfig{
 			Hydrate: listVpcVpnGateways,
+			Tags:    map[string]string{"service": "vpc", "action": "DescribeVpnGateways"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("vpn_gateway_id"),
 			Hydrate:    getVpcVpnGateway,
+			Tags:       map[string]string{"service": "vpc", "action": "DescribeVpnGateways"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

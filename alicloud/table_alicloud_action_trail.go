@@ -20,10 +20,12 @@ func tableAlicloudActionTrail(ctx context.Context) *plugin.Table {
 		Description: "Alicloud Action Trail",
 		List: &plugin.ListConfig{
 			Hydrate: listActionTrails,
+			Tags:    map[string]string{"service": "actiontrail", "action": "DescribeTrails"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("name"),
 			Hydrate:    getActionTrail,
+			Tags:       map[string]string{"service": "actiontrail", "action": "DescribeTrails"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

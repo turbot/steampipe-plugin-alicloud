@@ -52,6 +52,7 @@ func tableAlicloudRAMCredentialReport(ctx context.Context) *plugin.Table {
 		Description: "Alicloud RAM Credential Report",
 		List: &plugin.ListConfig{
 			Hydrate: listRAMCredentialReports,
+			Tags:    map[string]string{"service": "ram", "action": "GetCredentialReport"},
 		},
 		Columns: []*plugin.Column{
 			{

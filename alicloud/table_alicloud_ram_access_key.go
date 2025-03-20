@@ -26,6 +26,7 @@ func tableAlicloudRAMAccessKey(_ context.Context) *plugin.Table {
 		List: &plugin.ListConfig{
 			ParentHydrate: listRAMUser,
 			Hydrate:       listRAMUserAccessKeys,
+			Tags:          map[string]string{"service": "ram", "action": "listAccessKeys"},
 		},
 		Columns: []*plugin.Column{
 			{

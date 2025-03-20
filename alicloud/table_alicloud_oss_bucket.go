@@ -19,6 +19,7 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 		Description: "Object Storage Bucket",
 		List: &plugin.ListConfig{
 			Hydrate: listBucket,
+			Tags:    map[string]string{"service": "oss", "action": "ListBuckets"},
 		},
 		Columns: []*plugin.Column{
 			{

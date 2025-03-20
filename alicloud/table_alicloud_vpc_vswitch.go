@@ -20,6 +20,7 @@ func tableAlicloudVpcVSwitch(ctx context.Context) *plugin.Table {
 		Description: "VSwitches to divide the VPC network into one or more subnets.",
 		List: &plugin.ListConfig{
 			Hydrate: listVSwitch,
+			Tags:    map[string]string{"service": "vpc", "action": "DescribeVSwitches"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

@@ -20,10 +20,12 @@ func tableAlicloudEcsEni(ctx context.Context) *plugin.Table {
 		Description: "Alicloud ECS Network Interface.",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsEni,
+			Tags:    map[string]string{"service": "ecs", "action": "DescribeNetworkInterfaces"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("network_interface_id"),
 			Hydrate:    getEcsEni,
+			Tags:       map[string]string{"service": "ecs", "action": "DescribeNetworkInterfaces"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

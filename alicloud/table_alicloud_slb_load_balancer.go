@@ -23,9 +23,11 @@ func tableAlicloudSlbLoadBalancer(ctx context.Context) *plugin.Table {
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("load_balancer_id"),
 			Hydrate:    getSlbLoadBalancer,
+			Tags:       map[string]string{"service": "slb", "action": "DescribeLoadBalancers"},
 		},
 		List: &plugin.ListConfig{
 			Hydrate: listSlbLoadBalancers,
+			Tags:    map[string]string{"service": "slb", "action": "DescribeLoadBalancers"},
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "load_balancer_name", Require: plugin.Optional},
 				{Name: "network_type", Require: plugin.Optional},

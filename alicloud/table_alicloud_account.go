@@ -18,6 +18,7 @@ func tableAlicloudAccount(ctx context.Context) *plugin.Table {
 		Description: "Alicloud Account",
 		List: &plugin.ListConfig{
 			Hydrate: listAccountAlias,
+			Tags:    map[string]string{"service": "ram", "action": "GetAccountAlias"},
 		},
 		Columns: []*plugin.Column{
 			{
