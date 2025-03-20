@@ -332,6 +332,11 @@ func listEcsAutoscalingGroup(ctx context.Context, d *plugin.QueryData, _ *plugin
 		for _, group := range response.ScalingGroups.ScalingGroup {
 			plugin.Logger(ctx).Warn("listEcsAutoscalingGroup", "item", group)
 			d.StreamListItem(ctx, group)
+			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
+			// if there is a limit, it will return the number of rows required to reach this limit
+			if d.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 			count++
 		}
 		if count >= response.TotalCount {

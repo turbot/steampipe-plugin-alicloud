@@ -107,6 +107,11 @@ func listRAMUserAccessKeys(ctx context.Context, d *plugin.QueryData, h *plugin.H
 	for _, i := range response.AccessKeys.AccessKey {
 		plugin.Logger(ctx).Warn("listRAMUserAccessKeys", "item", i)
 		d.StreamLeafListItem(ctx, accessKeyRow{i.AccessKeyId, i.Status, i.CreateDate, user.UserName})
+		// This will return zero if context has been cancelled (i.e due to manual cancellation) or
+		// if there is a limit, it will return the number of rows required to reach this limit
+		if d.RowsRemaining(ctx) == 0 {
+			return nil, nil
+		}
 	}
 	return nil, nil
 }

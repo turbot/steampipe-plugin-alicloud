@@ -268,6 +268,11 @@ func listRdsBackups(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 		}
 		for _, i := range response.Items.Backup {
 			d.StreamListItem(ctx, i)
+			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
+			// if there is a limit, it will return the number of rows required to reach this limit
+			if d.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 			count++
 		}
 		totalRecord, _ := strconv.Atoi(response.TotalRecordCount)

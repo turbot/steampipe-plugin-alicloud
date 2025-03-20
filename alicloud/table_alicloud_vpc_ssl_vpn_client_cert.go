@@ -158,6 +158,11 @@ func listVpcSslVpnClientCerts(ctx context.Context, d *plugin.QueryData, _ *plugi
 		}
 		for _, i := range response.SslVpnClientCertKeys.SslVpnClientCertKey {
 			d.StreamListItem(ctx, vpnSslClientCertInfo{i.Name, i.SslVpnClientCertId, i.SslVpnServerId, i.Status, i.CreateTime, i.EndTime, "", "", "", "", i.RegionId})
+			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
+			// if there is a limit, it will return the number of rows required to reach this limit
+			if d.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 			count++
 		}
 		if count >= response.TotalCount {

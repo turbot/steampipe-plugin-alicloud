@@ -232,6 +232,11 @@ func listEcsSnapshot(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 		for _, snapshot := range response.Snapshots.Snapshot {
 			plugin.Logger(ctx).Warn("listEcsSnapshot", "item", snapshot)
 			d.StreamListItem(ctx, snapshot)
+			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
+			// if there is a limit, it will return the number of rows required to reach this limit
+			if d.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 		}
 		if response.NextToken != "" {
 			request.NextToken = response.NextToken
