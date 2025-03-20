@@ -17,7 +17,6 @@ func tableAlicloudEcsInstanceMetricCpuUtilizationDaily(_ context.Context) *plugi
 		Description: "Alicloud ECS Instance Cloud Monitor Metrics - CPU Utilization (Daily)",
 		List: &plugin.ListConfig{
 			ParentHydrate: listEcsInstance,
-			Tags:          map[string]string{"service": "ecs", "monitoring": "CPUUtilization", "daily": "true"},
 			Hydrate:       listEcsInstanceMetricCpuUtilizationDaily,
 		},
 		GetMatrixItemFunc: BuildRegionList,

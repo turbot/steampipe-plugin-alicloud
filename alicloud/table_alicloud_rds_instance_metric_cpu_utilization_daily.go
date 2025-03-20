@@ -18,7 +18,6 @@ func tableAlicloudRdsInstanceMetricCpuUtilizationDaily(_ context.Context) *plugi
 		List: &plugin.ListConfig{
 			ParentHydrate: listRdsInstances,
 			Hydrate:       listRdsInstanceMetricCpuUtilizationDaily,
-			Tags:          map[string]string{"service": "rds", "action": "DescribeDBInstances"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: cmMetricColumns(

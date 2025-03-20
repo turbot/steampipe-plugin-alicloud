@@ -18,7 +18,6 @@ func tableAlicloudRdsInstanceMetricConnectionsDaily(_ context.Context) *plugin.T
 		List: &plugin.ListConfig{
 			ParentHydrate: listRdsInstances,
 			Hydrate:       listRdsInstanceMetricConnectionsDaily,
-			Tags:          map[string]string{"service": "rds", "action": "DescribeDBInstances"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: cmMetricColumns(
