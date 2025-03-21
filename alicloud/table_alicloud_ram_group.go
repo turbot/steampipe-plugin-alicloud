@@ -26,21 +26,21 @@ func tableAlicloudRAMGroup(ctx context.Context) *plugin.Table {
 		Description: "Resource Access Management groups who can login via the console or access keys.",
 		List: &plugin.ListConfig{
 			Hydrate: listRAMGroup,
-			Tags:    map[string]string{"service": "ram", "action": "listGroups"},
+			Tags:    map[string]string{"service": "ram", "action": "ListGroups"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("name"),
 			Hydrate:    getRAMGroup,
-			Tags:       map[string]string{"service": "ram", "action": "getGroup"},
+			Tags:       map[string]string{"service": "ram", "action": "GetGroup"},
 		},
 		HydrateConfig: []plugin.HydrateConfig{
 			{
 				Func: getRAMGroupUsers,
-				Tags: map[string]string{"service": "ram", "action": "listUsersForGroup"},
+				Tags: map[string]string{"service": "ram", "action": "ListUsersForGroup"},
 			},
 			{
 				Func: getRAMGroupPolicies,
-				Tags: map[string]string{"service": "ram", "action": "listPoliciesForGroup"},
+				Tags: map[string]string{"service": "ram", "action": "ListPoliciesForGroup"},
 			},
 		},
 		Columns: []*plugin.Column{
