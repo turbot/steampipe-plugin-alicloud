@@ -30,10 +30,18 @@ func tableAlicloudRAMRole(ctx context.Context) *plugin.Table {
 		Description: "Resource Access Management roles who can login via the console or access keys.",
 		List: &plugin.ListConfig{
 			Hydrate: listRAMRoles,
+			Tags:    map[string]string{"service": "ram", "action": "ListRoles"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("name"),
 			Hydrate:    getRAMRole,
+			Tags:       map[string]string{"service": "ram", "action": "GetRole"},
+		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getRAMRolePolicies,
+				Tags: map[string]string{"service": "ram", "action": "ListPoliciesForRole"},
+			},
 		},
 		Columns: []*plugin.Column{
 			{

@@ -20,10 +20,12 @@ func tableAlicloudEcsEni(ctx context.Context) *plugin.Table {
 		Description: "Alicloud ECS Network Interface.",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsEni,
+			Tags:    map[string]string{"service": "ecs", "action": "DescribeNetworkInterfaces"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("network_interface_id"),
 			Hydrate:    getEcsEni,
+			Tags:       map[string]string{"service": "ecs", "action": "DescribeNetworkInterfaces"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -210,6 +212,7 @@ func listEcsEni(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeNetworkInterfaces(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_ecs_network_interface.listEcsEni", "query_error", err, "request", request)

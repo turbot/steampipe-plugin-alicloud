@@ -22,10 +22,42 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 		Description: "Provides an RDS instance resource. A DB instance is an isolated database environment in the cloud. A DB instance can contain multiple user-created databases.",
 		List: &plugin.ListConfig{
 			Hydrate: listRdsInstances,
+			Tags:    map[string]string{"service": "rds", "action": "DescribeDBInstances"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("db_instance_id"),
 			Hydrate:    getRdsInstance,
+			Tags:       map[string]string{"service": "rds", "action": "DescribeDBInstanceAttribute"},
+		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getRdsInstanceIPArrayList,
+				Tags: map[string]string{"service": "rds", "action": "DescribeDBInstanceIPArrayList"},
+			},
+			{
+				Func: getRdsInstanceSecurityGroupConfiguration,
+				Tags: map[string]string{"service": "rds", "action": "DescribeSecurityGroupConfiguration"},
+			},
+			{
+				Func: getRdsInstanceParameters,
+				Tags: map[string]string{"service": "rds", "action": "DescribeParameters"},
+			},
+			{
+				Func: getRdsTags,
+				Tags: map[string]string{"service": "rds", "action": "ListTags"},
+			},
+			{
+				Func: getSqlCollectorPolicy,
+				Tags: map[string]string{"service": "rds", "action": "DescribeSQLCollectorPolicy"},
+			},
+			{
+				Func: getSSLDetails,
+				Tags: map[string]string{"service": "rds", "action": "DescribeDBInstanceSSL"},
+			},
+			{
+				Func: getTDEDetails,
+				Tags: map[string]string{"service": "rds", "action": "DescribeDBInstanceTDE"},
+			},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -575,6 +607,7 @@ func listRdsInstances(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeDBInstances(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_rds.DescribeDBInstances", "query_error", err, "request", request)

@@ -23,10 +23,12 @@ func tableAlicloudUserCertificate(ctx context.Context) *plugin.Table {
 		Description: "Alicloud CAS Certificate",
 		List: &plugin.ListConfig{
 			Hydrate: listUserCertificate,
+			Tags:    map[string]string{"service": "cas", "action": "ListUserCertificateOrder"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("id"),
 			Hydrate:    getUserCertificate,
+			Tags:       map[string]string{"service": "cas", "action": "GetUserCertificateDetail"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -174,6 +176,7 @@ func listUserCertificate(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.ListUserCertificateOrder(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_user_certificate.listUserCertificate", "query_error", err, "request", request)

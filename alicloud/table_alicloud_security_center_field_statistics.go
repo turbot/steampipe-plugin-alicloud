@@ -24,6 +24,7 @@ func tableAlicloudSecurityCenterFieldStatistics(ctx context.Context) *plugin.Tab
 		Description: "Alicloud Security Center Field Statistics",
 		List: &plugin.ListConfig{
 			Hydrate: listSecurityCenterFieldStatistics,
+			Tags:    map[string]string{"service": "sas", "action": "DescribeFieldStatistics"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

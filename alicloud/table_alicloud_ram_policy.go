@@ -28,9 +28,11 @@ func tableAlicloudRamPolicy(_ context.Context) *plugin.Table {
 				ShouldIgnoreErrorFunc: isNotFoundError([]string{"InvalidParameter.PolicyType", "EntityNotExist.Policy", "MissingParameter"}),
 			},
 			Hydrate: getRAMPolicy,
+			Tags:    map[string]string{"service": "ram", "action": "GetPolicy"},
 		},
 		List: &plugin.ListConfig{
 			Hydrate: listRAMPolicies,
+			Tags:    map[string]string{"service": "ram", "action": "ListPolicies"},
 			KeyColumns: plugin.KeyColumnSlice{
 				{Name: "policy_type", Require: plugin.Optional},
 			},

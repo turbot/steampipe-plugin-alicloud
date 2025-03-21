@@ -20,6 +20,13 @@ func tableAlicloudVpcVSwitch(ctx context.Context) *plugin.Table {
 		Description: "VSwitches to divide the VPC network into one or more subnets.",
 		List: &plugin.ListConfig{
 			Hydrate: listVSwitch,
+			Tags:    map[string]string{"service": "vpc", "action": "DescribeVSwitches"},
+		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getVSwitchAttributes,
+				Tags: map[string]string{"service": "vpc", "action": "DescribeVSwitchAttributes"},
+			},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -183,6 +190,7 @@ func listVSwitch(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeVSwitches(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("listVSwitch", "query_error", err, "request", request)

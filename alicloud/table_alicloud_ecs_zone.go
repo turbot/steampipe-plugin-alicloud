@@ -24,6 +24,7 @@ func tableAlicloudEcsZone(ctx context.Context) *plugin.Table {
 		List: &plugin.ListConfig{
 			ParentHydrate: listEcsRegions,
 			Hydrate:       listEcsZones,
+			Tags:          map[string]string{"service": "ecs", "action": "DescribeZones"},
 		},
 		Columns: []*plugin.Column{
 			{

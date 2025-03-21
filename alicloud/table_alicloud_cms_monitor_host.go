@@ -19,10 +19,18 @@ func tableAlicloudCmsMonitorHost(ctx context.Context) *plugin.Table {
 		Description: "Alicloud Cloud Monitor Host",
 		List: &plugin.ListConfig{
 			Hydrate: listCmsMonitorHosts,
+			Tags:    map[string]string{"service": "cms", "action": "DescribeMonitoringAgentHosts"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.AllColumns([]string{"host_name", "instance_id"}),
 			Hydrate:    getCmsMonitorHost,
+			Tags:       map[string]string{"service": "cms", "action": "DescribeMonitoringAgentHosts"},
+		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getCmsMonitoringAgentStatus,
+				Tags: map[string]string{"service": "cms", "action": "DescribeMonitoringAgentStatuses"},
+			},
 		},
 		Columns: []*plugin.Column{
 			{
@@ -146,6 +154,7 @@ func listCmsMonitorHosts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeMonitoringAgentHosts(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("listCmsMonitorHosts", "query_error", err, "request", request)

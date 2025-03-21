@@ -20,6 +20,7 @@ func tableAlicloudRAMSecurityPreference(_ context.Context) *plugin.Table {
 		DefaultTransform: transform.FromCamel(),
 		List: &plugin.ListConfig{
 			Hydrate: listRAMSecurityPreference,
+			Tags:    map[string]string{"service": "ram", "action": "GetSecurityPreference"},
 		},
 		Columns: []*plugin.Column{
 			{

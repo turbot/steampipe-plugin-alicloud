@@ -20,6 +20,7 @@ func tableAlicloudRamPasswordPolicy(_ context.Context) *plugin.Table {
 		DefaultTransform: transform.FromCamel(),
 		List: &plugin.ListConfig{
 			Hydrate: listRAMPasswordPolicy,
+			Tags:    map[string]string{"service": "ram", "action": "GetPasswordPolicy"},
 		},
 		Columns: []*plugin.Column{
 			{

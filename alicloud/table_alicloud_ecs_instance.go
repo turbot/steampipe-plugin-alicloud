@@ -20,9 +20,11 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("instance_id"),
 			Hydrate:    getEcsInstance,
+			Tags:       map[string]string{"service": "ecs", "action": "DescribeInstances"},
 		},
 		List: &plugin.ListConfig{
 			Hydrate: listEcsInstance,
+			Tags:    map[string]string{"service": "ecs", "action": "DescribeInstances"},
 			KeyColumns: plugin.KeyColumnSlice{
 				// String columns
 				{Name: "image_id", Require: plugin.Optional},
@@ -40,6 +42,12 @@ func tableAlicloudEcsInstance(ctx context.Context) *plugin.Table {
 				// Boolean columns
 				{Name: "device_available", Require: plugin.Optional, Operators: []string{"<>", "="}},
 				{Name: "io_optimized", Require: plugin.Optional, Operators: []string{"<>", "="}},
+			},
+		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getEcsInstanceRamRole,
+				Tags: map[string]string{"service": "ecs", "action": "DescribeInstanceRamRole"},
 			},
 		},
 		GetMatrixItemFunc: BuildRegionList,
@@ -573,6 +581,7 @@ func listEcsInstance(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		// https://partners-intl.aliyun.com/help/doc-detail/25506.htm?spm=a2c63.p38356.a3.13.24665a4cJb014m#t9865.html
 		response, err := client.DescribeInstances(request)
 		if err != nil {

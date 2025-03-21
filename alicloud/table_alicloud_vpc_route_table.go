@@ -19,10 +19,18 @@ func tableAlicloudVpcRouteTable(ctx context.Context) *plugin.Table {
 		Description: "Alicloud VPC Route Table",
 		List: &plugin.ListConfig{
 			Hydrate: listVpcRouteTable,
+			Tags:    map[string]string{"service": "vpc", "action": "DescribeRouteTableList"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("route_table_id"),
 			Hydrate:    getVpcRouteTable,
+			Tags:       map[string]string{"service": "vpc", "action": "DescribeRouteTableList"},
+		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getVpcRouteTableEntryList,
+				Tags: map[string]string{"service": "vpc", "action": "DescribeRouteEntryList"},
+			},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -157,6 +165,7 @@ func listVpcRouteTable(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeRouteTableList(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_vpc_route_table.listVpcRouteTable", "query_error", err, "request", request)

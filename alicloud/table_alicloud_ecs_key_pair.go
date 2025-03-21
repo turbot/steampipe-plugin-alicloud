@@ -20,10 +20,12 @@ func tableAlicloudEcskeyPair(ctx context.Context) *plugin.Table {
 		Description: "An SSH key pair is a secure and convenient authentication method provided by Alibaba Cloud for instance logon. An SSH key pair consists of a public key and a private key. You can use SSH key pairs to log on to only Linux instances.",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsKeypair,
+			Tags:    map[string]string{"service": "ecs", "action": "DescribeKeyPairs"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("name"),
 			Hydrate:    getEcsKeypair,
+			Tags:       map[string]string{"service": "ecs", "action": "DescribeKeyPairs"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -111,6 +113,7 @@ func listEcsKeypair(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 	request.PageNumber = requests.NewInteger(1)
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeKeyPairs(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_ecs_keypair.listEcsKeypair", "query_error", err, "request", request)

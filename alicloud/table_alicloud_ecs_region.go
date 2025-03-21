@@ -18,6 +18,7 @@ func tableAlicloudEcsRegion(ctx context.Context) *plugin.Table {
 		Description: "Elastic Compute Region",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsRegions,
+			Tags:    map[string]string{"service": "ecs", "action": "DescribeRegions"},
 		},
 		Columns: []*plugin.Column{
 			{

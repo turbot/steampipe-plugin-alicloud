@@ -20,11 +20,13 @@ func tableAlicloudCsKubernetesClusterNode(ctx context.Context) *plugin.Table {
 		Description: "Alicloud Container Service Kubernetes Cluster Node",
 		List: &plugin.ListConfig{
 			Hydrate:       listCsKubernetesClusterNodes,
+			Tags:          map[string]string{"service": "cs", "action": "DescribeClusterNodes"},
 			ParentHydrate: listCsKubernetesClusters,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.AllColumns([]string{"cluster_id", "instance_id"}),
 			Hydrate:    getCsKubernetesClusterNode,
+			Tags:       map[string]string{"service": "cs", "action": "DescribeClusterNodes"},
 		},
 		Columns: []*plugin.Column{
 			{
@@ -189,7 +191,7 @@ func listCsKubernetesClusterNodes(ctx context.Context, d *plugin.QueryData, h *p
 	for _, node := range response.Nodes {
 		d.StreamListItem(ctx, &NodeInfo{
 			ClusterId: clusterId,
-			Node: node,
+			Node:      node,
 		})
 	}
 	return nil, nil
@@ -226,9 +228,9 @@ func getCsKubernetesClusterNode(ctx context.Context, d *plugin.QueryData, h *plu
 	for _, item := range response.Nodes {
 		if item.InstanceId == instanceId {
 			return &NodeInfo{
-			ClusterId: clusterId,
-			Node: item,
-		}, nil
+				ClusterId: clusterId,
+				Node:      item,
+			}, nil
 		}
 	}
 

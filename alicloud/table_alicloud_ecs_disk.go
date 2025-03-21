@@ -21,10 +21,18 @@ func tableAlicloudEcsDisk(ctx context.Context) *plugin.Table {
 		Description: "Elastic Compute Disk",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsDisk,
+			Tags:    map[string]string{"service": "ecs", "action": "DescribeDisks"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("disk_id"),
 			Hydrate:    getEcsDisk,
+			Tags:       map[string]string{"service": "ecs", "action": "DescribeDisks"},
+		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getEcsDiskAutoSnapshotPolicy,
+				Tags: map[string]string{"service": "ecs", "action": "DescribeAutoSnapshotPolicyEx"},
+			},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -352,6 +360,7 @@ func listEcsDisk(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeDisks(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_ecs_disk.listEcsDisk", "query_error", err, "request", request)

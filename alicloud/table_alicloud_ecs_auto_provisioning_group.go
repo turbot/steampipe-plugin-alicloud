@@ -20,10 +20,18 @@ func tableAlicloudEcsAutoProvisioningGroup(ctx context.Context) *plugin.Table {
 		Description: "Alicloud ECS Auto Provisioning Group",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsAutosProvisioningGroups,
+			Tags:    map[string]string{"service": "ecs", "action": "DescribeAutoProvisioningGroups"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("auto_provisioning_group_id"),
 			Hydrate:    getEcsAutosProvisioningGroup,
+			Tags:       map[string]string{"service": "ecs", "action": "DescribeAutoProvisioningGroups"},
+		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getEcsAutosProvisioningGroupInstances,
+				Tags: map[string]string{"service": "ecs", "action": "DescribeAutoProvisioningGroupInstances"},
+			},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -176,6 +184,7 @@ func listEcsAutosProvisioningGroups(ctx context.Context, d *plugin.QueryData, _ 
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeAutoProvisioningGroups(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_ecs_auto_provisioning_group.listEcsAutosProvisioningGroups", "query_error", err, "request", request)

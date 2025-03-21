@@ -25,6 +25,7 @@ func tableAlicloudSecurityCenterVersion(ctx context.Context) *plugin.Table {
 		Description: "Alicloud Security Center Version",
 		List: &plugin.ListConfig{
 			Hydrate: listSecurityCenterVersions,
+			Tags:    map[string]string{"service": "sas", "action": "DescribeVersionConfig"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{

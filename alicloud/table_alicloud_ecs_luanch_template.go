@@ -20,10 +20,18 @@ func tableAlicloudEcsLaunchTemplate(ctx context.Context) *plugin.Table {
 		Description: "Alicloud ECS Launch Template",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsLaunchTemplates,
+			Tags:    map[string]string{"service": "ecs", "action": "DescribeLaunchTemplates"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("launch_template_id"),
 			Hydrate:    getEcsLaunchTemplate,
+			Tags:       map[string]string{"service": "ecs", "action": "DescribeLaunchTemplates"},
+		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getEcsLaunchTemplateLatestVersionDetails,
+				Tags: map[string]string{"service": "ecs", "action": "DescribeLaunchTemplateVersions"},
+			},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -138,6 +146,7 @@ func listEcsLaunchTemplates(ctx context.Context, d *plugin.QueryData, _ *plugin.
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeLaunchTemplates(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_ecs_launch_template.listEcsLaunchTemplates", "query_error", err, "request", request)
