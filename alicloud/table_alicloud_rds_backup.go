@@ -263,9 +263,6 @@ func listRdsBackups(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 			plugin.Logger(ctx).Error("alicloud_rds_backup.listRdsBackups", "query_error", err, "request", request)
 			return nil, err
 		}
-		if len(response.Items.Backup) == 0 {
-			break
-		}
 		for _, i := range response.Items.Backup {
 			d.StreamListItem(ctx, i)
 			// This will return zero if context has been cancelled (i.e due to manual cancellation) or

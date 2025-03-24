@@ -163,9 +163,6 @@ func listVpcFlowLogs(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 			plugin.Logger(ctx).Error("alicloud_vpc_flow_log.listVpcFlowLogs", "api_error", err, "request", request)
 			return nil, err
 		}
-		if len(response.FlowLogs.FlowLog) == 0 {
-			break
-		}
 		for _, flowLog := range response.FlowLogs.FlowLog {
 			d.StreamListItem(ctx, flowLog)
 			// This will return zero if context has been cancelled (i.e due to manual cancellation) or

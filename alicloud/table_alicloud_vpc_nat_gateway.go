@@ -189,9 +189,6 @@ func listVpcNatGateways(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 			plugin.Logger(ctx).Error("alicloud_vpc_nat_gateway.listVpcNatGateways", "query_error", err, "request", request)
 			return nil, err
 		}
-		if len(response.NatGateways.NatGateway) == 0 {
-			break
-		}
 		for _, i := range response.NatGateways.NatGateway {
 			d.StreamListItem(ctx, i)
 			// This will return zero if context has been cancelled (i.e due to manual cancellation) or

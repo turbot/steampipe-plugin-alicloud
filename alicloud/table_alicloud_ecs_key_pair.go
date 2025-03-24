@@ -119,9 +119,6 @@ func listEcsKeypair(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 			plugin.Logger(ctx).Error("alicloud_ecs_keypair.listEcsKeypair", "query_error", err, "request", request)
 			return nil, err
 		}
-		if len(response.KeyPairs.KeyPair) == 0 {
-			break
-		}
 		for _, keypair := range response.KeyPairs.KeyPair {
 			plugin.Logger(ctx).Warn("listEcsKeypair", "item", keypair)
 			d.StreamListItem(ctx, keypair)

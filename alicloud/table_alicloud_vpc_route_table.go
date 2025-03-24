@@ -171,9 +171,6 @@ func listVpcRouteTable(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 			plugin.Logger(ctx).Error("alicloud_vpc_route_table.listVpcRouteTable", "query_error", err, "request", request)
 			return nil, err
 		}
-		if len(response.RouterTableList.RouterTableListType) == 0 {
-			break
-		}
 		for _, i := range response.RouterTableList.RouterTableListType {
 			d.StreamListItem(ctx, i)
 			// This will return zero if context has been cancelled (i.e due to manual cancellation) or

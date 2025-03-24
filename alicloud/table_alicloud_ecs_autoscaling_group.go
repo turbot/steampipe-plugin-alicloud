@@ -326,9 +326,6 @@ func listEcsAutoscalingGroup(ctx context.Context, d *plugin.QueryData, _ *plugin
 			plugin.Logger(ctx).Error("alicloud_ecs_autoscaling_group.listEcsAutoscalingGroup", "query_error", err, "request", request)
 			return nil, err
 		}
-		if len(response.ScalingGroups.ScalingGroup) == 0 {
-			break
-		}
 		for _, group := range response.ScalingGroups.ScalingGroup {
 			plugin.Logger(ctx).Warn("listEcsAutoscalingGroup", "item", group)
 			d.StreamListItem(ctx, group)

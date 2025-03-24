@@ -152,9 +152,6 @@ func listNetworkACLs(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 			plugin.Logger(ctx).Error("alicloud_vpc_network_acl.listNetworkACLs", "query_error", err, "request", request)
 			return nil, err
 		}
-		if len(response.NetworkAcls.NetworkAcl) == 0 {
-			break
-		}
 		for _, i := range response.NetworkAcls.NetworkAcl {
 			d.StreamListItem(ctx, i)
 			// This will return zero if context has been cancelled (i.e due to manual cancellation) or

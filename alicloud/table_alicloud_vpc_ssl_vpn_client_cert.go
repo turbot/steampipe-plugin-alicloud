@@ -153,9 +153,6 @@ func listVpcSslVpnClientCerts(ctx context.Context, d *plugin.QueryData, _ *plugi
 			plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_client.listVpcSslVpnClientCerts", "query_error", err, "request", request)
 			return nil, err
 		}
-		if len(response.SslVpnClientCertKeys.SslVpnClientCertKey) == 0 {
-			break
-		}
 		for _, i := range response.SslVpnClientCertKeys.SslVpnClientCertKey {
 			d.StreamListItem(ctx, vpnSslClientCertInfo{i.Name, i.SslVpnClientCertId, i.SslVpnServerId, i.Status, i.CreateTime, i.EndTime, "", "", "", "", i.RegionId})
 			// This will return zero if context has been cancelled (i.e due to manual cancellation) or

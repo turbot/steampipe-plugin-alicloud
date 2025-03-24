@@ -613,9 +613,6 @@ func listRdsInstances(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 			plugin.Logger(ctx).Error("alicloud_rds.DescribeDBInstances", "query_error", err, "request", request)
 			return nil, err
 		}
-		if len(response.Items.DBInstance) == 0 {
-			break
-		}
 		for _, i := range response.Items.DBInstance {
 			plugin.Logger(ctx).Warn("alicloud_rds.DescribeDBInstances", "item", i)
 			d.StreamListItem(ctx, i)

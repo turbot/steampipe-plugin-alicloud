@@ -267,9 +267,6 @@ func listKmsKey(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 			plugin.Logger(ctx).Error("alicloud_kms_key.listKmsKey", "query_error", err, "request", request)
 			return nil, err
 		}
-		if len(response.Keys.Key) == 0 {
-			break
-		}
 		for _, i := range response.Keys.Key {
 			d.StreamListItem(ctx, kms.KeyMetadata{Arn: i.KeyArn, KeyId: i.KeyId})
 			// This will return zero if context has been cancelled (i.e due to manual cancellation) or

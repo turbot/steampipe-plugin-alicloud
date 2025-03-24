@@ -197,9 +197,6 @@ func listVpcVpnGateways(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 			plugin.Logger(ctx).Error("alicloud_vpc_vpn_gateway.listVpcVpnGateways", "query_error", err, "request", request)
 			return nil, err
 		}
-		if len(response.VpnGateways.VpnGateway) == 0 {
-			break
-		}
 		for _, i := range response.VpnGateways.VpnGateway {
 			d.StreamListItem(ctx, i)
 			// This will return zero if context has been cancelled (i.e due to manual cancellation) or

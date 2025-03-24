@@ -258,9 +258,6 @@ func listSlbLoadBalancers(ctx context.Context, d *plugin.QueryData, _ *plugin.Hy
 			plugin.Logger(ctx).Error("alicloud_slb_load_balancer.listSlbLoadBalancers", "api_error", err, "request", request)
 			return nil, err
 		}
-		if len(response.LoadBalancers.LoadBalancer) == 0 {
-			break
-		}
 		for _, loadBalancer := range response.LoadBalancers.LoadBalancer {
 			d.StreamListItem(ctx, loadBalancer)
 			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
