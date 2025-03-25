@@ -19,10 +19,12 @@ func tableAlicloudVpcVpnGateway(ctx context.Context) *plugin.Table {
 		Description: "Alicloud VPC VPN Gateway.",
 		List: &plugin.ListConfig{
 			Hydrate: listVpcVpnGateways,
+			Tags:    map[string]string{"service": "vpc", "action": "DescribeVpnGateways"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("vpn_gateway_id"),
 			Hydrate:    getVpcVpnGateway,
+			Tags:       map[string]string{"service": "vpc", "action": "DescribeVpnGateways"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -189,6 +191,7 @@ func listVpcVpnGateways(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeVpnGateways(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_vpc_vpn_gateway.listVpcVpnGateways", "query_error", err, "request", request)

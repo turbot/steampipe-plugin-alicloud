@@ -20,10 +20,12 @@ func tableAlicloudEcsSnapshot(ctx context.Context) *plugin.Table {
 		Description: "ECS Disk Snapshot.",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsSnapshot,
+			Tags:    map[string]string{"service": "ecs", "action": "DescribeSnapshots"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("name"),
 			Hydrate:    getEcsSnapshot,
+			Tags:       map[string]string{"service": "ecs", "action": "DescribeSnapshots"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -208,6 +210,7 @@ func listEcsSnapshot(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeSnapshots(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_ecs_snapshot.listEcsSnapshot", "query_error", err, "request", request)

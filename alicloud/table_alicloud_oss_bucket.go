@@ -19,6 +19,29 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 		Description: "Object Storage Bucket",
 		List: &plugin.ListConfig{
 			Hydrate: listBucket,
+			Tags:    map[string]string{"service": "oss", "action": "ListBuckets"},
+		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getBucketInfo,
+				Tags: map[string]string{"service": "oss", "action": "GetBucketInfo"},
+			},
+			{
+				Func: getBucketLifecycle,
+				Tags: map[string]string{"service": "oss", "action": "GetBucketLifecycle"},
+			},
+			{
+				Func: getBucketLogging,
+				Tags: map[string]string{"service": "oss", "action": "GetBucketLogging"},
+			},
+			{
+				Func: getBucketTagging,
+				Tags: map[string]string{"service": "oss", "action": "GetBucketTags"},
+			},
+			{
+				Func: getBucketPolicy,
+				Tags: map[string]string{"service": "oss", "action": "GetBucketPolicy"},
+			},
 		},
 		Columns: []*plugin.Column{
 			{
@@ -160,6 +183,7 @@ func listBucket(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 	page := client.NewListBucketsPaginator(param)
 
 	for page.HasNext() {
+		d.WaitForListRateLimit(ctx)
 		p, err := page.NextPage(ctx)
 		if err != nil {
 			plugin.Logger(ctx).Error("listBucket", "paging_error", err)
@@ -329,7 +353,7 @@ func bucketSSEConfiguration(_ context.Context, d *transform.TransformData) (inte
 	}
 	sse := d.Value.(oss.SSERule)
 
-	result :=  make(map[string]string, 0)
+	result := make(map[string]string, 0)
 
 	if sse.KMSDataEncryption != nil {
 		result["KMSDataEncryption"] = *sse.KMSDataEncryption

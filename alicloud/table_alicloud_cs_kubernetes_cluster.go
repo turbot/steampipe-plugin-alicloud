@@ -21,10 +21,22 @@ func tableAlicloudCsKubernetesCluster(ctx context.Context) *plugin.Table {
 		Description: "Alicloud Container Service Kubernetes Cluster",
 		List: &plugin.ListConfig{
 			Hydrate: listCsKubernetesClusters,
+			Tags:    map[string]string{"service": "cs", "action": "DescribeClustersV1"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("cluster_id"),
 			Hydrate:    getCsKubernetesCluster,
+			Tags:       map[string]string{"service": "cs", "action": "DescribeClusterDetail"},
+		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getCsKubernetesClusterLog,
+				Tags: map[string]string{"service": "cs", "action": "DescribeClusterLogs"},
+			},
+			{
+				Func: getCsKubernetesClusterNamespace,
+				Tags: map[string]string{"service": "cs", "action": "DescribeClusterNamespaces"},
+			},
 		},
 		Columns: []*plugin.Column{
 			{
@@ -357,6 +369,7 @@ func listCsKubernetesClusters(ctx context.Context, d *plugin.QueryData, _ *plugi
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeClustersV1(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("listCsKubernetesClusters", "query_error", err, "request", request)
@@ -507,7 +520,7 @@ func csKubernetesClusterAkaTagsToMap(_ context.Context, d *transform.TransformDa
 	if d.Value == nil {
 		return nil, nil
 	}
-	
+
 	tags := d.Value.([]interface{})
 
 	turbotTagsMap := map[string]string{}

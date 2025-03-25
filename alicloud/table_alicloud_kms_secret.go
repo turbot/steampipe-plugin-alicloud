@@ -23,10 +23,18 @@ func tableAlicloudKmsSecret(ctx context.Context) *plugin.Table {
 		Description: "Alicloud KMS Secret",
 		List: &plugin.ListConfig{
 			Hydrate: listKmsSecret,
+			Tags:    map[string]string{"service": "kms", "action": "ListSecrets"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.AllColumns([]string{"name", "region"}),
 			Hydrate:    getKmsSecret,
+			Tags:       map[string]string{"service": "kms", "action": "DescribeSecret"},
+		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: listKmsSecretVersionIds,
+				Tags: map[string]string{"service": "kms", "action": "ListSecretVersionIds"},
+			},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -177,6 +185,7 @@ func listKmsSecret(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateDa
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.ListSecrets(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_kms_secret.listKmsSecret", "query_error", err, "request", request)

@@ -34,9 +34,11 @@ func tableAlicloudVpcSslVpnClientCert(ctx context.Context) *plugin.Table {
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("ssl_vpn_client_cert_id"),
 			Hydrate:    getVpcSslVpnClientCert,
+			Tags:       map[string]string{"service": "vpc", "action": "DescribeSslVpnClientCert"},
 		},
 		List: &plugin.ListConfig{
 			Hydrate: listVpcSslVpnClientCerts,
+			Tags:    map[string]string{"service": "vpc", "action": "DescribeSslVpnClientCerts"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -145,6 +147,7 @@ func listVpcSslVpnClientCerts(ctx context.Context, d *plugin.QueryData, _ *plugi
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeSslVpnClientCerts(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_vpc_vpn_ssl_client.listVpcSslVpnClientCerts", "query_error", err, "request", request)

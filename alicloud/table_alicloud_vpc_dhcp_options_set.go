@@ -20,9 +20,11 @@ func tableAlicloudVpcDhcpOptionsSet(ctx context.Context) *plugin.Table {
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("dhcp_options_set_id"),
 			Hydrate:    getVpcDhcpOptionsSet,
+			Tags:       map[string]string{"service": "vpc", "action": "DescribeDhcpOptionsSet"},
 		},
 		List: &plugin.ListConfig{
 			Hydrate: listVpcDhcpOptionsSets,
+			Tags:    map[string]string{"service": "vpc", "action": "DescribeDhcpOptionsSets"},
 			KeyColumns: plugin.KeyColumnSlice{
 				{Name: "name", Require: plugin.Optional},
 				{Name: "domain_name", Require: plugin.Optional},
@@ -113,7 +115,7 @@ func tableAlicloudVpcDhcpOptionsSet(ctx context.Context) *plugin.Table {
 				Name:        "region",
 				Description: ColumnDescriptionRegion,
 				Type:        proto.ColumnType_STRING,
-				Hydrate: 		 vpcDhcpOptionsetRegion,
+				Hydrate:     vpcDhcpOptionsetRegion,
 				Transform:   transform.FromValue(),
 			},
 			{
@@ -162,6 +164,7 @@ func listVpcDhcpOptionsSets(ctx context.Context, d *plugin.QueryData, _ *plugin.
 
 	pageLeft := true
 	for pageLeft {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.ListDhcpOptionsSets(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_vpc_dhcp_options_set.listVpcDhcpOptionsSets", "query_error", err, "request", request)

@@ -18,13 +18,21 @@ func tableAlicloudAlidnsDomain(ctx context.Context) *plugin.Table {
 		Description: "Alicloud Alidns Domain",
 		List: &plugin.ListConfig{
 			Hydrate: listAlidnsDomains,
+			Tags:    map[string]string{"service": "alidns", "action": "DescribeDomains"},
 			KeyColumns: plugin.KeyColumnSlice{
 				{Name: "group_id", Require: plugin.Optional},
 			},
 		},
 		Get: &plugin.GetConfig{
 			Hydrate:    listAlidnsDomains,
+			Tags:       map[string]string{"service": "alidns", "action": "DescribeDomains"},
 			KeyColumns: plugin.SingleColumn("domain_name"),
+		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getAlidnsDomain,
+				Tags: map[string]string{"service": "alidns", "action": "DescribeDomainInfo"},
+			},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -221,6 +229,7 @@ func listAlidnsDomains(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydra
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeDomains(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_alidns_domain.listAlidnsDomains", "query_error", err, "request", request)

@@ -24,10 +24,17 @@ func tableAlicloudVpc(ctx context.Context) *plugin.Table {
 		Description: "A virtual private cloud service that provides an isolated cloud network to operate resources in a secure environment.",
 		List: &plugin.ListConfig{
 			Hydrate: listVpcs,
+			Tags:    map[string]string{"service": "vpc", "action": "DescribeVpcs"},
 			KeyColumns: plugin.KeyColumnSlice{
 				{Name: "vpc_id", Require: plugin.Optional},
 				{Name: "name", Require: plugin.Optional},
 				{Name: "is_default", Require: plugin.Optional, Operators: []string{"<>", "="}},
+			},
+		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getVpcAttributes,
+				Tags: map[string]string{"service": "vpc", "action": "DescribeVpcAttribute"},
 			},
 		},
 		GetMatrixItemFunc: BuildRegionList,
@@ -276,6 +283,7 @@ func listVpcs(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeVpcs(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_vpc.listVpc", "query_error", err, "request", request)

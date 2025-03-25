@@ -26,6 +26,7 @@ func tableAlicloudRdsBackup(ctx context.Context) *plugin.Table {
 		List: &plugin.ListConfig{
 			ParentHydrate: listRdsInstances,
 			Hydrate:       listRdsBackups,
+			Tags:          map[string]string{"service": "rds", "action": "DescribeBackups"},
 			KeyColumns: []*plugin.KeyColumn{
 				{Name: "backup_id", Require: plugin.Optional},
 				{Name: "db_instance_id", Require: plugin.Optional},
@@ -250,6 +251,7 @@ func listRdsBackups(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateD
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeBackups(request)
 		if err != nil {
 			// Not found eror code could not be captured in ignore config so need to handle it here.

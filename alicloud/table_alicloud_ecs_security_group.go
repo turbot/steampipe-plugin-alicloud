@@ -17,10 +17,18 @@ func tableAlicloudEcsSecurityGroup(ctx context.Context) *plugin.Table {
 		Description: "ECS Security Group",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsSecurityGroups,
+			Tags:    map[string]string{"service": "ecs", "action": "DescribeSecurityGroups"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("security_group_id"),
 			Hydrate:    getEcsSecurityGroup,
+			Tags:       map[string]string{"service": "ecs", "action": "DescribeSecurityGroups"},
+		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getSecurityGroupAttribute,
+				Tags: map[string]string{"service": "ecs", "action": "DescribeSecurityGroupAttribute"},
+			},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -155,6 +163,7 @@ func listEcsSecurityGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeSecurityGroups(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_ecs_security_group.listEcsSecurityGroups", "query_error", err, "request", request)

@@ -20,10 +20,26 @@ func tableAlicloudEcsAutoscalingGroup(ctx context.Context) *plugin.Table {
 		Description: "Elastic Compute Autoscaling Group",
 		List: &plugin.ListConfig{
 			Hydrate: listEcsAutoscalingGroup,
+			Tags:    map[string]string{"service": "ess", "action": "DescribeScalingGroups"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.AnyColumn([]string{"scaling_group_id", "name"}),
 			Hydrate:    getEcsAutoscalingGroup,
+			Tags:       map[string]string{"service": "ess", "action": "DescribeScalingGroups"},
+		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getEcsAutoscalingGroupConfigurations,
+				Tags: map[string]string{"service": "ess", "action": "DescribeScalingConfigurations"},
+			},
+			{
+				Func: getEcsAutoscalingGroupScalingInstances,
+				Tags: map[string]string{"service": "ess", "action": "DescribeScalingInstances"},
+			},
+			{
+				Func: getEcsAutoscalingGroupTags,
+				Tags: map[string]string{"service": "ess", "action": "ListTagResources"},
+			},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -304,6 +320,7 @@ func listEcsAutoscalingGroup(ctx context.Context, d *plugin.QueryData, _ *plugin
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeScalingGroups(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_ecs_autoscaling_group.listEcsAutoscalingGroup", "query_error", err, "request", request)

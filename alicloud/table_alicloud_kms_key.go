@@ -26,14 +26,22 @@ func tableAlicloudKmsKey(ctx context.Context) *plugin.Table {
 				ShouldIgnoreErrorFunc: isNotFoundError([]string{"EntityNotExist.Key", "Forbidden.KeyNotFound"}),
 			},
 			Hydrate: getKmsKey,
+			Tags:    map[string]string{"service": "kms", "action": "DescribeKey"},
 		},
 		List: &plugin.ListConfig{
 			Hydrate: listKmsKey,
+			Tags:    map[string]string{"service": "kms", "action": "ListKeys"},
 			KeyColumns: plugin.KeyColumnSlice{
 				{Name: "key_state", Require: plugin.Optional},
 				{Name: "key_usage", Require: plugin.Optional},
 				{Name: "key_spec", Require: plugin.Optional},
 				{Name: "protection_level", Require: plugin.Optional},
+			},
+		},
+		HydrateConfig: []plugin.HydrateConfig{
+			{
+				Func: getKeyTags,
+				Tags: map[string]string{"service": "kms", "action": "ListResourceTags"},
 			},
 		},
 		GetMatrixItemFunc: BuildRegionList,
@@ -253,6 +261,7 @@ func listKmsKey(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.ListKeys(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_kms_key.listKmsKey", "query_error", err, "request", request)

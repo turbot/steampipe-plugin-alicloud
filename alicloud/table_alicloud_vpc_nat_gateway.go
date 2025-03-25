@@ -19,10 +19,12 @@ func tableAlicloudVpcNatGateway(ctx context.Context) *plugin.Table {
 		Description: "Aliclod VPC NAT Gateway",
 		List: &plugin.ListConfig{
 			Hydrate: listVpcNatGateways,
+			Tags:    map[string]string{"service": "vpc", "action": "DescribeNatGateways"},
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("nat_gateway_id"),
 			Hydrate:    getVpcNatGateway,
+			Tags:       map[string]string{"service": "vpc", "action": "DescribeNatGateways"},
 		},
 		GetMatrixItemFunc: BuildRegionList,
 		Columns: []*plugin.Column{
@@ -181,6 +183,7 @@ func listVpcNatGateways(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 
 	count := 0
 	for {
+		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeNatGateways(request)
 		if err != nil {
 			plugin.Logger(ctx).Error("alicloud_vpc_nat_gateway.listVpcNatGateways", "query_error", err, "request", request)
