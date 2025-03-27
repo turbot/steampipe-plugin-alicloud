@@ -156,6 +156,11 @@ func listRdsdatabases(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 
 		for _, i := range response.Databases.Database {
 			d.StreamListItem(ctx, i)
+			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
+			// if there is a limit, it will return the number of rows required to reach this limit
+			if d.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 		}
 
 	}

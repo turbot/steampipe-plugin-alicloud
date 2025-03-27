@@ -122,6 +122,11 @@ func listEcsKeypair(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateD
 		for _, keypair := range response.KeyPairs.KeyPair {
 			plugin.Logger(ctx).Warn("listEcsKeypair", "item", keypair)
 			d.StreamListItem(ctx, keypair)
+			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
+			// if there is a limit, it will return the number of rows required to reach this limit
+			if d.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 			count++
 		}
 		if count >= response.TotalCount {

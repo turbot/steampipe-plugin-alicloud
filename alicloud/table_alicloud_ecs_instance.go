@@ -520,8 +520,7 @@ func listEcsInstance(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 	}
 	request := ecs.CreateDescribeInstancesRequest()
 	request.Scheme = "https"
-	request.PageSize = requests.NewInteger(100)
-	request.PageNumber = requests.NewInteger(1)
+	request.MaxResults = requests.NewInteger(100)
 	request.RegionId = d.EqualsQualString(matrixKeyRegion)
 	quals := d.Quals
 
@@ -566,21 +565,21 @@ func listEcsInstance(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 	}
 
 	// If the request no of items is less than the paging max limit
-	// update limit to requested no of results.
+	// update limit to the requested no of results.
 	limit := d.QueryContext.Limit
 	if d.QueryContext.Limit != nil {
-		pageSize, err := request.PageSize.GetValue64()
+		maxResults, err := request.MaxResults.GetValue64()
 		if err != nil {
-			plugin.Logger(ctx).Error("alicloud_ecs_instance.listEcsInstance", "page_size_error", err)
+			plugin.Logger(ctx).Error("alicloud_ecs_instance.listEcsInstance", "max_results_error", err)
 			return nil, err
 		}
-		if *limit < pageSize {
-			request.PageSize = requests.NewInteger(int(*limit))
+		if *limit < maxResults {
+			request.MaxResults = requests.NewInteger(int(*limit))
 		}
 	}
 
-	count := 0
-	for {
+	pageLeft := true
+	for pageLeft {
 		d.WaitForListRateLimit(ctx)
 		// https://partners-intl.aliyun.com/help/doc-detail/25506.htm?spm=a2c63.p38356.a3.13.24665a4cJb014m#t9865.html
 		response, err := client.DescribeInstances(request)
@@ -595,12 +594,12 @@ func listEcsInstance(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 			if d.RowsRemaining(ctx) == 0 {
 				return nil, nil
 			}
-			count++
 		}
-		if count >= response.TotalCount {
-			break
+		if response.NextToken != "" {
+			request.NextToken = response.NextToken
+		} else {
+			pageLeft = false
 		}
-		request.PageNumber = requests.NewInteger(response.PageNumber + 1)
 	}
 	return nil, nil
 }
