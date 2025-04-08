@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ecs_disk - Query Alibaba Cloud Elastic Compute Service Disks using SQL"
 description: "Allows users to query Elastic Compute Service Disks in Alibaba Cloud, specifically the disk details such as its status, type, and size, providing insights into disk usage and management."
+folder: "ECS"
 ---
 
 # Table: alicloud_ecs_disk - Query Alibaba Cloud Elastic Compute Service Disks using SQL

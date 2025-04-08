@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ecs_launch_template - Query Alibaba Cloud ECS Launch Templates using SQL"
 description: "Allows users to query Alibaba Cloud ECS Launch Templates, providing detailed information about instances that can be launched from a template."
+folder: "ECS"
 ---
 
 # Table: alicloud_ecs_launch_template - Query Alibaba Cloud ECS Launch Templates using SQL

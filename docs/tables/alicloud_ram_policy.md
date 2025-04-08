@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ram_policy - Query Alicloud RAM Policies using SQL"
 description: "Allows users to query Alicloud RAM Policies, specifically to retrieve information about the policy name, policy type, description, and creation time."
+folder: "RAM"
 ---
 
 # Table: alicloud_ram_policy - Query Alicloud RAM Policies using SQL

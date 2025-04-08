@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_rds_instance - Query Alibaba Cloud RDS Instances using SQL"
 description: "Allows users to query Alibaba Cloud Relational Database Service (RDS) Instances, providing detailed information about each instance's configuration and status."
+folder: "RDS"
 ---
 
 # Table: alicloud_rds_instance - Query Alibaba Cloud RDS Instances using SQL

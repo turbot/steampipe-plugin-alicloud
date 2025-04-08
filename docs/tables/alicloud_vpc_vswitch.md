@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_vpc_vswitch - Query Alibaba Cloud VPC VSwitches using SQL"
 description: "Allows users to query Alibaba Cloud VPC VSwitches, providing detailed information about each VSwitch within a Virtual Private Cloud."
+folder: "VPC"
 ---
 
 # Table: alicloud_vpc_vswitch - Query Alibaba Cloud VPC VSwitches using SQL

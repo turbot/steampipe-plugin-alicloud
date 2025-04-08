@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ecs_network_interface - Query Alibaba Cloud Elastic Compute Service Network Interfaces using SQL"
 description: "Allows users to query Network Interfaces in Alibaba Cloud Elastic Compute Service (ECS), retrieving details such as the network interface's ID, status, type, and associated security groups."
+folder: "ECS"
 ---
 
 # Table: alicloud_ecs_network_interface - Query Alibaba Cloud Elastic Compute Service Network Interfaces using SQL

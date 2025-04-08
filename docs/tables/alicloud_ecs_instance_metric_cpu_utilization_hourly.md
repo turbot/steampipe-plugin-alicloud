@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ecs_instance_metric_cpu_utilization_hourly - Query Alibaba Cloud ECS Instance Metrics using SQL"
 description: "Allows users to query ECS Instance Metrics in Alibaba Cloud, specifically the hourly CPU utilization, providing insights into resource usage and performance trends."
+folder: "ECS"
 ---
 
 # Table: alicloud_ecs_instance_metric_cpu_utilization_hourly - Query Alibaba Cloud ECS Instance Metrics using SQL

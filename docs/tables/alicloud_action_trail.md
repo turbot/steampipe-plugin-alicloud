@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_action_trail - Query Alibaba Cloud Action Trails using SQL"
 description: "Allows users to query Action Trails in Alibaba Cloud, providing insights into user activity and operations within the platform."
+folder: "ActionTrail"
 ---
 
 # Table: alicloud_action_trail - Query Alibaba Cloud Action Trails using SQL

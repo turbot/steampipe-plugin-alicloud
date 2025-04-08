@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_vpc_ssl_vpn_server - Query Alicloud VPC SSL VPN Servers using SQL"
 description: "Allows users to query Alicloud VPC SSL VPN Servers, providing detailed information about each SSL VPN server in the Alicloud Virtual Private Cloud (VPC)."
+folder: "VPC"
 ---
 
 # Table: alicloud_vpc_ssl_vpn_server - Query Alicloud VPC SSL VPN Servers using SQL

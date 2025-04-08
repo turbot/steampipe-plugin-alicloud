@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_kms_secret - Query Alicloud Key Management Service Secrets using SQL"
 description: "Allows users to query Alicloud Key Management Service Secrets, specifically the detailed information of the secrets including their version stages, rotation configuration, and recovery window."
+folder: "KMS"
 ---
 
 # Table: alicloud_kms_secret - Query Alicloud Key Management Service Secrets using SQL
