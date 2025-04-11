@@ -1,8 +1,16 @@
-# Table: alicloud_vpc_network_acl
+---
+title: "Steampipe Table: alicloud_vpc_network_acl - Query Alibaba Cloud Network ACLs using SQL"
+description: "Allows users to query Alibaba Cloud Network Access Control Lists (ACLs), including ACL ID, name, VPC association, ingress and egress rules, and creation time."
+folder: "VPC"
+---
 
-A Network Access Control List (ACL) is an optional layer of security for traffic control in your VPC. You can associate a network ACL with a VSwitch to regulate access for one or more subnets. Similar to the rules of security groups, a user can configure custom rules for network ACLs.
+# Table: alicloud_vpc_network_acl - Query Alibaba Cloud Network ACLs using SQL
 
-Network ACLs are stateless. After you configure the inbound rules, you need to configure the corresponding outbound rules for certain requests to have a response.
+Alibaba Cloud Network Access Control Lists (ACLs) provide stateless, subnet-level traffic filtering to enhance security within Virtual Private Clouds (VPCs). Network ACLs support both inbound and outbound rules and can be associated with one or more subnets.
+
+## Table Usage Guide
+
+The `alicloud_vpc_network_acl` table allows cloud security engineers and network administrators to query detailed information about Network ACLs in Alibaba Cloud. Use this table to retrieve data such as the ACL ID, name, associated VPC ID, creation time, and configured ingress and egress rules. This information is essential for auditing traffic control configurations, enforcing security boundaries, and ensuring compliance with organizational network policies.
 
 ## Examples
 

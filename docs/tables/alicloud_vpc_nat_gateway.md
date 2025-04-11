@@ -1,6 +1,16 @@
-# Table: alicloud_vpc_nat_gateway
+---
+title: "Steampipe Table: alicloud_vpc_nat_gateway - Query Alibaba Cloud NAT Gateways using SQL"
+description: "Allows users to query Alibaba Cloud NAT Gateways, including gateway ID, name, status, type, VPC association, IP addresses, and billing details."
+folder: "VPC"
+---
 
-NAT gateways are enterprise-class gateways that provide the Source Network Address Translation (SNAT) and Destination Network Address Translation (DNAT) features. Each NAT gateway provides a throughput capacity of up to 10 Gbit/s. NAT gateways also support cross-zone disaster recovery.
+# Table: alicloud_vpc_nat_gateway - Query Alibaba Cloud NAT Gateways using SQL
+
+Alibaba Cloud NAT Gateways enable instances in a Virtual Private Cloud (VPC) to access the internet or other Alibaba Cloud services securely without exposing private IP addresses. NAT Gateways support source and destination NAT, offering scalable and managed outbound connectivity.
+
+## Table Usage Guide
+
+The `alicloud_vpc_nat_gateway` table helps network administrators and cloud architects query detailed information about NAT Gateways within Alibaba Cloud. Use this table to retrieve attributes such as NAT Gateway ID, name, status, specification type, associated VPC ID, public IP addresses, bandwidth settings, and charge type. This information is useful for managing external connectivity, securing network traffic, and optimizing resource allocation.
 
 ## Examples
 

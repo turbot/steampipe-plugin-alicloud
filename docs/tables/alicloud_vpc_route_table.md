@@ -1,6 +1,16 @@
-# Table: alicloud_vpc_route_table
+---
+title: "Steampipe Table: alicloud_vpc_route_table - Query Alibaba Cloud VPC Route Tables using SQL"
+description: "Allows users to query Alibaba Cloud VPC route tables, including route table ID, name, VPC association, route entries, and type."
+folder: "VPC"
+---
 
-A route table contains a set of rules, called routes, that are used to determine where network traffic from your subnet or gateway is directed.
+# Table: alicloud_vpc_route_table - Query Alibaba Cloud VPC Route Tables using SQL
+
+Alibaba Cloud Virtual Private Cloud (VPC) route tables define the paths network traffic takes within and outside the VPC. Each VPC is automatically associated with a default route table, and additional custom route tables can be created to manage routing behavior for subnets.
+
+## Table Usage Guide
+
+The `alicloud_vpc_route_table` table enables network engineers and cloud administrators to query detailed information about route tables in Alibaba Cloud. Use this table to retrieve attributes such as route table ID, name, type (system or custom), associated VPC ID, and route entries. This information is crucial for managing network routing, diagnosing connectivity issues, and enforcing traffic flow rules in your cloud infrastructure.
 
 ## Examples
 

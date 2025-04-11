@@ -1,6 +1,16 @@
-# Table: alicloud_vpc_eip
+---
+title: "Steampipe Table: alicloud_vpc_eip - Query Alibaba Cloud Elastic IP Addresses (EIPs) using SQL"
+description: "Allows users to query Alibaba Cloud Elastic IP addresses (EIPs), including IP address, status, instance association, bandwidth, and billing details."
+folder: "VPC"
+---
 
-An Elastic IP is an independent public IP resource that decouples ECS and public IP resources, allowing you to flexibly manage public IP resources.
+# Table: alicloud_vpc_eip - Query Alibaba Cloud Elastic IP Addresses (EIPs) using SQL
+
+Alibaba Cloud Elastic IP Addresses (EIPs) provide public IP addressing that can be dynamically associated with ECS instances, NAT gateways, or other cloud resources. EIPs support flexible networking and high availability for internet-facing applications.
+
+## Table Usage Guide
+
+The `alicloud_vpc_eip` table allows network engineers and cloud administrators to query detailed information about Elastic IP addresses in Alibaba Cloud. Use this table to retrieve data such as EIP address, allocation ID, status, associated instance or resource, bandwidth settings, internet charge type, and creation time. This information is essential for tracking public IP usage, optimizing bandwidth allocation, and managing cost and connectivity for cloud-based services.
 
 ## Examples
 
