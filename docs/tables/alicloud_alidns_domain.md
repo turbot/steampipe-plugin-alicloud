@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_alidns_domain - Query Alibaba Cloud DNS Domains using SQL"
 description: "Allows users to query Alibaba Cloud DNS Domains, specifically to retrieve information about the domains such as their DNS records, TTL, registrant details, and more."
+folder: "DNS"
 ---
 
 # Table: alicloud_alidns_domain - Query Alibaba Cloud DNS Domains using SQL

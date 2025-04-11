@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_cas_certificate - Query Alibaba Cloud CAS Certificates using SQL"
 description: "Allows users to query Alibaba Cloud CAS Certificates, specifically to retrieve information about the certificates such as their status, domain, issuer, validity period, and more."
+folder: "CAS"
 ---
 
 # Table: alicloud_cas_certificate - Query Alibaba Cloud CAS Certificates using SQL

@@ -1,6 +1,16 @@
-# Table: alicloud_vpc_ssl_vpn_client_cert
+---
+title: "Steampipe Table: alicloud_vpc_ssl_vpn_client_cert - Query Alibaba Cloud SSL VPN Client Certificates using SQL"
+description: "Allows users to query Alibaba Cloud SSL VPN client certificates, including certificate ID, name, status, creation time, and associated SSL VPN server."
+folder: "VPC"
+---
 
-An SSL VPN client certificate is a digital certificate that is used by a SSL VPN client to authenticate and securely connect to an SSL VPN.
+# Table: alicloud_vpc_ssl_vpn_client_cert - Query Alibaba Cloud SSL VPN Client Certificates using SQL
+
+Alibaba Cloud SSL VPN enables secure communication between remote clients and a Virtual Private Cloud (VPC) by using encrypted tunnels. SSL VPN client certificates are used to authenticate clients and establish secure VPN connections to the cloud environment.
+
+## Table Usage Guide
+
+The `alicloud_vpc_ssl_vpn_client_cert` table helps network administrators and security teams query detailed information about SSL VPN client certificates in Alibaba Cloud. Use this table to retrieve attributes such as client certificate ID, name, status, creation time, and associated SSL VPN server ID. This information is crucial for managing secure client access, monitoring certificate status, and ensuring compliance with access control policies.
 
 ## Examples
 

@@ -1,6 +1,16 @@
-# Table: alicloud_vpc_dhcp_options_set
+---
+title: "Steampipe Table: alicloud_vpc_dhcp_options_set - Query Alibaba Cloud VPC DHCP Options Sets using SQL"
+description: "Allows users to query DHCP options sets in Alibaba Cloud VPC, including domain name servers, domain names, lease times, and associated configurations."
+folder: "VPC"
+---
 
-Dynamic Host Configuration Protocol (DHCP) is a network management protocol. DHCP provides a standard for passing configuration information to servers in a TCP/IP network.
+# Table: alicloud_vpc_dhcp_options_set - Query Alibaba Cloud VPC DHCP Options Sets using SQL
+
+Alibaba Cloud Virtual Private Cloud (VPC) enables the creation of isolated network environments. DHCP options sets allow you to define custom configurations such as domain name servers and domain names that are automatically assigned to ECS instances within a VPC.
+
+## Table Usage Guide
+
+The `alicloud_vpc_dhcp_options_set` table enables network engineers and cloud administrators to query detailed information about DHCP options sets configured in Alibaba Cloud VPCs. Use this table to retrieve values such as DHCP options set ID, domain name servers, domain name, lease time, and description. This information is helpful for managing network behavior, standardizing instance configuration, and enforcing internal DNS policies across your cloud environment.
 
 ## Examples
 

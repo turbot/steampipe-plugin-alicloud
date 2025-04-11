@@ -1,6 +1,16 @@
-# Table: alicloud_rds_instance_metric_cpu_utilization_hourly
+---
+title: "Steampipe Table: alicloud_rds_instance_metric_cpu_utilization_hourly - Query Hourly CPU Utilization Metrics for RDS Instances using SQL"
+description: "Allows users to query hourly average CPU utilization metrics for Alibaba Cloud RDS instances, including instance ID, timestamp, and CPU usage percentage."
+folder: "RDS"
+---
 
-Alicloud Monitoring metrics provide data about the performance of your systems. The `alicloud_rds_instance_metric_cpu_utilization_hourly` table provides metric statistics at 1 hour intervals for the most recent 30 days.
+# Table: alicloud_rds_instance_metric_cpu_utilization_hourly - Query Hourly CPU Utilization Metrics for RDS Instances using SQL
+
+Alibaba Cloud Relational Database Service (RDS) supports high-performance and reliable databases for critical applications. Monitoring CPU utilization on an hourly basis is essential for understanding workload behavior and ensuring optimal performance.
+
+## Table Usage Guide
+
+The `alicloud_rds_instance_metric_cpu_utilization_hourly` table provides hourly average CPU usage metrics for RDS instances in Alibaba Cloud. Use this table to retrieve metrics such as instance ID, timestamp, and average CPU utilization percentage. This data is valuable for performance tuning, identifying spikes or inefficiencies, and making informed decisions on scaling and resource provisioning.
 
 Note: If the instance is not older than 1 hour then we will not get any metric statistics.
 

@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ecs_disk_metric_write_iops_daily - Query AliCloud ECS Disk Metrics using SQL"
 description: "Allows users to query ECS Disk Metrics in AliCloud, specifically the daily write IOPS (Input/Output Operations Per Second), providing insights into disk performance and potential bottlenecks."
+folder: "ECS"
 ---
 
 # Table: alicloud_ecs_disk_metric_write_iops_daily - Query AliCloud ECS Disk Metrics using SQL

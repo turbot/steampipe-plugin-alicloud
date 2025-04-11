@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_account - Query Alibaba Cloud Accounts using SQL"
 description: "Allows users to query Alibaba Cloud Accounts, specifically the account details such as account ID, account name, and account type."
+folder: "Account"
 ---
 
 # Table: alicloud_account - Query Alibaba Cloud Accounts using SQL

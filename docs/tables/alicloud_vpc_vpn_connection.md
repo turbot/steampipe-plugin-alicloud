@@ -1,6 +1,16 @@
-# Table: alicloud_vpc_vpn_connection
+---
+title: "Steampipe Table: alicloud_vpc_vpn_connection - Query Alibaba Cloud VPN Connections using SQL"
+description: "Allows users to query Alibaba Cloud VPN connections, including connection ID, name, status, associated VPN gateway, customer gateway, and tunnel configuration."
+folder: "VPC"
+---
 
-An IPsec-VPN connection provides support to establish an encrypted communication tunnel between a VPN Gateway and a customer gateway.
+# Table: alicloud_vpc_vpn_connection - Query Alibaba Cloud VPN Connections using SQL
+
+Alibaba Cloud VPN Gateway supports secure, encrypted communication between on-premises networks and Alibaba Cloud VPCs. VPN connections link a customer gateway with a VPN gateway and use IPsec to establish secure tunnels over the internet.
+
+## Table Usage Guide
+
+The `alicloud_vpc_vpn_connection` table enables network administrators and cloud architects to query detailed information about site-to-site VPN connections in Alibaba Cloud. Use this table to retrieve values such as VPN connection ID, name, status, associated VPN gateway and customer gateway IDs, encryption settings, and tunnel options. This data is vital for managing hybrid cloud connectivity, enforcing encryption standards, and monitoring the health of secure network links.
 
 ## Examples
 

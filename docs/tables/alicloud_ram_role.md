@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ram_role - Query Alicloud RAM Roles using SQL"
 description: "Allows users to query Alicloud RAM Roles, providing insights into role-specific details, permissions, and trust policies."
+folder: "RAM"
 ---
 
 # Table: alicloud_ram_role - Query Alicloud RAM Roles using SQL

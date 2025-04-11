@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ram_password_policy - Query Alibaba Cloud RAM Password Policies using SQL"
 description: "Allows users to query Alibaba Cloud RAM Password Policies, providing comprehensive details about password policies applied to Alibaba Cloud RAM users."
+folder: "RAM"
 ---
 
 # Table: alicloud_ram_password_policy - Query Alibaba Cloud RAM Password Policies using SQL

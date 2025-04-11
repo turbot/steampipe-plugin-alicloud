@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ram_group - Query Alibaba Cloud RAM Groups using SQL"
 description: "Allows users to query RAM Groups in Alibaba Cloud, specifically providing details on group name, id, comments, and the creation time."
+folder: "RAM"
 ---
 
 # Table: alicloud_ram_group - Query Alibaba Cloud RAM Groups using SQL

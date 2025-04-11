@@ -1,6 +1,16 @@
-# Table: alicloud_rds_instance_metric_connections
+---
+title: "Steampipe Table: alicloud_rds_instance_metric_connections - Query RDS Instance Connection Metrics using SQL"
+description: "Allows users to query connection metrics for Alibaba Cloud RDS instances, including instance ID, timestamp, and number of active connections."
+folder: "RDS"
+---
 
-Alicloud Monitoring metrics provide data about the performance of your systems. The `alicloud_rds_instance_metric_connections` table provides metric statistics at 5 minute intervals for the most recent 5 days.
+# Table: alicloud_rds_instance_metric_connections - Query RDS Instance Connection Metrics using SQL
+
+Alibaba Cloud Relational Database Service (RDS) provides scalable and managed database solutions for various database engines. Monitoring the number of active connections to an RDS instance helps assess database load, troubleshoot performance issues, and ensure availability.
+
+## Table Usage Guide
+
+The `alicloud_rds_instance_metric_connections` table enables database administrators and DevOps engineers to query real-time and historical connection metrics for Alibaba Cloud RDS instances. Use this table to retrieve attributes such as the RDS instance ID, metric timestamp, and the number of active connections. This information supports proactive monitoring, capacity planning, and performance optimization of your database infrastructure.
 
 Note: If the instance is not older than 5 minute then we will not get any metric statistics.
 

@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ecs_disk_metric_write_iops_hourly - Query Alibaba Cloud ECS Disk Metrics using SQL"
 description: "Allows users to query ECS Disk Metrics in Alibaba Cloud, specifically the hourly write IOPS (input/output operations per second), providing insights into disk performance and potential issues."
+folder: "ECS"
 ---
 
 # Table: alicloud_ecs_disk_metric_write_iops_hourly - Query Alibaba Cloud ECS Disk Metrics using SQL

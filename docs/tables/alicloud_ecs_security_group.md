@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ecs_security_group - Query Alibaba Cloud ECS Security Groups using SQL"
 description: "Allows users to query Alibaba Cloud ECS Security Groups, providing insights into the security settings of Elastic Compute Service (ECS) instances."
+folder: "ECS"
 ---
 
 # Table: alicloud_ecs_security_group - Query Alibaba Cloud ECS Security Groups using SQL

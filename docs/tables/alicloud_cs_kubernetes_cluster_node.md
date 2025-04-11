@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_cs_kubernetes_cluster_node - Query Alibaba Cloud Container Service Kubernetes Cluster Nodes using SQL"
 description: "Allows users to query Kubernetes Cluster Nodes in Alibaba Cloud Container Service, providing detailed information about each node's configuration, status, and associated metadata."
+folder: "CS"
 ---
 
 # Table: alicloud_cs_kubernetes_cluster_node - Query Alibaba Cloud Container Service Kubernetes Cluster Nodes using SQL

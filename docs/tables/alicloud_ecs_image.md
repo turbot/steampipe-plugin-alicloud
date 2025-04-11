@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ecs_image - Query Alibaba Cloud Elastic Compute Service Images using SQL"
 description: "Allows users to query Elastic Compute Service Images in Alibaba Cloud, specifically the image details, providing insights into image configurations and usage."
+folder: "ECS"
 ---
 
 # Table: alicloud_ecs_image - Query Alibaba Cloud Elastic Compute Service Images using SQL

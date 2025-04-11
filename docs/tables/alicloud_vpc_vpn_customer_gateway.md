@@ -1,6 +1,16 @@
-# Table: alicloud_vpc_vpn_customer_gateway
+---
+title: "Steampipe Table: alicloud_vpc_vpn_customer_gateway - Query Alibaba Cloud VPN Customer Gateways using SQL"
+description: "Allows users to query Alibaba Cloud VPN customer gateways, including gateway ID, name, IP address, and creation time."
+folder: "VPC"
+---
 
-A customer gateway device is a physical or software appliance that you own or manage in your on-premises network (on your side of a Site-to-Site VPN connection). You or your network administrator must configure the device to work with the VPN connection.
+# Table: alicloud_vpc_vpn_customer_gateway - Query Alibaba Cloud VPN Customer Gateways using SQL
+
+In Alibaba Cloud, a VPN customer gateway represents the on-premises gateway device used to establish secure VPN connections with a Virtual Private Cloud (VPC). It holds the public IP address and identification details of the customer's network endpoint.
+
+## Table Usage Guide
+
+The `alicloud_vpc_vpn_customer_gateway` table helps network engineers and cloud administrators query detailed information about customer gateways configured for VPN connections in Alibaba Cloud. Use this table to retrieve attributes such as customer gateway ID, name, IP address, description, and creation time. This information is essential for setting up and maintaining site-to-site VPN tunnels, ensuring secure hybrid cloud connectivity.
 
 ## Examples
 

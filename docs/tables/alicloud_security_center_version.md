@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_security_center_version - Query Alibaba Cloud Security Center Versions using SQL"
 description: "Allows users to query Security Center Versions in Alibaba Cloud, specifically the version details to understand the security services provided by Alibaba Cloud."
+folder: "Security Center"
 ---
 
 # Table: alicloud_security_center_version - Query Alibaba Cloud Security Center Versions using SQL

@@ -1,6 +1,16 @@
-# Table: alicloud_ecs_instance
+---
+title: "Steampipe Table: alicloud_ecs_instance - Query Alibaba Cloud ECS Instances using SQL"
+description: "Allows users to query Alibaba Cloud ECS Instances, including instance ID, name, status, type, region, zone, and associated network and security details."
+folder: "ECS"
+---
 
-An ECS instance is a virtual machine that contains basic computing components such as the vCPU, memory, operating system, network, and disk.
+# Table: alicloud_ecs_instance - Query Alibaba Cloud ECS Instances using SQL
+
+Alibaba Cloud Elastic Compute Service (ECS) delivers scalable virtual servers that provide a secure, high-performance computing environment. ECS instances support a variety of workloads and offer flexible configurations for CPU, memory, storage, and networking to suit a wide range of application needs.
+
+## Table Usage Guide
+
+The `alicloud_ecs_instance` table allows system administrators, DevOps engineers, and security teams to query detailed information about ECS instances within Alibaba Cloud. Use this table to retrieve attributes such as instance ID, name, status, instance type, creation time, region, zone, VPC and subnet associations, public and private IP addresses, and security group configurations. This information is essential for managing your compute resources, tracking utilization, enforcing security policies, and optimizing your cloud environment.
 
 ## Examples
 

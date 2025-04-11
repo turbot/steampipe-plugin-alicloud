@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_rds_instance_metric_cpu_utilization_daily - Query Alibaba Cloud RDS Instance Metrics using SQL"
 description: "Allows users to query Alibaba Cloud RDS Instance Metrics, specifically the daily CPU utilization, providing insights into resource usage and potential performance bottlenecks."
+folder: "RDS"
 ---
 
 # Table: alicloud_rds_instance_metric_cpu_utilization_daily - Query Alibaba Cloud RDS Instance Metrics using SQL

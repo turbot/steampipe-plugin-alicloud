@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ram_user - Query Alibaba Cloud RAM Users using SQL"
 description: "Allows users to query RAM Users in Alibaba Cloud, specifically the user details and associated policies, providing insights into user access management and security."
+folder: "RAM"
 ---
 
 # Table: alicloud_ram_user - Query Alibaba Cloud RAM Users using SQL

@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_rds_backup - Query Alicloud RDS Backups using SQL"
 description: "Allows users to query Alicloud RDS Backups, specifically details about each backup such as backup status, type, method, and more, providing insights into the backup strategy and potential risks."
+folder: "RDS"
 ---
 
 # Table: alicloud_rds_backup - Query Alicloud RDS Backups using SQL
