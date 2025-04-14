@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_cms_monitor_host - Query Alibaba Cloud Monitor Hosts using SQL"
 description: "Allows users to query Monitor Hosts in Alibaba Cloud, specifically providing insights into the performance of Elastic Compute Service (ECS) instances and custom hosts."
+folder: "CMS"
 ---
 
 # Table: alicloud_cms_monitor_host - Query Alibaba Cloud Monitor Hosts using SQL

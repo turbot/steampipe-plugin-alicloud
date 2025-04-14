@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_vpc_flow_log - Query Alibaba Cloud VPC Flow Logs using SQL"
 description: "Allows users to query VPC Flow Logs in Alibaba Cloud, providing insights into network traffic patterns and potential anomalies."
+folder: "VPC"
 ---
 
 # Table: alicloud_vpc_flow_log - Query Alibaba Cloud VPC Flow Logs using SQL

@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ecs_region - Query Alicloud Elastic Compute Service Regions using SQL"
 description: "Allows users to query Alicloud Elastic Compute Service (ECS) Regions, specifically providing information on all available regions within the Alicloud ECS."
+folder: "ECS"
 ---
 
 # Table: alicloud_ecs_region - Query Alicloud Elastic Compute Service Regions using SQL

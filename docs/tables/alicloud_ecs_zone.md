@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ecs_zone - Query Alibaba Cloud Elastic Compute Service Zones using SQL"
 description: "Allows users to query Alibaba Cloud Elastic Compute Service Zones, providing detailed information about each zone's availability and capabilities."
+folder: "ECS"
 ---
 
 # Table: alicloud_ecs_zone - Query Alibaba Cloud Elastic Compute Service Zones using SQL

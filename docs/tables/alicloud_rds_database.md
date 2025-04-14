@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_rds_database - Query Alicloud RDS Databases using SQL"
 description: "Allows users to query Alicloud RDS Databases, specifically details about each database hosted within the Alicloud RDS service."
+folder: "RDS"
 ---
 
 # Table: alicloud_rds_database - Query Alicloud RDS Databases using SQL

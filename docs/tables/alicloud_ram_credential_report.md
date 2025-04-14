@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ram_credential_report - Query Alicloud RAM Credential Reports using SQL"
 description: "Allows users to query Alicloud RAM Credential Reports, providing insights into the credential security status of RAM users."
+folder: "RAM"
 ---
 
 # Table: alicloud_ram_credential_report - Query Alicloud RAM Credential Reports using SQL

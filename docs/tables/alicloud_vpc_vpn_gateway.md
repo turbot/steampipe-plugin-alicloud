@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_vpc_vpn_gateway - Query Alicloud VPC VPN Gateways using SQL"
 description: "Allows users to query Alicloud VPC VPN Gateways, providing details such as the gateway's ID, name, description, status, and more."
+folder: "VPC"
 ---
 
 # Table: alicloud_vpc_vpn_gateway - Query Alicloud VPC VPN Gateways using SQL

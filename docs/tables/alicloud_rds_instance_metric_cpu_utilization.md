@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_rds_instance_metric_cpu_utilization - Query Alicloud RDS Instance Metrics using SQL"
 description: "Allows users to query Alicloud RDS Instance Metrics, specifically the CPU utilization, providing insights into database performance and potential bottlenecks."
+folder: "RDS"
 ---
 
 # Table: alicloud_rds_instance_metric_cpu_utilization - Query Alicloud RDS Instance Metrics using SQL

@@ -1,6 +1,17 @@
-# Table: alicloud_slb_load_balancer
+---
+title: "Steampipe Table: alicloud_slb_load_balancer - Query Alibaba Cloud SLB Load Balancers using SQL"
+description: "Allows users to query Alibaba Cloud Server Load Balancers (SLB), including load balancer ID, name, status, type, region, VPC information, and IP configuration."
+folder: "SLB"
+---
 
-Server Load Balancer (SLB) distributes network traffic across groups of backend servers to improve the service capability and application availability. It Includes Layer 4 Network Load Balancer (NLB), Layer 7 Application Load Balancer (ALB), and Classic Load Balancer (CLB). It is the Official Cloud-Native Gateway of Alibaba Cloud.
+# Table: alicloud_slb_load_balancer - Query Alibaba Cloud SLB Load Balancers using SQL
+
+Alibaba Cloud Server Load Balancer (SLB) automatically distributes incoming traffic across multiple backend servers to improve application availability and fault tolerance. SLB supports different load balancing protocols and deployment types, enabling flexible and reliable traffic distribution in cloud environments.
+
+## Table Usage Guide
+
+The `alicloud_slb_load_balancer` table enables cloud engineers, DevOps teams, and network administrators to query detailed information about Server Load Balancers in Alibaba Cloud. Use this table to retrieve attributes such as load balancer ID, name, status, type (public or internal), region, associated VPC, IP address settings, and listener configurations. This data supports efficient traffic management, health monitoring, and secure configuration of network-facing services.
+
 
 ## Examples
 

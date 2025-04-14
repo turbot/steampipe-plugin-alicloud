@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ecs_auto_provisioning_group - Query Alicloud ECS Auto Provisioning Groups using SQL"
 description: "Allows users to query Alicloud ECS Auto Provisioning Groups, providing detailed information about the configuration, status, and instance details of each group."
+folder: "ECS"
 ---
 
 # Table: alicloud_ecs_auto_provisioning_group - Query Alicloud ECS Auto Provisioning Groups using SQL

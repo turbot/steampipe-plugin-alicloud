@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_kms_key - Query Alibaba Cloud Key Management Service Keys using SQL"
 description: "Allows users to query Alibaba Cloud Key Management Service Keys, providing insights into key metadata, usage, and status."
+folder: "KMS"
 ---
 
 # Table: alicloud_kms_key - Query Alibaba Cloud Key Management Service Keys using SQL

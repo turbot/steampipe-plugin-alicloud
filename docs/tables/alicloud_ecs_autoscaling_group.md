@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ecs_autoscaling_group - Query Alibaba Cloud Elastic Compute Service Autoscaling Groups using SQL"
 description: "Allows users to query Autoscaling Groups in Alibaba Cloud Elastic Compute Service (ECS), specifically the configuration, capacity, and detailed information about each autoscaling group."
+folder: "ECS"
 ---
 
 # Table: alicloud_ecs_autoscaling_group - Query Alibaba Cloud Elastic Compute Service Autoscaling Groups using SQL

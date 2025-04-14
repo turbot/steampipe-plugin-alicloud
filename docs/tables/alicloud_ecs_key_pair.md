@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ecs_key_pair - Query Alibaba Cloud ECS Key Pairs using SQL"
 description: "Allows users to query Alibaba Cloud ECS Key Pairs, specifically the key pair name, creation time, key pair fingerprint, and resource group ID."
+folder: "ECS"
 ---
 
 # Table: alicloud_ecs_key_pair - Query Alibaba Cloud ECS Key Pairs using SQL

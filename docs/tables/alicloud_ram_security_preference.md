@@ -1,6 +1,17 @@
-# Table: alicloud_ram_security_preference
+---
+title: "Steampipe Table: alicloud_ram_security_preference - Query Alibaba Cloud RAM Security Preferences using SQL"
+description: "Allows users to query Alibaba Cloud Resource Access Management (RAM) security preferences, including MFA settings, password policies, and login session configurations."
+folder: "RAM"
+---
 
-Alibaba Cloud RAM users security preference provides better security to user.
+# Table: alicloud_ram_security_preference - Query Alibaba Cloud RAM Security Preferences using SQL
+
+Alibaba Cloud Resource Access Management (RAM) allows you to manage user identities and control access to cloud resources. Security preferences in RAM help define global account-level settings such as multi-factor authentication (MFA), password policies, and session configurations to enforce strong security practices.
+
+## Table Usage Guide
+
+The `alicloud_ram_security_preference` table provides insights into the security configuration settings for your Alibaba Cloud account. Use this table to retrieve information about password policy requirements (minimum length, complexity, expiration), MFA enablement, and login session durations. This data is essential for security teams and administrators to audit and enforce compliance with organizational access control standards.
+
 
 ## Examples
 

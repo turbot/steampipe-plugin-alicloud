@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_security_center_field_statistics - Query Alibaba Cloud Security Center Field Statistics using SQL"
 description: "Allows users to query Security Center Field Statistics in Alibaba Cloud, providing insights into the statistical data of different fields."
+folder: "Security Center"
 ---
 
 # Table: alicloud_security_center_field_statistics - Query Alibaba Cloud Security Center Field Statistics using SQL

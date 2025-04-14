@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_oss_bucket - Query Alibaba Cloud Object Storage Service Buckets using SQL"
 description: "Allows users to query Alibaba Cloud Object Storage Service (OSS) Buckets, providing detailed information about each OSS bucket such as its name, location, storage class, and creation time."
+folder: "OSS"
 ---
 
 # Table: alicloud_oss_bucket - Query Alibaba Cloud Object Storage Service Buckets using SQL

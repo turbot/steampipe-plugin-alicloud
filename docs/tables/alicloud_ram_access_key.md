@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ram_access_key - Query Alibaba Cloud RAM Access Keys using SQL"
 description: "Allows users to query Alibaba Cloud RAM Access Keys, specifically the AccessKey ID, status, and creation time, providing insights into the access keys of RAM users."
+folder: "RAM"
 ---
 
 # Table: alicloud_ram_access_key - Query Alibaba Cloud RAM Access Keys using SQL

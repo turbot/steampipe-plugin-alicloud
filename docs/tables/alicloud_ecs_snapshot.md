@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_ecs_snapshot - Query Alibaba Cloud ECS Snapshots using SQL"
 description: "Allows users to query Alibaba Cloud ECS Snapshots, specifically the snapshot details, providing insights into snapshot usage and potential anomalies."
+folder: "ECS"
 ---
 
 # Table: alicloud_ecs_snapshot - Query Alibaba Cloud ECS Snapshots using SQL

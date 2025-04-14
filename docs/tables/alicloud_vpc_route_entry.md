@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_vpc_route_entry - Query Alicloud VPC Route Entries using SQL"
 description: "Allows users to query Alicloud VPC Route Entries, providing detailed information on each route entry within the specified VPC."
+folder: "VPC"
 ---
 
 # Table: alicloud_vpc_route_entry - Query Alicloud VPC Route Entries using SQL

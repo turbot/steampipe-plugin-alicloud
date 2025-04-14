@@ -1,6 +1,7 @@
 ---
 title: "Steampipe Table: alicloud_vpc - Query Alibaba Cloud Virtual Private Clouds using SQL"
 description: "Allows users to query Virtual Private Clouds in Alibaba Cloud, specifically the VPC ID, creation time, status, and other details, providing insights into network configurations and potential anomalies."
+folder: "VPC"
 ---
 
 # Table: alicloud_vpc - Query Alibaba Cloud Virtual Private Clouds using SQL
