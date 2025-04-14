@@ -1,3 +1,14 @@
+## v1.3.0 [2025-04-14]
+
+_Enhancements_
+
+- Added `folder` metadata to the documentation of all the Alibaba Cloud tables for improved organization on the Steampipe Hub. ([#514](https://github.com/turbot/steampipe-plugin-alicloud/pull/514))
+- Added [rate-limiter](https://steampipe.io/docs/guides/limiter#concurrency--rate-limiting) tags to all hydrate functions to prevent exceeding API rate limits. ([#506](https://github.com/turbot/steampipe-plugin-alicloud/pull/506)) (Thanks [@QiXingchuan](https://github.com/QiXingchuan) for the contribution!!)
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v5.11.5](https://github.com/turbot/steampipe-plugin-sdk/releases/tag/v5.11.5) ([#513](https://github.com/turbot/steampipe-plugin-alicloud/pull/513))
+
 ## v1.2.0 [2025-03-07]
 
 _Enhancements_
@@ -123,7 +134,7 @@ _What's new?_
 _Enhancements_
 
 - Added column `encryption_key` to `alicloud_rds_instance` table. ([#301](https://github.com/turbot/steampipe-plugin-alicloud/pull/301))
-- Updated the `docs/index.md` file to include multi-account configuration information and examples. ([#334](https://github.com/turbot/steampipe-plugin-alicloud/pull/334) (Thanks [@vmdude](https://github.com/vmdude) for the contribution!!)
+- Updated the `docs/index.md` file to include multi-account configuration information and examples. [#334](https://github.com/turbot/steampipe-plugin-alicloud/pull/334) (Thanks [@vmdude](https://github.com/vmdude) for the contribution!!)
 
 ## v0.13.1 [2023-02-10]
 
