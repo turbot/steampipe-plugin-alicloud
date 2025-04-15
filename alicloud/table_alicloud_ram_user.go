@@ -210,6 +210,11 @@ func listRAMUser(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 		for _, i := range response.Users.User {
 			plugin.Logger(ctx).Warn("listRAMUser", "item", i)
 			d.StreamListItem(ctx, userInfo{i.UserName, i.UserId, i.DisplayName, i.Email, i.MobilePhone, i.Comments, i.CreateDate, i.UpdateDate, ""})
+			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
+			// if there is a limit, it will return the number of rows required to reach this limit
+			if d.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 		}
 		if !response.IsTruncated {
 			break

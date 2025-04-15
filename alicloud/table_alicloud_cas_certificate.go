@@ -185,6 +185,11 @@ func listUserCertificate(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 
 		for _, i := range response.CertificateOrderList {
 			d.StreamListItem(ctx, i)
+			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
+			// if there is a limit, it will return the number of rows required to reach this limit
+			if d.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 			count++
 		}
 		if count >= int(response.TotalCount) {

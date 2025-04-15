@@ -165,6 +165,11 @@ func listVpcFlowLogs(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrate
 		}
 		for _, flowLog := range response.FlowLogs.FlowLog {
 			d.StreamListItem(ctx, flowLog)
+			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
+			// if there is a limit, it will return the number of rows required to reach this limit
+			if d.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 			count++
 		}
 		totalCount, _ := strconv.Atoi(response.TotalCount)

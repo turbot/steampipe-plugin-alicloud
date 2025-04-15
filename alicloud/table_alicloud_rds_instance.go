@@ -616,6 +616,11 @@ func listRdsInstances(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 		for _, i := range response.Items.DBInstance {
 			plugin.Logger(ctx).Warn("alicloud_rds.DescribeDBInstances", "item", i)
 			d.StreamListItem(ctx, i)
+			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
+			// if there is a limit, it will return the number of rows required to reach this limit
+			if d.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 			count++
 		}
 		if count >= response.TotalRecordCount {

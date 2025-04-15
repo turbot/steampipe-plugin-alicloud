@@ -163,6 +163,11 @@ func listCmsMonitorHosts(ctx context.Context, d *plugin.QueryData, _ *plugin.Hyd
 		for _, host := range response.Hosts.Host {
 			plugin.Logger(ctx).Warn("listCmsMonitorHosts", "item", host)
 			d.StreamListItem(ctx, host)
+			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
+			// if there is a limit, it will return the number of rows required to reach this limit
+			if d.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 			count++
 		}
 		if count >= response.Total {

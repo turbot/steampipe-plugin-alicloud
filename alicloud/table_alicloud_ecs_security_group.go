@@ -158,11 +158,24 @@ func listEcsSecurityGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 	}
 	request := ecs.CreateDescribeSecurityGroupsRequest()
 	request.Scheme = "https"
-	request.PageSize = requests.NewInteger(50)
-	request.PageNumber = requests.NewInteger(1)
+	request.MaxResults = requests.NewInteger(100)
 
-	count := 0
-	for {
+	// If the request no of items is less than the paging max limit
+	// update limit to the requested no of results.
+	limit := d.QueryContext.Limit
+	if d.QueryContext.Limit != nil {
+		maxResults, err := request.MaxResults.GetValue64()
+		if err != nil {
+			plugin.Logger(ctx).Error("alicloud_ecs_security_group.listEcsSecurityGroups", "max_results_error", err)
+			return nil, err
+		}
+		if *limit < maxResults {
+			request.MaxResults = requests.NewInteger(int(*limit))
+		}
+	}
+
+	pageLeft := true
+	for pageLeft {
 		d.WaitForListRateLimit(ctx)
 		response, err := client.DescribeSecurityGroups(request)
 		if err != nil {
@@ -172,12 +185,17 @@ func listEcsSecurityGroups(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 		for _, securityGroup := range response.SecurityGroups.SecurityGroup {
 			plugin.Logger(ctx).Warn("alicloud_ecs_security_group.listEcsSecurityGroups", "query_error", err, "item", securityGroup)
 			d.StreamListItem(ctx, securityGroup)
-			count++
+			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
+			// if there is a limit, it will return the number of rows required to reach this limit
+			if d.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 		}
-		if count >= response.TotalCount {
-			break
+		if response.NextToken != "" {
+			request.NextToken = response.NextToken
+		} else {
+			pageLeft = false
 		}
-		request.PageNumber = requests.NewInteger(response.PageNumber + 1)
 	}
 	return nil, nil
 }

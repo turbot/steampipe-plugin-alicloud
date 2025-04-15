@@ -177,6 +177,11 @@ func listVpcVpnConnections(ctx context.Context, d *plugin.QueryData, _ *plugin.H
 		}
 		for _, vpnConnection := range response.VpnConnections.VpnConnection {
 			d.StreamListItem(ctx, vpnConnection)
+			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
+			// if there is a limit, it will return the number of rows required to reach this limit
+			if d.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 			count++
 		}
 		if count >= response.TotalCount {

@@ -199,6 +199,11 @@ func listVSwitch(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData
 		for _, i := range response.VSwitches.VSwitch {
 			plugin.Logger(ctx).Warn("listVSwitch", "tags", i.Tags, "item", i)
 			d.StreamListItem(ctx, i)
+			// This will return zero if context has been cancelled (i.e due to manual cancellation) or
+			// if there is a limit, it will return the number of rows required to reach this limit
+			if d.RowsRemaining(ctx) == 0 {
+				return nil, nil
+			}
 			count++
 		}
 		if count >= response.TotalCount {
