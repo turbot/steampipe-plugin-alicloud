@@ -199,8 +199,8 @@ github.com/alecthomas/units v0.0.0-20190717042225-c3de453c63f4/go.mod h1:ybxpYRF
 github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d/go.mod h1:rBZYJk541a8SKzHPHnH3zbiI+7dagKZ0cgpgrD7Fyho=
 github.com/aliyun/alibaba-cloud-sdk-go v1.63.17 h1:hdhcJzcnwFg5/aM4kmz9EY8sV6IVYnzJTmtYwNrFjmY=
 github.com/aliyun/alibaba-cloud-sdk-go v1.63.17/go.mod h1:SOSDHfe1kX91v3W5QiBsWSLqeLxImobbMX1mxrFHsVQ=
-github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.2.0 h1:gUWBCekWIFWYK7jXhRvPHIa7mRhJih2BGPjzvzodO18=
-github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.2.0/go.mod h1:FTzydeQVmR24FI0D6XWUOMKckjXehM/jgMn1xC+DA9M=
+github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.2.2 h1:YNsVAVaO3xAfNqnsjcOeZx+htocoFR2Oh8onhVp7PcM=
+github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.2.2/go.mod h1:FTzydeQVmR24FI0D6XWUOMKckjXehM/jgMn1xC+DA9M=
 github.com/allegro/bigcache/v3 v3.1.0 h1:H2Vp8VOvxcrB91o86fUSVJFqeuz8kpyyB02eH3bSzwk=
 github.com/allegro/bigcache/v3 v3.1.0/go.mod h1:aPyh7jEvrog9zAwx5N7+JUQX5dZTSGpxF1LAR4dr35I=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
