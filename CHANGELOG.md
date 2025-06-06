@@ -1,3 +1,13 @@
+## v1.3.1 [2025-06-06]
+
+_Bug fixes_
+
+- Fixed infinite loop issues in several tables by ensuring queries stop when no more rows are returned by the API. ([#508](https://github.com/turbot/steampipe-plugin-alicloud/pull/508)) (Thanks [@QiXingchuan](https://github.com/QiXingchuan) for the contribution!)
+
+_Dependencies_
+
+- Recompiled plugin with [steampipe-plugin-sdk v5.11.6](https://github.com/turbot/steampipe-plugin-sdk/blob/develop/CHANGELOG.md#v5116-2025-05-22) which improves how errors are handled during query execution. ([#523](https://github.com/turbot/steampipe-plugin-alicloud/pull/523))
+
 ## v1.3.0 [2025-04-14]
 
 _Enhancements_
