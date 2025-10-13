@@ -3,9 +3,9 @@ package alicloud
 import (
 	"context"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
 	"github.com/turbot/steampipe-plugin-sdk/v5/memoize"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	sts "github.com/alibabacloud-go/sts-20150401/client"
 )
 
 // struct to store the common column data
@@ -22,7 +22,7 @@ func getCommonColumns(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 
 	callerIdentity := getCallerIdentityData.(*sts.GetCallerIdentityResponse)
 	commonColumnData := &alicloudCommonColumnData{
-		AccountID: callerIdentity.AccountId,
+		AccountID: *callerIdentity.Body.AccountId,
 	}
 
 	return commonColumnData, nil
@@ -36,7 +36,7 @@ func getAccountId(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDat
 
 	callerIdentity := getCallerIdentityData.(*sts.GetCallerIdentityResponse)
 
-	return callerIdentity.AccountId, nil
+	return callerIdentity.Body.AccountId, nil
 }
 
 var getAccountDetailsMemoize = plugin.HydrateFunc(getCallerIdentityUncached).Memoize(memoize.WithCacheKeyFunction(getAccountDetailsCacheKey))
@@ -66,10 +66,7 @@ func getCallerIdentityUncached(ctx context.Context, d *plugin.QueryData, _ *plug
 		return nil, err
 	}
 
-	request := sts.CreateGetCallerIdentityRequest()
-	request.Scheme = "https"
-
-	callerIdentity, err := client.GetCallerIdentity(request)
+	callerIdentity, err := client.GetCallerIdentity()
 	if err != nil {
 		// let the cache know that we have failed to fetch this item
 		return nil, err

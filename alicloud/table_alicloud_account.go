@@ -3,8 +3,6 @@ package alicloud
 import (
 	"context"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/ram"
-
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
@@ -68,10 +66,8 @@ func listAccountAlias(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydrat
 	if err != nil {
 		return nil, err
 	}
-	request := ram.CreateGetAccountAliasRequest()
-	request.Scheme = "https"
 
-	response, err := client.GetAccountAlias(request)
+	response, err := client.GetAccountAlias()
 	if err != nil {
 		return nil, err
 	}

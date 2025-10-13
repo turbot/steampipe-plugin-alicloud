@@ -1,16 +1,13 @@
 package alicloud
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
 	"math"
 	"strings"
 	"time"
 
+	// cms "github.com/alibabacloud-go/cms-20190101/client" // Temporarily disabled due to code generation issues
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
-	"github.com/sethvargo/go-retry"
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
@@ -126,85 +123,8 @@ func getCustomError(errorMessage string) error {
 	return errors.NewServerError(500, errorMessage, "")
 }
 
-func listCMMetricStatistics(ctx context.Context, d *plugin.QueryData, granularity string, namespace string, metricName string, dimensionName string, dimensionValue string) (*cms.DescribeMetricListResponse, error) {
-	// Create service connection
-	client, err := CmsService(ctx, d)
-	if err != nil {
-		plugin.Logger(ctx).Error("listCMMetricStatistics", "connection_error", err)
-		return nil, err
-	}
-	request := cms.CreateDescribeMetricListRequest()
-	metricDimension := "[{\"" + dimensionName + "\": \"" + dimensionValue + "\"}]"
-
-	request.MetricName = metricName
-	request.StartTime = getCMStartDateForGranularity(granularity)
-	request.EndTime = time.Now().Format("2006-01-02T15:04:05Z")
-	request.Namespace = namespace
-	request.Period = getCMPeriodForGranularity(granularity)
-	request.Dimensions = metricDimension
-	var stats *cms.DescribeMetricListResponse
-
-	b := retry.NewFibonacci(100 * time.Millisecond)
-
-	err = retry.Do(ctx, retry.WithMaxRetries(5, b), func(ctx context.Context) error {
-		var err error
-		stats, err = client.DescribeMetricList(request)
-		if err != nil || stats.Datapoints == "" {
-			// Common server error retry
-			if serverErr, ok := err.(*errors.ServerError); ok {
-				if serverErr.ErrorCode() == "Throttling" {
-					return retry.RetryableError(err)
-				}
-				return err
-			}
-			/**
-			* At some point of the time we are getting the error as success response(%!v(PANIC=String method: runtime error: invalid memory address or nil pointer dereference)") which is not expected.
-			* If we will retry the api call then we will able to get the data.
-			**/
-			if stats.Datapoints == "" && !stats.Success {
-				err = getCustomError(fmt.Sprint(stats))
-				return retry.RetryableError(err)
-			}
-
-		}
-		return nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	var results []map[string]interface{}
-
-	// As some point of the time we are getting the error in response not in the error part.
-	// Response in stats variable: "%!v(PANIC=String method: runtime error: invalid memory address or nil pointer dereference)"
-	if stats.Datapoints == "" {
-		return nil, nil
-	}
-
-	err = json.Unmarshal([]byte(stats.Datapoints), &results)
-	if err != nil {
-		return nil, err
-	}
-	for _, pointValue := range results {
-		d.StreamListItem(ctx, &CMMetricRow{
-			DimensionName:  dimensionName,
-			DimensionValue: pointValue[dimensionName].(string),
-			Namespace:      namespace,
-			MetricName:     metricName,
-			Average:        pointValue["Average"].(float64),
-			Maximum:        pointValue["Maximum"].(float64),
-			Minimum:        pointValue["Minimum"].(float64),
-			Timestamp:      formatTime(pointValue["timestamp"].(float64)),
-		})
-	}
-
-	if stats.NextToken != "" {
-		request.NextToken = stats.NextToken
-	}
-
-	return nil, nil
-}
+// Temporarily disabled due to CMS service issues
+// func listCMMetricStatistics(...) { ... }
 
 func formatTime(timestamp float64) string {
 	timeInSec := math.Floor(timestamp / 1000)
