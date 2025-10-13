@@ -5,8 +5,27 @@ go 1.24
 toolchain go1.24.1
 
 require (
-	github.com/aliyun/alibaba-cloud-sdk-go v1.63.17
+	github.com/alibabacloud-go/actiontrail-20200706 v1.0.0
+	github.com/alibabacloud-go/alidns-20150109 v1.0.3
+	github.com/alibabacloud-go/cas-20200407 v1.0.7
+	github.com/alibabacloud-go/cms-20190101 v1.0.1
+	github.com/alibabacloud-go/cs-20151215 v1.6.0
+	github.com/alibabacloud-go/darabonba-openapi v0.2.1
+	github.com/alibabacloud-go/ecs-20140526 v1.2.0
+	github.com/alibabacloud-go/ess-20220222 v1.0.0
+	github.com/alibabacloud-go/kms-20160120 v1.1.2
+	github.com/alibabacloud-go/ram-20150501 v1.0.2
+	github.com/alibabacloud-go/rds-20140815 v1.0.2
+	github.com/alibabacloud-go/sas-20181203 v1.1.32
+	github.com/alibabacloud-go/slb-20140515 v1.0.0
+	github.com/alibabacloud-go/sts-20150401 v1.1.2
+	github.com/alibabacloud-go/tea-roa v1.2.8
+	github.com/alibabacloud-go/tea-rpc v1.3.3
+	github.com/alibabacloud-go/tea-utils v1.4.5
+	github.com/alibabacloud-go/vpc-20160428 v1.0.1
+	github.com/aliyun/alibaba-cloud-sdk-go v1.63.107
 	github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.2.0
+	github.com/aliyun/credentials-go v1.4.7
 	github.com/gocarina/gocsv v0.0.0-20201208093247-67c824bc04d4
 	github.com/sethvargo/go-retry v0.2.4
 	github.com/turbot/go-kit v1.1.0
@@ -20,6 +39,15 @@ require (
 	cloud.google.com/go/storage v1.38.0 // indirect
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
+	github.com/alibabacloud-go/alibabacloud-gateway-spi v0.0.5 // indirect
+	github.com/alibabacloud-go/debug v1.0.1 // indirect
+	github.com/alibabacloud-go/endpoint-util v1.1.0 // indirect
+	github.com/alibabacloud-go/openapi-util v0.1.0 // indirect
+	github.com/alibabacloud-go/tea v1.3.12 // indirect
+	github.com/alibabacloud-go/tea-roa-utils v1.1.5 // indirect
+	github.com/alibabacloud-go/tea-rpc-utils v1.1.2 // indirect
+	github.com/alibabacloud-go/tea-utils/v2 v2.0.7 // indirect
+	github.com/alibabacloud-go/tea-xml v1.1.2 // indirect
 	github.com/allegro/bigcache/v3 v3.1.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/aws/aws-sdk-go v1.44.183 // indirect
@@ -28,6 +56,7 @@ require (
 	github.com/btubbs/datetime v0.1.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/clbanning/mxj/v2 v2.7.0 // indirect
 	github.com/danwakefield/fnmatch v0.0.0-20160403171240-cbb64ac3d964 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dgraph-io/ristretto v0.2.0 // indirect
@@ -85,6 +114,7 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/stevenle/topsort v0.2.0 // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
+	github.com/tjfoc/gmsm v1.4.1 // indirect
 	github.com/tkrajina/go-reflector v0.5.6 // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect
 	github.com/zclconf/go-cty v1.14.4 // indirect
