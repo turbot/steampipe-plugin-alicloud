@@ -80,6 +80,8 @@ func Plugin(ctx context.Context) *plugin.Plugin {
 			"alicloud_security_center_field_statistics":           tableAlicloudSecurityCenterFieldStatistics(ctx),
 			"alicloud_security_center_version":                    tableAlicloudSecurityCenterVersion(ctx),
 			"alicloud_slb_load_balancer":                          tableAlicloudSlbLoadBalancer(ctx),
+			"alicloud_sls_alert":                                  tableAlicloudSLSAlert(ctx),
+			"alicloud_log_project":                                 tableAlicloudLogProject(ctx),
 			"alicloud_vpc":                                        tableAlicloudVpc(ctx),
 			"alicloud_vpc_dhcp_options_set":                       tableAlicloudVpcDhcpOptionsSet(ctx),
 			"alicloud_vpc_eip":                                    tableAlicloudVpcEip(ctx),
