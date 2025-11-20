@@ -15,6 +15,7 @@ The `alicloud_sls_alert` table lets you query SLS alert rules across regions and
 ## Examples
 
 ### List all enabled alerts
+Discover all active SLS alert rules that are currently enabled across your projects and regions. This helps in monitoring your alert coverage, understanding which alerts are operational, and ensuring critical monitoring is in place for your log data.
 
 ```sql+postgres
 select
@@ -43,6 +44,7 @@ where
 ```
 
 ### Show alert queries
+Examine the query configurations for all SLS alerts to understand what conditions are being monitored. This is useful for reviewing alert logic, validating query syntax, and ensuring alerts are configured to detect the right conditions in your log data.
 
 ```sql+postgres
 select

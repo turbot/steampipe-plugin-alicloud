@@ -15,6 +15,7 @@ The `alicloud_log_project` table lets you query SLS projects across regions. Use
 ## Examples
 
 ### List all SLS projects
+Explore all SLS projects across regions to gain insights into their operational status, redundancy configuration, and creation details. This can help in managing your log service resources, understanding their distribution, and identifying projects that may need attention.
 
 ```sql+postgres
 select
@@ -43,6 +44,7 @@ from
 ```
 
 ### List projects with ZRS redundancy
+Discover SLS projects that are configured with Zone Redundant Storage (ZRS) for enhanced data durability and availability. This is useful for identifying projects with high-availability configurations and ensuring critical log data is properly protected across multiple availability zones.
 
 ```sql+postgres
 select
@@ -69,6 +71,7 @@ where
 ```
 
 ### List projects by status
+Identify SLS projects that are in a normal operational state. This helps in monitoring project health and ensuring all projects are functioning correctly, which is essential for maintaining reliable log collection and analysis capabilities.
 
 ```sql+postgres
 select
@@ -95,6 +98,7 @@ where
 ```
 
 ### Find projects created in the last 30 days
+Determine which SLS projects have been recently created within the last month. This is useful for tracking new log service deployments, auditing recent changes, and managing project lifecycle across your Alibaba Cloud environment.
 
 ```sql+postgres
 select
@@ -121,6 +125,7 @@ where
 ```
 
 ### Get project details by name
+Retrieve comprehensive information about a specific SLS project by its name. This helps in getting detailed insights into project configuration, ownership, redundancy settings, and modification history, which is essential for project management and troubleshooting.
 
 ```sql+postgres
 select
