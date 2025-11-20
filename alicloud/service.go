@@ -26,6 +26,7 @@ import (
 
 	"github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss"
 	ossCred "github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss/credentials"
+	sls "github.com/aliyun/aliyun-log-go-sdk"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
@@ -530,6 +531,45 @@ func RDSService(ctx context.Context, d *plugin.QueryData, region string) (*rds.C
 	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
 
 	return svc, nil
+}
+
+// SLSService returns the client interface for Alicloud Log Service (SLS)
+func SLSService(ctx context.Context, d *plugin.QueryData, region string) (sls.ClientInterface, error) {
+	if region == "" {
+		return nil, fmt.Errorf("region must be provided to initialize the SLS service")
+	}
+
+	// have we already created and cached the service?
+	serviceCacheKey := fmt.Sprintf("sls-%s", region)
+	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+		return cachedData.(sls.ClientInterface), nil
+	}
+
+	// Retrieve cached credentials for authentication
+	credCfg, err := getCredentialSessionCached(ctx, d, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve cached credentials: %v", err)
+	}
+	cfg := credCfg.(*CredentialConfig)
+
+	// Convert to a provider and extract AK/SK/token
+	credentialProvider, err := auth.ToCredentialsProvider(cfg.Creds)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert credentials to a provider: %v", err)
+	}
+	profileCred, err := credentialProvider.GetCredentials()
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve credentials from the provider: %v", err)
+	}
+
+	staticProvider := sls.NewStaticCredentialsProvider(profileCred.AccessKeyId, profileCred.AccessKeySecret, profileCred.SecurityToken)
+	endpoint := region + ".log.aliyuncs.com"
+	client := sls.CreateNormalInterfaceV2(endpoint, staticProvider)
+
+	// cache the service connection
+	d.ConnectionManager.Cache.Set(serviceCacheKey, client)
+
+	return client, nil
 }
 
 // GetDefaultRegion returns the default region used
