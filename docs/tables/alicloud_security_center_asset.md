@@ -24,15 +24,13 @@ select
   instance_name,
   client_status,
   client_version,
-  agent_installed,
-  agent_online,
   os_name,
   ip,
   region
 from
   alicloud_security_center_asset
 where
-  agent_installed = true;
+  client_status != 'uninstall';
 ```
 
 ```sql+sqlite
@@ -41,15 +39,13 @@ select
   instance_name,
   client_status,
   client_version,
-  agent_installed,
-  agent_online,
   os_name,
   ip,
   region
 from
   alicloud_security_center_asset
 where
-  agent_installed = 1;
+  client_status != 'uninstall';
 ```
 
 ### List instances without Security Center agent
@@ -67,8 +63,7 @@ select
 from
   alicloud_security_center_asset
 where
-  agent_installed = false
-  or client_status = 'uninstall';
+  client_status = 'uninstall';
 ```
 
 ```sql+sqlite
@@ -82,8 +77,7 @@ select
 from
   alicloud_security_center_asset
 where
-  agent_installed = 0
-  or client_status = 'uninstall';
+  client_status = 'uninstall';
 ```
 
 ### List instances with offline agents
@@ -102,8 +96,7 @@ select
 from
   alicloud_security_center_asset
 where
-  agent_installed = true
-  and agent_online = false;
+  client_status = 'offline';
 ```
 
 ```sql+sqlite
@@ -118,8 +111,7 @@ select
 from
   alicloud_security_center_asset
 where
-  agent_installed = 1
-  and agent_online = 0;
+  client_status = 'offline';
 ```
 
 ### Count instances by agent status
@@ -129,9 +121,7 @@ Get a summary of how many instances have agents installed, online, or not instal
 ```sql+postgres
 select
   client_status,
-  count(*) as instance_count,
-  count(*) filter (where agent_installed = true) as agent_installed_count,
-  count(*) filter (where agent_online = true) as agent_online_count
+  count(*) as instance_count
 from
   alicloud_security_center_asset
 group by
@@ -143,9 +133,7 @@ order by
 ```sql+sqlite
 select
   client_status,
-  count(*) as instance_count,
-  sum(case when agent_installed = 1 then 1 else 0 end) as agent_installed_count,
-  sum(case when agent_online = 1 then 1 else 0 end) as agent_online_count
+  count(*) as instance_count
 from
   alicloud_security_center_asset
 group by
@@ -153,142 +141,3 @@ group by
 order by
   instance_count desc;
 ```
-
-### CIS 4.6: Ensure that the endpoint protection for all Virtual Machines is installed
-
-This query checks if all ECS instances have the Security Center agent installed for endpoint protection.
-
-```sql+postgres
-select
-  'acs:ecs:' || i.region || ':' || i.account_id || ':instance/' || i.instance_id as resource,
-  case
-    when exists (
-      select 1
-      from alicloud_security_center_asset sca
-      where sca.instance_id = i.instance_id
-        and sca.agent_installed = true
-        and sca.region = i.region
-        and sca.account_id = i.account_id
-    )
-    then 'ok'
-    else 'alarm'
-  end as status,
-  case
-    when exists (
-      select 1
-      from alicloud_security_center_asset sca
-      where sca.instance_id = i.instance_id
-        and sca.agent_installed = true
-        and sca.agent_online = true
-        and sca.region = i.region
-        and sca.account_id = i.account_id
-    )
-    then i.name || ' has Security Center agent installed and online'
-    when exists (
-      select 1
-      from alicloud_security_center_asset sca
-      where sca.instance_id = i.instance_id
-        and sca.agent_installed = true
-        and sca.region = i.region
-        and sca.account_id = i.account_id
-    )
-    then i.name || ' has Security Center agent installed but is offline'
-    else i.name || ' does not have Security Center agent installed. Install the agent in Security Center Console > Settings > Agent'
-  end as reason
-from
-  alicloud_ecs_instance i
-where
-  i.status = 'Running';
-```
-
-```sql+sqlite
-select
-  'acs:ecs:' || i.region || ':' || i.account_id || ':instance/' || i.instance_id as resource,
-  case
-    when exists (
-      select 1
-      from alicloud_security_center_asset sca
-      where sca.instance_id = i.instance_id
-        and sca.agent_installed = 1
-        and sca.region = i.region
-        and sca.account_id = i.account_id
-    )
-    then 'ok'
-    else 'alarm'
-  end as status,
-  case
-    when exists (
-      select 1
-      from alicloud_security_center_asset sca
-      where sca.instance_id = i.instance_id
-        and sca.agent_installed = 1
-        and sca.agent_online = 1
-        and sca.region = i.region
-        and sca.account_id = i.account_id
-    )
-    then i.name || ' has Security Center agent installed and online'
-    when exists (
-      select 1
-      from alicloud_security_center_asset sca
-      where sca.instance_id = i.instance_id
-        and sca.agent_installed = 1
-        and sca.region = i.region
-        and sca.account_id = i.account_id
-    )
-    then i.name || ' has Security Center agent installed but is offline'
-    else i.name || ' does not have Security Center agent installed. Install the agent in Security Center Console > Settings > Agent'
-  end as reason
-from
-  alicloud_ecs_instance i
-where
-  i.status = 'Running';
-```
-
-### List instances with vulnerabilities and agent status
-
-Find instances that have vulnerabilities detected and check their agent status.
-
-```sql+postgres
-select
-  instance_id,
-  instance_name,
-  agent_installed,
-  agent_online,
-  vul_count,
-  risk_count,
-  safe_event_count,
-  vul_status,
-  risk_status,
-  region
-from
-  alicloud_security_center_asset
-where
-  vul_count > 0
-  or risk_count::int > 0
-order by
-  vul_count desc,
-  risk_count desc;
-```
-
-```sql+sqlite
-select
-  instance_id,
-  instance_name,
-  agent_installed,
-  agent_online,
-  vul_count,
-  risk_count,
-  safe_event_count,
-  vul_status,
-  risk_status,
-  region
-from
-  alicloud_security_center_asset
-where
-  vul_count > 0
-  or cast(risk_count as integer) > 0
-order by
-  vul_count desc,
-  risk_count desc;
-```
-

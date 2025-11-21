@@ -242,7 +242,7 @@ func listSecurityCenterAssets(ctx context.Context, d *plugin.QueryData, _ *plugi
 	return nil, nil
 }
 
-//// HYDRATE FUNCTIONS
+//// TRANSFORM FUNCTIONS
 
 func getSecurityCenterAssetAkas(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	plugin.Logger(ctx).Trace("getSecurityCenterAssetAkas")
@@ -261,8 +261,6 @@ func getSecurityCenterAssetAkas(ctx context.Context, d *plugin.QueryData, h *plu
 	akas := []string{"arn:acs:security-center:" + region + ":" + accountID + ":asset/" + data.Uuid}
 	return akas, nil
 }
-
-//// HYDRATE FUNCTIONS
 
 func getSecurityCenterAssetRegion(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 	region := d.EqualsQualString(matrixKeyRegion)
