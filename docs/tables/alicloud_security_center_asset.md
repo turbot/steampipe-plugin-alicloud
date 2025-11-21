@@ -15,7 +15,6 @@ The `alicloud_security_center_asset` table provides insights into assets monitor
 ## Examples
 
 ### List all instances with Security Center agent installed
-
 Find all ECS instances that have the Security Center agent installed and are being monitored.
 
 ```sql+postgres
@@ -49,7 +48,6 @@ where
 ```
 
 ### List instances without Security Center agent
-
 Identify ECS instances that do not have the Security Center agent installed, which need endpoint protection.
 
 ```sql+postgres
@@ -81,7 +79,6 @@ where
 ```
 
 ### List instances with offline agents
-
 Find instances where the Security Center agent is installed but currently offline.
 
 ```sql+postgres
@@ -115,7 +112,6 @@ where
 ```
 
 ### Count instances by agent status
-
 Get a summary of how many instances have agents installed, online, or not installed.
 
 ```sql+postgres
