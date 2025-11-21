@@ -2,6 +2,7 @@ package alicloud
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
@@ -501,6 +502,13 @@ func tableAlicloudRdsInstance(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("TDEStatus"),
 			},
 			{
+				Name:        "tde_encryption_key",
+				Type:        proto.ColumnType_STRING,
+				Description: "The encryption key ID used for TDE (Transparent Data Encryption) at the instance level.",
+				Hydrate:     getTDEDetails,
+				Transform:   transform.FromField("EncryptionKey"),
+			},
+			{
 				Name:        "security_ips",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getRdsInstanceIPArrayList,
@@ -741,6 +749,20 @@ func getTDEDetails(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateDa
 		plugin.Logger(ctx).Error("getTDEDetails", "query_error", err, "request", request)
 		return nil, err
 	}
+
+	// Parse the HTTP response to extract both TDEStatus and EncryptionKey
+	// This follows the same pattern as table_alicloud_cs_kubernetes_cluster.go
+	httpContent := response.GetHttpContentString()
+	if httpContent != "" {
+		var result map[string]interface{}
+		err = json.Unmarshal([]byte(httpContent), &result)
+		if err != nil {
+			plugin.Logger(ctx).Error("getTDEDetails", "json_unmarshal_error", err)
+			return response, nil
+		}
+		return result, nil
+	}
+
 	return response, nil
 }
 
