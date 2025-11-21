@@ -1,3 +1,18 @@
+## v1.5.0 [2025-11-21]
+
+_What's new?_
+
+- New tables added
+  - [alicloud_log_project](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_log_project) ([#540](https://github.com/turbot/steampipe-plugin-alicloud/pull/540))
+  - [alicloud_log_store](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_log_store) ([#541](https://github.com/turbot/steampipe-plugin-alicloud/pull/541))
+  - [alicloud_security_center_asset](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_security_center_asset) ([#541](https://github.com/turbot/steampipe-plugin-alicloud/pull/541))
+  - [alicloud_security_center_vulnerability](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_security_center_vulnerability) ([#541](https://github.com/turbot/steampipe-plugin-alicloud/pull/541))
+  - [alicloud_sls_alert](https://hub.steampipe.io/plugins/turbot/alicloud/tables/alicloud_sls_alert) ([#540](https://github.com/turbot/steampipe-plugin-alicloud/pull/540))
+
+_Enhancements_
+
+- Added column `tde_encryption_key` to `alicloud_rds_instance` table. ([#541](https://github.com/turbot/steampipe-plugin-alicloud/pull/541))
+
 ## v1.4.0 [2025-10-13]
 
 _Dependencies_
