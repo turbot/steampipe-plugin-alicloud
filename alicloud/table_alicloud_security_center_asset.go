@@ -133,11 +133,6 @@ func tableAlicloudSecurityCenterAsset(ctx context.Context) *plugin.Table {
 				Description: "The risk status.",
 			},
 			{
-				Name:        "tag",
-				Type:        proto.ColumnType_STRING,
-				Description: "The tag of the asset.",
-			},
-			{
 				Name:        "group_id",
 				Type:        proto.ColumnType_STRING,
 				Description: "The group ID of the asset.",
