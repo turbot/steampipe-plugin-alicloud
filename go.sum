@@ -655,8 +655,8 @@ github.com/aliyun/alibaba-cloud-sdk-go v1.63.17 h1:hdhcJzcnwFg5/aM4kmz9EY8sV6IVY
 github.com/aliyun/alibaba-cloud-sdk-go v1.63.17/go.mod h1:SOSDHfe1kX91v3W5QiBsWSLqeLxImobbMX1mxrFHsVQ=
 github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.2.0 h1:gUWBCekWIFWYK7jXhRvPHIa7mRhJih2BGPjzvzodO18=
 github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.2.0/go.mod h1:FTzydeQVmR24FI0D6XWUOMKckjXehM/jgMn1xC+DA9M=
-github.com/aliyun/aliyun-log-go-sdk v0.1.111 h1:rWiisv9daCl+BNS52KEoBHnalb7opA5C/31xSt8nzDw=
-github.com/aliyun/aliyun-log-go-sdk v0.1.111/go.mod h1:7QcyHasd4WLdC+lx4uCmdIBcl7WcgRHctwz8t1zAuPo=
+github.com/aliyun/aliyun-log-go-sdk v0.1.112 h1:g17aXc1AN5emfp0tqHumOZqMBkm4Eix3kKVD8hwHsW4=
+github.com/aliyun/aliyun-log-go-sdk v0.1.112/go.mod h1:7QcyHasd4WLdC+lx4uCmdIBcl7WcgRHctwz8t1zAuPo=
 github.com/aliyun/credentials-go v1.1.2 h1:qU1vwGIBb3UJ8BwunHDRFtAhS6jnQLnde/yk0+Ih2GY=
 github.com/aliyun/credentials-go v1.1.2/go.mod h1:ozcZaMR5kLM7pwtCMEpVmQ242suV6qTJya2bDq4X1Tw=
 github.com/allegro/bigcache/v3 v3.1.0 h1:H2Vp8VOvxcrB91o86fUSVJFqeuz8kpyyB02eH3bSzwk=
