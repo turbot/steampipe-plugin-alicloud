@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.63.17
-	github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.2.0
+	github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.6.0
 	github.com/aliyun/aliyun-log-go-sdk v0.1.111
 	github.com/gocarina/gocsv v0.0.0-20201208093247-67c824bc04d4
 	github.com/sethvargo/go-retry v0.2.4
