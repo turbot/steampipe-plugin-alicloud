@@ -1,3 +1,18 @@
+## v1.6.0 [2026-09-11]
+
+_Enhancements_
+
+- Added support for the new `ap-southeast-8` (Malaysia, Johor) region. ([#564](https://github.com/turbot/steampipe-plugin-alicloud/pull/564)) (Thanks [@ahlfors](https://github.com/ahlfors) for the contribution!)
+
+_Bug fixes_
+
+- Fixed the `redundancy_type`, `tags`, and `tags_src` columns in the `alicloud_oss_bucket` table to return data instead of `null`. ([#565](https://github.com/turbot/steampipe-plugin-alicloud/pull/565)) (Thanks [@ahlfors](https://github.com/ahlfors) for the contribution!)
+
+_Dependencies_
+
+- Recompiled plugin with Go version `1.26`. ([#552](https://github.com/turbot/steampipe-plugin-alicloud/pull/552))
+- Recompiled plugin with [steampipe-plugin-sdk v6.1.0](https://github.com/turbot/steampipe-plugin-sdk/blob/develop/CHANGELOG.md#v610-2026-08-18) that fixes a data race on connection config between the SDK's connection-update goroutine and plugin worker goroutines.
+
 ## v1.5.0 [2025-11-21]
 
 _What's new?_
