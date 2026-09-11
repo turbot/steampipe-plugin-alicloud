@@ -74,7 +74,7 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 				Name:        "redundancy_type",
 				Type:        proto.ColumnType_STRING,
 				Hydrate:     getBucketInfo,
-				Transform:   transform.FromField("BucketInfo.RedundancyType"),
+				Transform:   transform.FromField("BucketInfo.DataRedundancyType"),
 				Description: "The type of disaster recovery for a bucket. Valid values: LRS and ZRS",
 			},
 			{
@@ -123,7 +123,7 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 				Name:        "tags_src",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getBucketTagging,
-				Transform:   transform.FromField("Tags").Transform(ossBucketTagsSrc),
+				Transform:   transform.FromField("Tagging.TagSet.Tags").Transform(ossBucketTagsSrc),
 				Description: "A list of tags assigned to bucket",
 			},
 
@@ -132,7 +132,7 @@ func tableAlicloudOssBucket(ctx context.Context) *plugin.Table {
 				Name:        "tags",
 				Type:        proto.ColumnType_JSON,
 				Hydrate:     getBucketTagging,
-				Transform:   transform.FromField("Tags").Transform(ossBucketTags),
+				Transform:   transform.FromField("Tagging.TagSet.Tags").Transform(ossBucketTags),
 				Description: ColumnDescriptionTags,
 			},
 			{
