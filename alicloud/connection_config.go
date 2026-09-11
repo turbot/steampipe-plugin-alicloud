@@ -1,7 +1,7 @@
 package alicloud
 
 import (
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
 )
 
 type alicloudConfig struct {
@@ -21,9 +21,9 @@ func ConfigInstance() interface{} {
 
 // GetConfig :: retrieve and cast connection config from query data
 func GetConfig(connection *plugin.Connection) alicloudConfig {
-	if connection == nil || connection.Config == nil {
+	if connection == nil {
 		return alicloudConfig{}
 	}
-	config, _ := connection.Config.(alicloudConfig)
+	config, _ := connection.GetConfig().(alicloudConfig)
 	return config
 }

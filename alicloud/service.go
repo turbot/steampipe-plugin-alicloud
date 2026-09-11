@@ -28,7 +28,7 @@ import (
 	ossCred "github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss/credentials"
 	sls "github.com/aliyun/aliyun-log-go-sdk"
 
-	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
+	"github.com/turbot/steampipe-plugin-sdk/v6/plugin"
 )
 
 // AliDNSService returns the service connection for Alicloud DNS service
