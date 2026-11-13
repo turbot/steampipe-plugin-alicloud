@@ -117,7 +117,7 @@ func (statement *Statement) UnmarshalJSON(b []byte) error {
 
 	c, err := canonicalCondition(newStatement.Condition)
 	if err != nil {
-		return fmt.Errorf("Error unmarshalling / converting condition: %s", err)
+		return fmt.Errorf("error unmarshalling / converting condition: %s", err)
 	}
 	statement.Condition = c
 
@@ -275,7 +275,7 @@ func canonicalPolicy(src string) (interface{}, error) {
 	var policy Policy
 
 	if err := json.Unmarshal([]byte(src), &policy); err != nil {
-		return nil, fmt.Errorf("Convert policy failed unmarshalling source data: %+v.  src: %s", err, url.QueryEscape(src))
+		return nil, fmt.Errorf("convert policy failed unmarshalling source data: %+v.  src: %s", err, url.QueryEscape(src))
 	}
 
 	return policy, nil

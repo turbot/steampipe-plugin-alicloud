@@ -41,7 +41,7 @@ func AliDNSService(ctx context.Context, d *plugin.QueryData) (*alidns.Client, er
 
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("alidns-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, serviceCacheKey); ok {
 		return cachedData.(*alidns.Client), nil
 	}
 
@@ -58,7 +58,7 @@ func AliDNSService(ctx context.Context, d *plugin.QueryData) (*alidns.Client, er
 	}
 
 	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, serviceCacheKey, svc)
 
 	return svc, nil
 }
@@ -72,7 +72,7 @@ func AutoscalingService(ctx context.Context, d *plugin.QueryData) (*ess.Client, 
 	}
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("ess-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, serviceCacheKey); ok {
 		return cachedData.(*ess.Client), nil
 	}
 
@@ -89,7 +89,7 @@ func AutoscalingService(ctx context.Context, d *plugin.QueryData) (*ess.Client, 
 	}
 
 	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, serviceCacheKey, svc)
 
 	return svc, nil
 }
@@ -101,7 +101,7 @@ func CasService(ctx context.Context, d *plugin.QueryData, region string) (*cas.C
 	}
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("cas-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, serviceCacheKey); ok {
 		return cachedData.(*cas.Client), nil
 	}
 
@@ -118,7 +118,7 @@ func CasService(ctx context.Context, d *plugin.QueryData, region string) (*cas.C
 	}
 
 	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, serviceCacheKey, svc)
 
 	return svc, nil
 }
@@ -132,7 +132,7 @@ func CmsService(ctx context.Context, d *plugin.QueryData) (*cms.Client, error) {
 	}
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("cms-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, serviceCacheKey); ok {
 		return cachedData.(*cms.Client), nil
 	}
 
@@ -149,7 +149,7 @@ func CmsService(ctx context.Context, d *plugin.QueryData) (*cms.Client, error) {
 	}
 
 	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, serviceCacheKey, svc)
 
 	return svc, nil
 }
@@ -163,7 +163,7 @@ func ECSService(ctx context.Context, d *plugin.QueryData) (*ecs.Client, error) {
 	}
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("ecs-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, serviceCacheKey); ok {
 		return cachedData.(*ecs.Client), nil
 	}
 
@@ -180,7 +180,7 @@ func ECSService(ctx context.Context, d *plugin.QueryData) (*ecs.Client, error) {
 	}
 
 	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, serviceCacheKey, svc)
 
 	return svc, nil
 }
@@ -192,7 +192,7 @@ func ECSRegionService(ctx context.Context, d *plugin.QueryData, region string) (
 	}
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("ecsregion-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, serviceCacheKey); ok {
 		return cachedData.(*ecs.Client), nil
 	}
 
@@ -209,7 +209,7 @@ func ECSRegionService(ctx context.Context, d *plugin.QueryData, region string) (
 	}
 
 	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, serviceCacheKey, svc)
 
 	return svc, nil
 }
@@ -223,7 +223,7 @@ func KMSService(ctx context.Context, d *plugin.QueryData) (*kms.Client, error) {
 	}
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("kms-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, serviceCacheKey); ok {
 		return cachedData.(*kms.Client), nil
 	}
 
@@ -240,7 +240,7 @@ func KMSService(ctx context.Context, d *plugin.QueryData) (*kms.Client, error) {
 	}
 
 	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, serviceCacheKey, svc)
 
 	return svc, nil
 }
@@ -251,7 +251,7 @@ func RAMService(ctx context.Context, d *plugin.QueryData) (*ram.Client, error) {
 
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("ram-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, serviceCacheKey); ok {
 		return cachedData.(*ram.Client), nil
 	}
 
@@ -268,7 +268,7 @@ func RAMService(ctx context.Context, d *plugin.QueryData) (*ram.Client, error) {
 	}
 
 	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, serviceCacheKey, svc)
 
 	return svc, nil
 }
@@ -279,7 +279,7 @@ func SLBService(ctx context.Context, d *plugin.QueryData) (*slb.Client, error) {
 
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("slb-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, serviceCacheKey); ok {
 		return cachedData.(*slb.Client), nil
 	}
 
@@ -296,7 +296,7 @@ func SLBService(ctx context.Context, d *plugin.QueryData) (*slb.Client, error) {
 	}
 
 	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, serviceCacheKey, svc)
 
 	return svc, nil
 }
@@ -306,7 +306,7 @@ func StsService(ctx context.Context, d *plugin.QueryData) (*sts.Client, error) {
 	region := GetDefaultRegion(d.Connection)
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("sts-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, serviceCacheKey); ok {
 		return cachedData.(*sts.Client), nil
 	}
 
@@ -323,7 +323,7 @@ func StsService(ctx context.Context, d *plugin.QueryData) (*sts.Client, error) {
 	}
 
 	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, serviceCacheKey, svc)
 
 	return svc, nil
 }
@@ -337,7 +337,7 @@ func VpcService(ctx context.Context, d *plugin.QueryData) (*vpc.Client, error) {
 	}
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("vpc-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, serviceCacheKey); ok {
 		return cachedData.(*vpc.Client), nil
 	}
 
@@ -354,7 +354,7 @@ func VpcService(ctx context.Context, d *plugin.QueryData) (*vpc.Client, error) {
 	}
 
 	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, serviceCacheKey, svc)
 
 	return svc, nil
 }
@@ -368,7 +368,7 @@ func OssService(ctx context.Context, d *plugin.QueryData, region string) (*oss.C
 
 	// Check if the OSS client is already cached to avoid redundant initialization
 	serviceCacheKey := fmt.Sprintf("oss-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, serviceCacheKey); ok {
 		return cachedData.(*oss.Client), nil
 	}
 
@@ -407,7 +407,7 @@ func OssService(ctx context.Context, d *plugin.QueryData, region string) (*oss.C
 	svc := oss.NewClient(ossCfg)
 
 	// Cache the service connection to optimize future requests
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, serviceCacheKey, svc)
 
 	return svc, nil
 }
@@ -421,7 +421,7 @@ func ActionTrailService(ctx context.Context, d *plugin.QueryData) (*actiontrail.
 	}
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("actiontrail-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, serviceCacheKey); ok {
 		return cachedData.(*actiontrail.Client), nil
 	}
 
@@ -438,7 +438,7 @@ func ActionTrailService(ctx context.Context, d *plugin.QueryData) (*actiontrail.
 	}
 
 	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, serviceCacheKey, svc)
 
 	return svc, nil
 }
@@ -452,7 +452,7 @@ func ContainerService(ctx context.Context, d *plugin.QueryData) (*cs.Client, err
 	}
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("cs-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, serviceCacheKey); ok {
 		return cachedData.(*cs.Client), nil
 	}
 
@@ -469,7 +469,7 @@ func ContainerService(ctx context.Context, d *plugin.QueryData) (*cs.Client, err
 	}
 
 	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, serviceCacheKey, svc)
 
 	return svc, nil
 }
@@ -482,7 +482,7 @@ func SecurityCenterService(ctx context.Context, d *plugin.QueryData, region stri
 
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("sas-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, serviceCacheKey); ok {
 		return cachedData.(*sas.Client), nil
 	}
 
@@ -499,7 +499,7 @@ func SecurityCenterService(ctx context.Context, d *plugin.QueryData, region stri
 	}
 
 	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, serviceCacheKey, svc)
 
 	return svc, nil
 }
@@ -511,7 +511,7 @@ func RDSService(ctx context.Context, d *plugin.QueryData, region string) (*rds.C
 	}
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("rds-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, serviceCacheKey); ok {
 		return cachedData.(*rds.Client), nil
 	}
 
@@ -528,7 +528,7 @@ func RDSService(ctx context.Context, d *plugin.QueryData, region string) (*rds.C
 	}
 
 	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, svc)
+	_ = d.ConnectionCache.Set(ctx, serviceCacheKey, svc)
 
 	return svc, nil
 }
@@ -541,7 +541,7 @@ func SLSService(ctx context.Context, d *plugin.QueryData, region string) (sls.Cl
 
 	// have we already created and cached the service?
 	serviceCacheKey := fmt.Sprintf("sls-%s", region)
-	if cachedData, ok := d.ConnectionManager.Cache.Get(serviceCacheKey); ok {
+	if cachedData, ok := d.ConnectionCache.Get(ctx, serviceCacheKey); ok {
 		return cachedData.(sls.ClientInterface), nil
 	}
 
@@ -567,7 +567,7 @@ func SLSService(ctx context.Context, d *plugin.QueryData, region string) (sls.Cl
 	client := sls.CreateNormalInterfaceV2(endpoint, staticProvider)
 
 	// cache the service connection
-	d.ConnectionManager.Cache.Set(serviceCacheKey, client)
+	_ = d.ConnectionCache.Set(ctx, serviceCacheKey, client)
 
 	return client, nil
 }
