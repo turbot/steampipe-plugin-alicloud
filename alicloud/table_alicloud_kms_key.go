@@ -214,22 +214,22 @@ func listKmsKey(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData)
 	// https://partners-intl.aliyun.com/help/doc-detail/28951.htm
 	var queryFilters QueryFilters
 	if value, ok := GetStringQualValueList(d.Quals, "key_state"); ok {
-		if !(len(helpers.StringSliceDiff(value, []string{"Enabled", "Disabled", "PendingDeletion", "PendingImport"})) > 0) {
+		if len(helpers.StringSliceDiff(value, []string{"Enabled", "Disabled", "PendingDeletion", "PendingImport"})) <= 0 {
 			queryFilters = append(queryFilters, QueryFilterItem{Key: "KeyState", Values: value})
 		}
 	}
 	if value, ok := GetStringQualValueList(d.Quals, "key_usage"); ok {
-		if !(len(helpers.StringSliceDiff(value, []string{"ENCRYPT/DECRYPT", "SIGN/VERIFY"})) > 0) {
+		if len(helpers.StringSliceDiff(value, []string{"ENCRYPT/DECRYPT", "SIGN/VERIFY"})) <= 0 {
 			queryFilters = append(queryFilters, QueryFilterItem{Key: "KeyUsage", Values: value})
 		}
 	}
 	if value, ok := GetStringQualValueList(d.Quals, "key_spec"); ok {
-		if !(len(helpers.StringSliceDiff(value, []string{"Aliyun_AES_256", "Aliyun_SM4", "RSA_2048", "EC_P256", "EC_P256K", "EC_SM2"})) > 0) {
+		if len(helpers.StringSliceDiff(value, []string{"Aliyun_AES_256", "Aliyun_SM4", "RSA_2048", "EC_P256", "EC_P256K", "EC_SM2"})) <= 0 {
 			queryFilters = append(queryFilters, QueryFilterItem{Key: "KeySpec", Values: value})
 		}
 	}
 	if value, ok := GetStringQualValueList(d.Quals, "protection_level"); ok {
-		if !(len(helpers.StringSliceDiff(value, []string{"SOFTWARE", "HSM"})) > 0) {
+		if len(helpers.StringSliceDiff(value, []string{"SOFTWARE", "HSM"})) <= 0 {
 			queryFilters = append(queryFilters, QueryFilterItem{Key: "ProtectionLevel", Values: value})
 		}
 	}
